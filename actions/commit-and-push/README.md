@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Commit and Push Changes
-        uses: netcracker/qubership-workflow-hub/actions/commit-and-push@main
+        uses: netcracker/qubership-workflow-hub/actions/commit-and-push@0.0.1
         with:
           author_name: 'Your Name'
           author_email: 'your-email@example.com'

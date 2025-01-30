@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger custom event
-        uses: netcracker/qubership-workflow-hub/actions/custom-event@main
+        uses: netcracker/qubership-workflow-hub/actions/custom-event@0.0.1
         with:
           event_name: "my-custom-event"
           client_payload: '{"key": "value"}'

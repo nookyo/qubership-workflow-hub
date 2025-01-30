@@ -40,7 +40,7 @@ on:
     types: [opened,closed,synchronize]
 jobs:
   cla_assistant:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/cla.yaml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/cla.yaml@0.0.1
     secrets:
       personal_access_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 ```
@@ -65,7 +65,7 @@ permissions:
 
 jobs:
   call-prettier-fix:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@0.0.1
 ```
 
 ### Profanity filter
@@ -94,7 +94,7 @@ permissions:
 
 jobs:
   call-apply-filter:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/profanityFilter.yaml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/profanityFilter.yaml@0.0.1
 ```
 
 ### Automatic PR labels based on conventional commits
@@ -120,7 +120,7 @@ on:
 
 jobs:
   assign-labels:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/auto-labeler.yaml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/auto-labeler.yaml@0.0.1
     name: Assign labels in pull request
     if: github.event.pull_request.merged == false
     with:
@@ -231,7 +231,7 @@ jobs:
 
       - name: Check if tag exists
         id: check_tag
-        uses: netcracker/qubership-workflow-hub/actions/tag-checker@main
+        uses: netcracker/qubership-workflow-hub/actions/tag-checker@0.0.1
         with:
           tag: 'v${{ github.event.inputs.version }}'
         env:
@@ -257,17 +257,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Update pom.xml
-        uses: Netcracker/qubership-workflow-hub/actions/pom-updater@main
+        uses: netcracker/qubership-workflow-hub/actions/pom-updater@0.0.1
         with:
           new_value: ${{ github.event.inputs.version }}
       - name: Commit Changes
-        uses: Netcracker/qubership-workflow-hub/actions/commit-and-push@main
+        uses: netcracker/qubership-workflow-hub/actions/commit-and-push@0.0.1
         with:
           commit_message: "Update pom.xml version to ${{ github.event.inputs.version }}"
 
   upload_to_maven_central:
     needs: [update-pom-version]
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/maven-publish.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/maven-publish.yml@0.0.1
     with:
       maven_command: "--batch-mode deploy"
       java_version: ${{ github.event.inputs.java_version }}
@@ -280,7 +280,7 @@ jobs:
 
   github-release:
     needs: [upload_to_maven_central]
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@0.0.1
     with:
       version: ${{ github.event.inputs.version }}
       publish: false
@@ -409,7 +409,7 @@ jobs:
       - name: Check if tag exists
         if: ${{ inputs.version != '' }}
         id: check_tag
-        uses: netcracker/qubership-workflow-hub/actions/tag-checker@main
+        uses: netcracker/qubership-workflow-hub/actions/tag-checker@0.0.1
         with:
           tag: 'v${{ github.event.inputs.version }}'
         env:
@@ -430,7 +430,7 @@ jobs:
 
   publish:
     needs: [check-tag]
-    uses: netcracker/qubership-workflow-hub/.github/workflows/python-publish.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/python-publish.yml@0.0.1
     with:
       version: ${{ inputs.version }}
       poetry_version_options: ${{ inputs.poetry_version_options }}
@@ -462,7 +462,7 @@ jobs:
 
   github-release:
     needs: [get-current-version]
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@0.0.1
     with:
       version: ${{ needs.get-current-version.outputs.current_version }}
       publish: false

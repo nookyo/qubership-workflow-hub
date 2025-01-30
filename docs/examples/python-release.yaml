@@ -54,7 +54,7 @@ jobs:
       - name: Check if tag exists
         if: ${{ inputs.version != '' }}
         id: check_tag
-        uses: netcracker/qubership-workflow-hub/actions/tag-checker@main
+        uses: netcracker/qubership-workflow-hub/actions/tag-checker@0.0.1
         with:
           tag: 'v${{ github.event.inputs.version }}'
         env:
@@ -75,7 +75,7 @@ jobs:
 
   publish:
     needs: [check-tag]
-    uses: netcracker/qubership-workflow-hub/.github/workflows/python-publish.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/python-publish.yml@0.0.1
     with:
       version: ${{ inputs.version }}
       poetry_version_options: ${{ inputs.poetry_version_options }}
@@ -107,7 +107,7 @@ jobs:
 
   github-release:
     needs: [get-current-version]
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@0.0.1
     with:
       version: ${{ needs.get-current-version.outputs.current_version }}
       publish: false

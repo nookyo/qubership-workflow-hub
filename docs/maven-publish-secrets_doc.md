@@ -115,13 +115,13 @@ on:
 
 jobs:
   pom:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/update-pom-release.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/update-pom-release.yml@0.0.1
     with:
       file: pom.xml
       revision: ${{ github.event.inputs.revision }}
 
   git_release:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/create-github-release.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/create-github-release.yml@0.0.1
     needs: pom
     with:
       revision: ${{ github.event.inputs.revision }}
@@ -130,7 +130,7 @@ jobs:
       prerelease: false
 
   maven:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/maven-publish.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/maven-publish.yml@0.0.1
     needs: git_release
     with:
       maven_command: "--batch-mode deploy"

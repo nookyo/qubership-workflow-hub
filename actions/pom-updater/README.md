@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Update Pom
-        uses: netcracker/qubership-workflow-hub/actions/pom-updater@main
+        uses: netcracker/qubership-workflow-hub/actions/pom-updater@0.0.1
         with:
           file_path: './pom.xml'
           path: '//p:project/p:properties/p:revision'
