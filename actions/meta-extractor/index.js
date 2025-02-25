@@ -91,7 +91,7 @@ async function run() {
   core.warning(`template: ${template}`);
   core.warning(`template result: ${result}`);
 
-  core.setOutput("template", template);
+  core.setOutput("template", result);
 }
 
 run();
