@@ -1,0 +1,14 @@
+name: Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Metadata action
+        uses: nookyo/qubership-workflow-hub/.github/actions/meta-extractor@main
