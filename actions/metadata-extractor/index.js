@@ -53,14 +53,14 @@ function fillTemplate(template, values) {
 }
 
 async function run() {
-
   const template = core.getInput("template");
-  const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
+  const configPath =
+    core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
 
   const config = loadConfig(configPath);
   const tagsConfig = config.tags || {};
 
-  const ref = core.getInput('ref') || github.context.ref;
+  const ref = core.getInput("ref") || github.context.ref;
   const ref_name = extractRefName(ref);
 
   const parts = generateSnapshotVersionParts();
@@ -83,7 +83,6 @@ async function run() {
   core.info(`Tag: ${tag}`);
   core.info(`Rendered template: ${result}`);
 
-
   core.setOutput("rendered-template", result);
   core.setOutput("ref", ref);
   core.setOutput("ref-name", ref_name);
@@ -95,7 +94,6 @@ async function run() {
   core.setOutput("minor", semver.minor);
   core.setOutput("patch", semver.patch);
   core.setOutput("tag", tag);
-
 }
 
 run();
