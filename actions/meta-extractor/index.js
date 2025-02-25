@@ -48,8 +48,6 @@ async function run() {
   const parts = await generateSnapshotVersionParts();
   const semver = await extractSemverParts(ref_name);
 
-  const commitHash = github.context.sha;
-
   const suffixes = {
     "main": "MAIN",
     "release": "RELEASE",
@@ -58,7 +56,7 @@ async function run() {
 
   const suffix = suffixes[ref_name] || "SNAPSHOT";
 
-  const values = { ...semver, ...parts, ...suffix, ...github.context };
+  const values = { ...semver, ...parts, suffix, github.context };
 
   const result = await fillTemplate(template, values);
 
@@ -85,7 +83,7 @@ async function run() {
 
   core.warning(`suffix: ${suffix}`);
 
-  core.warning(`values: ${values.tostring()}`);
+  // core.warning(`values: ${values}`);
 
   core.warning(`template: ${template}`);
   core.warning(`template result: ${result}`);
