@@ -86,7 +86,7 @@ async function run() {
   core.setOutput("rendered-template", result);
   core.setOutput("ref", ref);
   core.setOutput("ref-name", ref_name);
-  core.setOutput("date", parts.date;
+  core.setOutput("date", parts.date);
   core.setOutput("time", parts.time);
   core.setOutput("timestamp", parts.combine);
 
