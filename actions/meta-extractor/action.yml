@@ -4,8 +4,11 @@ inputs:
     ref:
         description: "Current branch or tag ref."
         required: false
+    template:
+        description: "Template to use."
+        required: false
 outputs:
-    timestamp:
+    template:
         description: "Current timestamp."
 
 runs:
