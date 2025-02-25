@@ -19,7 +19,7 @@ async function  exctractRefName(ref) {
 
 async function generateSnapshotVersionParts() {
     const now = new Date();
-    const iso = now.toISOString(); // например, "2025-02-25T14:30:53.123Z"
+    const iso = now.toISOString(); // "2025-02-25T14:30:53.123Z"
     const date = iso.slice(0, 10).replace(/-/g, '');  // "20250225"
     const time = iso.slice(11, 19).replace(/:/g, '');   // "143053"
     return { date, time, combined: `${date}${time}` };
