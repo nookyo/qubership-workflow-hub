@@ -83,6 +83,9 @@ async function run() {
   core.warning(`minor: ${semver.minor}`);
   core.warning(`patch: ${semver.patch}`);
 
+
+  core.warning(`suffix: ${suffix}`);
+
   core.warning(`template: ${template}`);
   core.warning(`template result: ${result}`);
 
