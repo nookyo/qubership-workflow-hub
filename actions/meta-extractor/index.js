@@ -17,7 +17,7 @@ async function  exctractRefName(ref) {
       return name;
     }
 
-async function generateTimestampt() {
+async function generateSnapshotVersionParts() {
     const now = new Date();
     const iso = now.toISOString(); // например, "2025-02-25T14:30:53.123Z"
     const date = iso.slice(0, 10).replace(/-/g, '');  // "20250225"
@@ -30,13 +30,14 @@ async function run() {
     const ref = github.context.ref;
 
     const name = await exctractRefName(ref);
-    const [date, time, combined] = await generateTimestampt();
+    //const [date, time, combined] = await generateTimestampt();
+    const parts = await generateSnapshotVersionParts();
 
     core.warning(`Ref: ${ref}`);
     core.warning(`ref name: ${name}`);
-    core.warning(`date: ${date}`);
-    core.warning(`time: ${time}`);
-    core.warning(`combined: ${combined}`);
+    core.warning(`date: ${parts.date}`);
+    core.warning(`time: ${parts.time}`);
+    core.warning(`combined: ${parts.combined}`);
 
 }
 
