@@ -3,7 +3,7 @@ description: ""
 inputs:
     ref:
         description: "Current branch or tag ref."
-        required: true
+        required: false
 outputs:
     timestamp:
         description: "Current timestamp."
