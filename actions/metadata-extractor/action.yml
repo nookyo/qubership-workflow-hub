@@ -22,7 +22,7 @@ outputs:
         description: "Current date."
     time:
         description: "Current time."
-    timestamp:
+    Combine:
         description: "Current timestamp."
     tag:
         description: "Current tag."

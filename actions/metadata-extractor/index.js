@@ -75,7 +75,7 @@ async function run() {
   core.info(`Ref name: ${ref_name}`);
   core.info(`Date: ${parts.date}`);
   core.info(`Time: ${parts.time}`);
-  core.info(`Timestamp: ${parts.combine}`);
+  core.info(`Combine: ${parts.combine}`);
   core.info(`Major: ${semver.major}`);
   core.info(`Minor: ${semver.minor}`);
   core.info(`Patch: ${semver.patch}`);
@@ -88,7 +88,7 @@ async function run() {
   core.setOutput("ref-name", ref_name);
   core.setOutput("date", parts.date);
   core.setOutput("time", parts.time);
-  core.setOutput("timestamp", parts.combine);
+  core.setOutput("combine", parts.combine);
 
   core.setOutput("major", semver.major);
   core.setOutput("minor", semver.minor);
