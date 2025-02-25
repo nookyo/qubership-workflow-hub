@@ -56,8 +56,7 @@ async function run() {
     "develop": "dev",
   };
 
-
-  const suffix = await fillTemplate(ref_name, suffixes);
+  const suffix = suffixes[ref_name] || "SNAPSHOT";
 
   const values = { ...semver, ...parts, ...suffix, ...github.context };
 
