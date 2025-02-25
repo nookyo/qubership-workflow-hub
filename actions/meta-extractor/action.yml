@@ -1,12 +1,12 @@
 name: "Extractmeta Data"
 description: ""
 inputs:
-    ref:
-        description: "Current branch or tag ref."
-        required: false
+  ref:
+    description: "Current branch or tag ref."
+    required: false
 outputs:
-    timestamp:
-        description: "Current timestamp."
+  timestamp:
+    description: "Current timestamp."
 
 runs:
   using: "node20"
