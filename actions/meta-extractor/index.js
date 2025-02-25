@@ -85,7 +85,7 @@ async function run() {
 
   core.warning(`suffix: ${suffix}`);
 
-  core.warning(`values: ${values}`);
+  core.warning(`values: ${values.tostring()}`);
 
   core.warning(`template: ${template}`);
   core.warning(`template result: ${result}`);
