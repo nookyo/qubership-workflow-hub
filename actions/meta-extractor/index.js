@@ -51,15 +51,15 @@ async function run() {
   const parts = await generateSnapshotVersionParts();
   const semver = await extractSemverParts(ref_name);
 
-  const suffixes = {
+  const tags = {
     "main": "MAIN",
     "release": "RELEASE",
     "develop": "dev",
   };
 
-  const suffix = suffixes[ref_name] || "SNAPSHOT";
+  const tag = tags[ref_name] || "SNAPSHOT";
 
-  const values = { ...semver, ...parts, suffix, ...github.context };
+  const values = { ...semver, ...parts, tag, ...github.context };
 
   const result = await fillTemplate(template, values);
 
