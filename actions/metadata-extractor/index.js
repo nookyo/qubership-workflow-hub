@@ -73,9 +73,6 @@ async function run() {
  const tagsMapping = { ...tagsConfig, ...inputTags};
 
 
-
-
-
   const ref = core.getInput('ref') || github.context.ref;
   const ref_name = extractRefName(ref);
 

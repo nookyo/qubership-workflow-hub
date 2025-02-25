@@ -10,6 +10,9 @@ inputs:
     config-file-path:
         description: "Path to the configuration file."
         required: false
+    tags-imputs:
+        description: "Tags to use."
+        required: false
 
 outputs:
     rendered-template:
