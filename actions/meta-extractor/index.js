@@ -17,14 +17,24 @@ async function  exctractRefName(ref) {
       return name;
     }
 
+async function generateTimestampt() {
+    const now = new Date();
+    const iso = now.toISOString(); // например, "2025-02-25T14:30:53.123Z"
+    const date = iso.slice(0, 10).replace(/-/g, '');  // "20250225"
+    const time = iso.slice(11, 19).replace(/:/g, '');   // "143053"
+    return `${date}${time}`;
+}
+
 async function run() {
 
     const ref = github.context.ref;
 
     const name = await exctractRefName(ref);
+    const timestampt = await generateTimestampt();
 
-    core.warning(`ref name: ${name}`);
     core.warning(`Ref: ${ref}`);
+    core.warning(`ref name: ${name}`);
+    core.warning(`temestampt: ${timestampt}`);
 
 }
 
