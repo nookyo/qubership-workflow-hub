@@ -41,22 +41,32 @@ async function fillTemplate(template, values) {
 async function run() {
 
   const ref = github.context.ref;
-  const name = await extractRefName(ref);
+  const ref_name = await extractRefName(ref);
 
   const template = core.getInput("template");
 
   const parts = await generateSnapshotVersionParts();
-  const semver = await extractSemverParts(name);
+  const semver = await extractSemverParts(ref_name);
 
   const commitHash = github.context.sha;
-  
-  const values = { ...semver, ...parts, ...github.context };
 
   const result = await fillTemplate(template, values);
 
+  const suffixes = {
+    "main": "SNAPSHOT",
+    "release": "RELEASE",
+    "develop": "dev",
+  };
+
+  const suffix = fillTemplate(ref_name, suffixes);
+
+
+  const values = { ...semver, ...parts, ...suffix, ...github.context };
+
+
 
   core.warning(`Ref: ${ref}`);
-  core.warning(`ref name: ${name}`);
+  core.warning(`ref name: ${ref_name}`);
 
   core.warning(`date: ${parts.date}`);
   core.warning(`time: ${parts.time}`);
