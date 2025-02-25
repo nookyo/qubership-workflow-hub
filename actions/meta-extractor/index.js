@@ -50,18 +50,22 @@ async function run() {
 
   const commitHash = github.context.sha;
 
-
-  const values = { ...semver, ...parts, ...suffix, ...github.context };
-
-  const result = await fillTemplate(template, values);
-
   const suffixes = {
     "main": "SNAPSHOT",
     "release": "RELEASE",
     "develop": "dev",
   };
 
+
   const suffix = fillTemplate(ref_name, suffixes);
+
+  const values = { ...semver, ...parts, ...suffix, ...github.context };
+
+  const result = await fillTemplate(template, values);
+
+
+
+
 
   // github.context.sha;
 
