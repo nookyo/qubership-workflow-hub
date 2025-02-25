@@ -12,8 +12,27 @@ inputs:
         required: false
 
 outputs:
-    template:
+    rendered-template:
         description: "Current timestamp."
+    ref:
+        description: "Current branch or tag ref."
+    ref-name:
+        description: "Current branch or tag name."
+    date:
+        description: "Current date."
+    time:
+        description: "Current time."
+    timestamp:
+        description: "Current timestamp."
+    tag:
+        description: "Current tag."
+    major:
+        description: "Major version."
+    minor:
+        description: "Minor version."
+    patch:
+        description: "Patch version."
+
 
 runs:
   using: "node20"

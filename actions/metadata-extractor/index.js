@@ -32,7 +32,7 @@ function generateSnapshotVersionParts() {
   const iso = now.toISOString(); // "2025-02-25T14:30:53.123Z"
   const date = iso.slice(0, 10).replace(/-/g, ""); // "20250225"
   const time = iso.slice(11, 19).replace(/:/g, ""); // "143053"
-  return { date, time, timestampt: `${date}${time}` };
+  return { date, time, combine: `${date}${time}` };
 }
 
 function extractSemverParts(versionString) {
@@ -53,24 +53,21 @@ function fillTemplate(template, values) {
 
 async function run() {
 
-
   const template = core.getInput("template");
   const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
-
-
 
   const config = loadConfig(configPath);
   const tagsConfig = config.tags || {};
 
-  const ref = github.context.ref;
+  const ref = core.getInput('ref') || github.context.ref;
   const ref_name = extractRefName(ref);
 
   const parts = generateSnapshotVersionParts();
   const semver = extractSemverParts(ref_name);
 
-  const suffix = tagsConfig[ref_name] || "SNAPSHOT";
+  const tag = tagsConfig[ref_name] || "SNAPSHOT";
 
-  const values = { ...semver, ...parts, suffix, ...github.context };
+  const values = { ...semver, ...parts, tag, ...github.context };
 
   const result = fillTemplate(template, values);
 
@@ -78,16 +75,26 @@ async function run() {
   core.info(`Ref name: ${ref_name}`);
   core.info(`Date: ${parts.date}`);
   core.info(`Time: ${parts.time}`);
-  core.info(`Timestampt: ${parts.timestampt}`);
+  core.info(`Timestamp: ${parts.combine}`);
   core.info(`Major: ${semver.major}`);
   core.info(`Minor: ${semver.minor}`);
   core.info(`Patch: ${semver.patch}`);
-  core.info(`Suffix: ${suffix}`);
-  core.info(`Template: ${template}`);
-  core.info(`Template result: ${result}`);
+  core.info(`Tag: ${tag}`);
+  core.info(`Rendered template: ${result}`);
 
 
-  core.setOutput("template", result);
+  core.setOutput("rendered-template", result);
+  core.setOutput("ref", ref);
+  core.setOutput("ref-name", ref_name);
+  core.setOutput("date", parts.date;
+  core.setOutput("time", parts.time);
+  core.setOutput("timestamp", parts.combine);
+
+  core.setOutput("major", semver.major);
+  core.setOutput("minor", semver.minor);
+  core.setOutput("patch", semver.patch);
+  core.setOutput("tag", tag);
+
 }
 
 run();
