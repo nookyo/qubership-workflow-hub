@@ -32,7 +32,7 @@ function generateSnapshotVersionParts() {
   const iso = now.toISOString(); // "2025-02-25T14:30:53.123Z"
   const date = iso.slice(0, 10).replace(/-/g, ""); // "20250225"
   const time = iso.slice(11, 19).replace(/:/g, ""); // "143053"
-  return { date, time, combined: `${date}${time}` };
+  return { date, time, timestampt: `${date}${time}` };
 }
 
 function extractSemverParts(versionString) {
@@ -53,7 +53,7 @@ function fillTemplate(template, values) {
 
 async function run() {
 
-  
+
   const template = core.getInput("template");
   const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
 
@@ -78,7 +78,7 @@ async function run() {
   core.info(`Ref name: ${ref_name}`);
   core.info(`Date: ${parts.date}`);
   core.info(`Time: ${parts.time}`);
-  core.info(`Combined: ${parts.combined}`);
+  core.info(`Timestampt: ${parts.timestampt}`);
   core.info(`Major: ${semver.major}`);
   core.info(`Minor: ${semver.minor}`);
   core.info(`Patch: ${semver.patch}`);
