@@ -11,7 +11,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v4
 
-        - name: Set up Python
+        - name: Meta Extractor
           uses: nookyo/qubership-workflow-hub/actions/meta-extractor@main
           with:
             ref: 'main'
