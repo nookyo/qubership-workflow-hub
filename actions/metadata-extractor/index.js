@@ -52,7 +52,6 @@ function fillTemplate(template, values) {
 }
 
 async function run() {
-
   const config = loadConfig();
   const tagsConfig = config.tags || {};
 
