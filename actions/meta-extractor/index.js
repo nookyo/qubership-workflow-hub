@@ -26,11 +26,14 @@ async function generateSnapshotVersionParts() {
 }
 
 async function extractSemverParts(versionString) {
-  const normalized = versionString.replace(/^v/i, '');
-
-  const [major, minor, patch] = normalized.split('.');
-  return { major, minor, patch };
-}
+    const normalized = versionString.replace(/^v/i, '');
+    if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
+      core.warning(`Not a valid semver string: ${versionString}`);
+      return { major: '', minor: '', patch: '' };
+    }
+    const [major, minor, patch] = normalized.split('.');
+    return { major, minor, patch };
+  }
 
 async function fillTemplate(template, values) {
   return template.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
