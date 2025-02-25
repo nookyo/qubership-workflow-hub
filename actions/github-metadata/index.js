@@ -55,7 +55,8 @@ function fillTemplate(template, values) {
 async function run() {
   const template = core.getInput("template");
 
-  const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
+  const configPath =
+    core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
   const config = loadConfig(configPath);
   const tagsConfig = config.tags || {};
 
@@ -71,7 +72,7 @@ async function run() {
 
   const tagsMapping = { ...tagsConfig, ...inputTags };
 
-  const ref = core.getInput('ref') || github.context.ref;
+  const ref = core.getInput("ref") || github.context.ref;
   const ref_name = extractRefName(ref);
 
   const parts = generateSnapshotVersionParts();
