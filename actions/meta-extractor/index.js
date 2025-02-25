@@ -48,7 +48,9 @@ async function run() {
   const parts = await generateSnapshotVersionParts();
   const semver = await extractSemverParts(name);
 
-  const values = { ...semver, ...parts };
+  const commitHash = github.context.sha;
+  
+  const values = { ...semver, ...parts, ...github.context };
 
   const result = await fillTemplate(template, values);
 
