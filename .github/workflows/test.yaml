@@ -8,7 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+        - name: Checkout
+          uses: actions/checkout@v4
 
-      - name: Metadata action
-        uses: nookyo/qubership-workflow-hub/.github/actions/meta-extractor@main
+        - name: Set up Python
+          uses: nookyo/qubership-workflow-hub/actions/meta-extractor@main
+          with:
+            ref: 'main'
