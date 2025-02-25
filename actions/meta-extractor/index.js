@@ -51,7 +51,7 @@ async function run() {
   const commitHash = github.context.sha;
 
   const suffixes = {
-    "main": "SNAPSHOT",
+    "main": "MAIN",
     "release": "RELEASE",
     "develop": "dev",
   };
