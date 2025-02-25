@@ -2,6 +2,7 @@ const fs = require("fs");
 const yaml = require("js-yaml");
 const core = require("@actions/core");
 const github = require("@actions/github");
+const semver = require("semver");
 
 function loadConfig(configPath) {
   try {
