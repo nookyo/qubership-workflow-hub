@@ -10,12 +10,12 @@ This **Docker Publish** GitHub Workflow automates building and publishing Docker
 
 ## 📌 Inputs
 
-| Name         | Description                              | Required | Default |
-| ------------ | ---------------------------------------- | -------- | ------- |
-| `ref`        | Branch name to create release from       | No       | None    |
-| `artifact-id`| Artifact ID to use                       | No       | None    |
-| `context`    | Docker build context                     | No       | `git`   |
-| `dry-run`    | If true, performs a dry run without pushing the image | No       | `false` |
+| Name          | Description                                           | Required | Default |
+| ------------- | ----------------------------------------------------- | -------- | ------- |
+| `ref`         | Branch name to create release from                    | No       | None    |
+| `artifact-id` | Artifact ID to use                                    | No       | None    |
+| `context`     | Docker build context                                  | No       | `git`   |
+| `dry-run`     | If true, performs a dry run without pushing the image | No       | `false` |
 
 ## Usage Example
 
@@ -39,3 +39,4 @@ jobs:
       dry-run: false
     secrets:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
