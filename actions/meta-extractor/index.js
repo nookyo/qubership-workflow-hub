@@ -57,7 +57,7 @@ async function run() {
   };
 
 
-  const suffix = fillTemplate(ref_name, suffixes);
+  const suffix = await fillTemplate(ref_name, suffixes);
 
   const values = { ...semver, ...parts, ...suffix, ...github.context };
 
