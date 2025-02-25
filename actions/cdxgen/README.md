@@ -11,9 +11,9 @@ This **Generate SBOM File for Project** GitHub Action generates a Software Bill 
 
 ## 📌 Inputs
 
-| Name          | Description                | Required | Default |
-| ------------- | -------------------------- | -------- | ------- |
-| `project_type` | Type of the project.       | No       | None    |
+| Name           | Description          | Required | Default |
+| -------------- | -------------------- | -------- | ------- |
+| `project_type` | Type of the project. | No       | None    |
 
 ## Usage Example
 
@@ -40,3 +40,4 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/cdxgen@main
         with:
           project_type: "npm"
+```
