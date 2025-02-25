@@ -1,0 +1,17 @@
+name: "Extractmeta Data"
+description: ""
+inputs:
+    ref:
+        description: "Current branch or tag ref."
+        required: true
+outputs:
+    timestamp:
+        description: "Current timestamp."
+
+runs:
+  using: "node20"
+  main: "index.js"
+
+branding:
+  icon: "edit"
+  color: "yellow"
