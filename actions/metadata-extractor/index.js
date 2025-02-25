@@ -55,10 +55,26 @@ function fillTemplate(template, values) {
 async function run() {
 
   const template = core.getInput("template");
-  const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
 
+  const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
   const config = loadConfig(configPath);
   const tagsConfig = config.tags || {};
+
+  const tagsInputStr = core.getInput("tags-input");
+  let inputTags = {};
+  if (tagsInputStr) {
+    try {
+      inputTags = yaml.load(tagsInputStr);
+    } catch (error) {
+      core.error("Ошибка парсинга tags-input: " + error.message);
+    }
+  }
+
+ const tagsMapping = { ...tagsConfig, ...inputTags};
+
+
+
+
 
   const ref = core.getInput('ref') || github.context.ref;
   const ref_name = extractRefName(ref);
@@ -66,7 +82,7 @@ async function run() {
   const parts = generateSnapshotVersionParts();
   const semver = extractSemverParts(ref_name);
 
-  const tag = tagsConfig[ref_name] || "SNAPSHOT";
+  const tag = tagsMapping[ref_name] || "SNAPSHOT";
 
   const values = { ...semver, ...parts, tag, ...github.context };
 
