@@ -7,6 +7,10 @@ inputs:
     template:
         description: "Template to use."
         required: false
+    config-file-path:
+        description: "Path to the configuration file."
+        required: false
+
 outputs:
     template:
         description: "Current timestamp."

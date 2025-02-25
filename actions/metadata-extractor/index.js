@@ -3,12 +3,12 @@ const yaml = require("js-yaml");
 const core = require("@actions/core");
 const github = require("@actions/github");
 
-function loadConfig() {
+function loadConfig(configPath) {
   try {
-    const fileContents = fs.readFileSync("./config.yml", "utf8");
+    const fileContents = fs.readFileSync(configPath, "utf8");
     return yaml.load(fileContents);
   } catch (e) {
-    core.error(`Ошибка загрузки config.yml: ${e}`);
+    core.error(`Failed to load config.yml: ${e}`);
     return {};
   }
 }
@@ -38,7 +38,7 @@ function generateSnapshotVersionParts() {
 function extractSemverParts(versionString) {
   const normalized = versionString.replace(/^v/i, "");
   if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
-    core.warning(`Not a valid semver string: ${versionString}`);
+    core.warning(`Not a valid semver string (skip): ${versionString}`);
     return { major: "", minor: "", patch: "" };
   }
   const [major, minor, patch] = normalized.split(".");
@@ -53,13 +53,16 @@ function fillTemplate(template, values) {
 
 async function run() {
 
-  const config = loadConfig();
+  const template = core.getInput("template");
+  const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
+
+
+
+  const config = loadConfig(configPath);
   const tagsConfig = config.tags || {};
 
   const ref = github.context.ref;
   const ref_name = extractRefName(ref);
-
-  const template = core.getInput("template");
 
   const parts = generateSnapshotVersionParts();
   const semver = extractSemverParts(ref_name);
@@ -81,6 +84,7 @@ async function run() {
   core.info(`Suffix: ${suffix}`);
   core.info(`Template: ${template}`);
   core.info(`Template result: ${result}`);
+
 
   core.setOutput("template", result);
 }
