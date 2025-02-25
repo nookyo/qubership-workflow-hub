@@ -20,15 +20,15 @@ async function extractRefName(ref) {
 async function generateSnapshotVersionParts() {
   const now = new Date();
   const iso = now.toISOString(); // "2025-02-25T14:30:53.123Z"
-  const date = iso.slice(0, 10).replace(/-/g, '');  // "20250225"
-  const time = iso.slice(11, 19).replace(/:/g, '');   // "143053"
+  const date = iso.slice(0, 10).replace(/-/g, ""); // "20250225"
+  const time = iso.slice(11, 19).replace(/:/g, ""); // "143053"
   return { date, time, combined: `${date}${time}` };
 }
 
 async function extractSemverParts(versionString) {
-  const normalized = versionString.replace(/^v/i, '');
+  const normalized = versionString.replace(/^v/i, "");
 
-  const [major, minor, patch] = normalized.split('.');
+  const [major, minor, patch] = normalized.split(".");
   return { major, minor, patch };
 }
 
@@ -39,7 +39,6 @@ async function fillTemplate(template, values) {
 }
 
 async function run() {
-
   const ref = github.context.ref;
   const ref_name = await extractRefName(ref);
 
@@ -49,9 +48,9 @@ async function run() {
   const semver = await extractSemverParts(ref_name);
 
   const suffixes = {
-    "main": "MAIN",
-    "release": "RELEASE",
-    "develop": "dev",
+    main: "MAIN",
+    release: "RELEASE",
+    develop: "dev",
   };
 
   const suffix = suffixes[ref_name] || "SNAPSHOT";
@@ -60,14 +59,7 @@ async function run() {
 
   const result = await fillTemplate(template, values);
 
-
-
-
-
   // github.context.sha;
-
-
-
 
   core.warning(`Ref: ${ref}`);
   core.warning(`ref name: ${ref_name}`);
@@ -79,7 +71,6 @@ async function run() {
   core.warning(`major: ${semver.major}`);
   core.warning(`minor: ${semver.minor}`);
   core.warning(`patch: ${semver.patch}`);
-
 
   core.warning(`suffix: ${suffix}`);
 
