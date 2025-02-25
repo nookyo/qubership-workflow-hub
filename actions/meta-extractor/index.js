@@ -50,6 +50,9 @@ async function run() {
 
   const commitHash = github.context.sha;
 
+
+  const values = { ...semver, ...parts, ...suffix, ...github.context };
+
   const result = await fillTemplate(template, values);
 
   const suffixes = {
@@ -60,8 +63,8 @@ async function run() {
 
   const suffix = fillTemplate(ref_name, suffixes);
 
+  // github.context.sha;
 
-  const values = { ...semver, ...parts, ...suffix, ...github.context };
 
 
 
