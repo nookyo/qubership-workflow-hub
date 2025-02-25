@@ -52,12 +52,9 @@ function fillTemplate(template, values) {
 }
 
 async function run() {
-
-
   const template = core.getInput("template");
-  const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
-
-
+  const configPath =
+    core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
 
   const config = loadConfig(configPath);
   const tagsConfig = config.tags || {};
@@ -85,7 +82,6 @@ async function run() {
   core.info(`Suffix: ${suffix}`);
   core.info(`Template: ${template}`);
   core.info(`Template result: ${result}`);
-
 
   core.setOutput("template", result);
 }

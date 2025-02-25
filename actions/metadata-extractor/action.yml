@@ -1,19 +1,19 @@
 name: "Extractmeta Data"
 description: ""
 inputs:
-    ref:
-        description: "Current branch or tag ref."
-        required: false
-    template:
-        description: "Template to use."
-        required: false
-    config-file-path:
-        description: "Path to the configuration file."
-        required: false
+  ref:
+    description: "Current branch or tag ref."
+    required: false
+  template:
+    description: "Template to use."
+    required: false
+  config-file-path:
+    description: "Path to the configuration file."
+    required: false
 
 outputs:
-    template:
-        description: "Current timestamp."
+  template:
+    description: "Current timestamp."
 
 runs:
   using: "node20"
