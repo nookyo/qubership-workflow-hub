@@ -43,7 +43,7 @@ async function run() {
   const ref = github.context.ref;
   const name = await extractRefName(ref);
 
-  const template = core.getInput("template");
+  const t = core.getInput("template");
 
   const parts = await generateSnapshotVersionParts();
   const semver = await extractSemverParts(name);
@@ -52,7 +52,7 @@ async function run() {
   
   const values = { ...semver, ...parts, ...github.context };
 
-  const result = await fillTemplate(template, values);
+  const result = await fillTemplate(t, values);
 
 
   core.warning(`Ref: ${ref}`);
@@ -66,7 +66,7 @@ async function run() {
   core.warning(`minor: ${semver.minor}`);
   core.warning(`patch: ${semver.patch}`);
 
-  core.warning(`template: ${template}`);
+  core.warning(`template: ${t}`);
   core.warning(`template result: ${result}`);
 
   core.setOutput("template", template);
