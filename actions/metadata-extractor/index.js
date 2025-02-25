@@ -53,6 +53,7 @@ function fillTemplate(template, values) {
 
 async function run() {
 
+  
   const template = core.getInput("template");
   const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
 
