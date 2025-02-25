@@ -26,9 +26,8 @@ async function generateSnapshotVersionParts() {
 }
 
 async function extractSemverParts(versionString) {
-    // Удаляем префикс "v" (без учёта регистра), если он присутствует
     const normalized = versionString.replace(/^v/i, '');
-    // Разбиваем по точке
+
     const [major, minor, patch] = normalized.split('.');
     return { major, minor, patch };
   }
