@@ -25,6 +25,14 @@ async function generateSnapshotVersionParts() {
     return { date, time, combined: `${date}${time}` };
 }
 
+async function extractSemverParts(versionString) {
+    // Удаляем префикс "v" (без учёта регистра), если он присутствует
+    const normalized = versionString.replace(/^v/i, '');
+    // Разбиваем по точке
+    const [major, minor, patch] = normalized.split('.');
+    return { major, minor, patch };
+  }
+
 async function run() {
 
     const ref = github.context.ref;
@@ -33,11 +41,19 @@ async function run() {
     //const [date, time, combined] = await generateTimestampt();
     const parts = await generateSnapshotVersionParts();
 
+    const semver = await extractSemverParts(name);
+
     core.warning(`Ref: ${ref}`);
     core.warning(`ref name: ${name}`);
+
     core.warning(`date: ${parts.date}`);
     core.warning(`time: ${parts.time}`);
     core.warning(`combined: ${parts.combined}`);
+
+    core.warning(`major: ${semver.major}`);
+    core.warning(`minor: ${semver.minor}`);
+    core.warning(`patch: ${semver.patch}`);
+
 
 }
 
