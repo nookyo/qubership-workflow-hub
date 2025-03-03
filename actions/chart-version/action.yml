@@ -2,7 +2,7 @@ name: "Change Helm Chart.yaml"
 description: "Automatically updates the Helm Chart.yaml file."
 
 inputs:
-  chart-version:
+  new-chart-version:
     description: "The version of the Helm chart."
     required: true
   chart-app-version:
@@ -29,7 +29,7 @@ runs:
         shell: bash
         run: |
                 current_version=$(yq '.version' ${{ inputs.chart-yaml-path }})
-                echo "::warning:: 💡 Change: $current_version" to  ${{ inputs.chart-version }}
-                yq eval '.version = "${{ inputs.chart-version }}"' -i  ${{ inputs.chart-yaml-path }}
+                echo "::warning:: 💡 Change: $current_version" to  ${{ inputs.new-chart-version }}
+                yq eval '.version = "${{ inputs.new-chart-version }}"' -i  ${{ inputs.chart-yaml-path }}
                 echo "::notice::✅ Successfully updated version!"
 

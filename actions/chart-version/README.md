@@ -5,14 +5,13 @@ This Action automatically updates the `Chart.yaml` file of a Helm chart.
 ## Features
 
 - Automatically updates the version in the `Chart.yaml` file.
-- Supports specifying the application version.
 - Allows customization of the path to the `Chart.yaml` file.
 
 ## 📌 Inputs
 
 | Name              | Description                            | Required | Default |
 | ----------------- | -------------------------------------- | -------- | ------- |
-| `chart-version`   | The version of the Helm chart.         | Yes      | N/A     |
+| `new-chart-version`   | The new version of the Helm chart.         | Yes      | N/A     |
 | `chart-yaml-path` | The path to the `Chart.yaml` file.     | Yes      | N/A     |
 
 ## Usage Example
@@ -36,5 +35,5 @@ jobs:
       - name: Change Helm Chart.yaml
         uses: Netcracker/qubership-workflow-hub/actions/chart-version@main
         with:
-          chart-version: "1.2.3"
+          new-chart-version: "1.2.3"
           chart-yaml-path: "./path/to/Chart.yaml"
