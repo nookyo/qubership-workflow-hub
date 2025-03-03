@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Change Helm Chart.yaml
-        uses: ./actions/chart-version
+        uses: Netcracker/qubership-workflow-hub/actions/chart-version@main
         with:
           chart-version: "1.2.3"
           chart-yaml-path: "./path/to/Chart.yaml"
