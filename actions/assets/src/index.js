@@ -102,16 +102,16 @@ async function run() {
 
             if (archiveType == "tar.gz") {
                 outputFile = `${archive}-${ref}.tar.gz`;
-                command = `tar -czf dist/${outputFile} ${folder}`;
+                command = `tar -czf ${dest_path}/${outputFile} ${folder}`;
 
             }
             else if (archiveType == "zip") {
                 outputFile = `${archive}-${ref}.zip`;
-                command = `zip -r dist/${outputFile} ${folder}`;
+                command = `zip -r ${dest_path}/${outputFile} ${folder}`;
             }
             else if (archiveType == "tar") {
                 outputFile = `${archive}-${ref}.tar`;
-                command = `tar -cf dist/${outputFile} ${folder}`;
+                command = `tar -cf ${dest_path}/${outputFile} ${folder}`;
             }
 
             execSync(command, {
