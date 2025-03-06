@@ -9,7 +9,7 @@ const yaml = require('js-yaml');
 async function run() {
     try {
 
-        jsonFile = core.getInput('asset-config-path');
+        jsonFile = core.getInput('config-path');
         const configPath = path.resolve(jsonFile);
         console.log(`Reading asset config from ${configPath}`)
 
