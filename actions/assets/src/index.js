@@ -6,9 +6,6 @@ const Ajv = require('ajv');
 const yaml = require('js-yaml');
 
 
-
-
-
 async function run() {
     try {
 
