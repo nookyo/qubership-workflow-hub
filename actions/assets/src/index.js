@@ -66,13 +66,23 @@ async function run() {
         for (const archiveItem of config.archives) {
             let folder = archiveItem.folder;
             let archive = archiveItem.name;
+            let archiveType = archiveItem.archiveType;
 
             if (!fs.existsSync(folder)) {
                 throw new Error(`Folder not found: ${folder}`);
             }
 
-            const outputFile = `${archive}.tgz`;
-            const command = `tar -czf dist/${outputFile} ${folder}`;
+            let outputFile = "";
+            let command = "";
+            if(archiveType == "tar.gz") {
+                outputFile = `${archive}.tar.gz`;
+                command = `tar -czf dist/${outputFile} ${folder}`;
+
+            }
+            else if (archiveType == "zip") {
+                outputFile = `${archive}.zip`;
+                command = `zip -r dist/${outputFile} ${folder}`;
+            }
 
             execSync(command, {
                 cwd: process.env.GITHUB_WORKSPACE,
@@ -80,7 +90,7 @@ async function run() {
             });
 
             createArchives.push(outputFile)
-            core.info(`Creating archive ${outputFile} from ${folder}`);
+            core.info(`Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
         }
 
         core.setOutput('archives', createArchives);

@@ -14,6 +14,10 @@
           },
           "name": {
             "type": "string"
+          },
+          "archiveType": {
+            "type": "string",
+            "enum": ["zip", "tar", "tar.gz"]
           }
         },
         "required": ["folder", "name"],
