@@ -7,22 +7,19 @@ const yaml = require('js-yaml');
 
 
 async function assetsUpload(dest_path, ref) {
-    const directoryPath = path.join(dest_path);
+    const directoryPath = path.join(__dirname, 'dist');
 
-    fs.readdir(directoryPath, (err, files) => {
-        if (err) {
-            //
-            core.setFailed(`Unable to scan directory: ${err}`);
-            return;
-        }
-        files.forEach(file => {
+    try {
+        const files = fs.readdirSync(directoryPath);
+        for (const file of files) {
             const fullPath = path.join(directoryPath, file);
-            const stat = fs.statSync(fullPath);
-            if (stat.isFile()) {
+            if (fs.statSync(fullPath).isFile()) {
                 console.log(`Uploading ${fullPath} to ${dest_path}/${ref}/${file}`);
             }
-        });
-    });
+        }
+    } catch (err) {
+        core.setFailed(`Unable to scan directory: ${err}`);
+    }
 }
 
 async function run() {
