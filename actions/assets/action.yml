@@ -1,0 +1,14 @@
+name: "Work with Assets"
+description: "Work with assets in a repository."
+
+inputs:
+  asset-config-path:
+    description: "The path to the asset configuration file."
+    required: true
+  upload:
+    description: "Upload assets to a repository."
+    required: false
+
+runs:
+ using: "node16"
+ main: "src/index.js"
