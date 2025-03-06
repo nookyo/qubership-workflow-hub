@@ -27,7 +27,7 @@ async function run() {
 
         const jsonFile = core.getInput('config-path');
         const ref = core.getInput('ref');
-        const dest_path = core.getInput('dest-path');
+        const dist_path = core.getInput('dest-path');
         const upload = core.getInput('upload');
 
 
@@ -80,10 +80,7 @@ async function run() {
         let createArchives = [];
 
         // Create dist folder for storing archives
-        execSync('mkdir -p dist', {
-            cwd: process.env.GITHUB_WORKSPACE,
-            stdio: "inherit",
-        });
+        fs.mkdirSync(dist_path, { recursive: true })
 
         for (const archiveItem of config.archives) {
             let folder = archiveItem.folder;
@@ -99,16 +96,16 @@ async function run() {
 
             if (archiveType == "tar.gz") {
                 outputFile = `${archive}-${ref}.tar.gz`;
-                command = `tar -czf ${dest_path}/${outputFile} ${folder}`;
+                command = `tar -czf ${dist_path}/${outputFile} ${folder}`;
 
             }
             else if (archiveType == "zip") {
                 outputFile = `${archive}-${ref}.zip`;
-                command = `zip -r ${dest_path}/${outputFile} ${folder}`;
+                command = `zip -r ${dist_path}/${outputFile} ${folder}`;
             }
             else if (archiveType == "tar") {
                 outputFile = `${archive}-${ref}.tar`;
-                command = `tar -cf ${dest_path}/${outputFile} ${folder}`;
+                command = `tar -cf ${dist_path}/${outputFile} ${folder}`;
             }
 
             execSync(command, {
@@ -125,7 +122,7 @@ async function run() {
         core.info(`Output archives: ${createArchives}`);
 
         if (upload) {
-            await assetsUpload(dest_path, ref);
+            await assetsUpload(dist_path, ref);
         }
     }
     catch (error) {
