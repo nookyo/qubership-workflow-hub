@@ -126,7 +126,7 @@ async function run() {
         core.info(`Output archives: ${createArchives}`);
 
         if (upload) {
-            await upload(dest_path, ref);
+            await this.upload(dest_path, ref);
         }
     }
     catch (error) {
