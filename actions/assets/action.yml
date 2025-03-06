@@ -2,7 +2,7 @@ name: "Work with Assets"
 description: "Work with assets in a repository."
 
 inputs:
-  asset-config-path:
+  config-path:
     description: "The path to the asset configuration file."
     required: true
   upload:
