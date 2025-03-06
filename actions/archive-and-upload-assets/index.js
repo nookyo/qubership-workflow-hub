@@ -22,7 +22,6 @@
             }
             core.info(`\n-----------------------------------------------`)
         } catch (err) {
-            core.setFailed(`❗️ Unable to scan directory: ${err}`);
             throw err;
         }
     }
