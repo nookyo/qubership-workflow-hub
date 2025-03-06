@@ -31,7 +31,7 @@ async function run() {
         const dist_path = core.getInput('dest-path');
         const upload = core.getInput('upload');
 
-        core.info(`Debug: ⚠️json: ${jsonFile}\n ⚠️ref: ${ref}\n ⚠️dist_path: ${dist_path}\n ⚠️upload: ${upload}\n`);
+        core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${dist_path}\n 🔹upload: ${upload}\n`);
 
 
         const configPath = path.resolve(jsonFile);
@@ -73,14 +73,13 @@ async function run() {
         const ajv = new Ajv();
         const validate = ajv.compile(schema);
         const valid = validate(config);
-        core.info(`Config file is valid: ${valid}`);
         if (!valid) {
             constErrors = ajv.errorsText(validate.errors);
             core.setFailed(`❗️ Config file is invalid: ${constErrors}`);
             return;
         }
+        core.warning(`Config file is valid: ${valid}`);
 
-        core.info("📦 Creating archives...");
         // Create dist folder for storing archives
         fs.mkdirSync(dist_path, { recursive: true })
         for (const archiveItem of config.archives) {
@@ -114,7 +113,7 @@ async function run() {
                 stdio: "inherit",
             });
 
-            core.info(`Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
+            core.info(`🧱 Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
         }
 
         core.setOutput('archives', createArchives);
