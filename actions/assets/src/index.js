@@ -6,15 +6,15 @@ const Ajv = require('ajv');
 const yaml = require('js-yaml');
 
 
-async function assetsUpload(dest_path, ref) {
-    const directoryPath = path.join(__dirname, 'dist');
+async function assetsUpload(dist_path, ref) {
+    const directoryPath = path.join(__dirname, '..', dist_path);
 
     try {
         const files = fs.readdirSync(directoryPath);
         for (const file of files) {
             const fullPath = path.join(directoryPath, file);
             if (fs.statSync(fullPath).isFile()) {
-                console.log(`🔄 Uploading ${fullPath} to ${dest_path}/${ref}/${file}`);
+                console.log(`🔄 Uploading ${fullPath} to ${dist_path}/${ref}/${file}`);
             }
         }
     } catch (err) {
