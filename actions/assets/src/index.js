@@ -7,7 +7,20 @@ const yaml = require('js-yaml');
 
 
 async function upload(dest_folder, ref) {
+    const directoryPath = path.join(__dirname, dest_folder);
 
+    try {
+        const files = fs.readdirSync(directoryPath);
+        for (const file of files) {
+            const fullPath = path.join(directoryPath, file);
+            console.log(fullPath);
+            if (fs.statSync(fullPath).isFile()) {
+                console.log(`File: ${file}`);
+            }
+        }
+    } catch (err) {
+        core.error(`Error reading directory: ${err}`);
+    }
 }
 
 async function run() {
@@ -16,6 +29,7 @@ async function run() {
         const jsonFile = core.getInput('config-path');
         const ref = core.getInput('ref');
         const dest_folder = core.getInput('dest-folder');
+        const upload = core.getInput('upload');
 
 
         const configPath = path.resolve(jsonFile);
@@ -84,7 +98,7 @@ async function run() {
             let outputFile = "";
             let command = "";
 
-            if(archiveType == "tar.gz") {
+            if (archiveType == "tar.gz") {
                 outputFile = `${archive}.tar.gz`;
                 command = `tar -czf dist/${outputFile} ${folder}`;
 

@@ -13,8 +13,10 @@ inputs:
     required: false
     default: "dist"
   upload:
+    default: 'false'
     description: "Upload assets to a repository."
     required: false
+
 
 runs:
  using: "node16"
