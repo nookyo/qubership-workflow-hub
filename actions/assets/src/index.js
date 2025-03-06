@@ -116,9 +116,6 @@ async function run() {
             core.info(`🧱 Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
         }
 
-        core.setOutput('archives', createArchives);
-        core.info(`Output archives: ${createArchives}`);
-
         if (upload === 'true') {
             await assetsUpload(dist_path, ref);
         }
