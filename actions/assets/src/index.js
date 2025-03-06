@@ -119,7 +119,7 @@ async function run() {
         if (upload === 'true') {
             await assetsUpload(dist_path, ref);
         }
-        core.info('✅ Action completed successfully!');
+        core.info('\n ✅ Action completed successfully!');
     }
     catch (error) {
         core.setFailed(`❌ Action failed: ${error.message}`);
