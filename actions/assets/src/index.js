@@ -11,6 +11,8 @@ async function assetsUpload(dest_path, ref) {
 
     fs.readdir(directoryPath, (err, files) => {
         if (err) {
+            //
+            core.setFailed(`Unable to scan directory: ${err}`);
             return console.error('Unable to scan directory: ' + err);
         }
         files.forEach(file => {
