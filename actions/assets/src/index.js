@@ -6,10 +6,18 @@ const Ajv = require('ajv');
 const yaml = require('js-yaml');
 
 
+async function upload(dest_folder, ref) {
+
+}
+
 async function run() {
     try {
 
-        jsonFile = core.getInput('config-path');
+        const jsonFile = core.getInput('config-path');
+        const ref = core.getInput('ref');
+        const dest_folder = core.getInput('dest-folder');
+
+
         const configPath = path.resolve(jsonFile);
         console.log(`Reading asset config from ${configPath}`)
 
@@ -22,7 +30,6 @@ async function run() {
 
         let config;
         try {
-            // config = JSON.parse(fileContent);
             config = yaml.load(fileContent);
         }
         catch (error) {
@@ -76,6 +83,7 @@ async function run() {
 
             let outputFile = "";
             let command = "";
+
             if(archiveType == "tar.gz") {
                 outputFile = `${archive}.tar.gz`;
                 command = `tar -czf dist/${outputFile} ${folder}`;
@@ -85,13 +93,18 @@ async function run() {
                 outputFile = `${archive}.zip`;
                 command = `zip -r dist/${outputFile} ${folder}`;
             }
+            else if (archiveType == "tar") {
+                outputFile = `${archive}.tar`;
+                command = `tar -cf dist/${outputFile} ${folder}`;
+            }
 
             execSync(command, {
                 cwd: process.env.GITHUB_WORKSPACE,
                 stdio: "inherit",
             });
 
-            createArchives.push(outputFile)
+            // createArchives.push(outputFile)
+
             core.info(`Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
         }
 

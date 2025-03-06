@@ -5,6 +5,13 @@ inputs:
   config-path:
     description: "The path to the asset configuration file."
     required: true
+  ref:
+    description: "The tag for Release to upload assets."
+    required: false
+  dest-folder:
+    description: "The destination folder for the assets."
+    required: false
+    default: "dist"
   upload:
     description: "Upload assets to a repository."
     required: false
