@@ -49,7 +49,7 @@ async function run() {
 
         const ajv = new Ajv();
         const validate = ajv.compile(schema);
-        const valid = validate(json);
+        const valid = validate(config);
         if (!valid) {
             constErrors = ajv.errorsText(validate.errors);
             return;
