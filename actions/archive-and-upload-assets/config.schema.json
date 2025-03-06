@@ -9,10 +9,10 @@
       "items": {
         "type": "object",
         "properties": {
-          "folder": {
+          "source": {
             "type": "string"
           },
-          "name": {
+          "outputName": {
             "type": "string"
           },
           "archiveType": {
@@ -20,7 +20,7 @@
             "enum": ["zip", "tar", "tar.gz"]
           }
         },
-        "required": ["folder", "name", "archiveType"],
+        "required": ["source", "outputName", "archiveType"],
         "additionalProperties": false
       }
     }
