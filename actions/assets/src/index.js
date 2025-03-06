@@ -7,7 +7,7 @@ const yaml = require('js-yaml');
 
 
 async function assetsUpload(dist_path, ref) {
-    const directoryPath = path.join(dist_path + '/asdasd');
+    const directoryPath = path.join(dist_path);
 
     try {
         const files = fs.readdirSync(directoryPath);
@@ -75,7 +75,7 @@ async function run() {
         const valid = validate(config);
         if (!valid) {
             constErrors = ajv.errorsText(validate.errors);
-            core.setFailed(`❗️ Config file is invalid: ${constErrors}`);
+            core.setFailed(`❗️ Configuration file is invalid: ${constErrors}`);
             return;
         }
         core.warning(`Config file is valid: ${valid}`);
