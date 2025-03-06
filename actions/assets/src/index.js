@@ -101,16 +101,16 @@ async function run() {
             let command = "";
 
             if (archiveType == "tar.gz") {
-                outputFile = `${archive}.tar.gz`;
+                outputFile = `${archive}-${ref}.tar.gz`;
                 command = `tar -czf dist/${outputFile} ${folder}`;
 
             }
             else if (archiveType == "zip") {
-                outputFile = `${archive}.zip`;
+                outputFile = `${archive}-${ref}.zip`;
                 command = `zip -r dist/${outputFile} ${folder}`;
             }
             else if (archiveType == "tar") {
-                outputFile = `${archive}.tar`;
+                outputFile = `${archive}-${ref}.tar`;
                 command = `tar -cf dist/${outputFile} ${folder}`;
             }
 
