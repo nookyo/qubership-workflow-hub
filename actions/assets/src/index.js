@@ -7,7 +7,7 @@ const yaml = require('js-yaml');
 
 
 async function assetsUpload(dist_path, ref) {
-    const directoryPath = path.join(dist_path);
+    const directoryPath = path.join(dist_path + '/asdasd');
 
     try {
         const files = fs.readdirSync(directoryPath);
