@@ -7,7 +7,7 @@ const yaml = require('js-yaml');
 
 
 async function assetsUpload(dist_path, ref) {
-    const directoryPath = path.join(__dirname, '..', dist_path);
+    const directoryPath = path.join(dist_path);
 
     try {
         const files = fs.readdirSync(directoryPath);
@@ -19,7 +19,7 @@ async function assetsUpload(dist_path, ref) {
         }
     } catch (err) {
         core.setFailed(`❗️ Unable to scan directory: ${err}`);
-        return;
+        throw err;
     }
 }
 
