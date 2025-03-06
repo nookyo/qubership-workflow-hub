@@ -19,6 +19,7 @@ async function assetsUpload(dest_path, ref) {
         }
     } catch (err) {
         core.setFailed(`Unable to scan directory: ${err}`);
+        return;
     }
 }
 
@@ -46,7 +47,7 @@ async function run() {
             config = yaml.load(fileContent);
         }
         catch (error) {
-            core.setFailed(`Error parsing JSON file: ${error.message}`);
+            core.setFailed(`Error parsing YAML file: ${error.message}`);
             return;
         }
 
@@ -76,8 +77,6 @@ async function run() {
             core.setFailed(`Config file is invalid: ${constErrors}`);
             return;
         }
-
-        let createArchives = [];
 
         // Create dist folder for storing archives
         fs.mkdirSync(dist_path, { recursive: true })
@@ -112,8 +111,6 @@ async function run() {
                 cwd: process.env.GITHUB_WORKSPACE,
                 stdio: "inherit",
             });
-
-            // createArchives.push(outputFile)
 
             core.info(`Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
         }
