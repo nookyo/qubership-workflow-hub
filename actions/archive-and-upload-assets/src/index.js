@@ -87,29 +87,29 @@
             // Create dist folder for storing archives
             fs.mkdirSync(dist_path, { recursive: true })
             for (const archiveItem of config.archives) {
-                let folder = archiveItem.folder;
-                let archive = archiveItem.name;
+                let source = archiveItem.source;
+                let outputName = archiveItem.outputName;
                 let archiveType = archiveItem.archiveType;
 
-                if (!fs.existsSync(folder)) {
-                    throw new Error(`❗️ Folder not found: ${folder}`);
+                if (!fs.existsSync(source)) {
+                    throw new Error(`❗️ Folder not found: ${source}`);
                 }
 
                 let outputFile = "";
                 let command = "";
 
                 if (archiveType == "tar.gz") {
-                    outputFile = `${archive}-${ref}.tar.gz`;
-                    command = `tar -czf ${dist_path}/${outputFile} ${folder}`;
+                    outputFile = `${outputName}-${ref}.tar.gz`;
+                    command = `tar -czf ${dist_path}/${outputFile} ${source}`;
 
                 }
                 else if (archiveType == "zip") {
-                    outputFile = `${archive}-${ref}.zip`;
-                    command = `zip -r ${dist_path}/${outputFile} ${folder}`;
+                    outputFile = `${outputName}-${ref}.zip`;
+                    command = `zip -r ${dist_path}/${outputFile} ${source}`;
                 }
                 else if (archiveType == "tar") {
-                    outputFile = `${archive}-${ref}.tar`;
-                    command = `tar -cf ${dist_path}/${outputFile} ${folder}`;
+                    outputFile = `${outputName}-${ref}.tar`;
+                    command = `tar -cf ${dist_path}/${outputFile} ${source}`;
                 }
 
                 execSync(command, {
@@ -117,7 +117,7 @@
                     stdio: "inherit",
                 });
 
-                core.info(`🧱 Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
+                core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
             }
 
             core.info(`\n-----------------------------------------------`)
