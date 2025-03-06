@@ -14,7 +14,7 @@ async function assetsUpload(dest_path, ref) {
         for (const file of files) {
             const fullPath = path.join(directoryPath, file);
             if (fs.statSync(fullPath).isFile()) {
-                console.log(`Uploading ${fullPath} to ${dest_path}/${ref}/${file}`);
+                console.log(`🔄 Uploading ${fullPath} to ${dest_path}/${ref}/${file}`);
             }
         }
     } catch (err) {
