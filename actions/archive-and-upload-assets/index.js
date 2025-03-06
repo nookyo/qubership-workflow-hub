@@ -32,7 +32,7 @@
 
             const jsonFile = core.getInput('config-path');
             const ref = core.getInput('ref');
-            const dist_path = core.getInput('dest-path');
+            const dist_path = core.getInput('dist-path');
             const upload = core.getInput('upload');
 
             core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${dist_path}\n 🔹upload: ${upload}\n`);
