@@ -50,6 +50,7 @@ async function run() {
         const ajv = new Ajv();
         const validate = ajv.compile(schema);
         const valid = validate(config);
+        core.info(`Config file is valid: ${valid}`);
         if (!valid) {
             constErrors = ajv.errorsText(validate.errors);
             core.setFailed(`Config file is invalid: ${constErrors}`);
