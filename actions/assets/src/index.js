@@ -6,8 +6,8 @@ const Ajv = require('ajv');
 const yaml = require('js-yaml');
 
 
-async function upload(dest_folder, ref) {
-    const directoryPath = path.join(__dirname,  dest_folder);
+async function upload(dest_path, ref) {
+    const directoryPath = path.join(__dirname,  dest_path);
 
     fs.readdir(directoryPath, (err, files) => {
         if (err) {
@@ -17,7 +17,7 @@ async function upload(dest_folder, ref) {
             const fullPath = path.join(directoryPath, file);
             const stat = fs.statSync(fullPath);
             if (stat.isFile()) {
-                console.log(`Uploading ${fullPath} to ${dest_folder}/${ref}/${file}`);
+                console.log(`Uploading ${fullPath} to ${dest_path}/${ref}/${file}`);
             }
         });
     });
@@ -28,7 +28,7 @@ async function run() {
 
         const jsonFile = core.getInput('config-path');
         const ref = core.getInput('ref');
-        const dest_folder = core.getInput('dest-folder');
+        const dest_path = core.getInput('dest-path');
         const upload = core.getInput('upload');
 
 
@@ -126,7 +126,7 @@ async function run() {
         core.info(`Output archives: ${createArchives}`);
 
         if (upload) {
-            await upload(dest_folder, ref);
+            await upload(dest_path, ref);
         }
     }
     catch (error) {

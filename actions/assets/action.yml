@@ -8,7 +8,7 @@ inputs:
   ref:
     description: "The tag for Release to upload assets."
     required: false
-  dest-folder:
+  dest-path:
     description: "The destination folder for the assets."
     required: false
     default: "dist"
