@@ -57,6 +57,12 @@ async function run() {
 
         let createArchives = [];
 
+        // Create dist folder for storing archives
+        execSync('mkdir -p dist', {
+            cwd: process.env.GITHUB_WORKSPACE,
+            stdio: "inherit",
+        });
+
         for (const archiveItem of config.archives) {
             let folder = archiveItem.folder;
             let archive = archiveItem.name;
