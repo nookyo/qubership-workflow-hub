@@ -66,7 +66,7 @@ async function run() {
             }
 
             const outputFile = `${archive}.tgz`;
-            const command = `tar -czf ${outputFile} dist/${folder}`;
+            const command = `tar -czf dist/${outputFile} ${folder}`;
 
             execSync(command, {
                 cwd: process.env.GITHUB_WORKSPACE,
