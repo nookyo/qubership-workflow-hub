@@ -3,6 +3,7 @@ const core = require("@actions/core");
 const { execSync } = require('child_process');
 const path = require("path");
 const Ajv = require('ajv');
+const yaml = require('js-yaml');
 
 
 
@@ -24,14 +25,15 @@ async function run() {
 
         let config;
         try {
-            config = JSON.parse(fileContent);
+            // config = JSON.parse(fileContent);
+            config = yaml.load(fileContent);
         }
         catch (error) {
             core.setFailed(`Error parsing JSON file: ${error.message}`);
             return;
         }
 
-        const schemaPath = path.resolve(__dirname, 'config.schema.json');
+        const schemaPath = path.resolve(__dirname, '..', 'config.schema.json');
         if (!fs.existsSync(schemaPath)) {
             core.setFailed(`Schema file not found: ${schemaPath}`);
             return;
