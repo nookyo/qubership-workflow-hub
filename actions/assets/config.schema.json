@@ -20,7 +20,7 @@
             "enum": ["zip", "tar", "tar.gz"]
           }
         },
-        "required": ["folder", "name"],
+        "required": ["folder", "name", "archiveType"],
         "additionalProperties": false
       }
     }
