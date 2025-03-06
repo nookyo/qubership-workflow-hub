@@ -7,20 +7,20 @@ const yaml = require('js-yaml');
 
 
 async function upload(dest_folder, ref) {
-    const directoryPath = path.join(__dirname, dest_folder);
+    const directoryPath = path.join(__dirname,  dest_folder);
 
-    try {
-        const files = fs.readdirSync(directoryPath);
-        for (const file of files) {
-            const fullPath = path.join(directoryPath, file);
-            console.log(fullPath);
-            if (fs.statSync(fullPath).isFile()) {
-                console.log(`File: ${file}`);
-            }
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+            return console.error('Unable to scan directory: ' + err);
         }
-    } catch (err) {
-        core.error(`Error reading directory: ${err}`);
-    }
+        files.forEach(file => {
+            const fullPath = path.join(directoryPath, file);
+            const stat = fs.statSync(fullPath);
+            if (stat.isFile()) {
+                console.log(`Uploading ${fullPath} to ${dest_folder}/${ref}/${file}`);
+            }
+        });
+    });
 }
 
 async function run() {
@@ -125,6 +125,9 @@ async function run() {
         core.setOutput('archives', createArchives);
         core.info(`Output archives: ${createArchives}`);
 
+        if (upload) {
+            await upload(dest_folder, ref);
+        }
     }
     catch (error) {
         core.setFailed(error.message)
