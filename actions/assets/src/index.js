@@ -17,6 +17,7 @@ async function assetsUpload(dist_path, ref) {
                 console.log(`🔄 Uploading ${fullPath} to ${dist_path}/${ref}/${file}`);
             }
         }
+        core.info(`-----------------------------------------------\n`)
     } catch (err) {
         core.setFailed(`❗️ Unable to scan directory: ${err}`);
         throw err;
@@ -116,9 +117,11 @@ async function run() {
             core.info(`🧱 Creating archive ${outputFile} from ${folder} archiveType: ${archiveType}`);;
         }
 
+        core.info(`-----------------------------------------------\n`)
         if (upload === 'true') {
             await assetsUpload(dist_path, ref);
         }
+        core.info(`-----------------------------------------------`)
         core.info('\n ✅ Action completed successfully!');
     }
     catch (error) {
