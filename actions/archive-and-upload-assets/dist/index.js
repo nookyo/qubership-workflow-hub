@@ -38348,7 +38348,7 @@ async function assetsUpload(dist_path, ref) {
         for (const file of files) {
             const fullPath = path.join(directoryPath, file);
             if (fs.statSync(fullPath).isFile()) {
-                console.log(`🔄 Uploading ${fullPath} to ${dist_path}/${ref}/${file}`);
+                console.log(`🔄 Uploading ${fullPath} to Release: ${ref}`);
                 execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
                     stdio: "inherit",
                 });
