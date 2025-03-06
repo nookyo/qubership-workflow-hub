@@ -13,7 +13,7 @@ async function assetsUpload(dest_path, ref) {
         if (err) {
             //
             core.setFailed(`Unable to scan directory: ${err}`);
-            return console.error('Unable to scan directory: ' + err);
+            return;
         }
         files.forEach(file => {
             const fullPath = path.join(directoryPath, file);
