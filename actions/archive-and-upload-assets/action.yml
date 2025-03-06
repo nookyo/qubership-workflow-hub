@@ -7,7 +7,7 @@ inputs:
     required: true
   ref:
     description: "The tag for Release to upload assets."
-    required: false
+    required: true
   dist-path:
     description: "The path to upload archive."
     required: false
