@@ -6,7 +6,7 @@ const Ajv = require('ajv');
 const yaml = require('js-yaml');
 
 
-async function upload(dest_path, ref) {
+async function assetsUpload(dest_path, ref) {
     const directoryPath = path.join(__dirname,  dest_path);
 
     fs.readdir(directoryPath, (err, files) => {
@@ -126,7 +126,7 @@ async function run() {
         core.info(`Output archives: ${createArchives}`);
 
         if (upload) {
-            await this.upload(dest_path, ref);
+            await assetsUpload(dest_path, ref);
         }
     }
     catch (error) {
