@@ -36,7 +36,7 @@ function fillTemplate(template, values) {
 async function run() {
   const def_template = core.getInput("default-template");
 
-  const name = core.getInput('ref') || github.context.ref;
+  const name = core.getInput("ref") || github.context.ref;
   const ref = new RefExtractor().extract(name);
 
   // const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
@@ -58,14 +58,12 @@ async function run() {
   const tagsMapping = { ...tagsConfig, ...inputTags };
   let tag = tagsMapping[ref.name] || "latest";
 
-
   const branchTemplateConfig = {};
-  const branchInputStr = core.getInput("branch-template")
+  const branchInputStr = core.getInput("branch-template");
   let inputTemplates = {};
   try {
     inputTemplates = JSON.parse(branchInputStr);
-  }
-  catch (error) {
+  } catch (error) {
     core.error("Cant read tempalets" + error.message);
   }
 
