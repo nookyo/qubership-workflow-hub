@@ -12,18 +12,18 @@ This workflow does not require any inputs.
 
 ## 📌 Secrets
 
-| Name           | Description                          | Required |
-| -------------- | ------------------------------------ | -------- |
-| `GITHUB_TOKEN` | GitHub token for authentication      | Yes      |
+| Name           | Description                     | Required |
+| -------------- | ------------------------------- | -------- |
+| `GITHUB_TOKEN` | GitHub token for authentication | Yes      |
 
 ## 📌 Permissions
 
 This workflow requires the following permissions:
 
-| Permission       | Description                          |
-| ---------------- | ------------------------------------ |
-| `pull-requests`  | Write access to pull requests        |
-| `contents`       | Read access to repository contents   |
+| Permission      | Description                        |
+| --------------- | ---------------------------------- |
+| `pull-requests` | Write access to pull requests      |
+| `contents`      | Read access to repository contents |
 
 ## Usage Example
 
