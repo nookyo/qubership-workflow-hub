@@ -10,28 +10,28 @@ This **GitHub Metadata** GitHub Action extracts metadata from the current GitHub
 
 ## 📌 Inputs
 
-| Name               | Description                              | Required | Default                  |
-| ------------------ | ---------------------------------------- | -------- | ------------------------ |
-| `ref`              | Current branch or tag ref                | No       |                          |
-| `default-template` | Template to use                          | No       |                          |
-| `config-file-path` | Path to the configuration file           | No       |                          |
-| `branch-template`  | Template for branch names                | No       |                          |
-| `dist-tags`        | Tags to use                              | No       |                          |
+| Name               | Description                    | Required | Default |
+| ------------------ | ------------------------------ | -------- | ------- |
+| `ref`              | Current branch or tag ref      | No       |         |
+| `default-template` | Template to use                | No       |         |
+| `config-file-path` | Path to the configuration file | No       |         |
+| `branch-template`  | Template for branch names      | No       |         |
+| `dist-tags`        | Tags to use                    | No       |         |
 
 ## 📌 Outputs
 
-| Name               | Description                              |
-| ------------------ | ---------------------------------------- |
-| `rendered-template`| Rendered template with metadata          |
-| `ref`              | Current branch or tag ref                |
-| `ref-name`         | Current branch or tag name               |
-| `date`             | Current date                             |
-| `time`             | Current time                             |
-| `timestamp`        | Current timestamp                        |
-| `dist-tag`         | Current tag                              |
-| `major`            | Major version                            |
-| `minor`            | Minor version                            |
-| `patch`            | Patch version                            |
+| Name                | Description                     |
+| ------------------- | ------------------------------- |
+| `rendered-template` | Rendered template with metadata |
+| `ref`               | Current branch or tag ref       |
+| `ref-name`          | Current branch or tag name      |
+| `date`              | Current date                    |
+| `time`              | Current time                    |
+| `timestamp`         | Current timestamp               |
+| `dist-tag`          | Current tag                     |
+| `major`             | Major version                   |
+| `minor`             | Minor version                   |
+| `patch`             | Patch version                   |
 
 ## Usage Example
 
@@ -55,8 +55,9 @@ jobs:
       - name: Extract Metadata
         uses: Netcracker/qubership-workflow-hub/actions/github-metadata@main
         with:
-          ref: 'main'
-          default-template: 'v{{major}}.{{minor}}.{{patch}}-{{date}}'
-          config-file-path: './.github/github-metadata-config.yml'
+          ref: "main"
+          default-template: "v{{major}}.{{minor}}.{{patch}}-{{date}}"
+          config-file-path: "./.github/github-metadata-config.yml"
           branch-template: '{"main": "v{{major}}.{{minor}}.{{patch}}-{{date}}"}'
           dist-tags: '{"main": "latest"}'
+```
