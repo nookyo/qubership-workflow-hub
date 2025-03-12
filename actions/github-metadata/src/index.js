@@ -33,15 +33,14 @@ function fillTemplate(template, values) {
   });
 }
 
-function matchesPattern(branchName, pattern) {
+function matchesPattern(refName, pattern) {
   const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
-  return regex.test(branchName);
+  return regex.test(refName);
 }
 
-function matchTemplate(branchName, config) {
-  const templates = config['branch-template'];
+function findTemplate(refName, templates) {
   for (let pattern in templates) {
-    if (matchesPattern(branchName, pattern)) {
+    if (matchesPattern(refName, pattern)) {
       return templates[pattern];
     }
   }
@@ -59,7 +58,7 @@ async function run() {
 
   const loader = new ConfigLoader(configurationPath).load();
 
-  const template = matchTemplate(ref.name, loader);
+  const template = findTemplate(ref.name, loader);
 
   core.info(`Template: ${template}`);
 
