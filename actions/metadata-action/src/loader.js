@@ -10,7 +10,7 @@ class ConfigLoader {
 
   load(filePath) {
     const configPath = path.resolve(filePath);
-    console.log(`💡 Try to reading configuratio ${configPath}`)
+    console.log(`💡 Try to reading configuration ${configPath}`)
 
     if (!fs.existsSync(configPath)) {
       core.setFailed(`❗️ File not found: ${configPath}`);
@@ -49,8 +49,8 @@ class ConfigLoader {
     const validate = ajv.compile(schema);
     const valid = validate(config);
     if (!valid) {
-      constErrors = ajv.errorsText(validate.errors);
-      core.setFailed(`❗️ Configuration file is invalid: ${constErrors}`);
+      let errors = ajv.errorsText(validate.errors);
+      core.setFailed(`❗️ Configuration file is invalid: ${errors}`);
       return;
     }
     core.warning(`Configuration file is valid: ${valid}\n`);
