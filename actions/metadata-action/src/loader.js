@@ -54,7 +54,6 @@ class ConfigLoader {
       return;
     }
     core.warning(`Configuration file is valid: ${valid}`);
-    core.info(`\n---------------------------------------`);
     return config;
   }
 }
