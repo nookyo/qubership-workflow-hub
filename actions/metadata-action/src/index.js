@@ -71,15 +71,16 @@ async function run() {
   // const def_template = core.getInput("default-template");
 
   const name = core.getInput('ref') || github.context.ref;
-  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
-
   const ref = new RefExtractor().extract(name);
+
+
+  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
+  const loader = new ConfigLoader(configurationPath).load();
+
 
   core.info(`Ref: ${JSON.stringify(ref)}`);
   core.info(`ref, name: ${ref.name}`);
   core.info(`ref, isTag: ${ref.isTag}`);
-
-  const loader = new ConfigLoader(configurationPath).load();
 
   core.info(`Branches: ${JSON.stringify(loader["branches-template"])}`);
 
