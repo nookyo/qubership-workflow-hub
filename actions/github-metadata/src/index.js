@@ -98,8 +98,6 @@ async function run() {
   core.info(`semverParts: ${JSON.stringify(semverParts)}`);
   core.info(`dist-tag: ${JSON.stringify(distTag)}`);
 
-  core.info(`Context: ${JSON.stringify(github.context)}`);
-
   let result = fillTemplate(template, values)
 
   core.info(`Rendered template: ${result}`);
