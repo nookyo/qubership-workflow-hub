@@ -27,9 +27,8 @@ function extractSemverParts(versionString) {
   return { major, minor, patch };
 }
 
-
 function matchesPattern(refName, pattern) {
-  const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+  const regex = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
   return regex.test(refName);
 }
 
@@ -44,7 +43,7 @@ function findTemplate(refName, templates) {
 
 function findDistTag(branchName, distTags) {
   for (let key in distTags) {
-    if (key.includes('*')) {
+    if (key.includes("*")) {
       if (matchesPattern(branchName, key)) {
         return distTags[key];
       }
@@ -66,8 +65,10 @@ function fillTemplate(template, values) {
 async function run() {
   // const def_template = core.getInput("default-template");
 
-  const name = core.getInput('ref') || github.context.ref;
-  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-extractor-config.yml";
+  const name = core.getInput("ref") || github.context.ref;
+  const configurationPath =
+    core.getInput("configuration-path") ||
+    "./.github/metadata-extractor-config.yml";
 
   const ref = new RefExtractor().extract(name);
 
@@ -88,13 +89,19 @@ async function run() {
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
   const distTag = findDistTag(ref.name, loader["dist-tags"]) || "default";
-  const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
+  const values = {
+    ...ref,
+    ...semverParts,
+    ...parts,
+    ...github.context,
+    distTag,
+  };
 
   core.info(`parts: ${JSON.stringify(parts)}`);
   core.info(`semverParts: ${JSON.stringify(semverParts)}`);
   core.info(`dist-tag: ${JSON.stringify(distTag)}`);
 
-  let result = fillTemplate(template, values)
+  let result = fillTemplate(template, values);
 
   core.info(`Rendered template: ${result}`);
 
