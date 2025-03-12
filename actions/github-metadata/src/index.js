@@ -40,6 +40,8 @@ function matchesPattern(refName, pattern) {
 
 function findTemplate(refName, templates) {
   for (let pattern in templates) {
+    core.info(`Pattern: ${pattern}`);
+    core.info(`RefName: ${refName}`);
     if (matchesPattern(refName, pattern)) {
       return templates[pattern];
     }
