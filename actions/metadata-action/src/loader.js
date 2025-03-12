@@ -53,7 +53,7 @@ class ConfigLoader {
     }
     core.warning(`Configuration file is valid: ${valid}\n`);
     return config;
-    
+ 
     // try {
     //   const fileContents = fs.readFileSync(this.configPath, "utf8");
     //   return yaml.load(fileContents);
