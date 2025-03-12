@@ -61,7 +61,11 @@ async function run() {
 
   const template = matchTemplate(ref.name, loader);
 
-  core.log(`Te,plate: ${template}`);
+  core.log(`Template: ${template}`);
+
+  let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
+
+  core.log(`Fill: ${fill}`);
 
 
 
