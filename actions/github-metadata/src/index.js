@@ -46,7 +46,7 @@ async function run() {
   const loader = new ConfigLoader(configurationPath).load();
 
   core.info(`Configuration: ${JSON.stringify(loader)}`);
-  core.info(`Configuration: ${JSON.stringify(loader["branch-templates"])}`);
+  core.info(`Configuration: ${JSON.stringify(loader["branches-template"])}`);
 
 
 
