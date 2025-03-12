@@ -58,6 +58,10 @@ async function run() {
 
   const ref = new RefExtractor().extract(name);
 
+  core.info(`Ref: ${JSON.stringify(ref)}`);
+  core.info(`ref, name: ${ref.name}`);
+  core.info(`ref, isTag: ${ref.isTag}`);
+
   const loader = new ConfigLoader(configurationPath).load();
 
   core.info(`Branches: ${JSON.stringify(loader["branches-template"])}`);
