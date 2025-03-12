@@ -1,6 +1,7 @@
 const fs = require("fs");
 const yaml = require("js-yaml");
 const core = require("@actions/core");
+const Ajv = require("ajv");
 
 class ConfigLoader {
   constructor() {
