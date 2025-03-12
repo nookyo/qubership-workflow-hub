@@ -34,7 +34,8 @@ function matchesPattern(refName, pattern) {
 }
 
 function findTemplate(refName, templates) {
-  for (let pattern in templates) {
+  for (let item in templates) {
+    let pattern = Object.keys(item)[0];
     if (matchesPattern(refName, pattern)) {
       return templates[pattern];
     }
@@ -47,7 +48,8 @@ function findDistTag(ref, distTags) {
   if (ref.isTag) {
     return distTags["tag"] || "latest";
   }
-  for (let key in distTags) {
+  for (let item in distTags) {
+    let key = Object.keys(item)[0];
     if (key.includes('*')) {
       if (matchesPattern(branchName, key)) {
         return distTags[key];
