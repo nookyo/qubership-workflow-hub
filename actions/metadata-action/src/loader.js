@@ -53,7 +53,8 @@ class ConfigLoader {
       core.setFailed(`❗️ Configuration file is invalid: ${errors}`);
       return;
     }
-    core.warning(`Configuration file is valid: ${valid}\n`);
+    core.warning(`Configuration file is valid: ${valid}`);
+    core.warning(`---------------------------------------\n`);
     return config;
   }
 }
