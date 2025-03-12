@@ -6,7 +6,7 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 
-const ConfigLoader = require("./configLoader");
+const ConfigLoader = require("./loader");
 const RefExtractor = require("./extractor");
 
 function generateSnapshotVersionParts() {
@@ -33,11 +33,23 @@ function fillTemplate(template, values) {
   });
 }
 
+
+
 async function run() {
-  const def_template = core.getInput("default-template");
+  // const def_template = core.getInput("default-template");
 
   const name = core.getInput('ref') || github.context.ref;
+  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-extractor-config.yml";
+
   const ref = new RefExtractor().extract(name);
+
+  const loader = new ConfigLoader(configurationPath).load();
+
+  core.info(`Configuration: ${JSON.stringify(loader)}`);
+  core.info(`Configuration: ${JSON.stringify(loader["branch-templates"])}`);
+
+
+
 
   // const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
   // const config = new ConfigLoader(configPath).load();
@@ -70,6 +82,7 @@ async function run() {
   }
 
   const branchTemplateMapping = { ...branchTemplateConfig, ...inputTemplates };
+
   let template = branchTemplateMapping[ref.name] || def_template;
 
   const parts = generateSnapshotVersionParts();
