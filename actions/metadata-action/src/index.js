@@ -75,7 +75,7 @@ async function run() {
 
 
   const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
-  const loader = new ConfigLoader(configurationPath).load();
+  const loader = new ConfigLoader().load(configurationPath);
 
 
   core.info(`Ref: ${JSON.stringify(ref)}`);

@@ -10,7 +10,7 @@ class ConfigLoader {
 
   load(filePath) {
     const configPath = path.resolve(filePath);
-    console.log(`💡 Reading asset config from ${configPath}`)
+    console.log(`💡 Try to reading configuratio ${configPath}`)
 
     if (!fs.existsSync(configPath)) {
       core.setFailed(`❗️ File not found: ${configPath}`);
