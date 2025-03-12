@@ -58,13 +58,14 @@ async function run() {
 
   const loader = new ConfigLoader(configurationPath).load();
 
+  core.info(`Branches: ${JSON.stringify(loader["branches-template"])}`);
   const template = findTemplate(ref.name, loader["branches-template"]);
 
   core.info(`Template: ${template}`);
 
-  let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
+  // let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
 
-  core.info(`Fill: ${fill}`);
+  // core.info(`Fill: ${fill}`);
 
 
 
