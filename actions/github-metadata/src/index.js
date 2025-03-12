@@ -83,7 +83,7 @@ async function run() {
 
   core.info(`Branches: ${JSON.stringify(loader["branches-template"])}`);
 
-  const template = findTemplate(ref.name, loader["branches-template"]);
+  const template = findTemplate(!ref.isTag ? ref.name : "tag", loader["branches-template"]);
 
   core.info(`Template: ${template}`);
 
