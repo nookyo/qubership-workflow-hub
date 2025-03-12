@@ -92,8 +92,6 @@ async function run() {
 
   const template = findTemplate(!ref.isTag ? ref.name : "tag", loader["branches-template"]);
 
-  core.info(`🔹 Template: ${template}`);
-
   // let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
 
   const parts = generateSnapshotVersionParts();
@@ -101,12 +99,13 @@ async function run() {
   const distTag = findDistTag(ref, loader["dist-tags"]) || "default";
   const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
 
-  core.info(`🔹 parts: ${JSON.stringify(parts)}`);
-  core.info(`🔹 semverParts: ${JSON.stringify(semverParts)}`);
+  core.info(`🔹 time: ${JSON.stringify(parts)}`);
+  core.info(`🔹 semver: ${JSON.stringify(semverParts)}`);
   core.info(`🔹 dist-tag: ${JSON.stringify(distTag)}`);
 
   let result = fillTemplate(template, values)
 
+  core.info(`🔹 Template: ${template}`);
   core.info(`💡 Rendered template: ${result}`);
 
   core.setOutput("result", result);
