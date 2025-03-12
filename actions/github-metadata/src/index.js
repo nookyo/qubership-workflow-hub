@@ -33,6 +33,20 @@ function fillTemplate(template, values) {
   });
 }
 
+function matchesPattern(branchName, pattern) {
+  const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+  return regex.test(branchName);
+}
+
+function matchTemplate(branchName, config) {
+  const templates = config['branch-template'];
+  for (let pattern in templates) {
+    if (matchesPattern(branchName, pattern)) {
+      return templates[pattern];
+    }
+  }
+  return null;
+}
 
 
 async function run() {
@@ -45,8 +59,14 @@ async function run() {
 
   const loader = new ConfigLoader(configurationPath).load();
 
-  core.info(`Configuration: ${JSON.stringify(loader)}`);
-  core.info(`Configuration: ${JSON.stringify(loader["branches-template"])}`);
+  const template = matchTemplate(ref.name, loader);
+
+  core.log(`Te,plate: ${template}`);
+
+
+
+  // core.info(`Configuration: ${JSON.stringify(loader)}`);
+  // core.info(`Configuration: ${JSON.stringify(loader["branches-template"])}`);
 
 
 
@@ -54,65 +74,65 @@ async function run() {
   // const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
   // const config = new ConfigLoader(configPath).load();
 
-  const tagsConfig = {};
-  const brancheTemplatesConfig = {};
+  // const tagsConfig = {};
+  // const brancheTemplatesConfig = {};
 
-  const tagsInputStr = core.getInput("dist-tags");
-  let inputTags = {};
-  if (tagsInputStr) {
-    try {
-      inputTags = JSON.parse(tagsInputStr);
-    } catch (error) {
-      core.error("Failed to parsing tags-input: " + error.message);
-    }
-  }
+  // const tagsInputStr = core.getInput("dist-tags");
+  // let inputTags = {};
+  // if (tagsInputStr) {
+  //   try {
+  //     inputTags = JSON.parse(tagsInputStr);
+  //   } catch (error) {
+  //     core.error("Failed to parsing tags-input: " + error.message);
+  //   }
+  // }
 
-  const tagsMapping = { ...tagsConfig, ...inputTags };
-  let tag = tagsMapping[ref.name] || "latest";
+  // const tagsMapping = { ...tagsConfig, ...inputTags };
+  // let tag = tagsMapping[ref.name] || "latest";
 
 
-  const branchTemplateConfig = {};
-  const branchInputStr = core.getInput("branch-template")
-  let inputTemplates = {};
-  try {
-    inputTemplates = JSON.parse(branchInputStr);
-  }
-  catch (error) {
-    core.error("Cant read tempalets" + error.message);
-  }
+  // const branchTemplateConfig = {};
+  // const branchInputStr = core.getInput("branch-template")
+  // let inputTemplates = {};
+  // try {
+  //   inputTemplates = JSON.parse(branchInputStr);
+  // }
+  // catch (error) {
+  //   core.error("Cant read tempalets" + error.message);
+  // }
 
-  const branchTemplateMapping = { ...branchTemplateConfig, ...inputTemplates };
+  // const branchTemplateMapping = { ...branchTemplateConfig, ...inputTemplates };
 
-  let template = branchTemplateMapping[ref.name] || def_template;
+  // let template = branchTemplateMapping[ref.name] || def_template;
 
-  const parts = generateSnapshotVersionParts();
-  const semverParts = extractSemverParts(ref.name);
+  // const parts = generateSnapshotVersionParts();
+  // const semverParts = extractSemverParts(ref.name);
 
-  const values = { ...ref, ...semverParts, ...parts, ...github.context, tag };
+  // const values = { ...ref, ...semverParts, ...parts, ...github.context, tag };
 
-  const result = fillTemplate(template, values);
+  // const result = fillTemplate(template, values);
 
-  core.info(`Ref: ${name}`);
-  core.info(`Ref name: ${ref.name}`);
-  core.info(`Date: ${parts.date}`);
-  core.info(`Time: ${parts.time}`);
-  core.info(`Timestamp: ${parts.timestamp}`);
-  core.info(`Major: ${semverParts.major}`);
-  core.info(`Minor: ${semverParts.minor}`);
-  core.info(`Patch: ${semverParts.patch}`);
-  core.info(`Tag: ${tag}`);
-  core.info(`Rendered template: ${result}`);
+  // core.info(`Ref: ${name}`);
+  // core.info(`Ref name: ${ref.name}`);
+  // core.info(`Date: ${parts.date}`);
+  // core.info(`Time: ${parts.time}`);
+  // core.info(`Timestamp: ${parts.timestamp}`);
+  // core.info(`Major: ${semverParts.major}`);
+  // core.info(`Minor: ${semverParts.minor}`);
+  // core.info(`Patch: ${semverParts.patch}`);
+  // core.info(`Tag: ${tag}`);
+  // core.info(`Rendered template: ${result}`);
 
-  core.setOutput("rendered-template", result);
-  core.setOutput("ref", ref);
-  core.setOutput("ref-name", ref.name);
-  core.setOutput("date", parts.date);
-  core.setOutput("time", parts.time);
-  core.setOutput("Timestamp", parts.timestamp);
-  core.setOutput("major", semverParts.major);
-  core.setOutput("minor", semverParts.minor);
-  core.setOutput("patch", semverParts.patch);
-  core.setOutput("tag", tag);
+  // core.setOutput("rendered-template", result);
+  // core.setOutput("ref", ref);
+  // core.setOutput("ref-name", ref.name);
+  // core.setOutput("date", parts.date);
+  // core.setOutput("time", parts.time);
+  // core.setOutput("Timestamp", parts.timestamp);
+  // core.setOutput("major", semverParts.major);
+  // core.setOutput("minor", semverParts.minor);
+  // core.setOutput("patch", semverParts.patch);
+  // core.setOutput("tag", tag);
 }
 
 run();
