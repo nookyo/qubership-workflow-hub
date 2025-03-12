@@ -87,7 +87,7 @@ async function run() {
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
-  const distTag = findDistTag(branchName, loader["dist-tags"]) || "latest";
+  const distTag = findDistTag(ref.name, loader["dist-tags"]) || "latest";
   const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
 
   // core.info(`parts: ${JSON.stringify(parts)}`);
