@@ -7,7 +7,7 @@ class ConfigLoader {
   constructor() {
   }
 
-  load(filePath, schemaPath) {
+  load(filePath) {
     const configPath = path.resolve(filePath);
     console.log(`💡 Reading asset config from ${configPath}`)
 
