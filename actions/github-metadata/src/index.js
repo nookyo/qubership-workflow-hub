@@ -18,7 +18,6 @@ function generateSnapshotVersionParts() {
 }
 
 function extractSemverParts(versionString) {
-
   if (versionString.startsWith("release/"))
     versionString = versionString.slice("release/".length);
 
