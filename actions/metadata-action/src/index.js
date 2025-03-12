@@ -109,7 +109,7 @@ async function run() {
 
   let result = fillTemplate(template, values)
 
-  core.info(`Rendered template: ${result}`);
+  core.info(`💡 Rendered template: ${result}`);
 
   core.setOutput("result", result);
   core.setOutput("ref", ref);
