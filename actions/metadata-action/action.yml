@@ -1,4 +1,4 @@
-name: "Extractmeta Data"
+name: "Metadata Action"
 description: ""
 inputs:
     configuration-path:
