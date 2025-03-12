@@ -74,6 +74,7 @@ async function run() {
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
+  let tag = "latest";
   const values = { ...ref, ...semverParts, ...parts, ...github.context, tag };
 
   core.info(`parts: ${JSON.stringify(parts)}`);
