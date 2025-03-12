@@ -87,14 +87,12 @@ async function run() {
 
 
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
-  core.info(`🔹 ref.name: ${ref.name}`);
-  core.info(`🔹 ref.isTag: ${ref.isTag}`);
 
-  core.info(`Branches: ${JSON.stringify(loader["branches-template"])}`);
+  core.info(`🔹 Branches: ${JSON.stringify(loader["branches-template"])}`);
 
   const template = findTemplate(!ref.isTag ? ref.name : "tag", loader["branches-template"]);
 
-  core.info(`Template: ${template}`);
+  core.info(`🔹 Template: ${template}`);
 
   // let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
 
