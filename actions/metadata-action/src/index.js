@@ -27,9 +27,8 @@ function extractSemverParts(versionString) {
   return { major, minor, patch };
 }
 
-
 function matchesPattern(refName, pattern) {
-  const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+  const regex = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
   return regex.test(refName);
 }
 
@@ -56,7 +55,7 @@ function findDistTag(ref, distTags) {
   }
   for (let item of distTags) {
     let key = Object.keys(item)[0];
-    if (key.includes('*')) {
+    if (key.includes("*")) {
       if (matchesPattern(branchName, key)) {
         return item[key]; // возвращаем значение из item
       }
@@ -78,32 +77,41 @@ function fillTemplate(template, values) {
 async function run() {
   // const def_template = core.getInput("default-template");
 
-  const name = core.getInput('ref') || github.context.ref;
+  const name = core.getInput("ref") || github.context.ref;
   const ref = new RefExtractor().extract(name);
 
-
-  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
+  const configurationPath =
+    core.getInput("configuration-path") ||
+    "./.github/metadata-action-config.yml";
   const loader = new ConfigLoader().load(configurationPath);
-
 
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   core.info(`🔹 Branches: ${JSON.stringify(loader["branches-template"])}`);
 
-  const template = findTemplate(!ref.isTag ? ref.name : "tag", loader["branches-template"]);
+  const template = findTemplate(
+    !ref.isTag ? ref.name : "tag",
+    loader["branches-template"],
+  );
 
   // let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
   const distTag = findDistTag(ref, loader["dist-tags"]) || "default";
-  const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
+  const values = {
+    ...ref,
+    ...semverParts,
+    ...parts,
+    ...github.context,
+    distTag,
+  };
 
   core.info(`🔹 time: ${JSON.stringify(parts)}`);
   core.info(`🔹 semver: ${JSON.stringify(semverParts)}`);
   core.info(`🔹 dist-tag: ${JSON.stringify(distTag)}`);
 
-  let result = fillTemplate(template, values)
+  let result = fillTemplate(template, values);
 
   core.info(`🔹 Template: ${template}`);
   core.info(`💡 Rendered template: ${result}`);
@@ -119,7 +127,7 @@ async function run() {
   core.setOutput("patch", semverParts.patch);
   core.setOutput("tag", distTag);
 
-   core.info('✅ Action completed successfully!');
+  core.info("✅ Action completed successfully!");
 }
 
 run();
