@@ -34,12 +34,12 @@ function fillTemplate(template, values) {
 }
 
 function matchesPattern(branchName, pattern) {
-  const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+  const regex = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
   return regex.test(branchName);
 }
 
 function matchTemplate(branchName, config) {
-  const templates = config['branch-template'];
+  const templates = config["branch-template"];
   for (let pattern in templates) {
     if (matchesPattern(branchName, pattern)) {
       return templates[pattern];
@@ -48,12 +48,13 @@ function matchTemplate(branchName, config) {
   return null;
 }
 
-
 async function run() {
   // const def_template = core.getInput("default-template");
 
-  const name = core.getInput('ref') || github.context.ref;
-  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-extractor-config.yml";
+  const name = core.getInput("ref") || github.context.ref;
+  const configurationPath =
+    core.getInput("configuration-path") ||
+    "./.github/metadata-extractor-config.yml";
 
   const ref = new RefExtractor().extract(name);
 
@@ -63,13 +64,8 @@ async function run() {
 
   core.log(`Te,plate: ${template}`);
 
-
-
   // core.info(`Configuration: ${JSON.stringify(loader)}`);
   // core.info(`Configuration: ${JSON.stringify(loader["branches-template"])}`);
-
-
-
 
   // const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
   // const config = new ConfigLoader(configPath).load();
@@ -89,7 +85,6 @@ async function run() {
 
   // const tagsMapping = { ...tagsConfig, ...inputTags };
   // let tag = tagsMapping[ref.name] || "latest";
-
 
   // const branchTemplateConfig = {};
   // const branchInputStr = core.getInput("branch-template")
