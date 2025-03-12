@@ -18,9 +18,6 @@ function generateSnapshotVersionParts() {
 }
 
 function extractSemverParts(versionString) {
-  if (versionString.startsWith("release/"))
-    versionString = versionString.slice("release/".length);
-
   const normalized = versionString.replace(/^v/i, "");
   if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
     core.warning(`Not a valid semver string (skip): ${versionString}`);
@@ -30,19 +27,6 @@ function extractSemverParts(versionString) {
   return { major, minor, patch };
 }
 
-function extractSemverFromBranch(branchName) {
-  if (branchName.startsWith("release/")) {
-    const versionString = branchName.slice("release/".length);
-    return extractSemverParts(versionString);
-  }
-  return { major: "", minor: "", patch: "" };
-}
-
-function fillTemplate(template, values) {
-  return template.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
-    return key in values ? values[key] : match;
-  });
-}
 
 function matchesPattern(refName, pattern) {
   const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
@@ -51,8 +35,6 @@ function matchesPattern(refName, pattern) {
 
 function findTemplate(refName, templates) {
   for (let pattern in templates) {
-    core.info(`Pattern: ${pattern}`);
-    core.info(`RefName: ${refName}`);
     if (matchesPattern(refName, pattern)) {
       return templates[pattern];
     }
@@ -60,6 +42,26 @@ function findTemplate(refName, templates) {
   return null;
 }
 
+function findDistTag(branchName, distTags) {
+  for (let key in distTags) {
+    if (key.includes('*')) {
+      if (matchesPattern(branchName, key)) {
+        return distTags[key];
+      }
+    } else {
+      if (branchName === key || branchName.startsWith(key + "/")) {
+        return distTags[key];
+      }
+    }
+  }
+  return null;
+}
+
+function fillTemplate(template, values) {
+  return template.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
+    return key in values ? values[key] : match;
+  });
+}
 
 async function run() {
   // const def_template = core.getInput("default-template");
@@ -85,12 +87,12 @@ async function run() {
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
-  let tag = "latest";
-  const values = { ...ref, ...semverParts, ...parts, ...github.context, tag };
+  const distTag = findDistTag(branchName, loader["dist-tags"]) || "latest";
+  const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
 
-  core.info(`parts: ${JSON.stringify(parts)}`);
-  core.info(`parts: ${JSON.stringify(parts)}`);
-  core.info(`Values: ${JSON.stringify(values)}`);
+  // core.info(`parts: ${JSON.stringify(parts)}`);
+  // core.info(`parts: ${JSON.stringify(parts)}`);
+  // core.info(`Values: ${JSON.stringify(values)}`);
 
   let fill = fillTemplate(template, values)
 
