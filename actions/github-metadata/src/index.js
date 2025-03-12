@@ -58,7 +58,7 @@ async function run() {
 
   const loader = new ConfigLoader(configurationPath).load();
 
-  const template = findTemplate(ref.name, loader);
+  const template = findTemplate(ref.name, loader["branches-template"]);
 
   core.info(`Template: ${template}`);
 
