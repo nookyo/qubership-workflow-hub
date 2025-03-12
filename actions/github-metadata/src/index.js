@@ -42,7 +42,11 @@ function findTemplate(refName, templates) {
   return null;
 }
 
-function findDistTag(branchName, distTags) {
+function findDistTag(ref, distTags) {
+  let branchName = ref.name;
+  if (ref.isTag) {
+    return distTags["tag"] || "latest";
+  }
   for (let key in distTags) {
     if (key.includes('*')) {
       if (matchesPattern(branchName, key)) {
@@ -87,7 +91,7 @@ async function run() {
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
-  const distTag = findDistTag(ref.name, loader["dist-tags"]) || "default";
+  const distTag = findDistTag(ref, loader["dist-tags"]) || "default";
   const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
 
   core.info(`parts: ${JSON.stringify(parts)}`);
