@@ -37,7 +37,7 @@ function findTemplate(refName, templates) {
   for (let item of templates) {
     let pattern = Object.keys(item)[0];
     if (matchesPattern(refName, pattern)) {
-      return templates[pattern];
+      return item[pattern]; // возвращаем значение из объекта item, а не templates
     }
   }
   return null;
@@ -46,17 +46,23 @@ function findTemplate(refName, templates) {
 function findDistTag(ref, distTags) {
   let branchName = ref.name;
   if (ref.isTag) {
-    return distTags["tag"] || "latest";
+    for (let item of distTags) {
+      let key = Object.keys(item)[0];
+      if (key === "tag") {
+        return item[key]; // возвращаем значение из item
+      }
+    }
+    return "latest";
   }
   for (let item of distTags) {
     let key = Object.keys(item)[0];
     if (key.includes('*')) {
       if (matchesPattern(branchName, key)) {
-        return distTags[key];
+        return item[key]; // возвращаем значение из item
       }
     } else {
       if (branchName === key || branchName.startsWith(key + "/")) {
-        return distTags[key];
+        return item[key]; // возвращаем значение из item
       }
     }
   }
