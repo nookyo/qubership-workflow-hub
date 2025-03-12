@@ -70,7 +70,17 @@ async function run() {
 
   core.info(`Template: ${template}`);
 
-  let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
+  // let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
+
+  const parts = generateSnapshotVersionParts();
+  const semverParts = extractSemverParts(ref.name);
+  const values = { ...ref, ...semverParts, ...parts, ...github.context, tag };
+
+  core.info(`parts: ${JSON.stringify(parts)}`);
+  core.info(`parts: ${JSON.stringify(parts)}`);
+  core.info(`Values: ${JSON.stringify(values)}`);
+
+  let fill = fillTemplate(template, values)
 
   core.info(`Fill: ${fill}`);
 
