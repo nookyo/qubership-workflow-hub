@@ -13,11 +13,10 @@ inputs:
     required: false
     default: "dist"
   upload:
-    default: 'false'
+    default: "false"
     description: "Upload assets to a repository."
     required: false
 
-
 runs:
- using: "node16"
- main: "dist/index.js"
+  using: "node16"
+  main: "dist/index.js"
