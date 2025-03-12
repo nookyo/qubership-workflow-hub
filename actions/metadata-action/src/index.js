@@ -86,9 +86,9 @@ async function run() {
   const loader = new ConfigLoader().load(configurationPath);
 
 
-  core.info(`Ref: ${JSON.stringify(ref)}`);
-  core.info(`ref, name: ${ref.name}`);
-  core.info(`ref, isTag: ${ref.isTag}`);
+  core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
+  core.info(`🔹 ref.name: ${ref.name}`);
+  core.info(`🔹 ref.isTag: ${ref.isTag}`);
 
   core.info(`Branches: ${JSON.stringify(loader["branches-template"])}`);
 
@@ -103,9 +103,9 @@ async function run() {
   const distTag = findDistTag(ref, loader["dist-tags"]) || "default";
   const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
 
-  core.info(`parts: ${JSON.stringify(parts)}`);
-  core.info(`semverParts: ${JSON.stringify(semverParts)}`);
-  core.info(`dist-tag: ${JSON.stringify(distTag)}`);
+  core.info(`🔹 parts: ${JSON.stringify(parts)}`);
+  core.info(`🔹 semverParts: ${JSON.stringify(semverParts)}`);
+  core.info(`🔹 dist-tag: ${JSON.stringify(distTag)}`);
 
   let result = fillTemplate(template, values)
 
@@ -121,6 +121,8 @@ async function run() {
   core.setOutput("minor", semverParts.minor);
   core.setOutput("patch", semverParts.patch);
   core.setOutput("tag", distTag);
+
+   core.info('✅ Action completed successfully!');
 }
 
 run();
