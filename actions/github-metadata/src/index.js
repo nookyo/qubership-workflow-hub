@@ -87,12 +87,12 @@ async function run() {
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
-  const distTag = findDistTag(ref.name, loader["dist-tags"]);
+  const distTag = findDistTag(ref.name, loader["dist-tags"]) || "default";
   const values = { ...ref, ...semverParts, ...parts, ...github.context, distTag };
 
   core.info(`parts: ${JSON.stringify(parts)}`);
   core.info(`semverParts: ${JSON.stringify(semverParts)}`);
-  core.info(`tags: ${JSON.stringify(distTag)}`);
+  core.info(`dist-tag: ${JSON.stringify(distTag)}`);
 
   let result = fillTemplate(template, values)
 
