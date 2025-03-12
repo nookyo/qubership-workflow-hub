@@ -93,83 +93,21 @@ async function run() {
   core.info(`parts: ${JSON.stringify(parts)}`);
   core.info(`semverParts: ${JSON.stringify(semverParts)}`);
   core.info(`tags: ${JSON.stringify(distTag)}`);
-  // core.info(`Values: ${JSON.stringify(values)}`);
 
+  let result = fillTemplate(template, values)
 
-  let fill = fillTemplate(template, values)
+  core.info(`Rendered template: ${result}`);
 
-  core.info(`Fill: ${fill}`);
-
-
-
-  // core.info(`Configuration: ${JSON.stringify(loader)}`);
-  // core.info(`Configuration: ${JSON.stringify(loader["branches-template"])}`);
-
-
-
-
-  // const configPath = core.getInput("config-path") || "./.github/metadata-extractor-config.yml";
-  // const config = new ConfigLoader(configPath).load();
-
-  // const tagsConfig = {};
-  // const brancheTemplatesConfig = {};
-
-  // const tagsInputStr = core.getInput("dist-tags");
-  // let inputTags = {};
-  // if (tagsInputStr) {
-  //   try {
-  //     inputTags = JSON.parse(tagsInputStr);
-  //   } catch (error) {
-  //     core.error("Failed to parsing tags-input: " + error.message);
-  //   }
-  // }
-
-  // const tagsMapping = { ...tagsConfig, ...inputTags };
-  // let tag = tagsMapping[ref.name] || "latest";
-
-
-  // const branchTemplateConfig = {};
-  // const branchInputStr = core.getInput("branch-template")
-  // let inputTemplates = {};
-  // try {
-  //   inputTemplates = JSON.parse(branchInputStr);
-  // }
-  // catch (error) {
-  //   core.error("Cant read tempalets" + error.message);
-  // }
-
-  // const branchTemplateMapping = { ...branchTemplateConfig, ...inputTemplates };
-
-  // let template = branchTemplateMapping[ref.name] || def_template;
-
-  // const parts = generateSnapshotVersionParts();
-  // const semverParts = extractSemverParts(ref.name);
-
-  // const values = { ...ref, ...semverParts, ...parts, ...github.context, tag };
-
-  // const result = fillTemplate(template, values);
-
-  // core.info(`Ref: ${name}`);
-  // core.info(`Ref name: ${ref.name}`);
-  // core.info(`Date: ${parts.date}`);
-  // core.info(`Time: ${parts.time}`);
-  // core.info(`Timestamp: ${parts.timestamp}`);
-  // core.info(`Major: ${semverParts.major}`);
-  // core.info(`Minor: ${semverParts.minor}`);
-  // core.info(`Patch: ${semverParts.patch}`);
-  // core.info(`Tag: ${tag}`);
-  // core.info(`Rendered template: ${result}`);
-
-  // core.setOutput("rendered-template", result);
-  // core.setOutput("ref", ref);
-  // core.setOutput("ref-name", ref.name);
-  // core.setOutput("date", parts.date);
-  // core.setOutput("time", parts.time);
-  // core.setOutput("Timestamp", parts.timestamp);
-  // core.setOutput("major", semverParts.major);
-  // core.setOutput("minor", semverParts.minor);
-  // core.setOutput("patch", semverParts.patch);
-  // core.setOutput("tag", tag);
+  core.setOutput("result", result);
+  core.setOutput("ref", ref);
+  core.setOutput("ref-name", ref.name);
+  core.setOutput("date", parts.date);
+  core.setOutput("time", parts.time);
+  core.setOutput("Timestamp", parts.timestamp);
+  core.setOutput("major", semverParts.major);
+  core.setOutput("minor", semverParts.minor);
+  core.setOutput("patch", semverParts.patch);
+  core.setOutput("tag", distTag);
 }
 
 run();
