@@ -18,6 +18,10 @@ function generateSnapshotVersionParts() {
 }
 
 function extractSemverParts(versionString) {
+
+  if (versionString.startsWith("release/"))
+    versionString = versionString.slice("release/".length);
+
   const normalized = versionString.replace(/^v/i, "");
   if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
     core.warning(`Not a valid semver string (skip): ${versionString}`);
@@ -25,6 +29,14 @@ function extractSemverParts(versionString) {
   }
   const [major, minor, patch] = normalized.split(".");
   return { major, minor, patch };
+}
+
+function extractSemverFromBranch(branchName) {
+  if (branchName.startsWith("release/")) {
+    const versionString = branchName.slice("release/".length);
+    return extractSemverParts(versionString);
+  }
+  return { major: "", minor: "", patch: "" };
 }
 
 function fillTemplate(template, values) {
