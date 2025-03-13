@@ -8,6 +8,10 @@ This **GitHub Metadata** GitHub Action extracts metadata from the current GitHub
 - Generates a version string based on templates and tags.
 - Supports custom templates and configuration files.
 
+### Action Result
+
+The primary output of this action is a generated version string. This string is determined by the branch or tag on which the action was executed, and it is created by applying the corresponding template defined in the configuration file. For example, if the action is triggered on the `main` branch, the output might follow the `v{{major}}.{{minor}}.{{patch}}-{{date}}` template, resulting in a string such as `v1.2.3-20250313`.
+
 ## 📌 Inputs
 
 | Name                 | Description                              | Required | Default                                               |
