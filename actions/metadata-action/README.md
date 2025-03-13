@@ -98,42 +98,45 @@ The configuration file for this action must adhere to the schema defined [here](
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Metadata Action Configuration Schema",
-  "type": "object",
-  "properties": {
-    "branches-template": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "minProperties": 1,
-        "maxProperties": 1,
-        "additionalProperties": false,
-        "patternProperties": {
-          "^(main|feature/\\*|release/\\*|tag)$": {
-            "type": "string"
-          }
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Metadata configuration file schema",
+    "type": "object",
+    "properties": {
+        "branches-template": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "minProperties": 1,
+                "maxProperties": 1,
+                "patternProperties": {
+                    "^[-a-zA-Z0-9_*]+$": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "dist-tags": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "minProperties": 1,
+                "maxProperties": 1,
+                "patternProperties": {
+                    "^[-a-zA-Z0-9_*]+$": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
         }
-      }
     },
-    "dist-tags": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "minProperties": 1,
-        "maxProperties": 1,
-        "additionalProperties": false,
-        "patternProperties": {
-          "^(main|feature/\\*|release/\\*|tag)$": {
-            "type": "string"
-          }
-        }
-      }
-    }
-  },
-  "required": [
-    "branches-template",
-    "dist-tags"
-  ],
-  "additionalProperties": false
+    "required": [
+        "branches-template",
+        "dist-tags"
+    ],
+    "additionalProperties": false
 }
+```
