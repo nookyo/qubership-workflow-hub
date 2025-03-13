@@ -91,3 +91,49 @@ More information here:
 ### Semantic Version Parsing Contract
 
 The variables `major`, `minor`, and `patch` are parsed only from a branch or tag that follows the format `vMAJOR.MINOR.PATCH` (for example, `v1.0.1`). This format is a strict contract; only tags or branch names matching this pattern will be correctly parsed to extract the semantic version components.
+
+### Configuration File Schema
+
+The configuration file for this action must adhere to the schema defined [here](https://github.com/nookyo/qubership-workflow-hub/blob/main/actions/metadata-action/config.schema.json). This ensures that all templates, distribution tags, and other configuration options follow the required structure for correct parsing and execution.
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata Action Configuration Schema",
+  "type": "object",
+  "properties": {
+    "branches-template": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "additionalProperties": false,
+        "patternProperties": {
+          "^(main|feature/\\*|release/\\*|tag)$": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dist-tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "additionalProperties": false,
+        "patternProperties": {
+          "^(main|feature/\\*|release/\\*|tag)$": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "branches-template",
+    "dist-tags"
+  ],
+  "additionalProperties": false
+}
