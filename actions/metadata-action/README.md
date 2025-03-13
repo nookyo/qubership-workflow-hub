@@ -80,7 +80,7 @@ dist-tags:
 In this example:
 
 - **Main branch template:** generates a version string in the format `vMAJOR.MINOR.PATCH-DATE` (e.g. `v1.2.3-20250313`).
-- **Feature/* branch template:** generates a version string in the format `feature-BRANCH_NAME-TIMESTAMP` (e.g. `feature-my-feature.beta-20250313235959.beta`).
+- **Feature/* branch template:** generates a version string in the format `feature-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `feature-my-feature.20250313235959.beta`).
 - **Release/* branch template:** generates a version string in the format `release-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `release-v1.2.3-20250313235959.next`).
 - **Tag template:** generates a version string in the format `vMAJOR.MINOR.PATCH` (e.g. `v1.2.3`).
 
