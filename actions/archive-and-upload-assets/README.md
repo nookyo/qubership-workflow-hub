@@ -10,12 +10,12 @@ This Action automatically archives specified folders and uploads them as release
 
 ## 📌 Inputs
 
-| Name            | Description                            | Required | Default |
-| --------------- | -------------------------------------- | -------- | ------- |
-| `config-path`   | The path to the configuration file.    | Yes      | N/A     |
-| `ref`           | The reference for the release.         | Yes      | N/A     |
-| `dist-path`     | The destination path for the archives. | No       | `dist`  |
-| `upload`        | Whether to upload the archives.        | No       | `false` |
+| Name          | Description                            | Required | Default |
+| ------------- | -------------------------------------- | -------- | ------- |
+| `config-path` | The path to the configuration file.    | Yes      | N/A     |
+| `ref`         | The reference for the release.         | Yes      | N/A     |
+| `dist-path`   | The destination path for the archives. | No       | `dist`  |
+| `upload`      | Whether to upload the archives.        | No       | `false` |
 
 ## Usage Example
 
@@ -48,11 +48,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
 ## Example Configuration File
 
 Here is an example of how the configuration file should look:
 
-``` yaml
+```yaml
 archives:
   - source: "src"
     outputName: "source-code"
@@ -66,7 +67,7 @@ archives:
 
 The configuration file should follow this JSON schema:
 
-``` json
+```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Archive Configuration Schema",
