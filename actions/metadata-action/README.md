@@ -12,8 +12,8 @@ This **GitHub Metadata** GitHub Action extracts metadata from the current GitHub
 
 | Name                 | Description                              | Required | Default                                               |
 | -------------------- | ---------------------------------------- | -------- | ----------------------------------------------------- |
-| `ref`                | Current branch or tag ref                | No       |                                                     |
-| `configuration-path` | Path to the configuration file           | No       | `./.github/metadata-action-config.yml`               |
+| `ref`                | Branch or tag ref                        | No       | `github.context.ref`                                  |
+| `configuration-path` | Path to the configuration file           | No       | `./.github/metadata-action-config.yml`                |
 
 ## 📌 Outputs
 
