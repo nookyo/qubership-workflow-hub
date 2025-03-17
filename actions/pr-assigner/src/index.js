@@ -51,9 +51,9 @@ async function run() {
         assignees = content['assignees'];
         count = content['count'] != null ? content['count'] : count;
 
-        core.info(`Count: ${count}`);
-        core.info(`assignees: ${assignees}`);
-        
+        core.info(`🔷 Count: ${count}`);
+        core.info(`🔷 assignees: ${assignees}`);
+
         core.warning(`Use configuration file ${configurationPath}`)
     }
     else {
@@ -62,14 +62,14 @@ async function run() {
             core.setFailed(`❗️ Cant process CODEOWNERS file`);
             return;
         }
+        core.info(`🔷 Count: ${count}`);
+        core.info(`🔷 assignees: ${assignees}`);
         core.warning(`Use CODEOWNERS file`)
     }
 
     if (assignees.length > 1) {
         assignees = shuffleArray(assignees);
     }
-
-    
 
     try {
         const pullRequest = github.context.payload.pull_request;
@@ -82,6 +82,7 @@ async function run() {
         
         execSync(cmd, { stdio: 'inherit' });
 
+        core.info("✅ Action completed successfully!");
 
     } catch (error) {
         core.setFailed(`❗️ ${error.message}`);
