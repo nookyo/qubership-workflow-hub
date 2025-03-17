@@ -33,15 +33,8 @@ async function run() {
             const lines = codeownersContent.split('\n');
             const userLine = lines.find(line => line.trim().startsWith('*'));
 
-            core.info(` Userline: ${userLine}` );
-
-            // if (!userLine) {
-            //     core.info('❗️ No default user found in CODEOWNERS file');
-            //     return;
-            // }
-
-            // const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
-            // core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
+            const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
+            core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
 
 
 
