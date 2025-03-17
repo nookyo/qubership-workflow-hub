@@ -1,0 +1,13 @@
+name: "PR Assigner"
+description: "Assigns a PR to a user based on the PR title."
+inputs:
+    configuration-path:
+        description: "Path to the configuration file."
+        required: false
+runs:
+  using: "node20"
+  main: "src/index.js"
+
+branding:
+  icon: "edit"
+  color: "yellow"
