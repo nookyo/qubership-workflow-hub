@@ -51,8 +51,8 @@ async function run() {
         assignees = content['assignees'];
         count = content['count'] != null ? content['count'] : count;
 
-        core.info(`🔷 Count: ${count}`);
-        core.info(`🔷 assignees: ${assignees}`);
+        core.info(`🔹 Count: ${count}`);
+        core.info(`🔹 assignees: ${assignees}`);
 
         core.warning(`Use configuration file ${configurationPath}`)
     }
@@ -62,8 +62,8 @@ async function run() {
             core.setFailed(`❗️ Cant process CODEOWNERS file`);
             return;
         }
-        core.info(`🔷 Count: ${count}`);
-        core.info(`🔷 assignees: ${assignees}`);
+        core.info(`🔹 Count: ${count}`);
+        core.info(`🔹 assignees: ${assignees}`);
         core.warning(`Use CODEOWNERS file`)
     }
 
