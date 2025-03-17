@@ -5,7 +5,6 @@ const path = require("path");
 
 function findFile(filename, startDir = process.cwd()) {
     let dir = startDir;
-    core.info(`🔍 Searching for ${filename} in ${dir}`);
     while (dir !== path.parse(dir).root) {
         const filePath = path.join(dir, filename);
         if (fs.existsSync(filePath)) {
@@ -33,13 +32,15 @@ async function run() {
 
             const userLine = lines.find(line => line.trim().startsWith('*'));
 
-            if (!userLine) {
-                core.info('❗️ No default user found in CODEOWNERS file');
-                return;
-            }
+            core.info(` Userline: ${userLine}` );
 
-            const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
-            core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
+            // if (!userLine) {
+            //     core.info('❗️ No default user found in CODEOWNERS file');
+            //     return;
+            // }
+
+            // const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
+            // core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
 
 
 
