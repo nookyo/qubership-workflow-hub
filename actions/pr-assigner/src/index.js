@@ -37,15 +37,15 @@ async function run() {
     if (fs.existsSync(configurationPath)) {        
         const content = new ConfigLoader().load(configurationPath);
         assignees = content['assignees'];
-        core.info(`Debug use configuration file`)
+        core.warning(`Use configuration file ${configurationPath}`)
     }
     else {
         assignees = getUsersFromCodeowners();
         if (assignees == null) {
-            core.setFailed(`❗️ Cant load assignees from CODEOWNERS file`);
+            core.setFailed(`❗️ Cant process CODEOWNERS file`);
             return;
         }
-        core.info(`Debug use CODEOWNERS file`)
+        core.warning(`Use CODEOWNERS file`)
     }
 }
 
