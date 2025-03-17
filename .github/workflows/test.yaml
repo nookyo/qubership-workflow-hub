@@ -8,11 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Debug
-        run:  ls -la
-
-
+      
       - name: Test PR Assigner
         uses: nookyo/qubership-workflow-hub/actions/pr-assigner@main
         env:
