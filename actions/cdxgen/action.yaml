@@ -35,6 +35,10 @@ runs:
           echo "PROJECT_TYPE=" >> $GITHUB_ENV
         fi
 
+    - name: "Free some space"
+      run: rm -rf /opt/hostedtoolcache
+      shell: bash
+
     - name: "Generate BOM"
       run: |
         cd ${GITHUB_WORKSPACE}
