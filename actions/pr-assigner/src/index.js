@@ -24,6 +24,8 @@ async function run() {
 
     if (configContent == null) {
         const codeownersPath = findFile('CODEOWNERS');
+
+        core.info( `Path: ${codeownersPath}` );
         if (codeownersPath) {
             core.info(`🔍 CODEOWNERS file found: ${codeownersPath}`);
             const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
