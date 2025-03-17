@@ -16,7 +16,6 @@ function findFile(filename, startDir = process.cwd()) {
 }
 
 function getUsersFromCodeowners() {
-
     const codeownersPath = findFile('CODEOWNERS');
     if (!codeownersPath) {
         core.info(`🔍 CODEOWNERS file found on: ${codeownersPath}`);
@@ -34,7 +33,7 @@ async function run() {
 
     const assignees = [];
     if (!fs.existsSync(configurationPath)) {
-        assignees = loadCodeowners();
+        assignees = getUsersFromCodeowners();
         if (assignees == null) {
             core.setFailed(`❗️ Cant load assignees from CODEOWNERS file`);
             return;
