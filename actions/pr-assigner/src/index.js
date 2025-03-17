@@ -2,6 +2,7 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require("fs");
 const path = require("path");
+const ConfigLoader = require("./loader");
 
 function findFile(filename, startDir = process.cwd()) {
     let dir = startDir;
@@ -33,8 +34,8 @@ async function run() {
 
     let assignees = [];
 
-    if (fs.existsSync(configurationPath)) {
-        const content = ConfigLoader().load(configurationPath);
+    if (fs.existsSync(configurationPath)) {        
+        const content = new ConfigLoader().load(configurationPath);
         assignees = content['assignees'];
         core.info(`Debug use configuration file`)
     }
