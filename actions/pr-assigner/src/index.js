@@ -28,7 +28,7 @@ function getUsersFromCodeowners() {
 }
 
 async function run() {
-    const defaultConfigurationPath = ".github/pr-assigner.yml";
+    const defaultConfigurationPath = ".github/pr-assigner-config.yml";
     const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
 
     let assignees = [];
