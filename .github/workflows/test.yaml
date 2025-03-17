@@ -9,4 +9,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Test PR Assigner
-        uses: nookyo/actions/pr-assigner@main
+        uses: nookyo/qubership-workflow-hub/actions/pr-assigner@main
