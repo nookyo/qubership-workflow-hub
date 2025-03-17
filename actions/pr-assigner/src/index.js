@@ -15,35 +15,33 @@ function findFile(filename, startDir = process.cwd()) {
     return null;
 }
 
+function getUsersFromCodeowners() {
+
+    const codeownersPath = findFile('CODEOWNERS');
+    if (!codeownersPath) {
+        core.info(`🔍 CODEOWNERS file found on: ${codeownersPath}`);
+        const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
+        const lines = codeownersContent.split('\n');
+        const userLine = lines.find(line => line.trim().startsWith('*'));
+        return userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
+    }
+    return [];
+}
 
 async function run() {
     const defaultConfigurationPath = ".github/pr-assigner.yml";
     const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
 
-    const configContent = null; // = new ConfigLoader().load(configurationPath);
-
-    if (configContent == null) {
-        const codeownersPath = findFile('CODEOWNERS');
-
-        core.info( `Path: ${codeownersPath}` );
-        if (codeownersPath) {
-            core.info(`🔍 CODEOWNERS file found: ${codeownersPath}`);
-            const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
-
-            const lines = codeownersContent.split('\n');
-            const userLine = lines.find(line => line.trim().startsWith('*'));
-
-            const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
-            core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
-
-
-
-            // const codeowners = codeownersContent.split('\n')
-            //     .filter(line => line.trim().length > 0 && !line.startsWith('#'))
-            //     .map(line => line.split(/\s+/)[1]);
-            // core.info(`🔍 CODEOWNERS: ${codeowners.join(', ')}`);
-            // configContent = { assignees: codeowners };
+    const assignees = [];
+    if (!fs.existsSync(configurationPath)) {
+        assignees = loadCodeowners();
+        if (assignees == null) {
+            core.setFailed(`❗️ Cant load assignees from CODEOWNERS file`);
+            return;
         }
+    } else {
+        const content = ConfigLoader().load(configurationPath);
+        assignees = content['assignees'];
     }
 }
 
