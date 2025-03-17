@@ -1,4 +1,4 @@
-name: Try to test NEw PR Assiner
+name: Try to test New PR Assiner
 on:
   workflow_dispatch:
 
@@ -11,6 +11,6 @@ jobs:
       - name: Debug
         run:  ls -la
 
-        
+
       - name: Test PR Assigner
         uses: nookyo/qubership-workflow-hub/actions/pr-assigner@main
