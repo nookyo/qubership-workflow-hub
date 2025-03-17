@@ -30,6 +30,7 @@ async function run() {
             core.info(`🔍 CODEOWNERS file found: ${codeownersPath}`);
             const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
 
+            const lines = codeownersContent.split('\n');
             const userLine = lines.find(line => line.trim().startsWith('*'));
 
             core.info(` Userline: ${userLine}` );
