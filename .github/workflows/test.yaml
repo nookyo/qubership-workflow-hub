@@ -9,4 +9,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Test PR Assigner
-        uses: nookyo/.github/actions/pr-assigner@main
+        uses: nookyo/actions/pr-assigner@main
