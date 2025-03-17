@@ -10,5 +10,7 @@ jobs:
 
       - name: Debug
         run:  ls -la
+
+        
       - name: Test PR Assigner
         uses: nookyo/qubership-workflow-hub/actions/pr-assigner@main
