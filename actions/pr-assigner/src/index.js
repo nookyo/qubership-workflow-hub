@@ -58,7 +58,7 @@ async function run() {
 
         const cmd = `gh pr edit ${pullRequest.number} --add-assignee ${assignees}`
         
-        execSync.run(cmd, { stdio: 'inherit' });
+        execSync(cmd, { stdio: 'inherit' });
 
 
     } catch (error) {
