@@ -3,6 +3,7 @@ const github = require("@actions/github");
 const fs = require("fs");
 const path = require("path");
 const ConfigLoader = require("./loader");
+const { execSync } = require("child_process");
 
 function findFile(filename, startDir = process.cwd()) {
     let dir = startDir;
@@ -34,7 +35,7 @@ async function run() {
 
     let assignees = [];
 
-    if (fs.existsSync(configurationPath)) {        
+    if (fs.existsSync(configurationPath)) {
         const content = new ConfigLoader().load(configurationPath);
         assignees = content['assignees'];
         core.warning(`Use configuration file ${configurationPath}`)
@@ -46,6 +47,23 @@ async function run() {
             return;
         }
         core.warning(`Use CODEOWNERS file`)
+    }
+
+
+    try {
+        const pullRequest = github.context.payload.pull_request;
+        if (!pullRequest) {
+            core.setFailed("❗️ Action have to run on pull request.");
+            process.exit(1);
+        }
+
+        const cmd = `gh pr edit ${pullRequest.number} --add-assignee ${assignees}`
+        
+        execSync.run(cmd, { stdio: 'inherit' });
+
+
+    } catch (error) {
+        core.setFailed(`❗️ ${error.message}`);
     }
 }
 
