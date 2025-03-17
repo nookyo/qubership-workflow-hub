@@ -49,7 +49,6 @@ async function run() {
         core.warning(`Use CODEOWNERS file`)
     }
 
-
     try {
         const pullRequest = github.context.payload.pull_request;
         if (!pullRequest) {
