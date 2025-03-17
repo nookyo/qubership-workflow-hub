@@ -39,11 +39,11 @@ async function run() {
             return;
         }
 
-        core.info(`Debug we use CODEOWNERS file`)
+        core.info(`Debug use CODEOWNERS file`)
     } else {
         const content = ConfigLoader().load(configurationPath);
         assignees = content['assignees'];
-        core.info(`Debug we use configuration file`)
+        core.info(`Debug use configuration file`)
     }
 }
 
