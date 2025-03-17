@@ -29,15 +29,31 @@ function getUsersFromCodeowners() {
     return [];
 }
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+
 async function run() {
     const defaultConfigurationPath = ".github/pr-assigner-config.yml";
     const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
+
+    let count = core.getInput("assignees-count") || 1;
 
     let assignees = [];
 
     if (fs.existsSync(configurationPath)) {
         const content = new ConfigLoader().load(configurationPath);
         assignees = content['assignees'];
+        count = content['count'] != null ? content['count'] : count;
+
+        core.info(`Count: ${count}`);
+        core.info(`assignees: ${assignees}`);
+        
         core.warning(`Use configuration file ${configurationPath}`)
     }
     else {
@@ -48,6 +64,12 @@ async function run() {
         }
         core.warning(`Use CODEOWNERS file`)
     }
+
+    if (assignees.length > 1) {
+        assignees = shuffleArray(assignees);
+    }
+
+    
 
     try {
         const pullRequest = github.context.payload.pull_request;
