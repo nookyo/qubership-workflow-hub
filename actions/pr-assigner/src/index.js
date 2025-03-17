@@ -38,9 +38,12 @@ async function run() {
             core.setFailed(`❗️ Cant load assignees from CODEOWNERS file`);
             return;
         }
+
+        core.info(`Debug we use CODEOWNERS file`)
     } else {
         const content = ConfigLoader().load(configurationPath);
         assignees = content['assignees'];
+        core.info(`Debug we use configuration file`)
     }
 }
 
