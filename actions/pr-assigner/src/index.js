@@ -5,6 +5,7 @@ const path = require("path");
 
 function findFile(filename, startDir = process.cwd()) {
     let dir = startDir;
+    core.info(`🔍 Searching for ${filename} in ${dir}`);
     while (dir !== path.parse(dir).root) {
         const filePath = path.join(dir, filename);
         if (fs.existsSync(filePath)) {
