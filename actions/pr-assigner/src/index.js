@@ -17,45 +17,36 @@ function findFile(filename, startDir = process.cwd()) {
 
 
 async function run() {
-    try {
-        const defaultConfigurationPath = ".github/pr-assigner.yml";
-        const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
+    const defaultConfigurationPath = ".github/pr-assigner.yml";
+    const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
 
-        const configContent = null; // = new ConfigLoader().load(configurationPath);
+    const configContent = null; // = new ConfigLoader().load(configurationPath);
 
-        if (configContent == null) {
-            const codeownersPath = findFile('CODEOWNERS');
-            if (codeownersPath) {
-                core.info(`🔍 CODEOWNERS file found: ${codeownersPath}`);
-                const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
+    if (configContent == null) {
+        const codeownersPath = findFile('CODEOWNERS');
+        if (codeownersPath) {
+            core.info(`🔍 CODEOWNERS file found: ${codeownersPath}`);
+            const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
 
-                const userLine = lines.find(line => line.trim().startsWith('*'));
-                
-                if (!userLine) { 
-                    core.info('❗️ No default user found in CODEOWNERS file');
-                    return;
-                }
+            const userLine = lines.find(line => line.trim().startsWith('*'));
 
-                const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
-                core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
-
-
-
-                // const codeowners = codeownersContent.split('\n')
-                //     .filter(line => line.trim().length > 0 && !line.startsWith('#'))
-                //     .map(line => line.split(/\s+/)[1]);
-                // core.info(`🔍 CODEOWNERS: ${codeowners.join(', ')}`);
-                // configContent = { assignees: codeowners };
+            if (!userLine) {
+                core.info('❗️ No default user found in CODEOWNERS file');
+                return;
             }
+
+            const users = userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
+            core.info(`🔍 CODEOWNERS: ${users.join(', ')}`);
+
+
+
+            // const codeowners = codeownersContent.split('\n')
+            //     .filter(line => line.trim().length > 0 && !line.startsWith('#'))
+            //     .map(line => line.split(/\s+/)[1]);
+            // core.info(`🔍 CODEOWNERS: ${codeowners.join(', ')}`);
+            // configContent = { assignees: codeowners };
         }
-
-
-        core.info('❗️ Action completed successfully!');
-    }
-    catch (error) {
-        core.setFailed(error.message);
     }
 }
-
 
 run();
