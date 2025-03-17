@@ -31,7 +31,7 @@ async function run() {
     const defaultConfigurationPath = ".github/pr-assigner.yml";
     const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
 
-    const assignees = [];
+    let assignees = [];
     if (!fs.existsSync(configurationPath)) {
         assignees = getUsersFromCodeowners();
         if (assignees == null) {
