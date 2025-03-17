@@ -32,18 +32,19 @@ async function run() {
     const configurationPath = core.getInput("configuration-path") || defaultConfigurationPath;
 
     let assignees = [];
-    if (!fs.existsSync(configurationPath)) {
+
+    if (fs.existsSync(configurationPath)) {
+        const content = ConfigLoader().load(configurationPath);
+        assignees = content['assignees'];
+        core.info(`Debug use configuration file`)
+    }
+    else {
         assignees = getUsersFromCodeowners();
         if (assignees == null) {
             core.setFailed(`❗️ Cant load assignees from CODEOWNERS file`);
             return;
         }
-
         core.info(`Debug use CODEOWNERS file`)
-    } else {
-        const content = ConfigLoader().load(configurationPath);
-        assignees = content['assignees'];
-        core.info(`Debug use configuration file`)
     }
 }
 
