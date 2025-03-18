@@ -13,5 +13,7 @@ jobs:
 
       - name: Test PR Assigner
         uses: nookyo/qubership-workflow-hub/actions/pr-assigner@main
+        with:
+          count: 5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
