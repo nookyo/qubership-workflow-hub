@@ -42691,13 +42691,14 @@ function findFile(filename, startDir = process.cwd()) {
 
 function getUsersFromCodeowners(codeownersPath) {
     if (!codeownersPath) {
-        core.info(`🔍 CODEOWNERS file found on: ${codeownersPath}`);
-        const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
-        const lines = codeownersContent.split('\n');
-        const userLine = lines.find(line => line.trim().startsWith('*'));
-        return userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
+        core.setFailed(`❗️ Can't find CODEOWNERS file.`)
+        return;
     }
-    return [];
+    core.info(`🔍 CODEOWNERS file found on: ${codeownersPath}`);
+    const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
+    const lines = codeownersContent.split('\n');
+    const userLine = lines.find(line => line.trim().startsWith('*'));
+    return userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
 }
 
 function shuffleArray(array) {
@@ -42731,7 +42732,7 @@ async function run() {
         const codeownersPath = findFile('CODEOWNERS');
         assignees = getUsersFromCodeowners(codeownersPath);
         if (assignees == null) {
-            core.setFailed(`❗️ Cant process CODEOWNERS file`);
+            core.setFailed(`❗️ Can't process CODEOWNERS file`);
             return;
         }
         core.info(`🔹 Count for suffle: ${count}`);
