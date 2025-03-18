@@ -78,6 +78,8 @@ async function run() {
         assignees = shuffleArray(assignees);
     }
 
+    assignees = assignees.slice(count);
+
     try {
         const pullRequest = github.context.payload.pull_request;
         if (!pullRequest) {
