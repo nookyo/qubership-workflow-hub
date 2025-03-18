@@ -31,11 +31,11 @@ function getUsersFromCodeowners() {
 
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
-  }
+}
 
 
 async function run() {
@@ -67,7 +67,12 @@ async function run() {
         core.warning(`Use CODEOWNERS file`)
     }
 
-    if (assignees.length > 1) {
+    const assigneesLength = assignees.length;
+    if (assigneesLength > count) {
+        core.warning(`Assignees array length more that cout. Will be use array.length ${ assignees.length }`)
+        count = assigneesLength;
+    }
+    if (assigneesLength > 1) {
         assignees = shuffleArray(assignees);
     }
 
@@ -79,7 +84,7 @@ async function run() {
         }
 
         const cmd = `gh pr edit ${pullRequest.number} --add-assignee ${assignees}`
-        
+
         execSync(cmd, { stdio: 'inherit' });
 
         core.info("✅ Action completed successfully!");

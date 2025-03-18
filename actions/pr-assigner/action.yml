@@ -1,12 +1,12 @@
 name: "PR Assigner"
-description: "Assigns a PR to a user based on the PR title."
+description: "Assigns a PR to a user based on the PR configuration or CODEOWNERS."
 inputs:
     configuration-path:
         description: "Path to the configuration file."
         required: false
 runs:
   using: "node20"
-  main: "src/index.js"
+  main: "dist/index.js"
 
 branding:
   icon: "edit"
