@@ -42740,8 +42740,8 @@ async function run() {
     }
 
     const assigneesLength = assignees.length;
-    if (assigneesLength > count) {
-        core.warning(`Assignees array length more that cout. Will be use array.length ${ assignees.length }`)
+    if (count > assigneesLength) {
+        core.warning(`Assignees array length more that cout. Will be use array.length: ${ assignees.length }`)
         count = assigneesLength;
     }
     if (assigneesLength > 1) {
