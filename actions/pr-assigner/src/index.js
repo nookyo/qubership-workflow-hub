@@ -26,7 +26,7 @@ function getUsersFromCodeowners(codeownersPath) {
     const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
     const lines = codeownersContent.split('\n');
     const userLine = lines.find(line => line.trim().startsWith('*'));
-    return userLine.split(/\s+/).slice(1).map(user => user.replace('@', ''));
+    return userLine.split(/\s+/).slice(1).filter(user => user.trim() !== '').map(user => user.replace('@', ''));
 }
 
 function shuffleArray(array) {
