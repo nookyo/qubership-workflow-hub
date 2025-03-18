@@ -17,8 +17,7 @@ function findFile(filename, startDir = process.cwd()) {
     return null;
 }
 
-function getUsersFromCodeowners() {
-    const codeownersPath = findFile('CODEOWNERS');
+function getUsersFromCodeowners(codeownersPath) {
     if (!codeownersPath) {
         core.info(`🔍 CODEOWNERS file found on: ${codeownersPath}`);
         const codeownersContent = fs.readFileSync(codeownersPath, 'utf8');
@@ -51,19 +50,20 @@ async function run() {
         assignees = content['assignees'];
         count = content['count'] != null ? content['count'] : count;
 
-        core.info(`🔹 Count: ${count}`);
-        core.info(`🔹 assignees: ${assignees}`);
+        core.info(`🔹 Count for suffle: ${count}`);
+        core.info(`🔹 Assignees: ${assignees}`);
 
         core.warning(`Use configuration file ${configurationPath}`)
     }
     else {
-        assignees = getUsersFromCodeowners();
+        const codeownersPath = findFile('CODEOWNERS');
+        assignees = getUsersFromCodeowners(codeownersPath);
         if (assignees == null) {
             core.setFailed(`❗️ Cant process CODEOWNERS file`);
             return;
         }
-        core.info(`🔹 Count: ${count}`);
-        core.info(`🔹 assignees: ${assignees}`);
+        core.info(`🔹 Count for suffle: ${count}`);
+        core.info(`🔹 Assignees: ${assignees}`);
         core.warning(`Use CODEOWNERS file`)
     }
 
