@@ -4,7 +4,9 @@ inputs:
     configuration-path:
         description: "Path to the configuration file."
         required: false
-    assa    
+    assignees-count:
+        description: ""
+        requried: false    
 runs:
   using: "node20"
   main: "dist/index.js"
