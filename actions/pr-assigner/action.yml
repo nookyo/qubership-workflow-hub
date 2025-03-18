@@ -5,7 +5,7 @@ inputs:
         description: "Path to the configuration file."
         required: false
     assignees-count:
-        description: ""
+        description: "count"
         requried: false    
 runs:
   using: "node20"
