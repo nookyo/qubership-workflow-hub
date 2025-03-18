@@ -49,9 +49,9 @@ The configuration file (pr-assigner-config.yml) can be define, by defaul locatio
 
 ```yaml
 assignees:
-  - user1
-  - user2
-  - user3
+  - borislavr
+  - nookyo
+  - rparf
 count: 2
 ```
 
