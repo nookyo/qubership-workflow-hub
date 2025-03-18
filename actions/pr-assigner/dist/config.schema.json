@@ -16,8 +16,7 @@
         }
     },
     "required": [
-        "assignees",
-        "count"
+        "assignees"
     ],
     "additionalProperties": false
 }
