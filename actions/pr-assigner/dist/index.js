@@ -42742,9 +42742,10 @@ async function run() {
 
     const assigneesLength = assignees.length;
     if (count > assigneesLength) {
-        core.warning(`Assigners count ${count} more that array length ${ assignees.length }. Will be use {array.length: ${ assignees.length }}. Nice try 😉.`)
+        core.warning(`Assigners count ${count} more that array length ${assignees.length}. Will be use {array.length: ${assignees.length}}. Nice try 😉.`)
         count = assigneesLength;
     }
+
     if (assigneesLength > 1) {
         assignees = shuffleArray(assignees);
     }
