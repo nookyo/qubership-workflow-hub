@@ -42804,6 +42804,9 @@ async function run() {
   let result = fillTemplate(template, values)
 
   core.info(`🔹 Template: ${template}`);
+
+  let t = ref.name;
+  core.info(`🔹 Name: ${{ t}}`)
   core.info(`💡 Rendered template: ${result}`);
 
   core.setOutput("result", result);
