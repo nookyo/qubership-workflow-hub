@@ -28,8 +28,14 @@ function extractSemverParts(versionString) {
 }
 
 
+// function matchesPattern(refName, pattern) {
+//   const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+//   return regex.test(refName);
+// }
+
 function matchesPattern(refName, pattern) {
-  const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+  const normalizedPattern = pattern.replace(/\//g, '-').replace(/\*/g, '.*');
+  const regex = new RegExp('^' + normalizedPattern + '$');
   return regex.test(refName);
 }
 
