@@ -42772,7 +42772,7 @@ function findDistTag(ref, distTags) {
 }
 
 function fillTemplate(template, values) {
-  return template.replace(/{{\s*(\w+)\s*}}/g, (match, key) => {
+  return template.replace(/{{\s*([\w-]+)\s*}}/g, (match, key) => {
     return key in values ? values[key] : match;
   });
 }
