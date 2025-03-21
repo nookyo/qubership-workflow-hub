@@ -93,6 +93,10 @@ async function run() {
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   const template = findTemplate(!ref.isTag ? ref.name : "tag", loader["branches-template"]);
+  if (!template) {
+    core.setFailed(`❗️ No template found for ref: ${ref.name}`);
+    return;
+  }
 
   // let fill =  fillTemplate(template, { ...ref, ...generateSnapshotVersionParts(), ...extractSemverParts(ref.name) });
 
