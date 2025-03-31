@@ -34,12 +34,12 @@ async function run() {
 
 
     const response_user = octokit.rest.packages.listPackagesForUser({
-        package_type,
-        username,
+        package_type: 'container',
+        username: owner,
       });
 
     console.log("Package:", response_user.data);
-    
+
     // const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
     //     package_type: 'container',
