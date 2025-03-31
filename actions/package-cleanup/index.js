@@ -52,6 +52,19 @@ async function run() {
         console.log("Version metadata:", item.metadata.container);
     });
 
+
+    let package_version_restapi = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+        package_type: 'container',
+        package_name: 'qubership-dbaas',
+        username: owner,
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      })
+      console.log("Package version:", package_version_restapi.data);
+
+
+
     // const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
     //     package_type: 'container',
