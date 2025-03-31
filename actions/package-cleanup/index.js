@@ -11,21 +11,36 @@ async function run() {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     const octokit = github.getOctokit(token);
 
+    //     const query = `
+    //     query($owner: String!, $name: String!) {
+    //       repository(owner: $owner, name: $name) {
+    //         packages(first: 100) {
+    //           nodes {
+    //             name
+    //             packageType
+    //             latestVersion {
+    //               version
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   `;
     const query = `
-    query($owner: String!, $name: String!) {
-      repository(owner: $owner, name: $name) {
-        packages(first: 100) {
-          nodes {
-            name
-            packageType
-            latestVersion {
-              version
+        query($owner: String!) {
+        organization(login: $owner) {
+            packages(first: 100) {
+            nodes {
+                name
+                packageType
+                latestVersion {
+                version
+                }
             }
-          }
+            }
         }
-      }
-    }
-  `;
+        }
+        `;
 
     try {
         const result = await graphql(query, {
