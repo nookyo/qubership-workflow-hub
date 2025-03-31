@@ -22,14 +22,14 @@ async function run() {
     //   }
 
 
-    const response = await octokit.rest.packages.getPackageForUser({
+    const response = await octokit.rest.packages.getPackageForOrganization({
         package_type: 'container',
         username: owner,
     });
 
     console.log("Package version:", response.data);
 
-    const package_version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+    const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
         username: owner,
         package_type: 'container',
         package_name: 'qubership-dbaas',
