@@ -34,7 +34,7 @@ async function run() {
 
 
     const response_user = octokit.rest.packages.listPackagesForUser({
-        package_type: 'container',
+        package_type: 'docker',
         username: owner,
       });
 
