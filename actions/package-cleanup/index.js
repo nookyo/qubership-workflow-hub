@@ -1,35 +1,46 @@
+const { graphql } = require("@octokit/graphql");
 const core = require('@actions/core');
-
-// Если вы используете Node.js версии <18, можно установить пакет node-fetch:
-// const fetch = require('node-fetch');
-const fetch = global.fetch || require('node-fetch');
+const github = require('@actions/github');
 
 async function run() {
-  try {
-    
-    const token = env.GITHUB_TOKEN;
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+    const token = process.env.GITHUB_TOKEN;
+    const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-    const url = `https://api.github.com/users/${owner}/packages?package_type=CONTAINER`;
+    const octokit = github.getOctokit(token);
 
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.packages-preview+json'
-      }
+    //   const octokit = github.getOctokit(token);
+    //   const packageTypes = ["npm", "maven", "rubygems", "nuget", "docker"];
+    //   try {
+    //     const response = await octokit.rest.packages.listPackageVersionsForUser({
+    //       username: 'nookyo',
+    //       package_type: 'container',          // замените на нужный тип пакета
+    //       package_name: 'qubership-dbaas'      // замените на имя пакета
+    //     });
+    //     console.log("Версии пакета:", response.data);
+    //   } catch (error) {
+    //     console.error("Ошибка при получении версий пакета:", error);
+    //   }
+
+
+    const response = await octokit.rest.packages.getPackageForUser({
+        package_type: 'container',
+        package_name: 'qubership-dbaas',
+        username: owner,
     });
 
-    if (!response.ok) {
-      throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-    }
-    const data = await response.json();
-    console.log('Контейнерные пакеты:', data);
+    console.log("Package version:", response.data);
 
-    // Передаём результат через output для дальнейшего использования в workflow
-    core.setOutput('packages', JSON.stringify(data));
-  } catch (error) {
-    core.setFailed(`Ошибка при выполнении действия: ${error.message}`);
-  }
+    const package_version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+        username: 'nookyo',
+        package_type: 'container',
+        package_name: 'qubership-dbaas',
+        headers: {
+            'X-GitHub-Api-Version': '2022-11-28'
+        }
+    });
+    console.log("Package version:", package_version.data);
+
+
 }
 
 run();
