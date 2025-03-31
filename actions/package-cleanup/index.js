@@ -42,7 +42,7 @@ async function run() {
 
 
     const version = await octokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
-        package_type: 'docker',
+        package_type: 'container',
         package_name: 'qubership-dbaas',
         username: owner,
     });
