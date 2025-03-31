@@ -16,7 +16,7 @@ async function run() {
 
     const query = `
     query($owner: String!, $name: String!) {
-      repository(owner: $owner, name: $name) {
+      repository(owner: ${owner}, name: ${repo}) {
         packages(first: 100) {
           nodes {
             name
