@@ -22,13 +22,24 @@ async function run() {
     //   }
 
 
-    const response = await octokit.rest.packages.listPackagesForOrganization ({
+    // const response = await octokit.rest.packages.listPackagesForOrganization ({
+    //     package_type: 'container',
+    //     org: owner,
+    // });
+    const response = octokit.rest.packages.listPackagesForAuthenticatedUser({
         package_type: 'container',
-        org: owner,
-    });
+      });
 
     console.log("Package version:", response.data);
 
+
+    const response_user = octokit.rest.packages.listPackagesForUser({
+        package_type,
+        username,
+      });
+
+    console.log("Package:", response_user.data);
+    
     // const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
     //     package_type: 'container',
