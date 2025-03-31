@@ -13,7 +13,8 @@ async function run() {
 
     try {
         const response = await octokit.request('GET /users/{username}/packages', {
-            username: owner
+            username: owner,
+            package_type: 'container'
         });
 
         console.log("Packages:", response.data);
