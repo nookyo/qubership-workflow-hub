@@ -22,7 +22,7 @@ async function run() {
     //   }
 
 
-    const response = await octokit.rest.packages.getPackageForOrganization({
+    const response = await octokit.rest.packages.listPackagesForOrganization ({
         package_type: 'container',
         org: owner,
     });
