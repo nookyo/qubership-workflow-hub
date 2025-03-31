@@ -50,7 +50,7 @@ async function run() {
 
     version.data.forEach((item) => {
         console.log("Version metadata:", item.metadata.container);
-    }
+    });
 
     // const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
