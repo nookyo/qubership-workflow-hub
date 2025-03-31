@@ -63,6 +63,15 @@ async function run() {
       })
       console.log("Package version:", package_version_restapi.data);
 
+      const list_package_roa_user = await octokit.request('GET /users/{username}/packages', {
+        username: owner,
+        package_type: 'container',
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      });
+
+      console.log("Package version:", list_package_roa_user.data);
 
 
     // const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
