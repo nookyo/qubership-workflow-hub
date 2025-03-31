@@ -24,7 +24,6 @@ async function run() {
 
     const response = await octokit.rest.packages.getPackageForUser({
         package_type: 'container',
-        package_name: 'qubership-dbaas',
         username: owner,
     });
 
