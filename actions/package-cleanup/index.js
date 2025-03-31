@@ -9,18 +9,28 @@ async function run() {
   const octokit = github.getOctokit(token);
 
   try {
-    const username = "nookyo";  // Имя пользователя, для которого запрашиваем пакеты
-    const packageType = "docker";   // Укажите нужный тип пакета (npm, maven, rubygems, nuget, docker и т.д.)
+    // Выполняем параллельно запросы для всех типов пакетов
+    const results = await Promise.all(
+      packageTypes.map(async (type) => {
+        try {
+          const response = await octokit.rest.packages.listPackagesForUser({
+            username,
+            package_type: type,
+            per_page: 100, // число элементов на страницу
+          });
+          return response.data;
+        } catch (error) {
+          console.error(`Ошибка для типа ${type}:`, error.message);
+          return [];
+        }
+      })
+    );
 
-    const response = await octokit.rest.packages.listPackagesForUser({
-      username: username,
-      package_type: packageType,
-      per_page: 100,  // Можно задать количество элементов на страницу
-    });
-
-    console.log("Packages:", response.data);
+    // Объединяем результаты из всех типов
+    const allPackages = results.flat();
+    console.log("Все пакеты пользователя:", allPackages);
   } catch (error) {
-    console.error("Error retrieving packages:", error);
+    console.error("Общая ошибка:", error.message);
   }
 }
 
