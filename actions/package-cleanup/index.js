@@ -8,9 +8,7 @@ async function run() {
     try {
 
 
-        const octokit = new Octokit({
-            auth: env.GITHUB_TOKEN,
-          })
+
 
          const response = await octokit.request('GET /users/{username}/packages', {
             username: 'nookyo',
