@@ -15,6 +15,7 @@ async function run() {
         try {
           const response = await octokit.rest.packages.listPackagesForUser({
             username: owner,
+            package_type: 'container', // тип пакета, например, 'npm', 'docker' и т.д.
             package_name: 'qubership-dbaas',
             per_page: 100, // число элементов на страницу
           });
