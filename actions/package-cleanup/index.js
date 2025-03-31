@@ -47,6 +47,11 @@ async function run() {
         username: owner,
     });
     console.log("Package version:", version.data);
+
+    version.data.forEach((item) => {
+        console.log("Version metadata:", item.metadata.container);
+    }
+
     // const package_version = await octokit.request('GET /organization/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
     //     package_type: 'container',
