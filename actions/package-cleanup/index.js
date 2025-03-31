@@ -10,7 +10,31 @@ async function run() {
     const token = process.env.GITHUB_TOKEN;
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     const octokit = github.getOctokit(token);
+    const query = `
+    query($owner: String!) {
+      user(login: $owner) {
+        packages(first: 10) {
+          nodes {
+            name
+            packageType
+          }
+        }
+      }
+    }
+  `;
 
+    try {
+        const result = await graphql(query, {
+            owner,
+            headers: {
+                authorization: `token ${token}`
+            }
+        });
+
+        console.log("GraphQL Result:", JSON.stringify(result, null, 2));
+    } catch (error) {
+        console.error("Error:", error);
+    }
     //     const query = `
     //     query($owner: String!, $name: String!) {
     //       repository(owner: $owner, name: $name) {
@@ -26,47 +50,47 @@ async function run() {
     //       }
     //     }
     //   `;
-    const query = `
-        query($owner: String!) {
-        user(login: $owner) {
-            packages(first: 100) {
-            nodes {
-                name
-                packageType
-                latestVersion {
-                version
-                }
-            }
-            }
-        }
-        }
-        `;
+    // const query = `
+    //     query($owner: String!) {
+    //     user(login: $owner) {
+    //         packages(first: 100) {
+    //         nodes {
+    //             name
+    //             packageType
+    //             latestVersion {
+    //             version
+    //             }
+    //         }
+    //         }
+    //     }
+    //     }
+    //     `;
 
-    try {
-        const result = await graphql(query, {
-            owner,
-            name: repo,
-            headers: {
-                authorization: `token ${token}`
-            }
-        });
+    // try {
+    //     const result = await graphql(query, {
+    //         owner,
+    //         name: repo,
+    //         headers: {
+    //             authorization: `token ${token}`
+    //         }
+    //     });
 
-        console.log("GraphQL Result:", JSON.stringify(result, null, 2));
+    //     console.log("GraphQL Result:", JSON.stringify(result, null, 2));
 
-        const packages = result.repository.packages.nodes;
+    //     const packages = result.repository.packages.nodes;
 
-        // Вывод всех пакетов для отладки
-        console.log("All Packages:", packages);
+    //     // Вывод всех пакетов для отладки
+    //     console.log("All Packages:", packages);
 
-        // Фильтруем пакеты, связанные с текущим репозиторием
-        const associatedPackages = packages.filter(pkg =>
-            pkg.name.toLowerCase().includes(repo.toLowerCase())
-        );
+    //     // Фильтруем пакеты, связанные с текущим репозиторием
+    //     const associatedPackages = packages.filter(pkg =>
+    //         pkg.name.toLowerCase().includes(repo.toLowerCase())
+    //     );
 
-        console.log("Associated Packages:", associatedPackages);
-    } catch (error) {
-        console.error("Error:", error);
-    }
+    //     console.log("Associated Packages:", associatedPackages);
+    // } catch (error) {
+    //     console.error("Error:", error);
+    // }
 }
 
 run();
