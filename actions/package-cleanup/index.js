@@ -26,11 +26,11 @@ async function run() {
     //     package_type: 'container',
     //     org: owner,
     // });
-    const response = octokit.rest.packages.listPackagesForAuthenticatedUser({
-        package_type: 'container',
-      });
+    // const response = octokit.rest.packages.listPackagesForAuthenticatedUser({
+    //     package_type: 'container',
+    //   });
 
-    console.log("Package version:", response.data);
+    // console.log("Package version:", response.data);
 
 
     const response_user = octokit.rest.packages.listPackagesForUser({
