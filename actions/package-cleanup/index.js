@@ -7,7 +7,7 @@ async function run() {
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
   const octokit = github.getOctokit(token);
-
+  const packageTypes = ["npm", "maven", "rubygems", "nuget", "docker"];
   try {
     // Выполняем параллельно запросы для всех типов пакетов
     const results = await Promise.all(
