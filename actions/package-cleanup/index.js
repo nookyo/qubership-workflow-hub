@@ -36,10 +36,17 @@ async function run() {
             }
         });
 
+        console.log("GraphQL Result:", JSON.stringify(result, null, 2));
+
         const packages = result.repository.packages.nodes;
 
+        // Вывод всех пакетов для отладки
+        console.log("All Packages:", packages);
+
         // Фильтруем пакеты, связанные с текущим репозиторием
-        const associatedPackages = packages.filter(pkg => pkg.name.includes(repo));
+        const associatedPackages = packages.filter(pkg =>
+            pkg.name.toLowerCase().includes(repo.toLowerCase())
+        );
 
         console.log("Associated Packages:", associatedPackages);
     } catch (error) {
