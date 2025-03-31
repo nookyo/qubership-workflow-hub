@@ -11,14 +11,8 @@ async function run() {
     const octokit = github.getOctokit(token);
 
     try {
-        // Используем эндпоинт для получения пакетов с указанием package_type
-        // const response = await octokit.request('GET /users/{username}/packages', {
-        //     username: owner,
-        //     package_type: 'container' // Укажите тип пакета, например, 'container'
-        // });
 
-
-        const respons = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}', {
+        const response = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}', {
             package_type: 'container',
             package_name: 'qubership-dbaas',
             username: 'nookyo',
