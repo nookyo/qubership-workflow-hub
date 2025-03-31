@@ -28,7 +28,7 @@ async function run() {
     //   `;
     const query = `
         query($owner: String!) {
-        organization(login: $owner) {
+        user(login: $owner) {
             packages(first: 100) {
             nodes {
                 name
