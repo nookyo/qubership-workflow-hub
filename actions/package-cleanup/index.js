@@ -40,8 +40,8 @@ async function run() {
         .then(result => {
             const packages = result.repository.packages.nodes;
             // Например, фильтруем только npm-пакеты
-            const npmPackages = packages.filter(pkg => pkg.packageType.toLowerCase() === 'npm');
-            console.log("NPM пакеты:", npmPackages);
+            //const npmPackages = packages.filter(pkg => pkg.packageType.toLowerCase() === 'docker');
+            console.log("NPM пакеты:", packages);
         })
         .catch(error => {
             console.error("Ошибка при получении пакетов:", error);
