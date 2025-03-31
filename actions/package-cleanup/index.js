@@ -10,28 +10,13 @@ async function run() {
     const token = process.env.GITHUB_TOKEN;
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
     const octokit = github.getOctokit(token);
-    const query = `
-    query($owner: String!) {
-      user(login: $owner) {
-        packages(first: 10) {
-          nodes {
-            name
-            packageType
-          }
-        }
-      }
-    }
-  `;
 
     try {
-        const result = await graphql(query, {
-            owner,
-            headers: {
-                authorization: `token ${token}`
-            }
+        const response = await octokit.request('GET /users/{username}/packages', {
+            username: owner
         });
 
-        console.log("GraphQL Result:", JSON.stringify(result, null, 2));
+        console.log("Packages:", response.data);
     } catch (error) {
         console.error("Error:", error);
     }
