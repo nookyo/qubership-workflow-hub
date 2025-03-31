@@ -1,0 +1,10 @@
+name: "Package Cleanup Action"
+description: ""
+
+runs:
+  using: "node20"
+  main: "index.js"
+
+branding:
+  icon: "edit"
+  color: "yellow"
