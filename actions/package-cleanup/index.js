@@ -14,9 +14,8 @@ async function run() {
     try {
         const response = await octokit.request('GET /users/{username}/packages', {
             username: owner,
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-              }
+            package_type: 'container',
+            per_page: 100
         });
 
         console.log("Packages:", response.data);
