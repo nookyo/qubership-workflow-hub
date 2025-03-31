@@ -7,9 +7,9 @@ async function run() {
 
   try {
     const response = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
-      username: 'nookyo',            // замените на нужное имя пользователя
-      package_type: 'container',      // укажите тип пакета (например, 'container', 'npm', 'maven', 'nuget', и т.д.)
-      package_name: 'qubership-dbaas',// имя пакета
+      username: 'nookyo',
+      package_type: 'container',
+      package_name: 'qubership-dbaas',
       headers: {
          'X-GitHub-Api-Version': '2022-11-28'
       }
