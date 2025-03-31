@@ -14,7 +14,7 @@ async function run() {
       packageTypes.map(async (type) => {
         try {
           const response = await octokit.rest.packages.listPackagesForUser({
-            username,
+            username: owner,
             package_type: type,
             per_page: 100, // число элементов на страницу
           });
