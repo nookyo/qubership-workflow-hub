@@ -6,7 +6,7 @@ async function run() {
   const token = process.env.GITHUB_TOKEN;
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-//   const octokit = github.getOctokit(token);
+  const octokit = github.getOctokit(token);
 //   const packageTypes = ["npm", "maven", "rubygems", "nuget", "docker"];
 //   try {
 //     const response = await octokit.rest.packages.listPackageVersionsForUser({
