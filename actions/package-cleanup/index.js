@@ -6,9 +6,11 @@ const fetch = global.fetch || require('node-fetch');
 
 async function run() {
   try {
-    const username = core.getInput('username', { required: true });
-    const token = core.getInput('token', { required: true });
-    const url = `https://api.github.com/users/${username}/packages?package_type=CONTAINER`;
+    
+    const token = env.GITHUB_TOKEN;
+    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+
+    const url = `https://api.github.com/users/${owner}/packages?package_type=CONTAINER`;
 
     const response = await fetch(url, {
       headers: {
