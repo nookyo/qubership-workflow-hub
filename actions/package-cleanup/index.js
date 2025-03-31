@@ -16,9 +16,9 @@ async function run() {
         console.log(`Type: ${userType}`);
 
         if (userType === 'User') {
-            console.log(`${username} it is User.`);
+            console.log(`${owner} it is User.`);
         } else if (userType === 'Organization') {
-            console.log(`${username} it is Org.`);
+            console.log(`${owner} it is Org.`);
         }
 
 
