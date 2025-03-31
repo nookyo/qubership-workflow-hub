@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const { graphql } = require('@octokit/graphql');
 
 async function run() {
     const repository = github.context.repo;
@@ -9,32 +8,26 @@ async function run() {
 
     const token = process.env.GITHUB_TOKEN;
     const [owner] = process.env.GITHUB_REPOSITORY.split('/');
-
-    const query = `
-        query($owner: String!) {
-            user(login: $owner) {
-                packages(first: 100) {
-                    nodes {
-                        name
-                        packageType
-                        latestVersion {
-                            version
-                        }
-                    }
-                }
-            }
-        }
-    `;
+    const octokit = github.getOctokit(token);
 
     try {
-        const result = await graphql(query, {
-            owner,
-            headers: {
-                authorization: `token ${token}`
-            }
-        });
+        // Используем эндпоинт для получения пакетов с указанием package_type
+        // const response = await octokit.request('GET /users/{username}/packages', {
+        //     username: owner,
+        //     package_type: 'container' // Укажите тип пакета, например, 'container'
+        // });
 
-        console.log("Packages:", result.user.packages.nodes);
+
+        const respons = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}', {
+            package_type: 'container',
+            package_name: 'qubership-dbaas',
+            username: 'nookyo',
+            headers: {
+              'X-GitHub-Api-Version': '2022-11-28'
+            }
+          });
+
+        console.log("Packages:", response.data);
     } catch (error) {
         console.error("Error:", error.message);
         console.error("Details:", error.response?.data || error);
