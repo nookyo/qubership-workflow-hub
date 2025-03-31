@@ -31,7 +31,7 @@ async function run() {
     console.log("Package version:", response.data);
 
     const package_version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
-        username: 'nookyo',
+        username: owner,
         package_type: 'container',
         package_name: 'qubership-dbaas',
         headers: {
