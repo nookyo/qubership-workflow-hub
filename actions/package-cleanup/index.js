@@ -9,29 +9,14 @@ async function run() {
   const octokit = github.getOctokit(token);
   const packageTypes = ["npm", "maven", "rubygems", "nuget", "docker"];
   try {
-    // Выполняем параллельно запросы для всех типов пакетов
-    const results = await Promise.all(
-      packageTypes.map(async (type) => {
-        try {
-          const response = await octokit.rest.packages.listPackagesForUser({
-            username: owner,
-            package_type: 'container', // тип пакета, например, 'npm', 'docker' и т.д.
-            package_name: 'qubership-dbaas',
-            per_page: 100, // число элементов на страницу
-          });
-          return response.data;
-        } catch (error) {
-          console.error(`Ошибка для типа ${type}:`, error.message);
-          return [];
-        }
-      })
-    );
-
-    // Объединяем результаты из всех типов
-    const allPackages = results.flat();
-    console.log("Все пакеты пользователя:", allPackages);
+    const response = await octokit.rest.packages.listPackageVersionsForUser({
+      username: 'nookyo',
+      package_type: 'container',          // замените на нужный тип пакета
+      package_name: 'qubership-dbaas'      // замените на имя пакета
+    });
+    console.log("Версии пакета:", response.data);
   } catch (error) {
-    console.error("Общая ошибка:", error.message);
+    console.error("Ошибка при получении версий пакета:", error);
   }
 }
 
