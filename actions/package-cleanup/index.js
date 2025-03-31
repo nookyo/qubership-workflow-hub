@@ -33,7 +33,7 @@ async function run() {
     // console.log("Package version:", response.data);
 
 
-    const response_user = octokit.rest.packages.listPackagesForUser({
+    const response_user = await octokit.rest.packages.listPackagesForUser({
         package_type: 'docker',
         username: owner,
       });
