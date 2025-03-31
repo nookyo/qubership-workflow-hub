@@ -21,12 +21,10 @@ async function run() {
             console.log(`${owner} it is Org.`);
         }
 
-
-        const package = await octokit.request('GET /users/{username}/packages/{package_type}', {
-            username: 'nookyo',
-            package_type: 'container'
+        const package = await octokit.request('GET /users/{username}/packages', {
+            username: 'nookyo'
         });
-
+        console.log("Package version:", package.data);
 
         const package_version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
             username: 'nookyo',
