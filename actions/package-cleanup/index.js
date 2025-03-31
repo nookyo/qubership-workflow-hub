@@ -12,6 +12,7 @@ async function run() {
 
          const response = await octokit.request('GET /users/{username}/packages', {
             username: 'nookyo',
+            package_type: 'docker',
             headers: {
               'X-GitHub-Api-Version': '2022-11-28'
             }
