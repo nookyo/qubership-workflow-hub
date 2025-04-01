@@ -3,6 +3,11 @@ const github = require("@actions/github");
 
 async function run() {
 
+    const thresholdDays = 7;
+    const now = new Date();
+    const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
+
+
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
     const token = process.env.GITHUB_TOKEN;
@@ -44,6 +49,9 @@ async function run() {
             }
         });
         core.warning(`Version: ${JSON.stringify(version.data)}`);
+
+        const filteredPackages = packages.filter(pkg => new Date(pkg.created_at) <= thresholdDate);
+        console.log(filteredPackages);
     }
 
 
