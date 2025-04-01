@@ -10,6 +10,14 @@ async function run() {
     const octokit = github.getOctokit(package_token);
     // const octokit = github.getOctokit(token);
 
+    const userType = await octokit.request('GET /users/{username}', {
+        username: owner
+    });
+
+     // 'User' or 'Organization'
+    console.log(`Type: ${ userType.data}`);
+
+
     let respond = await octokit.request('GET /user/packages', {
         package_type: 'container',
         headers: {
