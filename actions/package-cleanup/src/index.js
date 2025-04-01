@@ -30,7 +30,7 @@ async function run() {
         username: 'nookyo',
         package_type: 'container',
     });
-    // console.log("Package:", package.data);
+    console.log("Package:", package.data);
 
     package.data.map(async (pkg) => {
 
