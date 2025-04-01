@@ -19,7 +19,7 @@ async function run() {
 
     const package = await octokit.request('GET /users/{username}/packages', {
         username: 'nookyo',
-        package_type: 'docker',
+        package_type: 'container',
     });
     console.log("Package:", package.data);
 }
