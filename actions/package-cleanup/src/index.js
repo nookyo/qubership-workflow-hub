@@ -43,17 +43,30 @@ async function run() {
     //     package_type: package.data[0].package_type,
     // });
     // console.log(`Version: ${JSON.stringify(version.data)}`);
+    package.data.filter((pkg) => pkg.name === 'qubership-dbaas').forEach(async (pkg) => {
+        console.log(`Package: ${pkg.name}`);
+        console.log(`Package type: ${pkg.package_type}`);
 
+        const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+            username: owner,
+            package_type: pkg.package_type,
+            package_name: pkg.name,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        });
+        console.warning(`Version: ${JSON.stringify(version.data)}`);
+    }
 
-    const package_ver = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
-        username: owner,
-        package_type: 'container',
-        package_name: 'qubership-dbaas',
-        headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
-        }
-    });
-    core.warning("Package version:", package_ver.data);
+    // const package_ver = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+    //     username: owner,
+    //     package_type: 'container',
+    //     package_name: 'qubership-dbaas',
+    //     headers: {
+    //         'X-GitHub-Api-Version': '2022-11-28'
+    //     }
+    // });
+    // core.warning("Package version:", package_ver.data);
 
 
 
