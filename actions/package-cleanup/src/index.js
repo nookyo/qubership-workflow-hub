@@ -3,7 +3,7 @@ const github = require("@actions/github");
 
 async function run() {
 
-    const thresholdDays = 1;
+    const thresholdDays = 7;
     const excludedTags = ["main", "anotherTag"];
 
     const now = new Date();
