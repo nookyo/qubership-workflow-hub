@@ -30,7 +30,17 @@ async function run() {
         username: 'nookyo',
         package_type: 'container',
     });
-    console.log("Package:", package.data);
+    // console.log("Package:", package.data);
+
+    package.data.map(async (pkg) => {
+        console.log(`Package name: ${pkg.name}`);
+        console.log(`Package version: ${pkg.version}`);
+        console.log(`Package created at: ${pkg.created_at}`);
+        console.log(`Package updated at: ${pkg.updated_at}`);
+        console.log(`Package description: ${pkg.description}`);
+        console.log(`Package URL: ${pkg.html_url}`);
+    });
+    
 }
 
 run();
