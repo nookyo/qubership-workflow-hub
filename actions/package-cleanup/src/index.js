@@ -3,7 +3,9 @@ const github = require("@actions/github");
 
 async function run() {
 
-    const thresholdDays = 7;
+    const thresholdDays = 7; // число дней, задается извне
+    const excludedTags = ["main", "anotherTag"];
+
     const now = new Date();
     const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
 
@@ -50,7 +52,21 @@ async function run() {
         });
         core.warning(`Version: ${JSON.stringify(version.data)}`);
 
-        const filteredPackages = packages.filter(pkg => new Date(pkg.created_at) <= thresholdDate);
+        const filteredPackages = packages.filter(pkg => {
+
+            const createdAt = new Date(pkg.created_at);
+            const isOldEnough = createdAt <= thresholdDate;
+
+            let hasExcludedTag = false;
+            if (pkg.metadata && pkg.metadata.container && Array.isArray(pkg.metadata.container.tags)) {
+
+                hasExcludedTag = pkg.metadata.container.tags.some(tag =>
+                    excludedTags.includes(tag)
+                );
+            }
+
+            return isOldEnough && !hasExcludedTag;
+        });
         console.log(filteredPackages);
     }
 
