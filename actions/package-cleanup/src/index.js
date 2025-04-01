@@ -21,7 +21,7 @@ async function run() {
         username: 'nookyo',
         package_type: 'docker',
     });
-    console.log("Package version:", package.data);
+    console.log("Package:", package.data);
 }
 
 run();
