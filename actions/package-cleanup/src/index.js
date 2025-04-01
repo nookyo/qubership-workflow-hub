@@ -70,7 +70,7 @@ async function run() {
                 'X-GitHub-Api-Version': '2022-11-28'
             }
         });
-        console.log(`Version: ${JSON.stringify(version.data)}`);
+        core.warning(`Version: ${version.data}`);
     });
 
     // const package_ver = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
