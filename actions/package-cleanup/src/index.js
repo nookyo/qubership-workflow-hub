@@ -14,24 +14,25 @@ async function run() {
         username: owner
     });
 
-     // 'User' or 'Organization'
-    console.log(`Type: ${ userType.data}`);
+    
+    // 'User' or 'Organization'
+    console.log(`Type: ${JSON.stringify(userType.data, null, 2)}`);
 
 
-    let respond = await octokit.request('GET /user/packages', {
-        package_type: 'container',
-        headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
-        }
-    })
+    //     let respond = await octokit.request('GET /user/packages', {
+    //         package_type: 'container',
+    //         headers: {
+    //             'X-GitHub-Api-Version': '2022-11-28'
+    //         }
+    //     })
 
-    console.log(`Respond data: ${respond.data}`);
+    //     console.log(`Respond data: ${respond.data}`);
 
-    const package = await octokit.request('GET /users/{username}/packages', {
-        username: 'nookyo',
-        package_type: 'container',
-    });
-    console.log("Package:", package.data);
+    //     const package = await octokit.request('GET /users/{username}/packages', {
+    //         username: 'nookyo',
+    //         package_type: 'container',
+    //     });
+    //     console.log("Package:", package.data);
 }
 
 run();
