@@ -9,7 +9,7 @@ async function run() {
     const octokit = github.getOctokit(token);
 
     let respond =  await octokit.request('GET /user/packages', {
-        package_type: 'container',
+        package_type: 'maven',
         headers: {
           'X-GitHub-Api-Version': '2022-11-28'
         }
