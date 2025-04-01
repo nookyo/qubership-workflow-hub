@@ -7,8 +7,8 @@ async function run() {
 
     const token = process.env.GITHUB_TOKEN;
     const package_token = process.env.PACKAGE_TOKEN;
-    // const octokit = github.getOctokit(package_token);
-    const octokit = github.getOctokit(token);
+    const octokit = github.getOctokit(package_token);
+    // const octokit = github.getOctokit(token);
 
     let respond = await octokit.request('GET /user/packages', {
         package_type: 'maven',
