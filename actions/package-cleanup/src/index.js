@@ -32,17 +32,17 @@ async function run() {
     });
     console.log("Package:", package.data);
 
-    package.data.map(async (pkg) => {
+    // package.data.map(async (pkg) => {
 
-        console.log(`Package: ${pkg.name}`);
+        console.log(`Package: ${package.data[0].name}`);
 
         const version = await octokit.request('GET /users/{username}/packages/{package_name}/versions', {
             username: owner,
-            package_name: pkg.name,
-            package_type: pkg.package_type
+            package_name: package.data[0].name,
+            package_type: package.data[0].package_type,
         });
         console.log(`Version: ${JSON.stringify(version.data)}`);
-    });
+    // });
 
 
 }
