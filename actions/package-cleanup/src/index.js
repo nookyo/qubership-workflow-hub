@@ -34,7 +34,7 @@ async function run() {
     for (const pkg of package.data) {
         console.log(`Package: ${pkg.name}`);
         console.log(`Package type: ${pkg.package_type}`);
-    
+
         const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
             username: owner,
             package_type: pkg.package_type,
