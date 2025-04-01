@@ -58,11 +58,11 @@ async function run() {
     //     console.log(`Version: ${JSON.stringify(version.data)}`);
     // });
 
-    package.data.forEach((pkg) => {
+    package.data.forEach(async (pkg) => {
         console.log(`Package: ${pkg.name}`);
         console.log(`Package type: ${pkg.package_type}`);
 
-        const version = octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+        const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
             username: owner,
             package_type: pkg.package_type,
             package_name: pkg.name,
