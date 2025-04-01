@@ -56,7 +56,7 @@ async function run() {
             }
         });
         console.warning(`Version: ${JSON.stringify(version.data)}`);
-    }
+    });
 
     // const package_ver = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
