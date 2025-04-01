@@ -19,7 +19,7 @@ async function run() {
 
     const package = await octokit.request('GET /users/{username}/packages', {
         username: 'nookyo',
-        package_type: 'maven',
+        package_type: 'docker',
     });
     console.log("Package version:", package.data);
 }
