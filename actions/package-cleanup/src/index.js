@@ -52,7 +52,7 @@ async function run() {
         });
         core.warning(`Version: ${JSON.stringify(version.data)}`);
 
-        const filteredPackages = packages.filter(pkg => {
+        const filteredPackages = version.filter(pkg => {
 
             const createdAt = new Date(pkg.created_at);
             const isOldEnough = createdAt <= thresholdDate;
