@@ -35,7 +35,6 @@ async function run() {
     package.data.map(async (pkg) => {
 
         console.log(`Package: ${pkg.name}`);
-        console.log(`Version: ${JSON.stringify(version.data)}`);
 
         const version = await octokit.request('GET /users/{username}/packages/{package_name}/versions', {
             username: owner,
