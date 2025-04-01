@@ -30,6 +30,24 @@ async function run() {
         username: owner,
         package_type: 'container',
     });
+
+    for (const pkg of package.data) {
+        console.log(`Package: ${pkg.name}`);
+        console.log(`Package type: ${pkg.package_type}`);
+    
+        const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+            username: owner,
+            package_type: pkg.package_type,
+            package_name: pkg.name,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        });
+        core.warning(`Version: ${JSON.stringify(version.data)}`);
+    }
+
+
+
     // console.log("Package:", package.data);
 
 
@@ -58,20 +76,20 @@ async function run() {
     //     console.log(`Version: ${JSON.stringify(version.data)}`);
     // });
 
-    package.data.forEach(async (pkg) => {
-        console.log(`Package: ${pkg.name}`);
-        console.log(`Package type: ${pkg.package_type}`);
+    // package.data.forEach(async (pkg) => {
+    //     console.log(`Package: ${pkg.name}`);
+    //     console.log(`Package type: ${pkg.package_type}`);
 
-        const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
-            username: owner,
-            package_type: pkg.package_type,
-            package_name: pkg.name,
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        });
-        core.warning(`Version: ${JSON.stringify(version.data)}`);
-    });
+    //     const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+    //         username: owner,
+    //         package_type: pkg.package_type,
+    //         package_name: pkg.name,
+    //         headers: {
+    //             'X-GitHub-Api-Version': '2022-11-28'
+    //         }
+    //     });
+    //     core.warning(`Version: ${JSON.stringify(version.data)}`);
+    // });
 
     // const package_ver = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
     //     username: owner,
