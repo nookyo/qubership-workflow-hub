@@ -1,4 +1,3 @@
-const { Octokit } = require('@octokit/rest');
 const github = require("@actions/github");
 
 class OctokitWrapper {
