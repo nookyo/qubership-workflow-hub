@@ -15,14 +15,20 @@ async function run() {
 
     const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
 
-    let package = await wrapper.listPackages(owner, 'container', true);
-    package.forEach(async (pkg) => {
-        console.log(`Package: ${JSON.stringify(pkg)}`);
+
+    let package = await wrapper.listPackagesForRepository(owner, repo);
+    console.log(`Package: ${JSON.stringify(package)}`);
+
+
+
+    // let package = await wrapper.listPackages(owner, 'container', true);
+    // package.forEach(async (pkg) => {
+    //     console.log(`Package: ${JSON.stringify(pkg)}`);
         // console.log(`Package: ${pkg.name}`);
         // console.log(`Package type: ${pkg.package_type}`);
         // let version = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, true);
         // console.log(`Version: ${JSON.stringify(version)}`);
-    });
+    // });
 
     //let package = await wrapper.listPackagesForUser(owner, 'container');
 

@@ -47,7 +47,7 @@ class OctokitWrapper {
 
 
 
-  async listPackageVersionsForUser(owner, package_type, package_name) {
+  async getPackageVersionsForUser(owner, package_type, package_name) {
     try {
       const response = await this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
         package_type,
@@ -62,7 +62,7 @@ class OctokitWrapper {
   }
 
 
-  async listPackageVersionsForOrganization(org, package_type, package_name) {
+  async getPackageVersionsForOrganization(org, package_type, package_name) {
     try {
       const response = await this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
         package_type,
@@ -75,6 +75,20 @@ class OctokitWrapper {
       throw error;
     }
   }
+
+  async listPackagesForRepository(owner, repo) {
+    try {
+      const package = await octokit.rest.packages.listPackagesForRepository({
+        owner,
+        repo,
+        package_type: "container"
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
 
 module.exports = OctokitWrapper;
