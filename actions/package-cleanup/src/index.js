@@ -17,10 +17,12 @@ async function run() {
 
     let package = wrapper.listPackagesForUser(owner, 'container');
 
-    package.forEach(async (pkg) => {
-        console.log(`Package: ${pkg.name}`);
-        console.log(`Package type: ${pkg.package_type}`);
-    });
+
+    core.info(`Package: ${package}`);
+    // package.forEach(async (pkg) => {
+    //     console.log(`Package: ${pkg.name}`);
+    //     console.log(`Package type: ${pkg.package_type}`);
+    // });
 
     // const octokit = github.getOctokit(token);
 
