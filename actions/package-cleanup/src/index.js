@@ -19,7 +19,8 @@ async function run() {
 
     package.data.forEach(async (pkg) => {
         console.log(`Package: ${pkg.name}`);
-    }
+        console.log(`Package type: ${pkg.package_type}`);
+    });
 
     // const octokit = github.getOctokit(token);
 
