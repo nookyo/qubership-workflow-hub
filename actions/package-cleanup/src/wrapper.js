@@ -78,10 +78,10 @@ class OctokitWrapper {
 
   async listPackagesForRepository(owner, repo) {
     try {
-      const package = await octokit.rest.packages.listPackagesForRepository({
+      const response = await octokit.rest.packages.listPackagesForRepository({
         owner,
         repo,
-        package_type: "container"
+        package_type: 'container'
       });
       return response.data;
     } catch (error) {
