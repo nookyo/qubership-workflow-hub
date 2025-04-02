@@ -17,7 +17,7 @@ async function run() {
 
     let package = wrapper.listPackagesForUser(owner, 'container');
 
-    package.data.forEach(async (pkg) => {
+    package.forEach(async (pkg) => {
         console.log(`Package: ${pkg.name}`);
         console.log(`Package type: ${pkg.package_type}`);
     });
