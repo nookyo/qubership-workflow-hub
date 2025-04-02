@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-// const wrapper = require("./wrapper");
+const OctokitWrapper = require("./wrapper");
 
 async function run() {
 
