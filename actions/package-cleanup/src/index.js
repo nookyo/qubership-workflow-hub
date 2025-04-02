@@ -19,7 +19,8 @@ async function run() {
     let package = await wrapper.listPackagesForRepository(owner, repo);
     console.log(`Package: ${JSON.stringify(package)}`);
 
-
+    package = await wrapper.getContainerPackages(owner, repo);
+    console.log(`Package: ${JSON.stringify(package)}`);
 
     // let package = await wrapper.listPackages(owner, 'container', true);
     // package.forEach(async (pkg) => {
