@@ -1,5 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+// const wrapper = require("./wrapper");
 
 async function run() {
 
@@ -12,63 +13,76 @@ async function run() {
 
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-    const token = process.env.GITHUB_TOKEN;
-    const package_token = process.env.PACKAGE_TOKEN;
-    const octokit = github.getOctokit(package_token);
+    const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
+
+    let package = wrapper.listPackagesForUser(owner, 'container');
+
+    package.data.forEach(async (pkg) => {
+        console.log(`Package: ${pkg.name}`);
+    }
+
     // const octokit = github.getOctokit(token);
 
-    const userType = await octokit.request('GET /users/{username}', {
-        username: owner
-    });
 
-    // 'User' or 'Organization'
-    console.log(`Type: ${JSON.stringify(userType.data, null, 2)}`);
 
-    let respond = await octokit.request('GET /user/packages', {
-        package_type: 'container',
-        headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
-        }
-    })
+    // const token = process.env.GITHUB_TOKEN;
+    // const package_token = process.env.PACKAGE_TOKEN;
 
-    console.log(`Respond data: ${respond.data}`);
 
-    const package = await octokit.request('GET /users/{username}/packages', {
-        username: owner,
-        package_type: 'container',
-    });
+    // const octokit = github.getOctokit(token);
 
-    for (const pkg of package.data) {
-        console.log(`Package: ${pkg.name}`);
-        console.log(`Package type: ${pkg.package_type}`);
+    // const userType = await octokit.request('GET /users/{username}', {
+    //     username: owner
+    // });
 
-        const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
-            username: owner,
-            package_type: pkg.package_type,
-            package_name: pkg.name,
-            headers: {
-                'X-GitHub-Api-Version': '2022-11-28'
-            }
-        });
-        core.warning(`Version: ${JSON.stringify(version.data)}`);
+    // // 'User' or 'Organization'
+    // console.log(`Type: ${JSON.stringify(userType.data, null, 2)}`);
 
-        const filteredPackages = version.data.filter(pkg => {
+    // let respond = await octokit.request('GET /user/packages', {
+    //     package_type: 'container',
+    //     headers: {
+    //         'X-GitHub-Api-Version': '2022-11-28'
+    //     }
+    // })
 
-            const createdAt = new Date(pkg.created_at);
-            const isOldEnough = createdAt <= thresholdDate;
+    // console.log(`Respond data: ${respond.data}`);
 
-            let hasExcludedTag = false;
-            if (pkg.metadata && pkg.metadata.container && Array.isArray(pkg.metadata.container.tags)) {
+    // const package = await octokit.request('GET /users/{username}/packages', {
+    //     username: owner,
+    //     package_type: 'container',
+    // });
 
-                hasExcludedTag = pkg.metadata.container.tags.some(tag =>
-                    excludedTags.includes(tag)
-                );
-            }
+    // for (const pkg of package.data) {
+    //     console.log(`Package: ${pkg.name}`);
+    //     console.log(`Package type: ${pkg.package_type}`);
 
-            return isOldEnough && !hasExcludedTag;
-        });
-        console.log(filteredPackages);
-    }
+    //     const version = await octokit.request('GET /users/{username}/packages/{package_type}/{package_name}/versions', {
+    //         username: owner,
+    //         package_type: pkg.package_type,
+    //         package_name: pkg.name,
+    //         headers: {
+    //             'X-GitHub-Api-Version': '2022-11-28'
+    //         }
+    //     });
+    //     core.warning(`Version: ${JSON.stringify(version.data)}`);
+
+    //     const filteredPackages = version.data.filter(pkg => {
+
+    //         const createdAt = new Date(pkg.created_at);
+    //         const isOldEnough = createdAt <= thresholdDate;
+
+    //         let hasExcludedTag = false;
+    //         if (pkg.metadata && pkg.metadata.container && Array.isArray(pkg.metadata.container.tags)) {
+
+    //             hasExcludedTag = pkg.metadata.container.tags.some(tag =>
+    //                 excludedTags.includes(tag)
+    //             );
+    //         }
+
+    //         return isOldEnough && !hasExcludedTag;
+    //     });
+    //     console.log(filteredPackages);
+    // }
 
 
 
