@@ -16,7 +16,16 @@ class OctokitWrapper {
     }
   }
 
-  // This method is used to list packages for a Organization type in the GitHub repository.
+
+  async listPackages(owner, package_type, type) {
+    return type ? this.listPackagesForUser(owner, package_type) : this.listPackagesForOrganization(owner, package_type);
+  }
+
+  async listVersionsForPackage(owner, package_type, package_name, type) {
+    return type ? this.listPackageVersionsForUser(owner, package_type, package_name) : this.listPackageVersionsForOrganization(owner, package_type, package_name);
+  }
+
+
   async listPackagesForOrganization(org, package_type) {
     try {
       const response = await this.octokit.rest.packages.listPackagesForOrganization({ org, package_type, });
@@ -26,8 +35,6 @@ class OctokitWrapper {
     }
   }
 
-  // List packages for a user
-  // This method is used to list packages for a User type in the GitHub repository.
   async listPackagesForUser(username, package_type) {
     try {
       const response = await this.octokit.rest.packages.listPackagesForUser({ username, package_type });
@@ -37,6 +44,8 @@ class OctokitWrapper {
       throw error;
     }
   }
+
+
 
   async listPackageVersionsForUser(owner, package_type, package_name) {
     try {
