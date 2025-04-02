@@ -16,8 +16,8 @@ async function run() {
     const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
 
 
-    let package = await wrapper.listPackagesForRepository(owner, repo);
-    console.log(`Package: ${JSON.stringify(package)}`);
+    // let package = await wrapper.listPackagesForRepository(owner, repo);
+    // console.log(`Package: ${JSON.stringify(package)}`);
 
     package = await wrapper.getContainerPackages(owner, repo);
     console.log(`Package: ${JSON.stringify(package)}`);
