@@ -89,6 +89,24 @@ class OctokitWrapper {
     }
   }
 
+
+  async getContainerPackages(owner, repo) {
+    try {
+      const response = await octokit.request('GET /repos/{owner}/{repo}/packages', {
+        owner,
+        repo,
+        package_type: 'container',
+        headers: {
+          accept: 'application/vnd.github.package-deletes-preview+json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
 }
 
 module.exports = OctokitWrapper;
