@@ -78,7 +78,7 @@ class OctokitWrapper {
 
   async listPackagesForRepository(owner, repo) {
     try {
-      const response = await octokit.rest.packages.listPackagesForRepository({
+      const response = await this.octokit.rest.packages.listPackagesForRepository({
         owner,
         repo,
         package_type: 'container'
@@ -92,7 +92,7 @@ class OctokitWrapper {
 
   async getContainerPackages(owner, repo) {
     try {
-      const response = await octokit.request('GET /repos/{owner}/{repo}/packages', {
+      const response = await this.octokit.request('GET /repos/{owner}/{repo}/packages', {
         owner,
         repo,
         package_type: 'container',
