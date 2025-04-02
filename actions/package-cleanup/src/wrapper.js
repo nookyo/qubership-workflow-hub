@@ -37,7 +37,6 @@ class OctokitWrapper {
       throw error;
     }
   }
-
-
-
 }
+
+module.exports = OctokitWrapper;
