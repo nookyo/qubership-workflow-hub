@@ -15,7 +15,7 @@ async function run() {
 
     const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
 
-    let package = wrapper.listPackagesForUser(owner, 'container');
+    let package = await wrapper.listPackagesForUser(owner, 'container');
 
 
     core.info(`Package: ${package}`);
