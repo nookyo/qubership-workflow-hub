@@ -37,6 +37,35 @@ class OctokitWrapper {
       throw error;
     }
   }
+
+  async listPackageVersionsForUser(owner, package_type, package_name) {
+    try {
+      const response = await this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+        package_type,
+        package_name,
+        username: owner,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching package versions for ${owner}/${package_name}:`, error);
+      throw error;
+    }
+  }
+
+
+  async listPackageVersionsForOrganization(org, package_type, package_name) {
+    try {
+      const response = await this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg({
+        package_type,
+        package_name,
+        org,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching package versions for ${org}/${package_name}:`, error);
+      throw error;
+    }
+  }
 }
 
 module.exports = OctokitWrapper;

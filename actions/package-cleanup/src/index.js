@@ -22,6 +22,12 @@ async function run() {
     package.forEach(async (pkg) => {
         console.log(`Package: ${pkg.name}`);
         console.log(`Package type: ${pkg.package_type}`);
+        console.log(`Package version: ${pkg.id}`);
+
+
+        const version = await wrapper.listPackageVersionsForUser(owner, pkg.package_type, pkg.name);
+        console.log(`Version: ${JSON.stringify(version)}`);
+
     });
 
     // const octokit = github.getOctokit(token);
