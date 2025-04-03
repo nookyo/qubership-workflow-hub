@@ -24,9 +24,10 @@ async function run() {
 
     let package = await wrapper.listPackages(owner, 'container', true);
     package.forEach(async (pkg) => {
-        console.log(`Package: ${JSON.stringify(pkg)}`);
-        console.log(`Package: ${pkg.name}`);
-        console.log(`Package type: ${pkg.package_type}`);
+        // console.log(`Package: ${JSON.stringify(pkg)}`);
+        // console.log(`Package: ${pkg.name}`);
+        // console.log(`Package type: ${pkg.package_type}`);
+
         let version = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, true);
         console.log(`Version: ${JSON.stringify(version)}`);
     });
