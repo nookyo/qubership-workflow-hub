@@ -35,7 +35,7 @@ async function run() {
       }
     `;
 
-      const octokit = getOctokit(token);
+      const octokit = getOctokit(process.env.PACKAGE_TOKEN);
       const result = await octokit.graphql(getAllPackagesQuery, {
         owner,
         repo,
