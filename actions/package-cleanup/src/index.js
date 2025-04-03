@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const OctokitWrapper = require("./wrapper"); 
+const OctokitWrapper = require("./wrapper");
 
 async function run() {
 
@@ -19,19 +19,19 @@ async function run() {
     // let package = await wrapper.listPackagesForRepository(owner, repo);
     // console.log(`Package: ${JSON.stringify(package)}`);
 
-    package = await wrapper.getContainerPackages(owner, repo);
-    console.log(`Package: ${JSON.stringify(package)}`);
+    // package = await wrapper.getContainerPackages(owner, repo);
+    // console.log(`Package: ${JSON.stringify(package)}`);
 
-    // let package = await wrapper.listPackages(owner, 'container', true);
-    // package.forEach(async (pkg) => {
-    //     console.log(`Package: ${JSON.stringify(pkg)}`);
-        // console.log(`Package: ${pkg.name}`);
-        // console.log(`Package type: ${pkg.package_type}`);
-        // let version = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, true);
-        // console.log(`Version: ${JSON.stringify(version)}`);
-    // });
+    let package = await wrapper.listPackages(owner, 'container', true);
+    package.forEach(async (pkg) => {
+        console.log(`Package: ${JSON.stringify(pkg)}`);
+        console.log(`Package: ${pkg.name}`);
+        console.log(`Package type: ${pkg.package_type}`);
+        let version = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, true);
+        console.log(`Version: ${JSON.stringify(version)}`);
+    });
 
-    //let package = await wrapper.listPackagesForUser(owner, 'container');
+    // let package = await wrapper.listPackagesForUser(owner, 'container');
 
 
     // core.info(`Package: ${package}`);
