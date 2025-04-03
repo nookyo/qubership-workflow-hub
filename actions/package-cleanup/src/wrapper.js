@@ -22,7 +22,7 @@ class OctokitWrapper {
   }
 
   async listVersionsForPackage(owner, package_type, package_name, type) {
-    return type ? this.listPackageVersionsForUser(owner, package_type, package_name) : this.listPackageVersionsForOrganization(owner, package_type, package_name);
+    return type ? this.getPackageVersionsForUser(owner, package_type, package_name) : this.getPackageVersionsForOrganization(owner, package_type, package_name);
   }
 
 
