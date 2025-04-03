@@ -57,15 +57,15 @@ async function run() {
     // package = await wrapper.getContainerPackages(owner, repo);
     // console.log(`Package: ${JSON.stringify(package)}`);
 
-    let package = await wrapper.listPackages(owner, 'maven', true);
-    package.forEach(async (pkg) => {
-        // console.log(`Package: ${JSON.stringify(pkg)}`);
-        // console.log(`Package: ${pkg.name}`);
-        // console.log(`Package type: ${pkg.package_type}`);
+    // let package = await wrapper.listPackages(owner, 'maven', true);
+    // package.forEach(async (pkg) => {
+    //     // console.log(`Package: ${JSON.stringify(pkg)}`);
+    //     // console.log(`Package: ${pkg.name}`);
+    //     // console.log(`Package type: ${pkg.package_type}`);
 
-        let version = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, true);
-        console.log(`Version: ${JSON.stringify(version)}`);
-    });
+    //     let version = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, true);
+    //     console.log(`Version: ${JSON.stringify(version)}`);
+    // });
 
     // let package = await wrapper.listPackagesForUser(owner, 'container');
 
