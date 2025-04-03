@@ -22,7 +22,7 @@ async function run() {
     // package = await wrapper.getContainerPackages(owner, repo);
     // console.log(`Package: ${JSON.stringify(package)}`);
 
-    let package = await wrapper.listPackages(owner, 'container', true);
+    let package = await wrapper.listPackages(owner, 'maven', true);
     package.forEach(async (pkg) => {
         // console.log(`Package: ${JSON.stringify(pkg)}`);
         // console.log(`Package: ${pkg.name}`);
