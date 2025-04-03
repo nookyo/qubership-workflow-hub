@@ -15,6 +15,41 @@ async function run() {
 
     const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
 
+    const { getOctokit } = require("@actions/github");
+
+    const getAllPackagesQuery = `
+      query getAllPackages($owner: String!, $repo: String!) {
+        repository(owner: $owner, name: $repo) {
+          packages(first: 100) {
+            nodes {
+              name
+              versions(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
+                nodes {
+                  id
+                  version
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+      const octokit = getOctokit(token);
+      const result = await octokit.graphql(getAllPackagesQuery, {
+        owner,
+        repo,
+        headers: {
+          Accept: "application/vnd.github.package-deletes-preview+json",
+        },
+      });
+
+
+    console.log(`Result: ${JSON.stringify(result)}`);
+    console.log(`Result data: ${JSON.stringify(result.repository)}`);
+    console.log(`Result data: ${JSON.stringify(result.repository.packages)}`);
+    console.log(`Result data: ${JSON.stringify(result.repository.packages.nodes)}`);
+
 
     // let package = await wrapper.listPackagesForRepository(owner, repo);
     // console.log(`Package: ${JSON.stringify(package)}`);
