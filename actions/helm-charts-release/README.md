@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release Helm Charts
-        uses: netcracker/qubership-workflow-hub/actions/helm-charts-release@main
+        uses: netcracker/qubership-workflow-hub/actions/helm-charts-release@v1.0.0
         with:
           release: '1.0.0'
           config-file: './config/charts-config.yaml'
