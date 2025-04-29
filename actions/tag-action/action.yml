@@ -36,9 +36,10 @@ runs:
   using: "composite"
   steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ inputs.ref }}
+        fetch-depth: 0
 
     - name: Configure Git
       shell: bash
@@ -75,6 +76,7 @@ runs:
         if [ "${{ inputs.force-create }}" == "true" ] && [ "$(git tag -l "${{ inputs.tag-name }}")" ]; then
           echo "🔄 Force create enabled: Deleting existing tag '${{ inputs.tag-name }}'"
           git tag -d "${{ inputs.tag-name }}"
+          git push origin --delete "${{ inputs.tag-name }}"
         fi
         echo "💡 Trying to create tag: '${{ inputs.tag-name }}'"
         git tag -a "${{ inputs.tag-name }}" -m "${{ inputs.commit-message }}"

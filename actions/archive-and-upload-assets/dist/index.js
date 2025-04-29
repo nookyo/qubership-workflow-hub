@@ -38418,7 +38418,7 @@ async function run() {
 
         // Create dist folder for storing archives
         fs.mkdirSync(dist_path, { recursive: true })
-        if (config.archives || config.archives.length > 0) {
+        if (config.archives || config.archives?.length > 0) {
             for (const archiveItem of config.archives) {
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
