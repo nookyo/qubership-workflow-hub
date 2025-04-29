@@ -17,7 +17,12 @@ inputs:
     default: 'false'
     description: "Upload assets to a repository."
     required: false
-
+  files:
+    description: "The files to upload."
+    required: false
+  folders:
+    description: "The folders to upload."
+    required: false
 
 runs:
  using: "node16"
