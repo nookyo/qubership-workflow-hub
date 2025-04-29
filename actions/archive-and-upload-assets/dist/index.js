@@ -38354,7 +38354,6 @@ async function assetsUpload(dist_path, ref) {
                 });
             }
         }
-        core.info(`\n-----------------------------------------------`)
     } catch (err) {
         throw err;
     }
@@ -38364,7 +38363,7 @@ async function run() {
     try {
 
         const jsonFile = core.getInput('config-path');
-        const ref = core.getInput('ref');
+        const ref = core.getInput('ref') || process.env.GITHUB_REF_NAME;
         const dist_path = core.getInput('dist-path');
         const upload = core.getInput('upload');
 
@@ -38419,41 +38418,46 @@ async function run() {
 
         // Create dist folder for storing archives
         fs.mkdirSync(dist_path, { recursive: true })
-        for (const archiveItem of config.archives) {
-            let source = archiveItem.source;
-            let outputName = archiveItem.outputName;
-            let archiveType = archiveItem.archiveType;
+        if (config.archives.length != 0) {
+            for (const archiveItem of config.archives) {
+                let source = archiveItem.source;
+                let outputName = archiveItem.outputName;
+                let archiveType = archiveItem.archiveType;
 
-            if (!fs.existsSync(source)) {
-                throw new Error(`❗️ Folder not found: ${source}`);
+                if (!fs.existsSync(source)) {
+                    throw new Error(`❗️ Folder not found: ${source}`);
+                }
+
+                let outputFile = "";
+                let command = "";
+
+                if (archiveType == "tar.gz") {
+                    outputFile = `${outputName}-${ref}.tar.gz`;
+                    command = `tar -czf ${dist_path}/${outputFile} ${source}`;
+
+                }
+                else if (archiveType == "zip") {
+                    outputFile = `${outputName}-${ref}.zip`;
+                    command = `zip -r ${dist_path}/${outputFile} ${source}`;
+                }
+                else if (archiveType == "tar") {
+                    outputFile = `${outputName}-${ref}.tar`;
+                    command = `tar -cf ${dist_path}/${outputFile} ${source}`;
+                }
+
+                execSync(command, {
+                    cwd: process.env.GITHUB_WORKSPACE,
+                    stdio: "inherit",
+                });
+
+                core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
             }
-
-            let outputFile = "";
-            let command = "";
-
-            if (archiveType == "tar.gz") {
-                outputFile = `${outputName}-${ref}.tar.gz`;
-                command = `tar -czf ${dist_path}/${outputFile} ${source}`;
-
-            }
-            else if (archiveType == "zip") {
-                outputFile = `${outputName}-${ref}.zip`;
-                command = `zip -r ${dist_path}/${outputFile} ${source}`;
-            }
-            else if (archiveType == "tar") {
-                outputFile = `${outputName}-${ref}.tar`;
-                command = `tar -cf ${dist_path}/${outputFile} ${source}`;
-            }
-
-            execSync(command, {
-                cwd: process.env.GITHUB_WORKSPACE,
-                stdio: "inherit",
-            });
-
-            core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
+        }
+        else {
+            core.info(`⚠️ No archives provided for processing`);
         }
 
-        if (config.files) {
+        if (config.files.length != 0) {
             for (const fileItem of config.files) {
                 const source = fileItem.source;
                 const outputName = fileItem.outputName;
@@ -38468,10 +38472,10 @@ async function run() {
                 fs.copyFileSync(source, destPath);
                 core.info(`🗂️ Copied file ${source} → ${destPath}`);
             }
+        } else {
+            core.info(`⚠️ No individual files provided for processing`);
         }
 
-
-        core.info(`\n-----------------------------------------------`)
         if (upload === 'true') {
             await assetsUpload(dist_path, ref);
         }
