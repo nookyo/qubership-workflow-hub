@@ -119,6 +119,24 @@ async function run() {
             core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
         }
 
+        if (config.files) {
+            for (const fileItem of config.files) {
+                const source = fileItem.source;
+                const outputName = fileItem.outputName;
+
+                if (!fs.existsSync(source) || !fs.statSync(source).isFile()) {
+                    throw new Error(`❗️ File not found: ${source}`);
+                }
+
+                const ext = path.extname(source) || '';
+                const destName = `${outputName}-${ref}.${ext}`;
+                const destPath = path.join(dist_path, destName);
+                fs.copyFileSync(source, destPath);
+                core.info(`🗂️ Copied file ${source} → ${destPath}`);
+            }
+        }
+
+
         core.info(`\n-----------------------------------------------`)
         if (upload === 'true') {
             await assetsUpload(dist_path, ref);
