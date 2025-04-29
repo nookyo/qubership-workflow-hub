@@ -84,7 +84,7 @@ async function run() {
 
         // Create dist folder for storing archives
         fs.mkdirSync(dist_path, { recursive: true })
-        if (config.archives.length != 0) {
+        if (!config.archives || config.archives.length != 0) {
             for (const archiveItem of config.archives) {
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
@@ -123,7 +123,7 @@ async function run() {
             core.info(`⚠️ No archives provided for processing`);
         }
 
-        if (config.files.length != 0) {
+        if (!config.files || config.files.length != 0) {
             for (const fileItem of config.files) {
                 const source = fileItem.source;
                 const outputName = fileItem.outputName;
