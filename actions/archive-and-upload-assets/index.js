@@ -5,6 +5,7 @@ const { execSync } = require('child_process');
 const path = require("path");
 const Ajv = require('ajv');
 const yaml = require('js-yaml');
+const { env } = require("process");
 
 
 // async function assetsUpload(dist_path, ref) {
@@ -50,7 +51,6 @@ async function run() {
         const upload = core.getInput('upload');
 
         core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${dist_path}\n 🔹upload: ${upload}\n`);
-
 
         const configPath = path.resolve(jsonFile);
         console.log(`💡 Reading asset config from ${configPath}`)
@@ -159,7 +159,7 @@ async function run() {
         }
 
         if (upload === 'true') {
-            await assetsUpload(dist_path, ref);
+            await assetsUpload(dist_path, ref, process.env.GITHUB_TOKEN);
         }
         core.info('✅ Action completed successfully!');
     }
