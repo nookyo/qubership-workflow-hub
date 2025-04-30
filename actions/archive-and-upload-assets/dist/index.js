@@ -38341,7 +38341,6 @@ const yaml = __nccwpck_require__(5756);
 
 async function assetsUpload(dist_path, ref) {
     const directoryPath = path.join(dist_path);
-
     try {
         const files = fs.readdirSync(directoryPath);
         for (const file of files) {

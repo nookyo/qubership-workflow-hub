@@ -162,9 +162,6 @@ The configuration file must adhere to the following JSON schema:
 3. **File Copying**:
    - Individual files can be copied to the destination folder with custom names.
 
-4. **Uploading**:
-   - If `upload` is set to `true`, the action uses the `gh` CLI to upload the archives and copied files as release assets. Ensure the `GITHUB_TOKEN` is provided in the workflow for authentication.
-
 5. **Dry-Run Mode**:
    - When `dry-run` is enabled, the action will simulate the archiving and uploading process without making any changes.
 
