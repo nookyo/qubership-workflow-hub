@@ -38414,9 +38414,10 @@ async function run() {
         }
         core.warning(`Config file is valid: ${valid}\n`);
 
-        // Create dist folder for storing archives
+
         fs.mkdirSync(dist_path, { recursive: true })
-        if (Array.isArray(config.archives) && config.archives?.length) {
+
+        if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
@@ -38455,7 +38456,7 @@ async function run() {
             core.info(`⚠️ No archives provided for processing`);
         }
 
-        if (Array.isArray(config.files) && config.files?.length) {
+        if (Array.isArray(config.files) && config.files.length) {
             for (const fileItem of config.files) {
                 const source = fileItem.source;
                 const outputName = fileItem.outputName;
