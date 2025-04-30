@@ -1,28 +1,44 @@
 const fs = require("fs");
 const core = require("@actions/core");
+const github = require("@actions/github");
 const { execSync } = require('child_process');
 const path = require("path");
 const Ajv = require('ajv');
 const yaml = require('js-yaml');
 
 
-async function assetsUpload(dist_path, ref) {
-    const directoryPath = path.join(dist_path);
+// async function assetsUpload(dist_path, ref) {
+//     const directoryPath = path.join(dist_path);
 
-    try {
-        const files = fs.readdirSync(directoryPath);
-        for (const file of files) {
-            const fullPath = path.join(directoryPath, file);
-            if (fs.statSync(fullPath).isFile()) {
-                console.log(`🔄 Uploading ${fullPath} to ${ref}`);
-                execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
-                    stdio: "inherit",
-                });
-            }
+//     try {
+//         const files = fs.readdirSync(directoryPath);
+//         for (const file of files) {
+//             const fullPath = path.join(directoryPath, file);
+//             if (fs.statSync(fullPath).isFile()) {
+//                 console.log(`🔄 Uploading ${fullPath} to ${ref}`);
+//                 execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
+//                     stdio: "inherit",
+//                 });
+//             }
+//         }
+//     } catch (err) {
+//         throw err;
+//     }
+// }
+
+async function assetsUpload(dist_path, ref, token) {
+    const directoryPath = path.join(dist_path);
+    const files = fs.readdirSync(directoryPath);
+    files.forEach(file => {
+        const fullPath = path.join(directoryPath, file);
+        if (fs.statSync(fullPath).isFile()) {
+            console.log(`🔄 Uploading ${fullPath} to ${ref}`);
+            execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
+                stdio: "inherit",
+                env: { GITHUB_TOKEN: token } // Pass the token as an environment variable
+            });
         }
-    } catch (err) {
-        throw err;
-    }
+    });
 }
 
 async function run() {
@@ -84,7 +100,7 @@ async function run() {
 
         // Create dist folder for storing archives
         fs.mkdirSync(dist_path, { recursive: true })
-        if (config.archives || config.archives?.length > 0) {
+        if (Array.isArray(config.archives) && config.archives?.length) {
             for (const archiveItem of config.archives) {
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
@@ -123,7 +139,7 @@ async function run() {
             core.info(`⚠️ No archives provided for processing`);
         }
 
-        if (config.files || config.files?.length > 0) {
+        if (Array.isArray(config.files) && config.files?.length) {
             for (const fileItem of config.files) {
                 const source = fileItem.source;
                 const outputName = fileItem.outputName;
