@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run Archive and Upload Assets Action
-        uses: ./actions/archive-and-upload-assets
+        uses: netcracker/qubership-workflow-hub/actions/archive-and-upload-assets@main
         with:
           config-path: "./.github/assets-config.yml"
           ref: "v1.0.0"
