@@ -5,7 +5,7 @@ inputs:
   config-path:
     description: "The path to the asset configuration file."
     default: "./.github/assets-config.yml"
-    required: false
+    required: true
   ref:
     description: "The tag for Release to upload assets."
     required: false

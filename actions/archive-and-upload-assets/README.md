@@ -18,7 +18,7 @@ This GitHub Action automates the process of archiving specified folders and file
 
 | Name            | Description                                                                 | Required | Default                     |
 | --------------- | --------------------------------------------------------------------------- | -------- | --------------------------- |
-| `config-path`   | The path to the configuration file that specifies the folders and files to archive. | No       | `./.github/assets-config.yml` |
+| `config-path`   | The path to the configuration file that specifies the folders and files to archive. | Yes       | `./.github/assets-config.yml` |
 | `ref`           | The reference (e.g., tag or branch name) for the release. If not provided, it defaults to the `GITHUB_REF_NAME` environment variable. | No       |                             |
 | `dist-path`     | The destination path where the archives and copied files will be stored.    | No       | `dist`                      |
 | `upload`        | **Deprecated.** Whether to upload the archives and copied files as release assets. If set to `true`, the files will be uploaded to the release specified by `ref`. | No       | `false`                     |
