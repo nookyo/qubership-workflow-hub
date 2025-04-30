@@ -38339,38 +38339,23 @@ const path = __nccwpck_require__(6928);
 const Ajv = __nccwpck_require__(2236);
 const yaml = __nccwpck_require__(5756);
 
-// async function assetsUpload(dist_path, ref) {
-//     const directoryPath = path.join(dist_path);
-
-//     try {
-//         const files = fs.readdirSync(directoryPath);
-//         for (const file of files) {
-//             const fullPath = path.join(directoryPath, file);
-//             if (fs.statSync(fullPath).isFile()) {
-//                 console.log(`🔄 Uploading ${fullPath} to ${ref}`);
-//                 execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
-//                     stdio: "inherit",
-//                 });
-//             }
-//         }
-//     } catch (err) {
-//         throw err;
-//     }
-// }
-
-async function assetsUpload(dist_path, ref, token) {
+async function assetsUpload(dist_path, ref) {
     const directoryPath = path.join(dist_path);
-    const files = fs.readdirSync(directoryPath);
-    files.forEach(file => {
-        const fullPath = path.join(directoryPath, file);
-        if (fs.statSync(fullPath).isFile()) {
-            console.log(`🔄 Uploading ${fullPath} to ${ref}`);
-            execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
-                stdio: "inherit",
-                env: { GITHUB_TOKEN: token } // Pass the token as an environment variable
-            });
+
+    try {
+        const files = fs.readdirSync(directoryPath);
+        for (const file of files) {
+            const fullPath = path.join(directoryPath, file);
+            if (fs.statSync(fullPath).isFile()) {
+                console.log(`🔄 Uploading ${fullPath} to ${ref}`);
+                execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
+                    stdio: "inherit",
+                });
+            }
         }
-    });
+    } catch (err) {
+        throw err;
+    }
 }
 
 async function run() {
@@ -38490,7 +38475,7 @@ async function run() {
         }
 
         if (upload === 'true') {
-            await assetsUpload(dist_path, ref, process.env.GITHUB_TOKEN);
+            await assetsUpload(dist_path, ref);
         }
         core.info('✅ Action completed successfully!');
     }
