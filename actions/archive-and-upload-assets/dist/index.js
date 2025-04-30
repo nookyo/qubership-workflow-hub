@@ -40038,6 +40038,14 @@ module.exports = require("perf_hooks");
 
 /***/ }),
 
+/***/ 932:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("process");
+
+/***/ }),
+
 /***/ 3480:
 /***/ ((module) => {
 
@@ -42610,6 +42618,7 @@ const { execSync } = __nccwpck_require__(5317);
 const path = __nccwpck_require__(6928);
 const Ajv = __nccwpck_require__(2236);
 const yaml = __nccwpck_require__(5756);
+const { env } = __nccwpck_require__(932);
 
 
 // async function assetsUpload(dist_path, ref) {
@@ -42655,7 +42664,6 @@ async function run() {
         const upload = core.getInput('upload');
 
         core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${dist_path}\n 🔹upload: ${upload}\n`);
-
 
         const configPath = path.resolve(jsonFile);
         console.log(`💡 Reading asset config from ${configPath}`)
@@ -42764,7 +42772,7 @@ async function run() {
         }
 
         if (upload === 'true') {
-            await assetsUpload(dist_path, ref);
+            await assetsUpload(dist_path, ref, process.env.GITHUB_TOKEN);
         }
         core.info('✅ Action completed successfully!');
     }
