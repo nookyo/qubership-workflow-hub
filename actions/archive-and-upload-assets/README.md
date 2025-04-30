@@ -10,8 +10,8 @@ This GitHub Action automates the process of archiving specified folders and file
 - Validates configuration files against a JSON schema.
 - Supports copying individual files with custom names.
 - Uploads the archived files and copied files as release assets.
-- Provides detailed logging and error handling.
-
+- Supports dry-run mode for testing without uploading files.
+- **Preserves file extensions** for all uploaded files.
 ---
 
 ## 📌 Inputs
@@ -21,7 +21,10 @@ This GitHub Action automates the process of archiving specified folders and file
 | `config-path`   | The path to the configuration file that specifies the folders and files to archive. | No       | `./.github/assets-config.yml` |
 | `ref`           | The reference (e.g., tag or branch name) for the release. If not provided, it defaults to the `GITHUB_REF_NAME` environment variable. | No       |                             |
 | `dist-path`     | The destination path where the archives and copied files will be stored.    | No       | `dist`                      |
-| `upload`        | Whether to upload the archives and copied files as release assets. If set to `true`, the files will be uploaded to the release specified by `ref`. | No       | `false`                     |
+| `upload`        | **Deprecated.** Whether to upload the archives and copied files as release assets. If set to `true`, the files will be uploaded to the release specified by `ref`. | No       | `false`                     |
+| `dry-run`       | Run the action in dry-run mode. No files will be uploaded to assets. Useful for testing workflows. | No       | `false`                     |
+| `files`         | A list of individual files to upload.                                       | No       |                             |
+| `folders`       | A list of folders to upload.                                                | No       |                             |
 
 ---
 
@@ -31,9 +34,41 @@ This action does not produce any explicit outputs but logs detailed information 
 
 ---
 
-## Additional Information
+## Usage Example
 
-### Configuration File
+Below is an example of how to use this action in a GitHub Actions workflow:
+
+```yaml
+name: Archive and Upload Assets
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  archive-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Run Archive and Upload Assets Action
+        uses: ./actions/archive-and-upload-assets
+        with:
+          config-path: "./.github/assets-config.yml"
+          ref: "v1.0.0"
+          dist-path: "./dist"
+          dry-run: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+---
+
+## Configuration File
 
 The configuration file specifies the folders and files to archive or copy. It must follow the JSON schema provided in the repository. The configuration file supports two main sections:
 1. **`archives`**: Specifies folders to archive.
@@ -57,7 +92,11 @@ files:
     outputName: "license"
 ```
 
-### JSON Schema for Configuration File
+**Note**: The file extensions will be preserved for all uploaded files. For example, if the source file is `README.md`, the uploaded file will also have the `.md` extension.
+
+---
+
+## JSON Schema for Configuration File
 
 The configuration file must adhere to the following JSON schema:
 
@@ -112,40 +151,6 @@ The configuration file must adhere to the following JSON schema:
 
 ---
 
-## Usage Example
-
-Below is an example of how to use this action in a GitHub Actions workflow:
-
-```yaml
-name: Archive and Upload Assets
-
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
-jobs:
-  archive-and-upload:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Run Archive and Upload Assets Action
-        uses: ./actions/archive-and-upload-assets
-        with:
-          config-path: "./.github/assets-config.yml"
-          ref: "v1.0.0"
-          dist-path: "./dist"
-          upload: "true"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
----
-
 ## Key Notes
 
 1. **Validation**:
@@ -160,5 +165,10 @@ jobs:
 4. **Uploading**:
    - If `upload` is set to `true`, the action uses the `gh` CLI to upload the archives and copied files as release assets. Ensure the `GITHUB_TOKEN` is provided in the workflow for authentication.
 
-5. **Error Handling**:
+5. **Dry-Run Mode**:
+   - When `dry-run` is enabled, the action will simulate the archiving and uploading process without making any changes.
+
+6. **Error Handling**:
    - The action provides detailed error messages for missing files, invalid configurations, and failed uploads.
+
+---
