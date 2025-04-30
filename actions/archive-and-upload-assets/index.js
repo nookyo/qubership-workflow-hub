@@ -29,10 +29,10 @@ async function run() {
 
         const jsonFile = core.getInput('config-path');
         const ref = core.getInput('ref') || process.env.GITHUB_REF_NAME;
-        const dist_path = core.getInput('dist-path');
-        const upload = core.getInput('upload');
+        const distPath = core.getInput('dist-path');
+        const dryRun = core.getInput('dry-run') || 'false';
 
-        core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${dist_path}\n 🔹upload: ${upload}\n`);
+        core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${distPath}\n 🔹upload: ${upload}\n`);
 
         const configPath = path.resolve(jsonFile);
         console.log(`💡 Reading asset config from ${configPath}`)
@@ -81,7 +81,7 @@ async function run() {
         core.warning(`Config file is valid: ${valid}\n`);
 
 
-        fs.mkdirSync(dist_path, { recursive: true })
+        fs.mkdirSync(distPath, { recursive: true })
 
         if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
@@ -98,16 +98,16 @@ async function run() {
 
                 if (archiveType == "tar.gz") {
                     outputFile = `${outputName}-${ref}.tar.gz`;
-                    command = `tar -czf ${dist_path}/${outputFile} ${source}`;
+                    command = `tar -czf ${distPath}/${outputFile} ${source}`;
 
                 }
                 else if (archiveType == "zip") {
                     outputFile = `${outputName}-${ref}.zip`;
-                    command = `zip -r ${dist_path}/${outputFile} ${source}`;
+                    command = `zip -r ${distPath}/${outputFile} ${source}`;
                 }
                 else if (archiveType == "tar") {
                     outputFile = `${outputName}-${ref}.tar`;
-                    command = `tar -cf ${dist_path}/${outputFile} ${source}`;
+                    command = `tar -cf ${distPath}/${outputFile} ${source}`;
                 }
 
                 execSync(command, {
@@ -133,7 +133,7 @@ async function run() {
 
                 const ext = path.extname(source) || '';
                 const destName = `${outputName}-${ref}.${ext}`;
-                const destPath = path.join(dist_path, destName);
+                const destPath = path.join(distPath, destName);
                 fs.copyFileSync(source, destPath);
                 core.info(`🗂️ Copied file ${source} → ${destPath}`);
             }
@@ -141,9 +141,12 @@ async function run() {
             core.info(`⚠️ No individual files provided for processing`);
         }
 
-        if (upload === 'true') {
-            await assetsUpload(dist_path, ref);
+        if (dryRun === 'true') {
+            core.warning(` Dry run mode: no files will be uploaded to assets.`);
+            return;
         }
+
+        await assetsUpload(distPath, ref);
         core.info('✅ Action completed successfully!');
     }
     catch (error) {

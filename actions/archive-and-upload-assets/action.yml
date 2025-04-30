@@ -15,7 +15,11 @@ inputs:
     default: "dist"
   upload:
     default: 'false'
-    description: "Upload assets to a repository."
+    description: "DEPRIVCATED. Upload assets to a repository."
+    required: false
+  dry-run:
+    default: 'false'
+    description: "Dry run mode. No files will upload to assets."
     required: false
   files:
     description: "The files to upload."
