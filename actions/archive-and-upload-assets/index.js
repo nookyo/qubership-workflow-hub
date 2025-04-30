@@ -32,7 +32,7 @@ async function run() {
         const distPath = core.getInput('dist-path');
         const dryRun = core.getInput('dry-run') || 'false';
 
-        core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹dist_path: ${distPath}\n 🔹upload: ${upload}\n`);
+        core.info(`Debug:\n 🔹json: ${jsonFile}\n 🔹ref: ${ref}\n 🔹distPath: ${distPath}\n`);
 
         const configPath = path.resolve(jsonFile);
         console.log(`💡 Reading asset config from ${configPath}`)
