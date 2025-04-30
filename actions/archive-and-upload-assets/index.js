@@ -1,12 +1,9 @@
 const fs = require("fs");
 const core = require("@actions/core");
-const github = require("@actions/github");
 const { execSync } = require('child_process');
 const path = require("path");
 const Ajv = require('ajv');
 const yaml = require('js-yaml');
-const { env } = require("process");
-
 
 // async function assetsUpload(dist_path, ref) {
 //     const directoryPath = path.join(dist_path);
