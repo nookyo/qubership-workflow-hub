@@ -78,7 +78,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Container Package Cleanup Action
-        uses: Netcracker/qubership-workflow-hub/actions/container-package-cleanup@main
+        uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@v1.0.1
         with:
           threshold-days: ${{ github.event.inputs.threshold-days }}
           included-tags: ${{ github.event.inputs.included-tags }}

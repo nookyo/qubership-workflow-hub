@@ -42,7 +42,7 @@ jobs:
         run: echo "Automated update" >> update.log
 
       - name: Run Commit and Push Action
-        uses: Netcracker/qubership-workflow-hub/actions/commit-and-push@main
+        uses: netcracker/qubership-workflow-hub/actions/commit-and-push@v1.0.1
         with:
           author_name: "Bot User"
           author_email: "bot@example.com"

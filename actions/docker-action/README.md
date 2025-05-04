@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build and Publish Docker Image
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: netcracker/qubership-workflow-hub/actions/docker-action@v1.0.1
         with:
           ref: main
           custom-image-name: my-custom-image

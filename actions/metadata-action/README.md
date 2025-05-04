@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Metadata
-        uses: Netcracker/qubership-workflow-hub/actions/metadata-action@main
+        uses: netcracker/qubership-workflow-hub/actions/metadata-action@v1.0.1
         with:
           configuration-path: './.github/metadata-action-config.yml'
 ```
