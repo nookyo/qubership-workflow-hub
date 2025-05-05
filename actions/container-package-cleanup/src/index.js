@@ -103,6 +103,7 @@ async function run() {
 
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
+    await showReport(filteredPackagesWithVersionsForDelete);
     return;
   }
 
@@ -113,9 +114,7 @@ async function run() {
     }
   }
 
-  await new Report().writeSummary(filteredPackagesWithVersionsForDelete);
-  core.info("✅ All specified versions have been deleted successfully.");
-
+  await showReport(filteredPackagesWithVersionsForDelete);
 }
 
 function wildcardMatch(tag, pattern) {
@@ -125,6 +124,11 @@ function wildcardMatch(tag, pattern) {
   const escapedPattern = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
   const regex = new RegExp(escapedPattern.replace(/\*/g, '.*'), 'i');
   return regex.test(tag);
+}
+
+async function showReport(packagesWithVersionsForDelete) {
+  await new Report().writeSummary(filteredPackagesWithVersionsForDelete);
+  core.info("✅ All specified versions have been deleted successfully.");
 }
 
 run();
