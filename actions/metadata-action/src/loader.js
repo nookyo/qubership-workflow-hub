@@ -28,6 +28,8 @@ class ConfigLoader {
     let config;
     try {
       config = yaml.load(fileContent);
+      console.log("🔍 Загруженная конфигурация JSON:", JSON.stringify(config, null, 2));
+      console.log("🔑 Ключи объекта:", Object.keys(config));
     }
     catch (error) {
       core.setFailed(`❗️ Error parsing YAML file: ${error.message}`);
