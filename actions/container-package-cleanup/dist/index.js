@@ -29919,7 +29919,7 @@ function wrappy (fn, cb) {
 
 const core = __nccwpck_require__(8335);
 class Report {
-    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun = false) {
+    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun) {
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
             return;
