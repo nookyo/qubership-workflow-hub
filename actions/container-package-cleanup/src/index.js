@@ -127,7 +127,7 @@ function wildcardMatch(tag, pattern) {
 }
 
 async function showReport(packagesWithVersionsForDelete) {
-  await new Report().writeSummary(filteredPackagesWithVersionsForDelete);
+  await new Report().writeSummary(packagesWithVersionsForDelete);
   core.info("✅ All specified versions have been deleted successfully.");
 }
 
