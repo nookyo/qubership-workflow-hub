@@ -117,13 +117,42 @@ async function run() {
   await showReport(filteredPackagesWithVersionsForDelete);
 }
 
+// function wildcardMatch(tag, pattern) {
+//   if (!pattern.includes('*')) {
+//     return tag.toLowerCase() === pattern.toLowerCase();
+//   }
+//   const escapedPattern = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
+//   const regex = new RegExp(escapedPattern.replace(/\*/g, '.*'), 'i');
+//   return regex.test(tag);
+// }
+
+
 function wildcardMatch(tag, pattern) {
-  if (!pattern.includes('*')) {
-    return tag.toLowerCase() === pattern.toLowerCase();
+  const t = tag.toLowerCase();
+  const p = pattern.toLowerCase();
+
+  if (!p.includes('*')) {
+    return t === p;
   }
-  const escapedPattern = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
-  const regex = new RegExp(escapedPattern.replace(/\*/g, '.*'), 'i');
-  return regex.test(tag);
+
+  if (p.endsWith('*') && !p.startsWith('*')) {
+    const prefix = p.slice(0, -1);
+    return t.startsWith(prefix);
+  }
+
+  if (p.startsWith('*') && !p.endsWith('*')) {
+    const suffix = p.slice(1);
+    return t.endsWith(suffix);
+  }
+
+  if (p.startsWith('*') && p.endsWith('*')) {
+    const substr = p.slice(1, -1);
+    return t.includes(substr);
+  }
+
+  const escaped = p.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.*');
+  const re = new RegExp(`^${escaped}$`, 'i');
+  return re.test(tag);
 }
 
 async function showReport(packagesWithVersionsForDelete) {
