@@ -1,6 +1,6 @@
 const core = require("@actions/core");
 class Report {
-    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun) {
+    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun = false) {
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
             return;
