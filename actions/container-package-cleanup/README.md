@@ -163,5 +163,3 @@ The action supports flexible tag matching using exact matches and wildcard patte
 | `*release`    | `v1-release`, `candidate-release`| `release-v1`         |
 | `*release*`   | `v1-release-candidate`, `release-v1` | `v1-candidate`    |
 | `release*v1`  | `release-v1`, `release-candidate-v1` | `release-v2`     |
-
-This compact explanation provides a clear overview of the supported patterns, helping users configure their tag filtering effectively.
