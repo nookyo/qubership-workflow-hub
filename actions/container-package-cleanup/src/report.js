@@ -9,8 +9,6 @@ class Report {
         // Calculate summary statistics.
 
         const dryRunText = dryRun ? "(Dry Run)" : "";
-        core.info(`Container Package Cleanup Summary: ${dryRunText}`);
-        core.info(`DryRun variable: ${dryRun}`);
         const totalPackages = filteredPackagesWithVersionsForDelete.length;
         const totalDeletedVersions = filteredPackagesWithVersionsForDelete.reduce((total, item) => total + item.versions.length, 0);
 
