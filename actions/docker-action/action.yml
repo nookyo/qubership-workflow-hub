@@ -95,8 +95,8 @@ runs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.custom-image-name }}
-        path: ".."
-        # path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '..' }}
+        # path: ".."
+        path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '..' }}
 
     - name: Debug Artifact
       if: ${{ inputs.download-artifact == 'true' }}
