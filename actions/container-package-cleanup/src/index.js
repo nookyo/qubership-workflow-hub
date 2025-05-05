@@ -103,7 +103,7 @@ async function run() {
 
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
-    await showReport(filteredPackagesWithVersionsForDelete);
+    await showReport(filteredPackagesWithVersionsForDelete, true);
     return;
   }
 

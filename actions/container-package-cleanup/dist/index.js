@@ -29919,13 +29919,15 @@ function wrappy (fn, cb) {
 
 const core = __nccwpck_require__(8335);
 class Report {
-    async writeSummary(filteredPackagesWithVersionsForDelete) {
+    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun = false) {
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
             return;
         }
 
         // Calculate summary statistics.
+
+        const dryRunText = dryRun ? " (Dry Run)" : "";
         const totalPackages = filteredPackagesWithVersionsForDelete.length;
         const totalDeletedVersions = filteredPackagesWithVersionsForDelete.reduce((total, item) => total + item.versions.length, 0);
 
@@ -29947,7 +29949,7 @@ class Report {
             tableData.push([pkgInfo, versionsInfo]);
         });
 
-        core.summary.addRaw(`## 🎯 Container Package Cleanup Summary\n\n`);
+        core.summary.addRaw(`## 🎯 Container Package Cleanup Summary ${dryRunText}\n\n`);
         core.summary.addRaw(`**Total Packages Processed:** ${totalPackages}
                              **Total Deleted Versions:** ${totalDeletedVersions}\n\n`);
         core.summary.addRaw(`---\n\n`);
@@ -32144,7 +32146,7 @@ async function run() {
 
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
-    await showReport(filteredPackagesWithVersionsForDelete);
+    await showReport(filteredPackagesWithVersionsForDelete, true);
     return;
   }
 
