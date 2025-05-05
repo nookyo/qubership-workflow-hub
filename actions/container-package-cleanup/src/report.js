@@ -8,7 +8,7 @@ class Report {
 
         // Calculate summary statistics.
 
-        const dryRunText = dryRun ? " (Dry Run)" : "";
+        const dryRunText = dryRun ? "(Dry Run)" : "";
         const totalPackages = filteredPackagesWithVersionsForDelete.length;
         const totalDeletedVersions = filteredPackagesWithVersionsForDelete.reduce((total, item) => total + item.versions.length, 0);
 
