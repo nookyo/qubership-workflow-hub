@@ -33,8 +33,16 @@ inputs:
     description: "Docker image tags. If empty, tags will be generated automatically."
     required: false
     default: ""
+  download-artifact-artifact-ids:
+    description: "Artifact IDs to download. Optional. Default is the custom image name."
+    required: false
+    default: ""
   download-artifact-path:
     description: "Destination path. Supports basic tilde expansion. Optional. Default is $GITHUB_WORKSPACE"
+    required: false
+    default: ""
+  download-artifact-pattern:
+    description: "A glob pattern to the artifacts that should be downloaded. Ignored if name is specified. Optional."
     required: false
     default: ""
 
@@ -92,6 +100,7 @@ runs:
         name: ${{ inputs.custom-image-name }}
         # path: '..'
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '..' }}
+
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
