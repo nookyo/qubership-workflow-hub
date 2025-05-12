@@ -10,6 +10,8 @@ const ConfigLoader = require("./loader");
 const RefExtractor = require("./extractor");
 const { default: def } = require("ajv/dist/vocabularies/discriminator");
 
+const Report = require("./report");
+
 function generateSnapshotVersionParts() {
   const now = new Date();
   const iso = now.toISOString(); // "2025-02-25T14:30:53.123Z"
@@ -126,6 +128,7 @@ async function run() {
   core.setOutput("short-sha", shortSha);
 
   core.info('✅ Action completed successfully!');
+  await Report.writeSummary(template, distTag);
 }
 
 run();
