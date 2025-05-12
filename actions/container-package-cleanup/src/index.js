@@ -49,6 +49,20 @@ async function run() {
 
   core.info(`🔹Packages: ${JSON.stringify(packages, null, 2)}`);
 
+  const filteredPackages1 = packages.filter((pkg, idx) => {
+    if (!pkg.repository) {
+      core.error(`❗ [${idx}] Skip: нет поля repository в пакете ${JSON.stringify(pkg)}`);
+      return false;
+    }
+    if (pkg.repository.name !== repo) {
+      core.info(`— [${idx}] Skip: repository.name="${pkg.repository.name}", ожидаем "${repo}"`);
+      return false;
+    }
+    return true;
+  });
+
+  return
+
   let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
 
   let packagesNames = filteredPackages.map((pkg) => pkg.name);
