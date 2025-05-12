@@ -39985,6 +39985,31 @@ module.exports = ConfigLoader;
 
 /***/ }),
 
+/***/ 1090:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(8335);
+class Report {
+    async writeSummary(template, distTag, dryRun = false) {
+
+        // Calculate summary statistics.
+        core.info("Calculate summary statistics.");
+        const dryRunText = dryRun ? "(Dry Run)" : "";
+
+        core.summary.addRaw(`## 🔻 Metadata in use: ${dryRunText}\n\n`);
+        core.summary.addRaw(`**Template:** ${template}
+                             **Distribution Tag:** ${distTag}\n\n`);
+        core.summary.addRaw(`---\n\n`);
+        core.summary.addRaw(`\n\n✅ Metadata extract completed successfully.`);
+
+        await core.summary.write();
+    }
+}
+
+module.exports = Report;
+
+/***/ }),
+
 /***/ 2613:
 /***/ ((module) => {
 
@@ -42722,6 +42747,8 @@ const ConfigLoader = __nccwpck_require__(9027);
 const RefExtractor = __nccwpck_require__(1074);
 const { default: def } = __nccwpck_require__(4431);
 
+const Report = __nccwpck_require__(1090);
+
 function generateSnapshotVersionParts() {
   const now = new Date();
   const iso = now.toISOString(); // "2025-02-25T14:30:53.123Z"
@@ -42836,6 +42863,8 @@ async function run() {
   core.setOutput("patch", semverParts.patch);
   core.setOutput("tag", distTag);
   core.setOutput("short-sha", shortSha);
+
+  await Report.writeSummary(template, distTag);
 
   core.info('✅ Action completed successfully!');
 }

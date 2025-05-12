@@ -127,8 +127,9 @@ async function run() {
   core.setOutput("tag", distTag);
   core.setOutput("short-sha", shortSha);
 
-  core.info('✅ Action completed successfully!');
   await Report.writeSummary(template, distTag);
+
+  core.info('✅ Action completed successfully!');
 }
 
 run();

@@ -3,6 +3,7 @@ class Report {
     async writeSummary(template, distTag, dryRun = false) {
 
         // Calculate summary statistics.
+        core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? "(Dry Run)" : "";
 
         core.summary.addRaw(`## 🔻 Metadata in use: ${dryRunText}\n\n`);
