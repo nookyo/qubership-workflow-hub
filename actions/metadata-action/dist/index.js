@@ -42864,7 +42864,7 @@ async function run() {
   core.setOutput("tag", distTag);
   core.setOutput("short-sha", shortSha);
 
-  await new Report.writeSummary(template, distTag, false);
+  await new Report().writeSummary(template, distTag, false);
 
   core.info('✅ Action completed successfully!');
 }
