@@ -8,6 +8,7 @@ const github = require("@actions/github");
 
 const ConfigLoader = require("./loader");
 const RefExtractor = require("./extractor");
+const { default: def } = require("ajv/dist/vocabularies/discriminator");
 
 function generateSnapshotVersionParts() {
   const now = new Date();
@@ -67,6 +68,9 @@ async function run() {
   const loader = new ConfigLoader()
   const config = loader.load(configurationPath);
 
+  const defaultTemplate = core.getInput('default-template') || config["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+  const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
+
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   let template = null;
@@ -78,13 +82,13 @@ async function run() {
   }
 
   if (template === null) {
-    core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> {{ref-name}}-{{timestamp}}-{{runNumber}}`);
-    template = `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+    core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
+    template = defaultTemplate;
   }
 
   if (distTag === null) {
-    core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> latest`);
-    distTag = "latest";
+    core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
+    distTag = defaultTag;
   }
 
   const parts = generateSnapshotVersionParts();

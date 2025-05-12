@@ -42720,6 +42720,7 @@ const github = __nccwpck_require__(5355);
 
 const ConfigLoader = __nccwpck_require__(9027);
 const RefExtractor = __nccwpck_require__(1074);
+const { default: def } = __nccwpck_require__(4431);
 
 function generateSnapshotVersionParts() {
   const now = new Date();
@@ -42779,6 +42780,9 @@ async function run() {
   const loader = new ConfigLoader()
   const config = loader.load(configurationPath);
 
+  const defaultTemplate = core.getInput('default-template') || config["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+  const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
+
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   let template = null;
@@ -42790,13 +42794,13 @@ async function run() {
   }
 
   if (template === null) {
-    core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> {{ref-name}}-{{timestamp}}-{{runNumber}}`);
-    template = `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+    core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
+    template = defaultTemplate;
   }
 
   if (distTag === null) {
-    core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> latest`);
-    distTag = "latest";
+    core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
+    distTag = defaultTag;
   }
 
   const parts = generateSnapshotVersionParts();

@@ -8,6 +8,14 @@ inputs:
         description: "Short SHA deep."
         default: "7"
         required: false
+    default-tempate:
+        description: "Default template."
+        default: ""
+        required: false
+    default-tag:
+        description: "Default tag."
+        default: ""
+        required: false
 outputs:
     result:
         description: "Current timestamp."
