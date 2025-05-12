@@ -30029,7 +30029,7 @@ class OctokitWrapper {
         {
           org: org,
           package_type: 'container',
-          per_page: 200,      // максимум 100 пакетов за запрос
+          per_page: 100,      // максимум 100 пакетов за запрос
         }
       );
     } catch (error) {
@@ -32103,6 +32103,9 @@ async function run() {
   core.info(`🔹Organization marker: ${isOrganization}`);
 
   let packages = await wrapper.listPackages(owner, 'container', isOrganization);
+
+  core.info(`🔹Packages: ${JSON.stringify(packages, null, 2)}`);
+
   let filteredPackages = packages.filter((pkg) => pkg.repository.name === repo);
 
   let packagesNames = filteredPackages.map((pkg) => pkg.name);

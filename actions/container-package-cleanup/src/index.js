@@ -46,6 +46,9 @@ async function run() {
   core.info(`🔹Organization marker: ${isOrganization}`);
 
   let packages = await wrapper.listPackages(owner, 'container', isOrganization);
+
+  core.info(`🔹Packages: ${JSON.stringify(packages, null, 2)}`);
+
   let filteredPackages = packages.filter((pkg) => pkg.repository.name === repo);
 
   let packagesNames = filteredPackages.map((pkg) => pkg.name);
