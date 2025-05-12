@@ -48,7 +48,7 @@ async function run() {
   let packages = await wrapper.listPackages(owner, 'container', isOrganization);
   // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
-  let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
+  let filteredPackages = packages.filter((pkg) => pkg.repository?.name === 'qubership-core-base-images');
   // core.info(`🔹Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
 
   let packagesNames = filteredPackages.map((pkg) => pkg.name);
@@ -108,7 +108,7 @@ async function run() {
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
     await showReport(filteredPackagesWithVersionsForDelete, true);
-    return; 
+    return;
   }
 
   for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
