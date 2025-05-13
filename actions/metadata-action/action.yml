@@ -22,7 +22,6 @@ inputs:
         required: false
     merge-tags:
         description: "Merge extra tags."
-        default: "false"
         required: false
 outputs:
     result:
