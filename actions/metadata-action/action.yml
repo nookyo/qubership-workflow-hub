@@ -21,6 +21,7 @@ inputs:
         default: ""
         required: false
     merge-tags:
+        default: "true"
         description: "Merge extra tags."
         required: false
     debug:
