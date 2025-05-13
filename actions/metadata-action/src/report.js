@@ -12,9 +12,9 @@ class Report {
             ["Ref",            reportItem.ref],
             ["SHA",            reportItem.sha],
             ["Timestamp",      reportItem.timestamp],
-            ["Template",       reportItem.template],
             ["Distribution tag", reportItem.distTag],
             ["Extra tags",     reportItem.extraTags],
+            ["Template",       reportItem.template],
             ["Render result",  reportItem.renderResult],
         ];
 
