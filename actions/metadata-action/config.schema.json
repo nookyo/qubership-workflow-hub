@@ -40,8 +40,5 @@
             "type": "string"
         }
     },
-    "required": [
-        "branches-template"
-    ],
     "additionalProperties": false
 }
