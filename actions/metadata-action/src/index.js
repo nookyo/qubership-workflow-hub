@@ -142,6 +142,7 @@ async function run() {
       "ref": ref.name,
       "sha": github.context.sha,
       "shortSha": shortSha,
+      "semver": `${semverParts.major}.${semverParts.minor}.${semverParts.patch}`,
       "timestamp": parts.timestamp,
       "template": template,
       "distTag": distTag,
