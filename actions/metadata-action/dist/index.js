@@ -39993,21 +39993,22 @@ module.exports = ConfigLoader;
 const core = __nccwpck_require__(8335);
 class Report {
     async writeSummary(name, template, distTag, extraTags, renderResult, dryRun = false) {
-
-        // Calculate summary statistics.
         core.info("Calculate summary statistics.");
-        const dryRunText = dryRun ? "(Dry Run)" : "";
+        const dryRunText = dryRun ? " (Dry Run)" : "";
 
-        core.summary.addRaw(`### 🧪 Metadata in use ${dryRunText}:\n\n`);
-        core.summary.addRaw(`**Ref name:** ${name}
-                             **Template:** ${template}
-                             **Distribution tag:** ${distTag}
-                             **Extra tags:** ${extraTags}
-                             **Render result:** ${renderResult}\n\n`);
+        // Заголовок
+        core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
 
-        core.summary.addRaw(`---\n\n`);
-        core.summary.addRaw(`\n\n✅ Metadata extract completed successfully.`);
+        // Таблица
+        core.summary.addTable([
+            [ { data: "Ref name"       }, { data: name           } ],
+            [ { data: "Template"       }, { data: template       } ],
+            [ { data: "Distribution tag" }, { data: distTag      } ],
+            [ { data: "Extra tags"     }, { data: extraTags      } ],
+            [ { data: "Render result"  }, { data: renderResult   } ],
+        ]);
 
+        core.summary.addRaw(`\n\n---\n\n✅ Metadata extract completed successfully.`);
         await core.summary.write();
     }
 }
@@ -42807,11 +42808,6 @@ async function run() {
 
   core.info(`🔹 Ref: ${name}`);
 
-  const defaultTemplate = core.getInput('default-template') || config["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
-  const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
-
-  const extraTags = core.getInput('extra-tags');
-  const mergeTags = core.getInput('merge-tags');
   const debug = core.getInput('debug');
 
   const ref = new RefExtractor().extract(name);
@@ -42820,6 +42816,11 @@ async function run() {
   const loader = new ConfigLoader()
   const config = loader.load(configurationPath, debug);
 
+  const defaultTemplate = core.getInput('default-template') || config["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+  const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
+
+  const extraTags = core.getInput('extra-tags');
+  const mergeTags = core.getInput('merge-tags');
 
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
