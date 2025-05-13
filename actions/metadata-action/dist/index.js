@@ -39996,12 +39996,15 @@ class Report {
         core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? " (Dry Run)" : "";
 
-        // Заголовок
-        core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
+        // Header
+        //core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
 
-        // Таблица
+        // able
         core.summary.addTable([
-            [ { data: "Ref name"       }, { data: name           } ],
+            [
+                { data: "🧪 Metadata in use${dryRunText}", header: true }
+            ],
+            [ { data: "Ref"          }, { data: name           } ],
             [ { data: "Template"       }, { data: template       } ],
             [ { data: "Distribution tag" }, { data: distTag      } ],
             [ { data: "Extra tags"     }, { data: extraTags      } ],
@@ -42881,8 +42884,9 @@ async function run() {
   core.setOutput("tag", distTag);
   core.setOutput("short-sha", shortSha);
 
-  await new Report().writeSummary(ref.name, template, distTag, extraTags, result, false);
-
+  if (core.getInput('show-report') == 'true') {
+    await new Report().writeSummary(ref.name, template, distTag, extraTags, result, false);
+  }
   core.info('✅ Action completed successfully!');
 }
 
