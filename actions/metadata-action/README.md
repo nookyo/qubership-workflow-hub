@@ -173,4 +173,3 @@ The configuration file for this action must adhere to the schema defined [here](
     "additionalProperties": false
 }
 ```
-```
