@@ -40001,7 +40001,7 @@ class Report {
 
         // Table
         core.summary.addTable([
-            [{ data: "Ref" }, { data: reportItem.name }],
+            [{ data: "Ref" }, { data: reportItem.ref }],
             [{ data: "SHA" }, { data: reportItem.sha }],
             [{ data: "Timestamp" }, { data: reportItem.timestamp }],
             [{ data: "Template" }, { data: reportItem.template }],
