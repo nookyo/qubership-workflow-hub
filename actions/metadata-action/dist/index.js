@@ -42811,6 +42811,7 @@ async function run() {
   const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
 
   const extraTags = core.getInput('extra-tags');
+  const mergeTags = core.getInput('merge-tags');
 
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
@@ -42850,12 +42851,13 @@ async function run() {
 
   core.info(`🔹 Template: ${template}`);
 
-  if (extraTags != '') {
-    result = result + "," + extraTags;
+  if (extraTags != '' && merge-tags == 'true') {
+    core.info(`🔹 Merging extra tags: ${extraTags}`);
+    result = result + ", " + extraTags;
   }
 
-  let t = ref.name;
-  core.info(`🔹 Name: ${{ t }}`)
+  // let t = ref.name;
+  // core.info(`🔹 Name: ${{ t }}`)
   core.info(`💡 Rendered template: ${result}`);
 
   core.setOutput("result", result);

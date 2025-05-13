@@ -20,7 +20,7 @@ inputs:
         description: "Extra tags."
         default: ""
         required: false
-    merge-extra-tags:
+    merge-tags:
         description: "Merge extra tags."
         default: "false"
         required: false
