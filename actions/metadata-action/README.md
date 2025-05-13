@@ -17,35 +17,35 @@ The primary output of this action is a generated version string. This string is 
 
 ## 📌 Inputs
 
-| Name                 | Description                              | Required | Default                                               |
-| -------------------- | ---------------------------------------- | -------- | ----------------------------------------------------- |
-| `ref`                | Branch or tag ref.                      | No       | `github.context.ref`                                  |
-| `configuration-path` | Path to the configuration file.          | No       | `./.github/metadata-action-config.yml`                |
-| `short-sha`          | Depth of the short SHA.                  | No       | `7`                                                   |
-| `default-template`   | Default template for version generation. | No       | `{{ref-name}}-{{timestamp}}-{{runNumber}}`            |
-| `default-tag`        | Default distribution tag.                | No       | `latest`                                              |
-| `extra-tags`         | Additional tags to append to the result. | No       | `""`                                                  |
-| `merge-tags`         | Whether to merge `extra-tags` with the result. | No       | `false`                                               |
-| `debug`              | Enable debug mode for detailed logging.  | No       | `false`                                               |
-| `show-report`        | Whether to display a summary report.     | No       | `true`                                                |
+| Name                 | Description                                    | Required | Default                                    |
+| -------------------- | ---------------------------------------------- | -------- | ------------------------------------------ |
+| `ref`                | Branch or tag ref.                             | No       | `github.context.ref`                       |
+| `configuration-path` | Path to the configuration file.                | No       | `./.github/metadata-action-config.yml`     |
+| `short-sha`          | Depth of the short SHA.                        | No       | `7`                                        |
+| `default-template`   | Default template for version generation.       | No       | `{{ref-name}}-{{timestamp}}-{{runNumber}}` |
+| `default-tag`        | Default distribution tag.                      | No       | `latest`                                   |
+| `extra-tags`         | Additional tags to append to the result.       | No       | `""`                                       |
+| `merge-tags`         | Whether to merge `extra-tags` with the result. | No       | `false`                                    |
+| `debug`              | Enable debug mode for detailed logging.        | No       | `false`                                    |
+| `show-report`        | Whether to display a summary report.           | No       | `true`                                     |
 
 ---
 
 ## 📌 Outputs
 
-| Name        | Description                                                                                                                                   | Example                     |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| `result`    | Rendered template with metadata based on template rules (e.g. using `v{{major}}.{{minor}}.{{patch}}-{{date}}` for the main branch).             | v1.2.3-20250313             |
-| `ref`       | The current branch or tag reference (e.g. `refs/heads/main`).                                                                                 | refs/heads/main             |
-| `ref-name`  | The name of the current branch or tag.                                                                                                        | main                        |
-| `date`      | Current date in `YYYYMMDD` format.                                                                                                            | 20250313                    |
-| `time`      | Current time in `HHMMSS` format.                                                                                                              | 235959                      |
-| `timestamp` | Combined date and time in `YYYYMMDDHHMMSS` format.                                                                                            | 20250313235959              |
-| `dist-tag`  | Distribution tag based on the branch or tag (e.g. `latest` for main, `beta` for feature branches).                                               | latest                      |
-| `major`     | Major version number extracted from semantic versioning.                                                                                    | 1                           |
-| `minor`     | Minor version number extracted from semantic versioning.                                                                                    | 2                           |
-| `patch`     | Patch version number extracted from semantic versioning.                                                                                    | 3                           |
-| `short-sha` | Shortened SHA of the current commit.                                                                                                         | abc1234                     |
+| Name        | Description                                                                                                                         | Example         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| `result`    | Rendered template with metadata based on template rules (e.g. using `v{{major}}.{{minor}}.{{patch}}-{{date}}` for the main branch). | v1.2.3-20250313 |
+| `ref`       | The current branch or tag reference (e.g. `refs/heads/main`).                                                                       | refs/heads/main |
+| `ref-name`  | The name of the current branch or tag.                                                                                              | main            |
+| `date`      | Current date in `YYYYMMDD` format.                                                                                                  | 20250313        |
+| `time`      | Current time in `HHMMSS` format.                                                                                                    | 235959          |
+| `timestamp` | Combined date and time in `YYYYMMDDHHMMSS` format.                                                                                  | 20250313235959  |
+| `dist-tag`  | Distribution tag based on the branch or tag (e.g. `latest` for main, `beta` for feature branches).                                  | latest          |
+| `major`     | Major version number extracted from semantic versioning.                                                                            | 1               |
+| `minor`     | Minor version number extracted from semantic versioning.                                                                            | 2               |
+| `patch`     | Patch version number extracted from semantic versioning.                                                                            | 3               |
+| `short-sha` | Shortened SHA of the current commit.                                                                                                | abc1234         |
 
 ---
 
@@ -170,10 +170,6 @@ The configuration file for this action must adhere to the schema defined [here](
             "type": "string"
         }
     },
-    "required": [
-        "branches-template",
-        "dist-tags"
-    ],
     "additionalProperties": false
 }
 ```
