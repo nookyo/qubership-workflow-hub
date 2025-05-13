@@ -9,13 +9,13 @@ class Report {
 
         // Массив пар [label, value]
         const fields = [
-            ["Ref",            reportItem.ref],
-            ["SHA",            reportItem.sha],
-            ["Timestamp",      reportItem.timestamp],
+            ["Ref", reportItem.ref],
+            ["SHA", reportItem.sha],
+            ["Timestamp", reportItem.timestamp],
             ["Distribution tag", reportItem.distTag],
-            ["Extra tags",     reportItem.extraTags],
-            ["Template",       reportItem.template],
-            ["Render result",  reportItem.renderResult],
+            ["Extra tags", reportItem.extraTags],
+            ["Template", reportItem.template],
+            ["Render result", reportItem.renderResult],
         ];
 
         // Фильтруем пустые значения и превращаем в нужный формат
