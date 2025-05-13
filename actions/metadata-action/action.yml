@@ -27,6 +27,10 @@ inputs:
         description: "Debug mode."
         default: "false"
         required: false
+    show-report:
+        description: "Show report."
+        default: "true"
+        required: false
 outputs:
     result:
         description: "Current timestamp."

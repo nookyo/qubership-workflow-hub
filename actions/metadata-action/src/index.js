@@ -137,8 +137,9 @@ async function run() {
   core.setOutput("tag", distTag);
   core.setOutput("short-sha", shortSha);
 
-  await new Report().writeSummary(ref.name, template, distTag, extraTags, result, false);
-
+  if (core.getInput('show-report') == 'true') {
+    await new Report().writeSummary(ref.name, template, distTag, extraTags, result, false);
+  }
   core.info('✅ Action completed successfully!');
 }
 

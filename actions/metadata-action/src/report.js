@@ -4,12 +4,15 @@ class Report {
         core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? " (Dry Run)" : "";
 
-        // Заголовок
-        core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
+        // Header
+        //core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
 
-        // Таблица
+        // able
         core.summary.addTable([
-            [ { data: "Ref name"       }, { data: name           } ],
+            [
+                { data: "🧪 Metadata in use${dryRunText}", header: true }
+            ],
+            [ { data: "Ref"          }, { data: name           } ],
             [ { data: "Template"       }, { data: template       } ],
             [ { data: "Distribution tag" }, { data: distTag      } ],
             [ { data: "Extra tags"     }, { data: extraTags      } ],
