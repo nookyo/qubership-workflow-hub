@@ -40002,7 +40002,7 @@ class Report {
         const fields = [
             ["Ref", reportItem.ref],
             ["SHA", reportItem.sha],
-            // ["Short SHA", reportItem.shortSha],
+            ["Short SHA", reportItem.shortSha],
             ["Semver", reportItem.semver],
             // ["Timestamp", reportItem.timestamp],
             ["Distribution tag", reportItem.distTag],
