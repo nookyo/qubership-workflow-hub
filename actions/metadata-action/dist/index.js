@@ -39990,15 +39990,18 @@ module.exports = ConfigLoader;
 
 const core = __nccwpck_require__(8335);
 class Report {
-    async writeSummary(template, distTag, dryRun = false) {
+    async writeSummary(template, distTag, extraTags, renderResult, dryRun = false) {
 
         // Calculate summary statistics.
         core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? "(Dry Run)" : "";
 
-        core.summary.addRaw(`## 🔻 Metadata in use: ${dryRunText}\n\n`);
+        core.summary.addRaw(`### 🔻 Metadata in use: ${dryRunText}\n\n`);
         core.summary.addRaw(`**Template:** ${template}
-                             **Distribution Tag:** ${distTag}\n\n`);
+                             **Dist tag:** ${distTag}
+                             **Extra tags:** ${extraTags}
+                             **Render result:** ${renderResult}\n\n`);
+
         core.summary.addRaw(`---\n\n`);
         core.summary.addRaw(`\n\n✅ Metadata extract completed successfully.`);
 
