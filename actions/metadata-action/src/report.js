@@ -1,22 +1,36 @@
 const core = require("@actions/core");
+
 class Report {
     async writeSummary(reportItem, dryRun = false) {
         core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? " (Dry Run)" : "";
 
-        // Header
-        core.summary.addRaw(`### 🧪 Metadata in use ${dryRunText}:\n\n`);
+        core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
 
-        // Table
-        core.summary.addTable([
-            [{ data: "Ref" }, { data: reportItem.ref }],
-            [{ data: "SHA" }, { data: reportItem.sha }],
-            [{ data: "Timestamp" }, { data: reportItem.timestamp }],
-            [{ data: "Template" }, { data: reportItem.template }],
-            [{ data: "Distribution tag" }, { data: reportItem.distTag }],
-            [{ data: "Extra tags" }, { data: reportItem.extraTags }],
-            [{ data: "Render result" }, { data: reportItem.renderResult }],
-        ]);
+        // Массив пар [label, value]
+        const fields = [
+            ["Ref",            reportItem.ref],
+            ["SHA",            reportItem.sha],
+            ["Timestamp",      reportItem.timestamp],
+            ["Template",       reportItem.template],
+            ["Distribution tag", reportItem.distTag],
+            ["Extra tags",     reportItem.extraTags],
+            ["Render result",  reportItem.renderResult],
+        ];
+
+        // Фильтруем пустые значения и превращаем в нужный формат
+        const rows = fields
+            .filter(([_, value]) => value != null && value !== "")
+            .map(([label, value]) => [
+                { data: label },
+                { data: String(value) }
+            ]);
+
+        if (rows.length) {
+            core.summary.addTable(rows);
+        } else {
+            core.summary.addRaw("Нет данных для отображения.\n");
+        }
 
         core.summary.addRaw(`\n\n---\n\n✅ Metadata extract completed successfully.`);
         await core.summary.write();
