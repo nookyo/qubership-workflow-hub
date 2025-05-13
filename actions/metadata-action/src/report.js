@@ -5,9 +5,9 @@ class Report {
         const dryRunText = dryRun ? " (Dry Run)" : "";
 
         // Header
-        //core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
+        core.summary.addRaw(`### 🧪 Metadata in use ${dryRunText}:\n\n`);
 
-        // able
+        // Table
         core.summary.addTable([
             [
                 { data: "🧪 Metadata in use${dryRunText}", header: true }
