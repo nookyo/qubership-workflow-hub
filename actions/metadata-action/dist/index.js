@@ -39996,7 +39996,7 @@ class Report {
         core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? "(Dry Run)" : "";
 
-        core.summary.addRaw(`### 🔍 Metadata in use: ${dryRunText}\n\n`);
+        core.summary.addRaw(`### 🧪 Metadata in use: ${dryRunText}\n\n`);
         core.summary.addRaw(`**Template:** ${template}
                              **Dist tag:** ${distTag}
                              **Extra tags:** ${extraTags}
