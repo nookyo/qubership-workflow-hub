@@ -114,7 +114,7 @@ async function run() {
   core.info(`🔹 Template: ${template}`);
 
   if (extraTags != '') {
-    result = result + "," + extraTags;
+    result = result + ", " + extraTags;
   }
 
   let t = ref.name;
