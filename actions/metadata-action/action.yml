@@ -32,6 +32,10 @@ inputs:
         description: "Show report."
         default: "true"
         required: false
+    dry-run:
+        description: "Dry run mode."
+        default: "false"
+        required: false
 outputs:
     result:
         description: "Current timestamp."

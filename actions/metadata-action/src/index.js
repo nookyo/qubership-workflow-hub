@@ -65,6 +65,10 @@ async function run() {
   core.info(`🔹 Ref: ${name}`);
 
   const debug = core.getInput('debug');
+  const dryRun = core.getInput('dry-run');
+  const isDebug = debug === 'true' || debug === '1' || debug === 'yes' || debug === 'on';
+
+  core.info(`🔹 Debug: ${isDebug}`);
 
   const ref = new RefExtractor().extract(name);
 
@@ -155,7 +159,7 @@ async function run() {
       "extraTags": extraTags,
       "renderResult": result
     };
-    await new Report().writeSummary(reportItem, false);
+    await new Report().writeSummary(reportItem, dryRun);
   }
   core.info('✅ Action completed successfully!');
 }
