@@ -42824,8 +42824,8 @@ async function run() {
 
   core.info(`🔹 Ref: ${name}`);
 
-  const debug = core.getInput('debug');
-  const dryRun = core.getInput('dry-run');
+  const debug = core.getInput('debug') === "true";
+  const dryRun = core.getInput('dry-run') === "true";
   const isDebug = debug === 'true' || debug === '1' || debug === 'yes' || debug === 'on';
 
   core.info(`🔹 Debug: ${isDebug}`);
@@ -42891,8 +42891,6 @@ async function run() {
     result = result + ", " + extraTags;
   }
 
-  // let t = ref.name;
-  // core.info(`🔹 Name: ${{ t }}`)
   core.info(`💡 Rendered template: ${result}`);
 
   core.setOutput("result", result);
