@@ -42851,7 +42851,7 @@ async function run() {
 
   core.info(`🔹 Template: ${template}`);
 
-  if (extraTags != '' && merge-tags == 'true') {
+  if (extraTags != '' && mergeTags == 'true') {
     core.info(`🔹 Merging extra tags: ${extraTags}`);
     result = result + ", " + extraTags;
   }
