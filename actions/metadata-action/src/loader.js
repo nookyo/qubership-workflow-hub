@@ -28,7 +28,7 @@ class ConfigLoader {
     let config;
     try {
       config = yaml.load(fileContent);
-      if (debug === "true") {
+      if (debug) {
         console.log("🔍 Loaded configuration YAML:", JSON.stringify(config, null, 2));
         console.log("🔑 Object Keys:", Object.keys(config));
       }
