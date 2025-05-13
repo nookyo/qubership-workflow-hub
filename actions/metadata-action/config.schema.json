@@ -32,6 +32,12 @@
                 },
                 "additionalProperties": false
             }
+        },
+        "default-tag": {
+            "type": "string"
+        },
+        "default-template": {
+            "type": "string"
         }
     },
     "required": [
