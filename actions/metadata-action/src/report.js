@@ -11,6 +11,7 @@ class Report {
         const fields = [
             ["Ref", reportItem.ref],
             ["SHA", reportItem.sha],
+            ["Short SHA", reportItem.shortSha],
             ["Timestamp", reportItem.timestamp],
             ["Distribution tag", reportItem.distTag],
             ["Extra tags", reportItem.extraTags],

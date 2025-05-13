@@ -141,6 +141,7 @@ async function run() {
     const reportItem = {
       "ref": ref.name,
       "sha": github.context.sha,
+      "shortSha": shortSha,
       "timestamp": parts.timestamp,
       "template": template,
       "distTag": distTag,
