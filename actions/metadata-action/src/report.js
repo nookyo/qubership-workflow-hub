@@ -7,7 +7,6 @@ class Report {
 
         core.summary.addRaw(`### 🧪 Metadata in use${dryRunText}:\n\n`);
 
-        // Массив пар [label, value]
         const fields = [
             ["Ref", reportItem.ref],
             ["SHA", reportItem.sha],
@@ -19,7 +18,6 @@ class Report {
             ["Render result", reportItem.renderResult],
         ];
 
-        // Фильтруем пустые значения и превращаем в нужный формат
         const rows = fields
             .filter(([_, value]) => value != null && value !== "")
             .map(([label, value]) => [
@@ -30,7 +28,7 @@ class Report {
         if (rows.length) {
             core.summary.addTable(rows);
         } else {
-            core.summary.addRaw("Нет данных для отображения.\n");
+            core.summary.addRaw("No data to display.\n");
         }
 
         core.summary.addRaw(`\n\n---\n\n✅ Metadata extract completed successfully.`);
