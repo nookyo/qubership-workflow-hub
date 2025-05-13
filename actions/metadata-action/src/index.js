@@ -78,7 +78,10 @@ async function run() {
   const extraTags = core.getInput('extra-tags');
   const mergeTags = core.getInput('merge-tags');
 
-  core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
+  core.info(`🔸 defaultTemplate: ${defaultTemplate}`);
+  core.info(`🔸 defaultTag: ${defaultTag}`);
+
+  // core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   let template = null;
   let distTag = null;
