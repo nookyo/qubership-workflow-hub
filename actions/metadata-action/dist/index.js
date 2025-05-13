@@ -39900,7 +39900,7 @@ class RefExtractor {
         } else {
             isTag = false;
             name = ref.replace(/\//g, "-");
-            core.warning(`Cant detect type ref: ${ref}`);
+            core.warning(`🔸 Cant detect type ref: ${ref}`);
         }
         return { name, isTag };
     }
@@ -39933,7 +39933,7 @@ class ConfigLoader {
     console.log(`💡 Try to reading configuration ${configPath}`)
 
     if (!fs.existsSync(configPath)) {
-      core.warning(`❗️ Configuration file not found: ${configPath}`);
+      core.info(`❗️ Configuration file not found: ${configPath}`);
       this.fileExist = false;
       return;
     }
@@ -39943,7 +39943,7 @@ class ConfigLoader {
     let config;
     try {
       config = yaml.load(fileContent);
-      if (debug === "true") {        
+      if (debug === "true") {
         console.log("🔍 Loaded configuration YAML:", JSON.stringify(config, null, 2));
         console.log("🔑 Object Keys:", Object.keys(config));
       }
@@ -42783,7 +42783,7 @@ function generateSnapshotVersionParts() {
 function extractSemverParts(versionString) {
   const normalized = versionString.replace(/^v/i, "");
   if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
-    core.warning(`Not a valid semver string (skip): ${versionString}`);
+    core.info(`💡 Not a valid semver string (skip): ${versionString}`);
     return { major: "", minor: "", patch: "" };
   }
   const [major, minor, patch] = normalized.split(".");

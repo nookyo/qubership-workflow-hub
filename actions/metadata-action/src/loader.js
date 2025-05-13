@@ -18,7 +18,7 @@ class ConfigLoader {
     console.log(`💡 Try to reading configuration ${configPath}`)
 
     if (!fs.existsSync(configPath)) {
-      core.warning(`❗️ Configuration file not found: ${configPath}`);
+      core.info(`❗️ Configuration file not found: ${configPath}`);
       this.fileExist = false;
       return;
     }
@@ -28,7 +28,7 @@ class ConfigLoader {
     let config;
     try {
       config = yaml.load(fileContent);
-      if (debug === "true") {        
+      if (debug === "true") {
         console.log("🔍 Loaded configuration YAML:", JSON.stringify(config, null, 2));
         console.log("🔑 Object Keys:", Object.keys(config));
       }
