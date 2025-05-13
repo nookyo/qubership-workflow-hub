@@ -20,6 +20,10 @@ inputs:
         description: "Extra tags."
         default: ""
         required: false
+    merge-extra-tags:
+        description: "Merge extra tags."
+        default: "false"
+        required: false
 outputs:
     result:
         description: "Current timestamp."
