@@ -64,17 +64,19 @@ async function run() {
 
   core.info(`🔹 Ref: ${name}`);
 
-  const ref = new RefExtractor().extract(name);
-
-  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
-  const loader = new ConfigLoader()
-  const config = loader.load(configurationPath);
-
   const defaultTemplate = core.getInput('default-template') || config["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
   const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
 
   const extraTags = core.getInput('extra-tags');
   const mergeTags = core.getInput('merge-tags');
+  const debug = core.getInput('debug');
+
+  const ref = new RefExtractor().extract(name);
+
+  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
+  const loader = new ConfigLoader()
+  const config = loader.load(configurationPath, debug);
+
 
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
@@ -135,7 +137,7 @@ async function run() {
   core.setOutput("tag", distTag);
   core.setOutput("short-sha", shortSha);
 
-  await new Report().writeSummary(template, distTag, extraTags, result, false);
+  await new Report().writeSummary(ref.name, template, distTag, extraTags, result, false);
 
   core.info('✅ Action completed successfully!');
 }

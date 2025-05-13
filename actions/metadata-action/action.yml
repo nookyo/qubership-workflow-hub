@@ -23,6 +23,10 @@ inputs:
     merge-tags:
         description: "Merge extra tags."
         required: false
+    debug:
+        description: "Debug mode."
+        default: "false"
+        required: false
 outputs:
     result:
         description: "Current timestamp."

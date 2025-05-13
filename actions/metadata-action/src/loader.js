@@ -13,7 +13,7 @@ class ConfigLoader {
     return this.fileExist;
   }
 
-  load(filePath) {
+  load(filePath, debug = false) {
     const configPath = path.resolve(filePath);
     console.log(`💡 Try to reading configuration ${configPath}`)
 
@@ -28,8 +28,10 @@ class ConfigLoader {
     let config;
     try {
       config = yaml.load(fileContent);
-      console.log("🔍 Loaded configuration JSON:", JSON.stringify(config, null, 2));
-      console.log("🔑 Object Keys:", Object.keys(config));
+      if (debug) {
+        console.log("🔍 Loaded configuration JSON:", JSON.stringify(config, null, 2));
+        console.log("🔑 Object Keys:", Object.keys(config));
+      }
     }
     catch (error) {
       core.setFailed(`❗️ Error parsing YAML file: ${error.message}`);
@@ -61,7 +63,7 @@ class ConfigLoader {
       core.setFailed(`❗️ Configuration file is invalid: ${errors}`);
       return;
     }
-    core.warning(`Configuration file is valid: ${valid}`);
+    core.info(`🟡 Configuration file is valid: ${valid}`);
     return config;
   }
 }
