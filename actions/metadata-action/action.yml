@@ -16,6 +16,10 @@ inputs:
         description: "Default tag."
         default: ""
         required: false
+    extra-tags:
+        description: "Extra tags."
+        default: ""
+        required: false
 outputs:
     result:
         description: "Current timestamp."

@@ -73,6 +73,8 @@ async function run() {
   const defaultTemplate = core.getInput('default-template') || config["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
   const defaultTag = core.getInput('defaut-tag') || config["default-tag"] || "latest";
 
+  const extraTags = core.getInput('extra-tags');
+
   core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   let template = null;
@@ -110,6 +112,10 @@ async function run() {
   let result = fillTemplate(template, values)
 
   core.info(`🔹 Template: ${template}`);
+
+  if (extraTags != '') {
+    result = result + "," + extraTags;
+  }
 
   let t = ref.name;
   core.info(`🔹 Name: ${{ t }}`)
