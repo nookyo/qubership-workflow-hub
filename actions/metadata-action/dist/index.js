@@ -39992,7 +39992,7 @@ module.exports = ConfigLoader;
 
 const core = __nccwpck_require__(8335);
 class Report {
-    async writeSummary(name, template, distTag, extraTags, renderResult, dryRun = false) {
+    async writeSummary(reportItem, dryRun = false) {
         core.info("Calculate summary statistics.");
         const dryRunText = dryRun ? " (Dry Run)" : "";
 
@@ -40001,14 +40001,13 @@ class Report {
 
         // Table
         core.summary.addTable([
-            [
-                { data: "🧪 Metadata in use${dryRunText}", header: true }
-            ],
-            [ { data: "Ref"          }, { data: name           } ],
-            [ { data: "Template"       }, { data: template       } ],
-            [ { data: "Distribution tag" }, { data: distTag      } ],
-            [ { data: "Extra tags"     }, { data: extraTags      } ],
-            [ { data: "Render result"  }, { data: renderResult   } ],
+            [{ data: "Ref" }, { data: reportItem.name }],
+            [{ data: "SHA" }, { data: reportItem.sha }],
+            [{ data: "Timestamp" }, { data: reportItem.timestamp }],
+            [{ data: "Template" }, { data: reportItem.template }],
+            [{ data: "Distribution tag" }, { data: reportItem.distTag }],
+            [{ data: "Extra tags" }, { data: reportItem.extraTags }],
+            [{ data: "Render result" }, { data: reportItem.renderResult }],
         ]);
 
         core.summary.addRaw(`\n\n---\n\n✅ Metadata extract completed successfully.`);
@@ -42885,7 +42884,16 @@ async function run() {
   core.setOutput("short-sha", shortSha);
 
   if (core.getInput('show-report') == 'true') {
-    await new Report().writeSummary(ref.name, template, distTag, extraTags, result, false);
+    const reportItem = {
+      "ref": ref.name,
+      "sha": github.context.sha,
+      "timestamp": parts.timestamp,
+      "template": template,
+      "distTag": distTag,
+      "extraTags": extraTags,
+      "renderResult": result
+    };
+    await new Report().writeSummary(reportItem, false);
   }
   core.info('✅ Action completed successfully!');
 }

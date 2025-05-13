@@ -138,7 +138,16 @@ async function run() {
   core.setOutput("short-sha", shortSha);
 
   if (core.getInput('show-report') == 'true') {
-    await new Report().writeSummary(ref.name, github.context.sha, parts.timestamp, template, distTag, extraTags, result, false);
+    const reportItem = {
+      "ref": ref.name,
+      "sha": github.context.sha,
+      "timestamp": parts.timestamp,
+      "template": template,
+      "distTag": distTag,
+      "extraTags": extraTags,
+      "renderResult": result
+    };
+    await new Report().writeSummary(reportItem, false);
   }
   core.info('✅ Action completed successfully!');
 }
