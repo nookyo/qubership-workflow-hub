@@ -7,6 +7,9 @@ This **GitHub Metadata** GitHub Action extracts metadata from the current GitHub
 - Extracts metadata from the current GitHub context.
 - Generates a version string based on templates and tags.
 - Supports custom templates and configuration files.
+- Provides detailed logging for debugging.
+- Dynamically adapts to branches, tags, and pull requests.
+- Supports additional tags and merging options.
 
 ### Action Result
 
@@ -16,8 +19,17 @@ The primary output of this action is a generated version string. This string is 
 
 | Name                 | Description                              | Required | Default                                               |
 | -------------------- | ---------------------------------------- | -------- | ----------------------------------------------------- |
-| `ref`                | Branch or tag ref                        | No       | `github.context.ref`                                  |
-| `configuration-path` | Path to the configuration file           | No       | `./.github/metadata-action-config.yml`                |
+| `ref`                | Branch or tag ref.                      | No       | `github.context.ref`                                  |
+| `configuration-path` | Path to the configuration file.          | No       | `./.github/metadata-action-config.yml`                |
+| `short-sha`          | Depth of the short SHA.                  | No       | `7`                                                   |
+| `default-template`   | Default template for version generation. | No       | `{{ref-name}}-{{timestamp}}-{{runNumber}}`            |
+| `default-tag`        | Default distribution tag.                | No       | `latest`                                              |
+| `extra-tags`         | Additional tags to append to the result. | No       | `""`                                                  |
+| `merge-tags`         | Whether to merge `extra-tags` with the result. | No       | `false`                                               |
+| `debug`              | Enable debug mode for detailed logging.  | No       | `false`                                               |
+| `show-report`        | Whether to display a summary report.     | No       | `true`                                                |
+
+---
 
 ## 📌 Outputs
 
@@ -33,6 +45,9 @@ The primary output of this action is a generated version string. This string is 
 | `major`     | Major version number extracted from semantic versioning.                                                                                    | 1                           |
 | `minor`     | Minor version number extracted from semantic versioning.                                                                                    | 2                           |
 | `patch`     | Patch version number extracted from semantic versioning.                                                                                    | 3                           |
+| `short-sha` | Shortened SHA of the current commit.                                                                                                         | abc1234                     |
+
+---
 
 ## Usage Example
 
@@ -54,19 +69,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Metadata
-        uses: Netcracker/qubership-workflow-hub/actions/metadata-action@main
+        uses: netcracker/qubership-workflow-hub/actions/metadata-action@main
         with:
           configuration-path: './.github/metadata-action-config.yml'
+          default-template: '{{ref-name}}-{{timestamp}}-{{runNumber}}'
+          default-tag: 'latest'
+          short-sha: '7'
+          extra-tags: 'tag1,tag2'
+          merge-tags: 'true'
+          debug: 'true'
+          show-report: 'true'
 ```
+
+---
 
 ## Configuration File
 
 The configuration file (metadata-action-config.yml) should define the templates and distribution tags used by the action. Here is an example configuration:
 
 ```yaml
- branches-template:
+branches-template:
   - main: "v{{major}}.{{minor}}.{{patch}}-{{date}}"
-  - "feature/*": "feature-{{ref-name}}-{{timestamp}}.{{dis-tag}}"
+  - "feature/*": "feature-{{ref-name}}-{{timestamp}}.{{dist-tag}}"
   - "release/*": "release-{{ref-name}}-{{timestamp}}.{{dist-tag}}"
   - tag: "v{{major}}.{{minor}}.{{patch}}"
 
@@ -75,6 +99,9 @@ dist-tags:
   - "release/*": "next"
   - "feature/*": "beta"
   - tag: "stable"
+
+default-template: "{{ref-name}}-{{timestamp}}-{{runNumber}}"
+default-tag: "latest"
 ```
 
 In this example:
@@ -135,6 +162,12 @@ The configuration file for this action must adhere to the schema defined [here](
                 },
                 "additionalProperties": false
             }
+        },
+        "default-template": {
+            "type": "string"
+        },
+        "default-tag": {
+            "type": "string"
         }
     },
     "required": [
@@ -143,4 +176,5 @@ The configuration file for this action must adhere to the schema defined [here](
     ],
     "additionalProperties": false
 }
+```
 ```
