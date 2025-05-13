@@ -12,7 +12,7 @@ class Report {
             ["SHA", reportItem.sha],
             ["Short SHA", reportItem.shortSha],
             ["Semver", reportItem.semver],
-            ["Timestamp", reportItem.timestamp],
+            // ["Timestamp", reportItem.timestamp],
             ["Distribution tag", reportItem.distTag],
             ["Extra tags", reportItem.extraTags],
             ["Template", reportItem.template],
@@ -20,7 +20,7 @@ class Report {
         ];
 
         const rows = fields
-            .filter(([_, value]) => value != null && value !== "")
+            .filter(([_, value]) => value != null && value !== "" && value !== "..")
             .map(([label, value]) => [
                 { data: label },
                 { data: String(value) }
