@@ -42833,13 +42833,13 @@ async function run() {
     name = github.context.eventName === 'pull_request' ? github.context.payload.pull_request?.head?.ref : github.context.ref;
   }
 
-  core.info(`🔹 Ref: ${name}`);
+  core.info(`Ref: ${name}`);
 
   const debug = core.getInput('debug') === "true";
   const dryRun = core.getInput('dry-run') === "true";
   const isDebug = debug === 'true' || debug === '1' || debug === 'yes' || debug === 'on';
 
-  core.info(`🔹 Debug: ${isDebug}`);
+  core.info(`Debug: ${isDebug}`);
 
   const ref = new RefExtractor().extract(name);
 
