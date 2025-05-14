@@ -53,9 +53,12 @@ function fillTemplate(template, values) {
 }
 
 // Objects
-const templateObject = {
+const selectedTemplateAndTag = {
   template: '',
   distTag: '',
+  toString() {
+    return `Template: ${this.template}, DistTag: ${this.distTag}`;
+  }
 };
 
 
@@ -102,18 +105,18 @@ async function run() {
   let distTag = null;
 
   if (loader.fileExists) {
-    templateObject.template = findTemplate(!ref.isTag ? ref.name : "tag", config["branches-template"]);
-    templateObject.distTag = findTemplate(ref.name, config["distribution-tag"]);
+    selectedTemplateAndTag.template = findTemplate(!ref.isTag ? ref.name : "tag", config["branches-template"]);
+    selectedTemplateAndTag.distTag = findTemplate(ref.name, config["distribution-tag"]);
   }
 
   if (template === null) {
     core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
-    templateObject.template = defaultTemplate;
+    selectedTemplateAndTag.template = defaultTemplate;
   }
 
   if (distTag === null) {
     core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
-    templateObject.distTag = defaultTag;
+    selectedTemplateAndTag.distTag = defaultTag;
   }
 
   const parts = generateSnapshotVersionParts();
@@ -130,9 +133,9 @@ async function run() {
   core.info(`🔹 dist-tag: ${JSON.stringify(distTag)}`);
 
   // core.info(`Values: ${JSON.stringify(values)}`); //debug values
-  let result = fillTemplate(templateObject.template, values)
+  let result = fillTemplate(selectedTemplateAndTag.template, values)
 
-  core.info(`🔹 Template: ${templateObject.template}`);
+  core.info(`🔹 Template: ${selectedTemplateAndTag.template}`);
 
   if (extraTags != '' && mergeTags == 'true') {
     core.info(`🔹 Merging extra tags: ${extraTags}`);
@@ -150,7 +153,7 @@ async function run() {
   core.setOutput("major", semverParts.major);
   core.setOutput("minor", semverParts.minor);
   core.setOutput("patch", semverParts.patch);
-  core.setOutput("tag", distTag);
+  core.setOutput("tag", selectedTemplateAndTag.distTag);
   core.setOutput("short-sha", shortSha);
 
   if (core.getInput('show-report') == 'true') {
@@ -160,8 +163,8 @@ async function run() {
       "shortSha": shortSha,
       "semver": `${semverParts.major}.${semverParts.minor}.${semverParts.patch}`,
       "timestamp": parts.timestamp,
-      "template": templateObject.template,
-      "distTag": distTag,
+      "template": selectedTemplateAndTag.template,
+      "distTag": selectedTemplateAndTag.distTag,
       "extraTags": extraTags,
       "renderResult": result
     };
