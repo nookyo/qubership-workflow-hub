@@ -42812,6 +42812,16 @@ function fillTemplate(template, values) {
   });
 }
 
+// Objects
+const templateObject = {
+  template: '',
+  distTag: '',
+  isDefaultTemplate: false,
+  isDefaultDistTag: false
+};
+
+
+
 async function run() {
 
   core.info(`pull_request head.ref: ${github.context.payload.pull_request?.head?.ref}`);
@@ -42854,18 +42864,20 @@ async function run() {
   let distTag = null;
 
   if (loader.fileExists) {
-    template = findTemplate(!ref.isTag ? ref.name : "tag", config["branches-template"]);
-    distTag = findTemplate(ref.name, config["distribution-tag"]);
+    templateObject.template = findTemplate(!ref.isTag ? ref.name : "tag", config["branches-template"]);
+    templateObject.distTag = findTemplate(ref.name, config["distribution-tag"]);
   }
 
   if (template === null) {
     core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
-    template = defaultTemplate;
+    templateObject.template = defaultTemplate;
+    template.isDefaultTemplate = true;
   }
 
   if (distTag === null) {
     core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
-    distTag = defaultTag;
+    templateObject.distTag = defaultTag;
+    template.isDefaultDistTag = true;
   }
 
   const parts = generateSnapshotVersionParts();
@@ -42882,9 +42894,9 @@ async function run() {
   core.info(`🔹 dist-tag: ${JSON.stringify(distTag)}`);
 
   // core.info(`Values: ${JSON.stringify(values)}`); //debug values
-  let result = fillTemplate(template, values)
+  let result = fillTemplate(templateObject.template, values)
 
-  core.info(`🔹 Template: ${template}`);
+  core.info(`🔹 Template: ${templateObject.template}`);
 
   if (extraTags != '' && mergeTags == 'true') {
     core.info(`🔹 Merging extra tags: ${extraTags}`);
@@ -42912,7 +42924,7 @@ async function run() {
       "shortSha": shortSha,
       "semver": `${semverParts.major}.${semverParts.minor}.${semverParts.patch}`,
       "timestamp": parts.timestamp,
-      "template": template,
+      "template": templateObject.template,
       "distTag": distTag,
       "extraTags": extraTags,
       "renderResult": result
