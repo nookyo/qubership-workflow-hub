@@ -56,8 +56,6 @@ function fillTemplate(template, values) {
 const templateObject = {
   template: '',
   distTag: '',
-  isDefaultTemplate: false,
-  isDefaultDistTag: false
 };
 
 
@@ -111,13 +109,11 @@ async function run() {
   if (template === null) {
     core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
     templateObject.template = defaultTemplate;
-    template.isDefaultTemplate = true;
   }
 
   if (distTag === null) {
     core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
     templateObject.distTag = defaultTag;
-    template.isDefaultDistTag = true;
   }
 
   const parts = generateSnapshotVersionParts();
