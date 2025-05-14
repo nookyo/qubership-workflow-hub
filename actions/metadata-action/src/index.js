@@ -110,12 +110,12 @@ async function run() {
   }
 
   if (template === null) {
-    core.warning(`💡 No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
+    core.info(`⚠️ No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
     selectedTemplateAndTag.template = defaultTemplate;
   }
 
   if (distTag === null) {
-    core.warning(`💡 No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
+    core.info(`⚠️ No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
     selectedTemplateAndTag.distTag = defaultTag;
   }
 
