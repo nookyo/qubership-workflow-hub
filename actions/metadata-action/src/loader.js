@@ -15,10 +15,10 @@ class ConfigLoader {
 
   load(filePath, debug = false) {
     const configPath = path.resolve(filePath);
-    console.log(`💡 Try to reading configuration ${configPath}`)
+    core.info(`Try to reading configuration ${configPath}`)
 
     if (!fs.existsSync(configPath)) {
-      core.info(`❗️ Configuration file not found: ${configPath}`);
+      core.info(`Configuration file not found: ${configPath}`);
       this.fileExist = false;
       return;
     }
