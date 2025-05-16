@@ -42837,6 +42837,7 @@ async function run() {
 
   const debug = core.getInput('debug') === "true";
   const dryRun = core.getInput('dry-run') === "true";
+  const showReport = core.getInput('show-report') === "true";
   const isDebug = debug === 'true' || debug === '1' || debug === 'yes' || debug === 'on';
 
   core.info(`Debug: ${isDebug}`);
@@ -42849,23 +42850,6 @@ async function run() {
 
   const defaultTemplate = core.getInput('default-template') || config?.["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
   const defaultTag = core.getInput('default-tag') || config?.["default-tag"] || "latest";
-
-  // const inputTemplate = core.getInput('default-template');
-  // const inputTag = core.getInput('default-tag');
-
-  // const defaultTemplate = inputTemplate !== ""
-  //   ? inputTemplate
-  //   : (config["default-template"] && config["default-template"] !== ""
-  //     ? config["default-template"]
-  //     : `{{ref-name}}-{{timestamp}}-{{runNumber}}`);
-
-  // const defaultTag = inputTag !== ""
-  //   ? inputTag
-  //   : (config["default-tag"] && config["default-tag"] !== ""
-  //     ? config["default-tag"]
-  //     : "latest");
-
-
 
   const extraTags = core.getInput('extra-tags');
   const mergeTags = core.getInput('merge-tags');
@@ -42930,7 +42914,7 @@ async function run() {
   core.setOutput("tag", selectedTemplateAndTag.distTag);
   core.setOutput("short-sha", shortSha);
 
-  if (core.getInput('show-report') == 'true') {
+  if (showReport) {
     const reportItem = {
       "ref": ref.name,
       "sha": github.context.sha,
