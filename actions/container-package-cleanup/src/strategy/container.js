@@ -45,8 +45,6 @@ class ContainerStrategy {
 
         }).filter(item => item !== null && item.versions.length > 0);
 
-        console.log(`filteredPackagesWithVersionsForDelete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-
         return filteredPackagesWithVersionsForDelete;
     }
 }

@@ -3,7 +3,7 @@ class WildCard {
         this.name = 'wildcard';
     }
 
-    async wildcardMatch(tag, pattern) {
+    wildcardMatch(tag, pattern) {
         const t = tag.toLowerCase();
         const p = pattern.toLowerCase();
 
