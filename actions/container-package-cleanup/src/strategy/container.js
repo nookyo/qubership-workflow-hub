@@ -4,6 +4,7 @@ class ContainerStrategy {
     }
 
     async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
             const verisonWithOutExclude = versions.filter((version) => {
