@@ -1,4 +1,4 @@
-import WildCard  from "./strategy/wildcard";
+const WildCard = require(".//wildcard");
 
 class ContainerStrategy {
     constructor() {
