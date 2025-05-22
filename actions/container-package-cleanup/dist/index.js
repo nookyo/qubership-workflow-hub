@@ -29969,8 +29969,8 @@ module.exports = Report;
 
 "use strict";
 __nccwpck_require__.r(__webpack_exports__);
-/* harmony import */ var _wildcard__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(8054);
-/* harmony import */ var _wildcard__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_wildcard__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _strategy_wildcard__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(5560);
+/* harmony import */ var _strategy_wildcard__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_strategy_wildcard__WEBPACK_IMPORTED_MODULE_0__);
 /* module decorator */ module = __nccwpck_require__.hmd(module);
 
 
@@ -29981,7 +29981,7 @@ class ContainerStrategy {
 
     async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
 
-        const wildcard = new (_wildcard__WEBPACK_IMPORTED_MODULE_0___default())();
+        const wildcard = new (_strategy_wildcard__WEBPACK_IMPORTED_MODULE_0___default())();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
@@ -30070,47 +30070,6 @@ class MavenStrategy {
 }
 
 module.exports = MavenStrategy;
-
-/***/ }),
-
-/***/ 8054:
-/***/ ((module) => {
-
-class WildCard {
-    constructor() {
-        this.name = 'wildcard';
-    }
-
-    async wildcardMatch(tag, pattern) {
-        const t = tag.toLowerCase();
-        const p = pattern.toLowerCase();
-
-        if (!p.includes('*')) {
-            return t === p;
-        }
-
-        if (p.endsWith('*') && !p.startsWith('*')) {
-            const prefix = p.slice(0, -1);
-            return t.startsWith(prefix);
-        }
-
-        if (p.startsWith('*') && !p.endsWith('*')) {
-            const suffix = p.slice(1);
-            return t.endsWith(suffix);
-        }
-
-        if (p.startsWith('*') && p.endsWith('*')) {
-            const substr = p.slice(1, -1);
-            return t.includes(substr);
-        }
-
-        const escaped = p.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.*');
-        const re = new RegExp(`^${escaped}$`, 'i');
-        return re.test(tag);
-    }
-}
-
-module.exports = WildCard;
 
 /***/ }),
 
@@ -30290,6 +30249,14 @@ class OctokitWrapper {
 }
 
 module.exports = OctokitWrapper;
+
+/***/ }),
+
+/***/ 5560:
+/***/ ((module) => {
+
+module.exports = eval("require")("./strategy/wildcard");
+
 
 /***/ }),
 

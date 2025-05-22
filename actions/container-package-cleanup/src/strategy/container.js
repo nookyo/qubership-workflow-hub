@@ -1,4 +1,4 @@
-import WildCard  from "./wildcard";
+import WildCard  from "./strategy/wildcard";
 
 class ContainerStrategy {
     constructor() {
