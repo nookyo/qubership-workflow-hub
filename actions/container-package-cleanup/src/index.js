@@ -106,7 +106,7 @@ async function run() {
   //   return;
   // }
 
-  const  strategy = new ContainerStrategy();
+  const strategy = new ContainerStrategy();
   let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   if (isDebug) {

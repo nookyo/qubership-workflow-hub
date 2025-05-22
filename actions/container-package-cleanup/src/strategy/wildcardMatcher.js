@@ -1,6 +1,6 @@
-class WildCard {
+class WildcardMatcher {
     constructor() {
-        this.name = 'wildcard';
+        this.name = 'WildcardMatcher';
     }
 
     wildcardMatch(tag, pattern) {
@@ -32,4 +32,4 @@ class WildCard {
     }
 }
 
-module.exports = WildCard;
+module.exports = WildcardMatcher;

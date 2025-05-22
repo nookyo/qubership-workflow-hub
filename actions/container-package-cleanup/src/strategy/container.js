@@ -1,4 +1,4 @@
-const WildCard = require(".//wildcard");
+const WildCard = require("./wildcardMatcher");
 
 class ContainerStrategy {
     constructor() {

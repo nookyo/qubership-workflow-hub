@@ -29967,7 +29967,7 @@ module.exports = Report;
 /***/ 2245:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const WildCard = __nccwpck_require__(8054);
+const WildCard = __nccwpck_require__(9242);
 
 class ContainerStrategy {
     constructor() {
@@ -30068,12 +30068,12 @@ module.exports = MavenStrategy;
 
 /***/ }),
 
-/***/ 8054:
+/***/ 9242:
 /***/ ((module) => {
 
-class WildCard {
+class WildcardMatcher {
     constructor() {
-        this.name = 'wildcard';
+        this.name = 'WildcardMatcher';
     }
 
     wildcardMatch(tag, pattern) {
@@ -30105,7 +30105,7 @@ class WildCard {
     }
 }
 
-module.exports = WildCard;
+module.exports = WildcardMatcher;
 
 /***/ }),
 
@@ -32308,7 +32308,7 @@ async function run() {
   //   return;
   // }
 
-  const  strategy = new ContainerStrategy();
+  const strategy = new ContainerStrategy();
   let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   if (isDebug) {
