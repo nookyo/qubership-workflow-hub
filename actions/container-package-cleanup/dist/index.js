@@ -29965,7 +29965,14 @@ module.exports = Report;
 /***/ }),
 
 /***/ 2245:
-/***/ ((module) => {
+/***/ ((module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony import */ var _wildcard__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(8054);
+/* harmony import */ var _wildcard__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_wildcard__WEBPACK_IMPORTED_MODULE_0__);
+/* module decorator */ module = __nccwpck_require__.hmd(module);
+
 
 class ContainerStrategy {
     constructor() {
@@ -29973,6 +29980,8 @@ class ContainerStrategy {
     }
 
     async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+
+        const wildcard = new (_wildcard__WEBPACK_IMPORTED_MODULE_0___default())();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
@@ -29984,7 +29993,7 @@ class ContainerStrategy {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
 
-                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
+                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcard.WildCardwildcardMatch(tag, pattern)))) {
                     return false;
                 }
                 return true;
@@ -29993,7 +30002,7 @@ class ContainerStrategy {
             const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
-                return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
+                return tags.some(tag => includedTags.some(pattern => wildcard.wildcardMatch(tag, pattern)));
             }) : verisonWithOutExclude;
 
             const customPackage = {
@@ -30061,6 +30070,47 @@ class MavenStrategy {
 }
 
 module.exports = MavenStrategy;
+
+/***/ }),
+
+/***/ 8054:
+/***/ ((module) => {
+
+class WildCard {
+    constructor() {
+        this.name = 'wildcard';
+    }
+
+    async wildcardMatch(tag, pattern) {
+        const t = tag.toLowerCase();
+        const p = pattern.toLowerCase();
+
+        if (!p.includes('*')) {
+            return t === p;
+        }
+
+        if (p.endsWith('*') && !p.startsWith('*')) {
+            const prefix = p.slice(0, -1);
+            return t.startsWith(prefix);
+        }
+
+        if (p.startsWith('*') && !p.endsWith('*')) {
+            const suffix = p.slice(1);
+            return t.endsWith(suffix);
+        }
+
+        if (p.startsWith('*') && p.endsWith('*')) {
+            const substr = p.slice(1, -1);
+            return t.includes(substr);
+        }
+
+        const escaped = p.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.*');
+        const re = new RegExp(`^${escaped}$`, 'i');
+        return re.test(tag);
+    }
+}
+
+module.exports = WildCard;
 
 /***/ }),
 
@@ -32130,8 +32180,8 @@ module.exports = parseParams
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
+/******/ 			id: moduleId,
+/******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
@@ -32144,11 +32194,69 @@ module.exports = parseParams
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
 /******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/harmony module decorator */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.hmd = (module) => {
+/******/ 			module = Object.create(module);
+/******/ 			if (!module.children) module.children = [];
+/******/ 			Object.defineProperty(module, 'exports', {
+/******/ 				enumerable: true,
+/******/ 				set: () => {
+/******/ 					throw new Error('ES Modules may not assign module.exports or exports.*, Use ESM export syntax, instead: ' + module.id);
+/******/ 				}
+/******/ 			});
+/******/ 			return module;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -32297,35 +32405,6 @@ async function run() {
 //   const regex = new RegExp(escapedPattern.replace(/\*/g, '.*'), 'i');
 //   return regex.test(tag);
 // }
-
-
-function src_wildcardMatch(tag, pattern) {
-  const t = tag.toLowerCase();
-  const p = pattern.toLowerCase();
-
-  if (!p.includes('*')) {
-    return t === p;
-  }
-
-  if (p.endsWith('*') && !p.startsWith('*')) {
-    const prefix = p.slice(0, -1);
-    return t.startsWith(prefix);
-  }
-
-  if (p.startsWith('*') && !p.endsWith('*')) {
-    const suffix = p.slice(1);
-    return t.endsWith(suffix);
-  }
-
-  if (p.startsWith('*') && p.endsWith('*')) {
-    const substr = p.slice(1, -1);
-    return t.includes(substr);
-  }
-
-  const escaped = p.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.*');
-  const re = new RegExp(`^${escaped}$`, 'i');
-  return re.test(tag);
-}
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
   await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
