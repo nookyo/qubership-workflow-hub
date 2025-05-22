@@ -25,7 +25,7 @@ class ContainerStrategy {
                 return true;
             });
 
-            console.log(`verisonWithOutExclude: ${JSON.stringify(verisonWithOutExclude, null, 2)}`);
+           //  console.log(`verisonWithOutExclude: ${JSON.stringify(verisonWithOutExclude, null, 2)}`);
 
             const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
@@ -44,6 +44,8 @@ class ContainerStrategy {
             return { package: customPackage, versions: versionsToDelete };
 
         }).filter(item => item !== null && item.versions.length > 0);
+
+        console.warn(`filteredPackagesWithVersionsForDelete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
         return filteredPackagesWithVersionsForDelete;
     }
