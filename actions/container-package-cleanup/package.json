@@ -1,5 +1,5 @@
 {
-  "name": "package-cleanup",
+  "name": "container-package-cleanup",
   "version": "1.2.0",
   "main": "index.js",
   "scripts": {
