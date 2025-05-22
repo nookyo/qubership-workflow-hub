@@ -107,7 +107,7 @@ async function run() {
   // }
 
   const  strategy = new ContainerStrategy();
-  let filteredPackagesWithVersionsForDelete = strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
+  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   if (isDebug) {
     core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
