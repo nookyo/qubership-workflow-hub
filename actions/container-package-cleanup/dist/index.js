@@ -32311,7 +32311,7 @@ async function run() {
   const  strategy = new ContainerStrategy();
   let filteredPackagesWithVersionsForDelete = strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
-  if (true) {
+  if (isDebug) {
     core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
     core.info(`::group::Delete versions Log.`);
     core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
