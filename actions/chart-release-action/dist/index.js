@@ -39,7 +39,6 @@ async function run() {
     try {
         const name = core.getInput('name', { required: true });
         console.log(`Hello, ${name}!`);
-        // Пример: получить контекст события
         const ctx = github.context;
         console.log(`Event: ${ctx.eventName}`);
         core.setOutput('greeting', `Hello, ${name}!`);
