@@ -3,7 +3,7 @@ class WildcardMatcher {
         this.name = 'WildcardMatcher';
     }
 
-    wildcardMatch(tag, pattern) {
+    match(tag, pattern) {
         const t = tag.toLowerCase();
         const p = pattern.toLowerCase();
 

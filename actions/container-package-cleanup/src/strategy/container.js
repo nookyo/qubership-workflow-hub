@@ -1,4 +1,4 @@
-const WildCard = require("./wildcardMatcher");
+const WildcardMatcher = require("./wildcardMatcher");
 
 class ContainerStrategy {
     constructor() {
@@ -7,7 +7,7 @@ class ContainerStrategy {
 
     async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
 
-        const wildcard = new WildCard();
+        const wildcardMatcher = new WildcardMatcher();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
@@ -19,7 +19,7 @@ class ContainerStrategy {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
 
-                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcard.WildCardwildcardMatch(tag, pattern)))) {
+                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatcher.match(tag, pattern)))) {
                     return false;
                 }
                 return true;
@@ -28,7 +28,7 @@ class ContainerStrategy {
             const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
-                return tags.some(tag => includedTags.some(pattern => wildcard.wildcardMatch(tag, pattern)));
+                return tags.some(tag => includedTags.some(pattern => wildcardMatcher.match(tag, pattern)));
             }) : verisonWithOutExclude;
 
             const customPackage = {
