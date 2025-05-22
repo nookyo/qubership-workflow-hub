@@ -25,11 +25,15 @@ class ContainerStrategy {
                 return true;
             });
 
+            console.log(`verisonWithOutExclude: ${JSON.stringify(verisonWithOutExclude, null, 2)}`);
+
             const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
                 return tags.some(tag => includedTags.some(pattern => wildcard.wildcardMatch(tag, pattern)));
             }) : verisonWithOutExclude;
+
+            console.log(`versionsToDelete: ${JSON.stringify(versionsToDelete, null, 2)}`);
 
             const customPackage = {
                 id: pkg.id,
@@ -40,6 +44,8 @@ class ContainerStrategy {
             return { package: customPackage, versions: versionsToDelete };
 
         }).filter(item => item !== null && item.versions.length > 0);
+
+        console.log(`filteredPackagesWithVersionsForDelete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
         return filteredPackagesWithVersionsForDelete;
     }
