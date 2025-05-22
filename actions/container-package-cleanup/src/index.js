@@ -18,6 +18,9 @@ async function run() {
 
   const isDebug = core.getInput("debug").toLowerCase() === "true";
   const dryRun = core.getInput("dry-run").toLowerCase() === "true";
+
+  const type = core.getInput("type").toLowerCase() || "container";
+
   core.info(`🔹isDebug: ${isDebug}`);
   core.info(`🔹dryRun: ${dryRun}`);
 
@@ -45,6 +48,8 @@ async function run() {
   const isOrganization = await wrapper.isOrganization(owner);
   core.info(`🔹Organization marker: ${isOrganization}`);
 
+  // strategy will start  here for different types of packages
+
   let packages = await wrapper.listPackages(owner, 'container', isOrganization);
   // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
@@ -61,6 +66,7 @@ async function run() {
     })
   );
 
+  // filter for container type
   let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
     const verisonWithOutExclude = versions.filter((version) => {
@@ -82,7 +88,7 @@ async function run() {
       const tags = version.metadata.container.tags;
       return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
     }) : verisonWithOutExclude;
-
+  
     const customPackage = {
       id: pkg.id,
       name: pkg.name,
