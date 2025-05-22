@@ -51,6 +51,105 @@ module.exports = Report;
 
 /***/ }),
 
+/***/ 245:
+/***/ ((module) => {
+
+class ContainerStrategy {
+    constructor() {
+        this.name = 'ContainerStrategy';
+    }
+
+    async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+
+            const verisonWithOutExclude = versions.filter((version) => {
+                const createdAt = new Date(version.created_at);
+                const isOldEnough = createdAt <= thresholdDate;
+
+                if (!isOldEnough) return false;
+                if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+                const tags = version.metadata.container.tags;
+
+                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
+                    return false;
+                }
+                return true;
+            });
+
+            const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
+                if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+                const tags = version.metadata.container.tags;
+                return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
+            }) : verisonWithOutExclude;
+
+            const customPackage = {
+                id: pkg.id,
+                name: pkg.name,
+                type: pkg.package_type
+            };
+
+            return { package: customPackage, versions: versionsToDelete };
+
+        }).filter(item => item !== null && item.versions.length > 0);
+
+        return filteredPackagesWithVersionsForDelete;
+    }
+}
+
+module.exports = ContainerStrategy;
+
+/***/ }),
+
+/***/ 745:
+/***/ ((module) => {
+
+class MavenStrategy {
+    constructor() {
+        this.name = 'ContainerStrategy';
+    }
+
+    async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+        let filteredPackagesWithVersionsForDelete = packagesWithVersions;
+        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+
+        //     const verisonWithOutExclude = versions.filter((version) => {
+        //         const createdAt = new Date(version.created_at);
+        //         const isOldEnough = createdAt <= thresholdDate;
+
+        //         if (!isOldEnough) return false;
+        //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+        //         const tags = version.metadata.container.tags;
+
+        //         if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
+        //             return false;
+        //         }
+        //         return true;
+        //     });
+
+        //     const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
+        //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+        //         const tags = version.metadata.container.tags;
+        //         return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
+        //     }) : verisonWithOutExclude;
+
+        //     const customPackage = {
+        //         id: pkg.id,
+        //         name: pkg.name,
+        //         type: pkg.package_type
+        //     };
+
+        //     return { package: customPackage, versions: versionsToDelete };
+
+        // }).filter(item => item !== null && item.versions.length > 0);
+
+        return filteredPackagesWithVersionsForDelete;
+    }
+}
+
+module.exports = MavenStrategy;
+
+/***/ }),
+
 /***/ 937:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -293,6 +392,8 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(958);
 const OctokitWrapper = __nccwpck_require__(937);
 const Report = __nccwpck_require__(90);
+const ContainerStrategy = __nccwpck_require__(245);
+const MavenStrategy = __nccwpck_require__(745);
 
 async function run() {
 
@@ -354,42 +455,45 @@ async function run() {
   );
 
   // filter for container type
-  let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+  // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-    const verisonWithOutExclude = versions.filter((version) => {
-      const createdAt = new Date(version.created_at);
-      const isOldEnough = createdAt <= thresholdDate;
+  //   const verisonWithOutExclude = versions.filter((version) => {
+  //     const createdAt = new Date(version.created_at);
+  //     const isOldEnough = createdAt <= thresholdDate;
 
-      if (!isOldEnough) return false;
-      if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-      const tags = version.metadata.container.tags;
+  //     if (!isOldEnough) return false;
+  //     if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+  //     const tags = version.metadata.container.tags;
 
-      if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
-        return false;
-      }
-      return true;
-    });
+  //     if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
+  //       return false;
+  //     }
+  //     return true;
+  //   });
 
-    const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
-      if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-      const tags = version.metadata.container.tags;
-      return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
-    }) : verisonWithOutExclude;
-  
-    const customPackage = {
-      id: pkg.id,
-      name: pkg.name,
-      type: pkg.package_type
-    };
+  //   const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
+  //     if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+  //     const tags = version.metadata.container.tags;
+  //     return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
+  //   }) : verisonWithOutExclude;
 
-    return { package: customPackage, versions: versionsToDelete };
+  //   const customPackage = {
+  //     id: pkg.id,
+  //     name: pkg.name,
+  //     type: pkg.package_type
+  //   };
 
-  }).filter(item => item !== null && item.versions.length > 0);
+  //   return { package: customPackage, versions: versionsToDelete };
 
-  if (filteredPackagesWithVersionsForDelete.length === 0) {
-    core.info("❗️ No versions to delete.");
-    return;
-  }
+  // }).filter(item => item !== null && item.versions.length > 0);
+
+  // if (filteredPackagesWithVersionsForDelete.length === 0) {
+  //   core.info("❗️ No versions to delete.");
+  //   return;
+  // }
+
+  const  strategy = new ContainerStrategy();
+  let filteredPackagesWithVersionsForDelete = strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   if (isDebug) {
     core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
@@ -401,7 +505,7 @@ async function run() {
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
     await showReport(filteredPackagesWithVersionsForDelete, true);
-    return; 
+    return;
   }
 
   for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
@@ -424,7 +528,7 @@ async function run() {
 // }
 
 
-function wildcardMatch(tag, pattern) {
+function src_wildcardMatch(tag, pattern) {
   const t = tag.toLowerCase();
   const p = pattern.toLowerCase();
 
