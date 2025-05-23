@@ -7,7 +7,7 @@ class MavenStrategy {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
         
      packagesWithVersions.array.forEach(element => {
-        console.log(element.name);
+        console.warn(`Achtung: ${JSON.stringify(element, null, 2)}`);
      });
 
      return filteredPackagesWithVersionsForDelete;
