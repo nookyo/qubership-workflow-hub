@@ -47,9 +47,21 @@ function findTemplate(refName, templates) {
 }
 
 function fillTemplate(template, values) {
-  return template.replace(/{{\s*([\w-]+)\s*}}/g, (match, key) => {
+  return template.replace(/{{\s*([\w\.-]+)\s*}}/g, (match, key) => {
     return key in values ? values[key] : match;
   });
+}
+
+function flattenObject(obj, prefix = '') {
+  return Object.entries(obj).reduce((acc, [key, val]) => {
+    const name = prefix ? `${prefix}.${key}` : key;
+    if (val !== null && typeof val === 'object') {
+      Object.assign(acc, flattenObject(val, name));
+    } else {
+      acc[name] = val;
+    }
+    return acc;
+  }, {});
 }
 
 // Objects
@@ -119,11 +131,11 @@ async function run() {
   const shortShaDeep = core.getInput("short-sha");
   const shortSha = github.context.sha.slice(0, shortShaDeep);
   const values = {
-    ...ref, "ref-name": ref.name, "short-sha": shortSha, 
-    ...semverParts, ...parts, 
-    "dist-tag": selectedTemplateAndTag.distTag, 
+    ...ref, "ref-name": ref.name, "short-sha": shortSha,
+    ...semverParts, ...parts,
+    "dist-tag": selectedTemplateAndTag.distTag,
     "distTag": selectedTemplateAndTag.distTag,
-    ...github, ...github.context, 'run-number': github.context.runNumber
+    ...flattenObject({ github }, ''), 'run-number': github.context.runNumber
   };
 
   core.info(`🔹 time: ${JSON.stringify(parts)}`);
