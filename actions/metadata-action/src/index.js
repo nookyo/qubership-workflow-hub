@@ -99,20 +99,17 @@ async function run() {
 
   // core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
-  let template = null;
-  let distTag = null;
-
   if (loader.fileExists) {
     selectedTemplateAndTag.template = findTemplate(!ref.isTag ? ref.name : "tag", config["branches-template"]);
     selectedTemplateAndTag.distTag = findTemplate(ref.name, config["distribution-tag"]);
   }
 
-  if (template === null) {
+  if (selectedTemplateAndTag.template === null) {
     core.info(`⚠️ No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
     selectedTemplateAndTag.template = defaultTemplate;
   }
 
-  if (distTag === null) {
+  if (selectedTemplateAndTag.distTag === null) {
     core.info(`⚠️ No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
     selectedTemplateAndTag.distTag = defaultTag;
   }
@@ -122,13 +119,16 @@ async function run() {
   const shortShaDeep = core.getInput("short-sha");
   const shortSha = github.context.sha.slice(0, shortShaDeep);
   const values = {
-    ...ref, "ref-name": ref.name, "short-sha": shortSha, ...semverParts,
-    ...parts, ...github.context, "dist-tag": distTag, "distTag": distTag, "runNumber": github.context.runId
+    ...ref, "ref-name": ref.name, "short-sha": shortSha, 
+    ...semverParts, ...parts, 
+    "dist-tag": selectedTemplateAndTag.distTag, 
+    "distTag": selectedTemplateAndTag.distTag,
+    ...github, ...github.context, 'run-number': github.context.runNumber
   };
 
   core.info(`🔹 time: ${JSON.stringify(parts)}`);
   core.info(`🔹 semver: ${JSON.stringify(semverParts)}`);
-  core.info(`🔹 dist-tag: ${JSON.stringify(distTag)}`);
+  core.info(`🔹 dist-tag: ${JSON.stringify(selectedTemplateAndTag.distTag)}`);
 
   // core.info(`Values: ${JSON.stringify(values)}`); //debug values
   let result = fillTemplate(selectedTemplateAndTag.template, values)
