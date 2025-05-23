@@ -66,8 +66,8 @@ function flattenObject(obj, prefix = '') {
 
 // Objects
 const selectedTemplateAndTag = {
-  template: '',
-  distTag: '',
+  template: null,
+  distTag: null,
   toString() {
     return `Template: ${this.template}, DistTag: ${this.distTag}`;
   }
@@ -134,7 +134,6 @@ async function run() {
     ...ref, "ref-name": ref.name, "short-sha": shortSha,
     ...semverParts, ...parts,
     "dist-tag": selectedTemplateAndTag.distTag,
-    "distTag": selectedTemplateAndTag.distTag,
     ...flattenObject({ github }, ''), 'run-number': github.context.runNumber
   };
 
@@ -153,8 +152,6 @@ async function run() {
   }
 
   core.info(`💡 Rendered template: ${result}`);
-
-  core.info(JSON);
 
   core.setOutput("result", result);
   core.setOutput("ref", ref);
