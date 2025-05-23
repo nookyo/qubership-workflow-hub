@@ -42902,6 +42902,8 @@ async function run() {
 
   core.info(`💡 Rendered template: ${result}`);
 
+  core.info(JSON.stringify(values, null, 2));
+
   core.setOutput("result", result);
   core.setOutput("ref", ref);
   core.setOutput("ref-name", ref.name);
