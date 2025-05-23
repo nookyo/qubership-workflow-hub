@@ -42888,8 +42888,13 @@ async function run() {
 
   const parts = generateSnapshotVersionParts();
   const semverParts = extractSemverParts(ref.name);
-  const shortShaDeep = core.getInput("short-sha");
+
+  const shortShaDeep = +core.getInput("short-sha");
+  if (!(shortShaDeep > 0)) {
+    core.info(`⚠️ Invalid short-sha value: ${shortShaDeep}, will be used default -> 7`);
+  }
   const shortSha = github.context.sha.slice(0, shortShaDeep);
+  
   const values = {
     ...ref, "ref-name": ref.name, "short-sha": shortSha,
     ...semverParts, ...parts,
