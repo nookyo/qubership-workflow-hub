@@ -123,7 +123,7 @@ async function run() {
     ...semverParts, ...parts, 
     "dist-tag": selectedTemplateAndTag.distTag, 
     "distTag": selectedTemplateAndTag.distTag,
-    ...github, 'run-number': github.context.runNumber
+    ...github, ...github.context, 'run-number': github.context.runNumber
   };
 
   core.info(`🔹 time: ${JSON.stringify(parts)}`);
@@ -142,7 +142,7 @@ async function run() {
 
   core.info(`💡 Rendered template: ${result}`);
 
-  core.info(JSON.stringify(values, null, 2));
+  core.info(JSON);
 
   core.setOutput("result", result);
   core.setOutput("ref", ref);
