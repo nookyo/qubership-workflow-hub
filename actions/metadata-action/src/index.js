@@ -134,12 +134,12 @@ async function run() {
     core.info(`⚠️ Invalid short-sha value: ${shortShaDeep}, will be used default -> 7`);
   }
   const shortSha = github.context.sha.slice(0, shortShaDeep);
-  
+
   const values = {
     ...ref, "ref-name": ref.name, "short-sha": shortSha,
     ...semverParts, ...parts,
     "dist-tag": selectedTemplateAndTag.distTag,
-    ...flattenObject({ github }, ''), 'run-number': github.context.runNumber
+    ...flattenObject({ github }, '')
   };
 
   core.info(`🔹 time: ${JSON.stringify(parts)}`);
