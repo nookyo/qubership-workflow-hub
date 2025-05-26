@@ -1,0 +1,5 @@
+name: Chart Release Action
+description: "Action to release a Helm chart by updating Chart.yaml and triggering a custom event"
+runs:
+  using: node20
+  main: index.js
