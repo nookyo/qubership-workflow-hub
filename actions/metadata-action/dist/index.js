@@ -42797,7 +42797,8 @@ function matchesPattern(refName, pattern) {
 }
 
 function findTemplate(refName, templates) {
-  console.log(typeof templates);
+  if (templates === undefined || templates === null || templates.length === 0) return null;
+  
   for (let item of templates) {
     let pattern = Object.keys(item)[0];
     if (matchesPattern(refName, pattern)) {
