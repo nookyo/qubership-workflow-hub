@@ -37,6 +37,7 @@ function matchesPattern(refName, pattern) {
 }
 
 function findTemplate(refName, templates) {
+  console.log(typeof templates);
   for (let item of templates) {
     let pattern = Object.keys(item)[0];
     if (matchesPattern(refName, pattern)) {
