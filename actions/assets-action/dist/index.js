@@ -38442,8 +38442,8 @@ async function run() {
 
         core.info(`Debug:\n 🔹json: ${input.configPath}\n 🔹ref: ${input.ref}\n 🔹distPath: ${input.distPath}\n`);
 
-        execSync(`ls -la`);
-        
+        execSync(`ls -la`, { stdio: "inherit" });
+
         const config = await new Loader().loadConfig(input.configPath);
 
         fs.mkdirSync(input.distPath, { recursive: true })
