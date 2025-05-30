@@ -38403,9 +38403,6 @@ var __webpack_exports__ = {};
 const fs = __nccwpck_require__(9896);
 const core = __nccwpck_require__(9054);
 const { execSync } = __nccwpck_require__(5317);
-const path = __nccwpck_require__(6928);
-const Ajv = __nccwpck_require__(4877);
-const yaml = __nccwpck_require__(4903);
 const Loader = __nccwpck_require__(3196);
 
 async function assetsUpload(dist_path, ref) {
@@ -38450,7 +38447,7 @@ async function run() {
 
         if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
-                
+
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
                 let archiveType = archiveItem.archiveType;
