@@ -9,9 +9,11 @@ class Loader {
     }
 
     async loadConfig(jsonPath) {
-        const configPath = path.resolve(jsonPath);
+        const configPath = path.resolve(process.env.GITHUB_WORKSPACE || process.cwd(), jsonPath);
+
+        //const configPath = path.resolve(jsonPath);
         console.log(`💡 Reading asset config from ${configPath}`)
-        
+
 
         if (!fs.existsSync(configPath)) {
             core.setFailed(`❗️ File not found: ${configPath}`);
