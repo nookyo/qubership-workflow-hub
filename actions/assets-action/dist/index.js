@@ -35613,6 +35613,7 @@ module.exports = {
 const path = __nccwpck_require__(6928);
 const Ajv = __nccwpck_require__(4877);
 const yaml = __nccwpck_require__(4903);
+const fs = __nccwpck_require__(9896);
 
 class Loader {
     constructor() {
@@ -38398,7 +38399,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"$schema":"http://json-schema.org/dra
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-const src_fs = __nccwpck_require__(9896);
+const fs = __nccwpck_require__(9896);
 const src_core = __nccwpck_require__(9054);
 const { execSync } = __nccwpck_require__(5317);
 const path = __nccwpck_require__(6928);
@@ -38409,10 +38410,10 @@ const Loader = __nccwpck_require__(3196);
 async function assetsUpload(dist_path, ref) {
     const directoryPath = path.join(dist_path);
     try {
-        const files = src_fs.readdirSync(directoryPath);
+        const files = fs.readdirSync(directoryPath);
         for (const file of files) {
             const fullPath = path.join(directoryPath, file);
-            if (src_fs.statSync(fullPath).isFile()) {
+            if (fs.statSync(fullPath).isFile()) {
                 console.log(`🔄 Uploading ${fullPath} to ${ref}`);
                 execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
                     stdio: "inherit",
@@ -38444,7 +38445,7 @@ async function run() {
 
         const config = await new Loader().loadConfig(input.configPath);
 
-        src_fs.mkdirSync(input.distPath, { recursive: true })
+        fs.mkdirSync(input.distPath, { recursive: true })
 
         if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
@@ -38453,7 +38454,7 @@ async function run() {
                 let outputName = archiveItem.outputName;
                 let archiveType = archiveItem.archiveType;
 
-                if (!src_fs.existsSync(source)) {
+                if (!fs.existsSync(source)) {
                     throw new Error(`❗️ Folder not found: ${source}`);
                 }
 
@@ -38491,14 +38492,14 @@ async function run() {
                 const source = fileItem.source;
                 const outputName = fileItem.outputName;
 
-                if (!src_fs.existsSync(source) || !src_fs.statSync(source).isFile()) {
+                if (!fs.existsSync(source) || !fs.statSync(source).isFile()) {
                     throw new Error(`❗️ File not found: ${source}`);
                 }
 
                 const ext = path.extname(source) || '';
                 const destName = `${outputName}-${input.ref}.${ext}`;
                 const destPath = path.join(input.distPath, destName);
-                src_fs.copyFileSync(source, destPath);
+                fs.copyFileSync(source, destPath);
                 src_core.info(`🗂️ Copied file ${source} → ${destPath}`);
             }
         } else {
