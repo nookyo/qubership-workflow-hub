@@ -35614,6 +35614,7 @@ const path = __nccwpck_require__(6928);
 const Ajv = __nccwpck_require__(4877);
 const yaml = __nccwpck_require__(4903);
 const fs = __nccwpck_require__(9896);
+const core = __nccwpck_require__(9054);
 
 class Loader {
     constructor() {
@@ -38400,7 +38401,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"$schema":"http://json-schema.org/dra
 /************************************************************************/
 var __webpack_exports__ = {};
 const fs = __nccwpck_require__(9896);
-const src_core = __nccwpck_require__(9054);
+const core = __nccwpck_require__(9054);
 const { execSync } = __nccwpck_require__(5317);
 const path = __nccwpck_require__(6928);
 const Ajv = __nccwpck_require__(4877);
@@ -38427,12 +38428,12 @@ async function assetsUpload(dist_path, ref) {
 
 async function getInput() {
     return {
-        configPath: src_core.getInput('config-path'),
-        ref: src_core.getInput('ref') || process.env.GITHUB_REF_NAME,
-        distPath: src_core.getInput('dist-path'),
-        dryRun: src_core.getInput('dry-run') || 'false',
-        debug: src_core.getInput('debug') || 'false',
-        showReport: src_core.getInput('show-report') || 'false'
+        configPath: core.getInput('config-path'),
+        ref: core.getInput('ref') || process.env.GITHUB_REF_NAME,
+        distPath: core.getInput('dist-path'),
+        dryRun: core.getInput('dry-run') || 'false',
+        debug: core.getInput('debug') || 'false',
+        showReport: core.getInput('show-report') || 'false'
     }
 }
 
@@ -38441,7 +38442,7 @@ async function run() {
 
         const input = await getInput();
 
-        src_core.info(`Debug:\n 🔹json: ${input.configPath}\n 🔹ref: ${input.ref}\n 🔹distPath: ${input.distPath}\n`);
+        core.info(`Debug:\n 🔹json: ${input.configPath}\n 🔹ref: ${input.ref}\n 🔹distPath: ${input.distPath}\n`);
 
         const config = await new Loader().loadConfig(input.configPath);
 
@@ -38480,11 +38481,11 @@ async function run() {
                     stdio: "inherit",
                 });
 
-                src_core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
+                core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
             }
         }
         else {
-            src_core.info(`⚠️ No archives provided for processing`);
+            core.info(`⚠️ No archives provided for processing`);
         }
 
         if (Array.isArray(config.files) && config.files.length) {
@@ -38500,22 +38501,22 @@ async function run() {
                 const destName = `${outputName}-${input.ref}.${ext}`;
                 const destPath = path.join(input.distPath, destName);
                 fs.copyFileSync(source, destPath);
-                src_core.info(`🗂️ Copied file ${source} → ${destPath}`);
+                core.info(`🗂️ Copied file ${source} → ${destPath}`);
             }
         } else {
-            src_core.info(`⚠️ No individual files provided for processing`);
+            core.info(`⚠️ No individual files provided for processing`);
         }
 
         if (input.dryRun === 'true') {
-            src_core.warning(` Dry run mode: no files will be uploaded to assets.`);
+            core.warning(` Dry run mode: no files will be uploaded to assets.`);
             return;
         }
 
         await assetsUpload(input.distPath, input.ref);
-        src_core.info('✅ Action completed successfully!');
+        core.info('✅ Action completed successfully!');
     }
     catch (error) {
-        src_core.setFailed(`❌ Action failed: ${error.message}`);
+        core.setFailed(`❌ Action failed: ${error.message}`);
     }
 }
 

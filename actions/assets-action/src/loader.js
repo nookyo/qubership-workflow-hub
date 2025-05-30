@@ -2,6 +2,7 @@ const path = require("path");
 const Ajv = require('ajv');
 const yaml = require('js-yaml');
 const fs = require("fs");
+const core = require("@actions/core");
 
 class Loader {
     constructor() {

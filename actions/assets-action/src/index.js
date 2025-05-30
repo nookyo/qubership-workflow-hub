@@ -1,9 +1,6 @@
 const fs = require("fs");
 const core = require("@actions/core");
 const { execSync } = require('child_process');
-const path = require("path");
-const Ajv = require('ajv');
-const yaml = require('js-yaml');
 const Loader = require("./loader");
 
 async function assetsUpload(dist_path, ref) {
@@ -48,7 +45,7 @@ async function run() {
 
         if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
-                
+
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
                 let archiveType = archiveItem.archiveType;
