@@ -35623,12 +35623,12 @@ class Loader {
         const configPath = path.resolve(jsonPath);
         console.log(`💡 Reading asset config from ${configPath}`)
 
-        if (!fs.existsSync(jsonFile)) {
-            core.setFailed(`❗️ File not found: ${jsonFile}`);
+        if (!fs.existsSync(configPath)) {
+            core.setFailed(`❗️ File not found: ${configPath}`);
             return;
         }
 
-        const fileContent = fs.readFileSync(jsonFile, 'utf8');
+        const fileContent = fs.readFileSync(configPath, 'utf8');
 
         let config;
         try {
