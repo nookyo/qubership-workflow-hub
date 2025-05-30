@@ -35632,7 +35632,7 @@ class Loader {
             return;
         }
 
-        const fileContent = fs.readFileSync(configPath, 'utf8');
+        const fileContent = fs.readFileSync(jsonPath, 'utf8');
 
         let config;
         try {
