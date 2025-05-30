@@ -1,72 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 4635:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const path = __nccwpck_require__(6928);
-const Ajv = __nccwpck_require__(4877);
-const yaml = __nccwpck_require__(4903);
-
-class Loader {
-    constructor() {
-    }
-
-    async loadConfig(jsonPath) {
-        const configPath = path.resolve(jsonPath);
-        console.log(`💡 Reading asset config from ${configPath}`)
-
-        if (!fs.existsSync(jsonFile)) {
-            core.setFailed(`❗️ File not found: ${jsonFile}`);
-            return;
-        }
-
-        const fileContent = fs.readFileSync(jsonFile, 'utf8');
-
-        let config;
-        try {
-            config = yaml.load(fileContent);
-        }
-        catch (error) {
-            core.setFailed(`❗️ Error parsing YAML file: ${error.message}`);
-            return;
-        }
-
-        const schemaPath = path.resolve(__dirname, '..', 'config.schema.json');
-        if (!fs.existsSync(schemaPath)) {
-            core.setFailed(`❗️ Schema file not found: ${schemaPath}`);
-            return;
-        }
-
-        const schemaContent = fs.readFileSync(schemaPath, 'utf8');
-
-        let schema;
-        try {
-            schema = JSON.parse(schemaContent);
-        }
-        catch (error) {
-            core.setFailed(`❗️ Error parsing JSON schema: ${error.message}`);
-            return;
-        }
-
-        const ajv = new Ajv();
-        const validate = ajv.compile(schema);
-        const valid = validate(config);
-        if (!valid) {
-            constErrors = ajv.errorsText(validate.errors);
-            core.setFailed(`❗️ Configuration file is invalid: ${constErrors}`);
-            return;
-        }
-        core.warning(`Config file is valid: ${valid}\n`);
-        return config;
-    }
-}
-
-module.exports = Loader;
-
-
-/***/ }),
-
 /***/ 8768:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -35673,6 +35607,72 @@ module.exports = {
 
 /***/ }),
 
+/***/ 3196:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const path = __nccwpck_require__(6928);
+const Ajv = __nccwpck_require__(4877);
+const yaml = __nccwpck_require__(4903);
+
+class Loader {
+    constructor() {
+    }
+
+    async loadConfig(jsonPath) {
+        const configPath = path.resolve(jsonPath);
+        console.log(`💡 Reading asset config from ${configPath}`)
+
+        if (!fs.existsSync(jsonFile)) {
+            core.setFailed(`❗️ File not found: ${jsonFile}`);
+            return;
+        }
+
+        const fileContent = fs.readFileSync(jsonFile, 'utf8');
+
+        let config;
+        try {
+            config = yaml.load(fileContent);
+        }
+        catch (error) {
+            core.setFailed(`❗️ Error parsing YAML file: ${error.message}`);
+            return;
+        }
+
+        const schemaPath = path.resolve(__dirname, '..', 'config.schema.json');
+        if (!fs.existsSync(schemaPath)) {
+            core.setFailed(`❗️ Schema file not found: ${schemaPath}`);
+            return;
+        }
+
+        const schemaContent = fs.readFileSync(schemaPath, 'utf8');
+
+        let schema;
+        try {
+            schema = JSON.parse(schemaContent);
+        }
+        catch (error) {
+            core.setFailed(`❗️ Error parsing JSON schema: ${error.message}`);
+            return;
+        }
+
+        const ajv = new Ajv();
+        const validate = ajv.compile(schema);
+        const valid = validate(config);
+        if (!valid) {
+            constErrors = ajv.errorsText(validate.errors);
+            core.setFailed(`❗️ Configuration file is invalid: ${constErrors}`);
+            return;
+        }
+        core.warning(`Config file is valid: ${valid}\n`);
+        return config;
+    }
+}
+
+module.exports = Loader;
+
+
+/***/ }),
+
 /***/ 2613:
 /***/ ((module) => {
 
@@ -38398,21 +38398,21 @@ module.exports = /*#__PURE__*/JSON.parse('{"$schema":"http://json-schema.org/dra
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-const index_fs = __nccwpck_require__(9896);
-const index_core = __nccwpck_require__(9054);
+const src_fs = __nccwpck_require__(9896);
+const src_core = __nccwpck_require__(9054);
 const { execSync } = __nccwpck_require__(5317);
 const path = __nccwpck_require__(6928);
 const Ajv = __nccwpck_require__(4877);
 const yaml = __nccwpck_require__(4903);
-const Loader = __nccwpck_require__(4635);
+const Loader = __nccwpck_require__(3196);
 
 async function assetsUpload(dist_path, ref) {
     const directoryPath = path.join(dist_path);
     try {
-        const files = index_fs.readdirSync(directoryPath);
+        const files = src_fs.readdirSync(directoryPath);
         for (const file of files) {
             const fullPath = path.join(directoryPath, file);
-            if (index_fs.statSync(fullPath).isFile()) {
+            if (src_fs.statSync(fullPath).isFile()) {
                 console.log(`🔄 Uploading ${fullPath} to ${ref}`);
                 execSync(`gh release upload ${ref} ${fullPath} --clobber`, {
                     stdio: "inherit",
@@ -38424,14 +38424,14 @@ async function assetsUpload(dist_path, ref) {
     }
 }
 
-async function getInput(){
+async function getInput() {
     return {
-        configPath: index_core.getInput('config-path'),
-        ref: index_core.getInput('ref') || process.env.GITHUB_REF_NAME,
-        distPath: index_core.getInput('dist-path'),
-        dryRun: index_core.getInput('dry-run') || 'false',
-        debug: index_core.getInput('debug') || 'false',
-        showReport: index_core.getInput('show-report') || 'false'
+        configPath: src_core.getInput('config-path'),
+        ref: src_core.getInput('ref') || process.env.GITHUB_REF_NAME,
+        distPath: src_core.getInput('dist-path'),
+        dryRun: src_core.getInput('dry-run') || 'false',
+        debug: src_core.getInput('debug') || 'false',
+        showReport: src_core.getInput('show-report') || 'false'
     }
 }
 
@@ -38440,19 +38440,20 @@ async function run() {
 
         const input = await getInput();
 
-        index_core.info(`Debug:\n 🔹json: ${input.configPath}\n 🔹ref: ${input.ref}\n 🔹distPath: ${input.distPath}\n`);
+        src_core.info(`Debug:\n 🔹json: ${input.configPath}\n 🔹ref: ${input.ref}\n 🔹distPath: ${input.distPath}\n`);
 
         const config = await new Loader().loadConfig(input.configPath);
 
-        index_fs.mkdirSync(input.distPath, { recursive: true })
+        src_fs.mkdirSync(input.distPath, { recursive: true })
 
         if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
+                
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
                 let archiveType = archiveItem.archiveType;
 
-                if (!index_fs.existsSync(source)) {
+                if (!src_fs.existsSync(source)) {
                     throw new Error(`❗️ Folder not found: ${source}`);
                 }
 
@@ -38478,11 +38479,11 @@ async function run() {
                     stdio: "inherit",
                 });
 
-                index_core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
+                src_core.info(`🧱 Creating archive ${outputFile} from ${source} archiveType: ${archiveType}`);;
             }
         }
         else {
-            index_core.info(`⚠️ No archives provided for processing`);
+            src_core.info(`⚠️ No archives provided for processing`);
         }
 
         if (Array.isArray(config.files) && config.files.length) {
@@ -38490,30 +38491,30 @@ async function run() {
                 const source = fileItem.source;
                 const outputName = fileItem.outputName;
 
-                if (!index_fs.existsSync(source) || !index_fs.statSync(source).isFile()) {
+                if (!src_fs.existsSync(source) || !src_fs.statSync(source).isFile()) {
                     throw new Error(`❗️ File not found: ${source}`);
                 }
 
                 const ext = path.extname(source) || '';
                 const destName = `${outputName}-${input.ref}.${ext}`;
                 const destPath = path.join(input.distPath, destName);
-                index_fs.copyFileSync(source, destPath);
-                index_core.info(`🗂️ Copied file ${source} → ${destPath}`);
+                src_fs.copyFileSync(source, destPath);
+                src_core.info(`🗂️ Copied file ${source} → ${destPath}`);
             }
         } else {
-            index_core.info(`⚠️ No individual files provided for processing`);
+            src_core.info(`⚠️ No individual files provided for processing`);
         }
 
         if (input.dryRun === 'true') {
-            index_core.warning(` Dry run mode: no files will be uploaded to assets.`);
+            src_core.warning(` Dry run mode: no files will be uploaded to assets.`);
             return;
         }
 
         await assetsUpload(input.distPath, input.ref);
-        index_core.info('✅ Action completed successfully!');
+        src_core.info('✅ Action completed successfully!');
     }
     catch (error) {
-        index_core.setFailed(`❌ Action failed: ${error.message}`);
+        src_core.setFailed(`❌ Action failed: ${error.message}`);
     }
 }
 

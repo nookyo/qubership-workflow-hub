@@ -48,6 +48,7 @@ async function run() {
 
         if (Array.isArray(config.archives) && config.archives.length) {
             for (const archiveItem of config.archives) {
+                
                 let source = archiveItem.source;
                 let outputName = archiveItem.outputName;
                 let archiveType = archiveItem.archiveType;
