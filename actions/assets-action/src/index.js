@@ -39,8 +39,8 @@ async function run() {
 
         core.info(`Debug:\n 🔹json: ${input.configPath}\n 🔹ref: ${input.ref}\n 🔹distPath: ${input.distPath}\n`);
 
-        execSync(`ls -la`, { stdio: "inherit" });
-        execSync(`ls -la .github`, { stdio: "inherit" });
+        // execSync(`ls -la`, { stdio: "inherit" });
+        // execSync(`ls -la .github`, { stdio: "inherit" });
 
         const config = await new Loader().loadConfig(input.configPath);
 
