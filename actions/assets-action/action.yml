@@ -1,0 +1,20 @@
+name: 'Upload Release Assets'
+description: 'Upload all files from a folder to a GitHub release using gh CLI'
+inputs:
+  tag:
+    description: 'Git tag of the release'
+    required: true
+  path:
+    description: 'Path to the folder with assets'
+    required: true
+  retries:
+    description: 'How many times to retry upload on failure'
+    required: false
+    default: '3'
+  retry-delay-ms:
+    description: 'Delay between retries in milliseconds'
+    required: false
+    default: '2000'
+runs:
+  using: 'node16'
+  main: 'index.js'
