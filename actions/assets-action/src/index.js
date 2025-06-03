@@ -2,9 +2,8 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require("fs");
-const path = require("path");
-const archiver = require("archiver"); // для ZIP
 const { execSync } = require("child_process");
+const { addToArchive } = require("./archiveUtils"); // Assuming archiveUtils.js is in the same directory
 
 async function getInput() {
   return {
@@ -50,34 +49,6 @@ async function addToAssets(itemPaths, token) {
   const octokit = github.getOctokit(token);
 }
 
-async function addToArchive(itemPath, archiveType) {
-
-  const stat = await fs.promises.stat(itemPath);
-  if (!stat.isDirectory()) {
-    return itemPath;
-  }
-
-  const archiveName = `${path.basename(itemPath)}.${archiveType}`;
-  const archivePath = path.join(path.dirname(itemPath), archiveName);
-
-  const output = fs.createWriteStream(archivePath);
-  const archive = archiver(archiveType, { zlib: { level: 9 } });
-
-  output.on("close", () => {
-    console.log(`Archive created: ${archivePath}`);
-  });
-
-  archive.on("error", (err) => {
-    throw new Error(`Archive error: ${err.message}`);
-  });
-
-  archive.pipe(output);
-  archive.directory(itemPath, false);
-
-  await archive.finalize();
-
-  return archivePath;
-}
 
 async function run() {
   try {
