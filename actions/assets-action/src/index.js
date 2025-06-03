@@ -142,10 +142,10 @@ async function run() {
         for (const itemPath of itemPaths) {
             if (!fs.existsSync(itemPath)) {
                 execSync('ls -la');
-                core.warning(`File or folder not found: ${itemPath}`);
+                core.info(`File or folder not found: ${itemPath}`);
             }
 
-            await addToAssets(itemPath);
+            //await addToAssets(itemPath);
         }
 
                 // for (const itemPath of itemPaths) {
