@@ -75,7 +75,7 @@ async function addToArchive(itemPaths, archiveType) {
 
   if (fs.statSync(itemPaths).isDirectory()) {
     const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
-    const archivePath = path.join('dist/' + path.dirname(itemPaths), archiveName);
+    const archivePath = path.join(path.dirname(itemPaths), archiveName);
     const output = fs.createWriteStream(archivePath);
     const archive = archiver(archiveType, { zlib: { level: 9 } });
 
