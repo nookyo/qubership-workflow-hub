@@ -3,7 +3,8 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require("fs");
 const { execSync } = require("child_process");
-const { addToArchive, createDir } = require("./archiveUtils");
+const { addToArchive } = require("./archiveUtils");
+const AssetUploader = require("./assetsUploader");
 
 async function getInput() {
   return {
@@ -51,32 +52,29 @@ async function run() {
   try {
     const token = process.env.GITHUB_TOKEN;
     const input = await getInput();
-
     const { owner, repo } = github.context.repo;
 
-    // const octokit = github.getOctokit(token);
-    // const release = await octokit.rest.repos.getReleaseByTag({
-    //     owner,
-    //     repo,
-    //     tag: input.releaseTag
-    // });
+    if (!owner || !repo) {
+      throw new Error(`Cant get owner/repo from github.context.repository`)
+    }
 
-    // octokit.rest.repos.uploadReleaseAsset({
-    //     owner,
-    //     repo,
-    //     release_id: release.data.id,
-    //     name: 'example.txt', // Здесь нужно указать имя файла, который вы хотите загрузить
-    //     data: fs.createReadStream('path/to/your/file.txt') // Здесь нужно указать путь к файлу
-    // });
-
-    const itemPaths =
-      typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
+    const itemPaths = typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
 
     if (itemPaths.length === 0) {
       throw new Error("No valid file or folder paths provided.");
     }
 
-    console.log(`Item paths: ${itemPaths}`);
+    const assetsUploader = new AssetUploader(token, input.releaseTag, owner, repo);
+    if (!assetsUploader) {
+      throw new Error(`Failed to initialize AssetUploader`);
+    }
+    assetsUploader.init();
+
+    core.info(`AssetsUploader initialized for ${owner}/${repo} with tag ${input.releaseTag}`);
+    core.info(`Using archive type: ${input.archiveType}`);
+
+    core.info(`Item paths: ${itemPaths}`);
+
     for (const itemPath of itemPaths) {
       if (!fs.existsSync(itemPath)) {
         core.info(`File or folder not found: ${itemPath}`);
