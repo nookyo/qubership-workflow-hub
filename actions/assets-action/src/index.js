@@ -145,6 +145,8 @@ async function run() {
                 core.info(`File or folder not found: ${itemPath}`);
             }
 
+            await addToArchive(itemPath, input.archiveType);
+
             //await addToAssets(itemPath);
         }
 
