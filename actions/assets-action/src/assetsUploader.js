@@ -20,8 +20,8 @@ class AssetUploader {
 
     async init() {
         const release = await this.octokit.rest.repos.getReleaseByTag({
-            owner,
-            repo,
+            owner: this.owner,
+            repo: this.repo,
             tag: this.releaseTag,
         });
 
