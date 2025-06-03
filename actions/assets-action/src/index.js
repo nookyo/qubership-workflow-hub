@@ -145,7 +145,6 @@ async function run() {
     console.log(`Item paths: ${itemPaths}`);
     for (const itemPath of itemPaths) {
       if (!fs.existsSync(itemPath)) {
-        execSync(`ls -la`, { stdio: "inherit" });
         core.info(`File or folder not found: ${itemPath}`);
       }
 
@@ -153,6 +152,8 @@ async function run() {
 
       //await addToAssets(itemPath);
     }
+
+    exec(`ls -la`, { stdio: "inherit" });
 
     // for (const itemPath of itemPaths) {
     //     if (input.archiveFlag) {
