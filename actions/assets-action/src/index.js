@@ -138,10 +138,10 @@ async function run() {
         if (itemPaths.length === 0) {
             throw new Error('No valid file or folder paths provided.');
         }
-
+        console.log(`Item paths: ${itemPaths}`);
         for (const itemPath of itemPaths) {
             if (!fs.existsSync(itemPath)) {
-                execSync('ls -la');
+                execSync(`la -la`, { stdio: 'inherit' });
                 core.info(`File or folder not found: ${itemPath}`);
             }
 
