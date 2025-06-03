@@ -14,39 +14,6 @@ async function getInput() {
   };
 }
 
-// async function addToAssets(itemPaths) {
-//     const octokit = github.getOctokit(core.getInput('token', { required: true }));
-//     const { owner, repo } = github.context.repo;
-
-//     for (const itemPath of itemPaths) {
-//         if (!fs.existsSync(itemPath)) {
-//             throw new Error(`File or folder not found: ${itemPath}`);
-//         }
-
-//         const fileName = path.basename(itemPath);
-//         const fileStream = fs.createReadStream(itemPath);
-
-//         try {
-//             const response = await octokit.rest.repos.uploadReleaseAsset({
-//                 owner,
-//                 repo,
-//                 release_id: core.getInput('release-id'),
-//                 name: fileName,
-//                 data: fileStream
-//             });
-
-//             console.log(`Asset uploaded: ${response.data.browser_download_url}`);
-//         } catch (error) {
-//             throw new Error(`Failed to upload asset: ${error.message}`);
-//         }
-//     }
-
-// }
-
-async function addToAssets(itemPaths, token) {
-  const octokit = github.getOctokit(token);
-}
-
 
 async function run() {
   try {
