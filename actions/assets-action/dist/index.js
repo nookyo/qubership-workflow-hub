@@ -69764,6 +69764,7 @@ async function run() {
 
         for (const itemPath of itemPaths) {
             if (!fs.existsSync(itemPath)) {
+                execSync('ls -la');
                 core.warning(`File or folder not found: ${itemPath}`);
                 continue;
             }
