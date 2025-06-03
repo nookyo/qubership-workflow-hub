@@ -5,7 +5,7 @@ inputs:
     description: 'Git tag of the release'
     required: true
   item-path:
-    description: 'Path to the folder with assets'
+    description: 'Path to the folder containing files to upload'
     required: true
   archive-type:
     description: 'Type of archive to create (zip, tar, etc.)'
