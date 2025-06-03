@@ -7,7 +7,7 @@ class AssetUploader {
     constructor(token, releaseTag, owner, repo) {
         this.token = token;
         this.releaseTag = releaseTag;
-        this.octokit = github.
+        this.octokit = github.getOctokit(token);
 
         this.owner = owner || null;
         this.repo = repo || null;
