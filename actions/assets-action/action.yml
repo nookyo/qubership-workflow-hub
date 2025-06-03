@@ -21,4 +21,4 @@ inputs:
     default: "2000"
 runs:
   using: "node20"
-  main: "dist/index.js"
+  main: "src/index.js"
