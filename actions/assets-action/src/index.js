@@ -34,7 +34,11 @@ async function run() {
     if (!assetsUploader) {
       throw new Error(`Failed to initialize AssetUploader`);
     }
-    assetsUploader.init();
+    assetsUploader.init().then(() => {
+      core.info(`AssetUploader initialized for ${owner}/${repo} with tag ${input.releaseTag}`);
+    }).catch((error) => {
+      throw new Error(`Failed to initialize AssetUploader: ${error.message}`)
+    });
 
     core.info(`AssetsUploader initialized for ${owner}/${repo} with tag ${input.releaseTag}`);
     core.info(`Using archive type: ${input.archiveType}`);
