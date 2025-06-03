@@ -9,9 +9,9 @@ class AssetUploader {
         this.releaseTag = releaseTag;
         this.octokit = github.getOctokit(token);
 
-        this.owner = owner || null;
-        this.repo = repo || null;
-        this.releaseId = null;
+        this.owner = owner;
+        this.repo = repo;
+        this.releaseId;
     }
 
     async toString() {
