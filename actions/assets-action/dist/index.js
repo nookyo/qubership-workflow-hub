@@ -69726,9 +69726,9 @@ async function run() {
         const token =  process.env.GITHUB_TOKEN;
         const input = await getInput();
 
-        if ((filePath && folderPath) || (!filePath && !folderPath)) {
-            throw new Error('Please provide either file-path or folder-path, not both.');
-        }
+        // if ((filePath && folderPath) || (!filePath && !folderPath)) {
+        //     throw new Error('Please provide either file-path or folder-path, not both.');
+        // }
 
         const { owner, repo } = github.context.repo;
 
