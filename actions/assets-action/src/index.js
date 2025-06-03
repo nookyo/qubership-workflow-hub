@@ -146,6 +146,7 @@ async function run() {
     for (const itemPath of itemPaths) {
       if (!fs.existsSync(itemPath)) {
         core.info(`File or folder not found: ${itemPath}`);
+        continue; // Пропускаем, если файл или папка не найдены
       }
 
       await addToArchive(itemPath, input.archiveType);
