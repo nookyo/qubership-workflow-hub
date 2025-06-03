@@ -109,21 +109,21 @@ async function run() {
 
         const { owner, repo } = github.context.repo;
 
-        const octokit = github.getOctokit(input.token);
-        const release = await octokit.rest.repos.getReleaseByTag({
-            owner,
-            repo,
-            tag: input.releaseTag
-        });
+        // const octokit = github.getOctokit(token);
+        // const release = await octokit.rest.repos.getReleaseByTag({
+        //     owner,
+        //     repo,
+        //     tag: input.releaseTag
+        // });
 
 
-        octokit.rest.repos.uploadReleaseAsset({
-            owner,
-            repo,
-            release_id: release.data.id,
-            name: 'example.txt', // Здесь нужно указать имя файла, который вы хотите загрузить
-            data: fs.createReadStream('path/to/your/file.txt') // Здесь нужно указать путь к файлу
-        });
+        // octokit.rest.repos.uploadReleaseAsset({
+        //     owner,
+        //     repo,
+        //     release_id: release.data.id,
+        //     name: 'example.txt', // Здесь нужно указать имя файла, который вы хотите загрузить
+        //     data: fs.createReadStream('path/to/your/file.txt') // Здесь нужно указать путь к файлу
+        // });
 
         // const filePaths = input.filePath.split(',').map(p => p.trim()).filter(Boolean);
         // const folderPaths = input.folderPath.split(',').map(p => p.trim()).filter(Boolean);
