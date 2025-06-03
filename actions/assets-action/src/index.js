@@ -8,7 +8,6 @@ const { execSync } = require('child_process');
 
 async function getInput() {
     return {
-        token: core.getInput('token', { required: true }),
         releaseTag: core.getInput('tag', { required: true }),
         // filePath: core.getInput('file-path').trim(),
         // folderPath: core.getInput('folder-path').trim(),
@@ -101,6 +100,7 @@ async function addToArchive(itemPaths, archiveType, token) {
 async function run() {
     try {
 
+        const token =  process.env.GITHUB_TOKEN;
         const input = await getInput();
 
         if ((filePath && folderPath) || (!filePath && !folderPath)) {
