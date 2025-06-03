@@ -3,14 +3,11 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require("fs");
 const { execSync } = require("child_process");
-const { addToArchive } = require("./archiveUtils"); // Assuming archiveUtils.js is in the same directory
+const { addToArchive, createDir } = require("./archiveUtils");
 
 async function getInput() {
   return {
     releaseTag: core.getInput("tag", { required: true }),
-    // filePath: core.getInput('file-path').trim(),
-    // folderPath: core.getInput('folder-path').trim(),
-    // archiveFlag: core.getInput('archive') === 'true',
     archiveType: core.getInput("archive-type").trim() || "zip",
     itemPath: core.getInput("item-path").trim(),
   };
