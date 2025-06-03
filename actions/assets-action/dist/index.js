@@ -69627,6 +69627,7 @@ const github = __nccwpck_require__(5355);
 const fs = __nccwpck_require__(9896);
 const path = __nccwpck_require__(6928);
 const archiver = __nccwpck_require__(1291); // для ZIP
+const { execSync } = __nccwpck_require__(5317);
 
 async function getInput() {
     return {
