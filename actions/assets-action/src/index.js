@@ -71,28 +71,33 @@ async function addToAssets(itemPaths, token) {
   const octokit = github.getOctokit(token);
 }
 
-async function addToArchive(itemPaths, archiveType) {
+async function addToArchive(itemPath, archiveType) {
 
-  if (fs.statSync(itemPaths).isDirectory()) {
-    const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
-    const archivePath = path.join(path.dirname(itemPaths), archiveName);
-    const output = fs.createWriteStream(archivePath);
-    const archive = archiver(archiveType, { zlib: { level: 9 } });
-
-    output.on("close", async () => {
-      console.log(`Archive created: ${archivePath}`);
-    });
-
-    archive.on("error", (err) => {
-      throw new Error(`Archive error: ${err.message}`);
-    });
-
-    archive.pipe(output);
-    archive.directory(itemPaths, false);
-    await archive.finalize();
-
-    // await uploadAsset(archivePath, token);
+  const stat = await fs.promises.stat(itemPath);
+  if (!stat.isDirectory()) {
+    return itemPath;
   }
+
+  const archiveName = `${path.basename(itemPath)}.${archiveType}`;
+  const archivePath = path.join(path.dirname(itemPath), archiveName);
+
+  const output = fs.createWriteStream(archivePath);
+  const archive = archiver(archiveType, { zlib: { level: 9 } });
+
+  output.on("close", () => {
+    console.log(`Archive created: ${archivePath}`);
+  });
+
+  archive.on("error", (err) => {
+    throw new Error(`Archive error: ${err.message}`);
+  });
+
+  archive.pipe(output);
+  archive.directory(itemPath, false);
+
+  await archive.finalize();
+
+  return archivePath;
 }
 
 async function run() {
@@ -130,21 +135,17 @@ async function run() {
     // }
 
     const itemPaths =
-      typeof input.itemPath === "string"
-        ? input.itemPath
-            .split(",")
-            .map((p) => p.trim())
-            .filter(Boolean)
-        : [];
+      typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
 
     if (itemPaths.length === 0) {
       throw new Error("No valid file or folder paths provided.");
     }
+
     console.log(`Item paths: ${itemPaths}`);
     for (const itemPath of itemPaths) {
       if (!fs.existsSync(itemPath)) {
         core.info(`File or folder not found: ${itemPath}`);
-        continue; // Пропускаем, если файл или папка не найдены
+        continue;
       }
 
       await addToArchive(itemPath, input.archiveType);
