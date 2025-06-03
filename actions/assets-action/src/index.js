@@ -1,20 +1,20 @@
 // index.js
-const core = require('@actions/core');
-const github = require('@actions/github');
-const fs = require('fs');
-const path = require('path');
-const archiver = require('archiver'); // для ZIP
-const { execSync } = require('child_process');
+const core = require("@actions/core");
+const github = require("@actions/github");
+const fs = require("fs");
+const path = require("path");
+const archiver = require("archiver"); // для ZIP
+const { execSync } = require("child_process");
 
 async function getInput() {
-    return {
-        releaseTag: core.getInput('tag', { required: true }),
-        // filePath: core.getInput('file-path').trim(),
-        // folderPath: core.getInput('folder-path').trim(),
-        // archiveFlag: core.getInput('archive') === 'true',
-        archiveType: core.getInput('archive-type').trim() || 'zip',
-        itemPath: core.getInput('item-path').trim()
-    };
+  return {
+    releaseTag: core.getInput("tag", { required: true }),
+    // filePath: core.getInput('file-path').trim(),
+    // folderPath: core.getInput('folder-path').trim(),
+    // archiveFlag: core.getInput('archive') === 'true',
+    archiveType: core.getInput("archive-type").trim() || "zip",
+    itemPath: core.getInput("item-path").trim(),
+  };
 }
 
 // async function addToAssets(itemPaths) {
@@ -46,7 +46,6 @@ async function getInput() {
 
 // }
 
-
 // if (fs.statSync(itemPaths).isDirectory()) {
 
 //     const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
@@ -67,121 +66,119 @@ async function getInput() {
 //     archive.directory(itemPaths, false);
 //     await archive.finalize();
 
-
 // }
 async function addToAssets(itemPaths, token) {
-    const octokit = github.getOctokit(token);
+  const octokit = github.getOctokit(token);
 }
 
 async function addToArchive(itemPaths, archiveType) {
-    if (fs.statSync(itemPaths).isDirectory()) {
-        const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
-        const archivePath = path.join(path.dirname(itemPaths), archiveName);
-        const output = fs.createWriteStream(archivePath);
-        const archive = archiver(archiveType, { zlib: { level: 9 } });
 
-        output.on('close', async () => {
-            console.log(`Archive created: ${archivePath}`);
-            await uploadAsset(archivePath, token);
-        });
+  if (fs.statSync(itemPaths).isDirectory()) {
+    const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
+    const archivePath = path.join(path.dirname(itemPaths), archiveName);
+    const output = fs.createWriteStream(archivePath);
+    const archive = archiver(archiveType, { zlib: { level: 9 } });
 
-        archive.on('error', err => {
-            throw new Error(`Archive error: ${err.message}`);
-        });
+    output.on("close", async () => {
+      console.log(`Archive created: ${archivePath}`);
+      // await uploadAsset(archivePath, token);
+    });
 
-        archive.pipe(output);
-        archive.directory(itemPaths, false);
-        await archive.finalize();
+    archive.on("error", (err) => {
+      throw new Error(`Archive error: ${err.message}`);
+    });
 
-        core.info(`Archive created: ${archivePath}`);
-    }
+    archive.pipe(output);
+    archive.directory(itemPaths, false);
+    await archive.finalize();
+
+    core.info(`Archive created: ${archivePath}`);
+  }
 }
 
 async function run() {
-    try {
+  try {
+    const token = process.env.GITHUB_TOKEN;
+    const input = await getInput();
 
-        const token =  process.env.GITHUB_TOKEN;
-        const input = await getInput();
+    // if ((filePath && folderPath) || (!filePath && !folderPath)) {
+    //     throw new Error('Please provide either file-path or folder-path, not both.');
+    // }
 
-        // if ((filePath && folderPath) || (!filePath && !folderPath)) {
-        //     throw new Error('Please provide either file-path or folder-path, not both.');
-        // }
+    const { owner, repo } = github.context.repo;
 
-        const { owner, repo } = github.context.repo;
+    // const octokit = github.getOctokit(token);
+    // const release = await octokit.rest.repos.getReleaseByTag({
+    //     owner,
+    //     repo,
+    //     tag: input.releaseTag
+    // });
 
-        // const octokit = github.getOctokit(token);
-        // const release = await octokit.rest.repos.getReleaseByTag({
-        //     owner,
-        //     repo,
-        //     tag: input.releaseTag
-        // });
+    // octokit.rest.repos.uploadReleaseAsset({
+    //     owner,
+    //     repo,
+    //     release_id: release.data.id,
+    //     name: 'example.txt', // Здесь нужно указать имя файла, который вы хотите загрузить
+    //     data: fs.createReadStream('path/to/your/file.txt') // Здесь нужно указать путь к файлу
+    // });
 
+    // const filePaths = input.filePath.split(',').map(p => p.trim()).filter(Boolean);
+    // const folderPaths = input.folderPath.split(',').map(p => p.trim()).filter(Boolean);
 
-        // octokit.rest.repos.uploadReleaseAsset({
-        //     owner,
-        //     repo,
-        //     release_id: release.data.id,
-        //     name: 'example.txt', // Здесь нужно указать имя файла, который вы хотите загрузить
-        //     data: fs.createReadStream('path/to/your/file.txt') // Здесь нужно указать путь к файлу
-        // });
+    // const iterableItems = filePaths.length > 0 ? filePaths : folderPaths;
+    // if (iterableItems.length === 0) {
+    //     throw new Error('No valid file or folder paths provided.');
+    // }
 
-        // const filePaths = input.filePath.split(',').map(p => p.trim()).filter(Boolean);
-        // const folderPaths = input.folderPath.split(',').map(p => p.trim()).filter(Boolean);
+    const itemPaths =
+      typeof input.itemPath === "string"
+        ? input.itemPath
+            .split(",")
+            .map((p) => p.trim())
+            .filter(Boolean)
+        : [];
 
-        // const iterableItems = filePaths.length > 0 ? filePaths : folderPaths;
-        // if (iterableItems.length === 0) {
-        //     throw new Error('No valid file or folder paths provided.');
-        // }
+    if (itemPaths.length === 0) {
+      throw new Error("No valid file or folder paths provided.");
+    }
+    console.log(`Item paths: ${itemPaths}`);
+    for (const itemPath of itemPaths) {
+      if (!fs.existsSync(itemPath)) {
+        execSync(`ls -la`, { stdio: "inherit" });
+        core.info(`File or folder not found: ${itemPath}`);
+      }
 
-        const itemPaths = typeof input.itemPath === 'string' ? input.itemPath.split(',').map(p => p.trim()).filter(Boolean) : [];
+      await addToArchive(itemPath, input.archiveType);
 
-        if (itemPaths.length === 0) {
-            throw new Error('No valid file or folder paths provided.');
-        }
-        console.log(`Item paths: ${itemPaths}`);
-        for (const itemPath of itemPaths) {
-            if (!fs.existsSync(itemPath)) {
-                execSync(`ls -la`, { stdio: 'inherit' });
-                core.info(`File or folder not found: ${itemPath}`);
-            }
+      //await addToAssets(itemPath);
+    }
 
-            await addToArchive(itemPath, input.archiveType);
+    // for (const itemPath of itemPaths) {
+    //     if (input.archiveFlag) {
+    //         const archiveName = `${path.basename(itemPath)}.${input.archiveType}`;
+    //         const archivePath = path.join(path.dirname(itemPath), archiveName);
+    //         const output = fs.createWriteStream(archivePath);
+    //         const archive = archiver(input.archiveType, { zlib: { level: 9 } });
 
-            //await addToAssets(itemPath);
-        }
+    //         output.on('close', async () => {
+    //             console.log(`Archive created: ${archivePath}`);
+    //             await addToAssets(archivePath);
+    //         });
 
-                // for (const itemPath of itemPaths) {
-                //     if (input.archiveFlag) {
-                //         const archiveName = `${path.basename(itemPath)}.${input.archiveType}`;
-                //         const archivePath = path.join(path.dirname(itemPath), archiveName);
-                //         const output = fs.createWriteStream(archivePath);
-                //         const archive = archiver(input.archiveType, { zlib: { level: 9 } });
+    //         archive.on('error', err => {
+    //             throw new Error(`Archive error: ${err.message}`);
+    //         });
 
-                //         output.on('close', async () => {
-                //             console.log(`Archive created: ${archivePath}`);
-                //             await addToAssets(archivePath);
-                //         });
-
-                //         archive.on('error', err => {
-                //             throw new Error(`Archive error: ${err.message}`);
-                //         });
-
-                //         archive.pipe(output);
-                //         archive.directory(itemPath, false);
-                //         await archive.finalize();
-                //     } else {
-                //         await addToAssets(itemPath);
-                //     }
-                // }
-
-
-
-
-
-
-            } catch (error) {
-                core.setFailed(`Error: ${error.message}`);
-            }
-        }
+    //         archive.pipe(output);
+    //         archive.directory(itemPath, false);
+    //         await archive.finalize();
+    //     } else {
+    //         await addToAssets(itemPath);
+    //     }
+    // }
+  } catch (error) {
+    core.setFailed(`Error: ${error.message}`);
+  }
+}
 
 run();
