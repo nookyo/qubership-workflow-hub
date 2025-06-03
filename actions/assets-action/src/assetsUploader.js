@@ -14,6 +14,10 @@ class AssetUploader {
         this.releaseId = null;
     }
 
+    async toString() {
+        return `AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`;
+    }
+
     async init() {
 
         this.owner = owner;
