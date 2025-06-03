@@ -75,7 +75,7 @@ async function addToArchive(itemPaths, archiveType) {
 
   if (fs.statSync(itemPaths).isDirectory()) {
     const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
-    const archivePath = path.join(path.dirname(itemPaths), archiveName);
+    const archivePath = path.join('dist/' + path.dirname(itemPaths), archiveName);
     const output = fs.createWriteStream(archivePath);
     const archive = archiver(archiveType, { zlib: { level: 9 } });
 
@@ -92,8 +92,6 @@ async function addToArchive(itemPaths, archiveType) {
     await archive.finalize();
 
     // await uploadAsset(archivePath, token);
-
-    core.info(`Archive created: ${archivePath}`);
   }
 }
 
