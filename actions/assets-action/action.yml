@@ -4,7 +4,7 @@ inputs:
   tag:
     description: 'Git tag of the release'
     required: true
-  path:
+  item-path:
     description: 'Path to the folder with assets'
     required: true
   archive-type:

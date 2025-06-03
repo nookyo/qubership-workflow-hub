@@ -9,9 +9,9 @@ async function getInput() {
     return {
         token: core.getInput('token', { required: true }),
         releaseTag: core.getInput('tag', { required: true }),
-        filePath: core.getInput('file-path').trim(),
-        folderPath: core.getInput('folder-path').trim(),
-        archiveFlag: core.getInput('archive') === 'true',
+        // filePath: core.getInput('file-path').trim(),
+        // folderPath: core.getInput('folder-path').trim(),
+        // archiveFlag: core.getInput('archive') === 'true',
         archiveType: core.getInput('archive-type').trim() || 'zip',
         itemPath: core.getInput('item-path').trim()
     };
