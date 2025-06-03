@@ -46,27 +46,6 @@ async function getInput() {
 
 // }
 
-// if (fs.statSync(itemPaths).isDirectory()) {
-
-//     const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
-//     const archivePath = path.join(path.dirname(itemPaths), archiveName);
-//     const output = fs.createWriteStream(archivePath);
-//     const archive = archiver(archiveType, { zlib: { level: 9 } });
-
-//     output.on('close', async () => {
-//         console.log(`Archive created: ${archivePath}`);
-//         await uploadAsset(archivePath, token);
-//     });
-
-//     archive.on('error', err => {
-//         throw new Error(`Archive error: ${err.message}`);
-//     });
-
-//     archive.pipe(output);
-//     archive.directory(itemPaths, false);
-//     await archive.finalize();
-
-// }
 async function addToAssets(itemPaths, token) {
   const octokit = github.getOctokit(token);
 }
@@ -105,10 +84,6 @@ async function run() {
     const token = process.env.GITHUB_TOKEN;
     const input = await getInput();
 
-    // if ((filePath && folderPath) || (!filePath && !folderPath)) {
-    //     throw new Error('Please provide either file-path or folder-path, not both.');
-    // }
-
     const { owner, repo } = github.context.repo;
 
     // const octokit = github.getOctokit(token);
@@ -126,14 +101,6 @@ async function run() {
     //     data: fs.createReadStream('path/to/your/file.txt') // Здесь нужно указать путь к файлу
     // });
 
-    // const filePaths = input.filePath.split(',').map(p => p.trim()).filter(Boolean);
-    // const folderPaths = input.folderPath.split(',').map(p => p.trim()).filter(Boolean);
-
-    // const iterableItems = filePaths.length > 0 ? filePaths : folderPaths;
-    // if (iterableItems.length === 0) {
-    //     throw new Error('No valid file or folder paths provided.');
-    // }
-
     const itemPaths =
       typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
 
@@ -150,34 +117,10 @@ async function run() {
 
       await addToArchive(itemPath, input.archiveType);
 
-      //await addToAssets(itemPath);
     }
 
     execSync(`ls -la`, { stdio: "inherit" });
 
-    // for (const itemPath of itemPaths) {
-    //     if (input.archiveFlag) {
-    //         const archiveName = `${path.basename(itemPath)}.${input.archiveType}`;
-    //         const archivePath = path.join(path.dirname(itemPath), archiveName);
-    //         const output = fs.createWriteStream(archivePath);
-    //         const archive = archiver(input.archiveType, { zlib: { level: 9 } });
-
-    //         output.on('close', async () => {
-    //             console.log(`Archive created: ${archivePath}`);
-    //             await addToAssets(archivePath);
-    //         });
-
-    //         archive.on('error', err => {
-    //             throw new Error(`Archive error: ${err.message}`);
-    //         });
-
-    //         archive.pipe(output);
-    //         archive.directory(itemPath, false);
-    //         await archive.finalize();
-    //     } else {
-    //         await addToAssets(itemPath);
-    //     }
-    // }
   } catch (error) {
     core.setFailed(`Error: ${error.message}`);
   }
