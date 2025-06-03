@@ -73,6 +73,8 @@ async function run() {
     core.info(`AssetsUploader initialized for ${owner}/${repo} with tag ${input.releaseTag}`);
     core.info(`Using archive type: ${input.archiveType}`);
 
+    assetsUploader.toString();
+
     core.info(`Item paths: ${itemPaths}`);
 
     for (const itemPath of itemPaths) {
