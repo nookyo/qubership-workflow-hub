@@ -4,6 +4,7 @@ const github = require('@actions/github');
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver'); // для ZIP
+const { execSync } = require('child_process');
 
 async function getInput() {
     return {
