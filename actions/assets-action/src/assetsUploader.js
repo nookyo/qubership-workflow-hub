@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { github } = require("@actions/github");
+const github = require("@actions/github");
 
 
 class AssetUploader {
