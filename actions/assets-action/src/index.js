@@ -73,7 +73,7 @@ async function addToAssets(itemPaths, token) {
     const octokit = github.getOctokit(token);
 }
 
-async function addToArchive(itemPaths, archiveType, token) {
+async function addToArchive(itemPaths, archiveType) {
     if (fs.statSync(itemPaths).isDirectory()) {
         const archiveName = `${path.basename(itemPaths)}.${archiveType}`;
         const archivePath = path.join(path.dirname(itemPaths), archiveName);
