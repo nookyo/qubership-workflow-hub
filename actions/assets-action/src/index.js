@@ -81,7 +81,6 @@ async function addToArchive(itemPaths, archiveType) {
 
     output.on("close", async () => {
       console.log(`Archive created: ${archivePath}`);
-      // await uploadAsset(archivePath, token);
     });
 
     archive.on("error", (err) => {
@@ -91,6 +90,8 @@ async function addToArchive(itemPaths, archiveType) {
     archive.pipe(output);
     archive.directory(itemPaths, false);
     await archive.finalize();
+
+    // await uploadAsset(archivePath, token);
 
     core.info(`Archive created: ${archivePath}`);
   }
