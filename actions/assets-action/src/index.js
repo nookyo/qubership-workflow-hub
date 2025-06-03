@@ -154,7 +154,7 @@ async function run() {
       //await addToAssets(itemPath);
     }
 
-    exec(`ls -la`, { stdio: "inherit" });
+    execSync(`ls -la`, { stdio: "inherit" });
 
     // for (const itemPath of itemPaths) {
     //     if (input.archiveFlag) {
