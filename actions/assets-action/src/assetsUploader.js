@@ -33,7 +33,7 @@ class AssetUploader {
 
             console.info(`💡 Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
-            console.info(`✔️Asset uploaded successfully: ${fileName}`);
+            console.info(`✔️ Asset uploaded successfully: ${fileName} \n`);
         } catch (err) {
             throw new Error(`Catched error while uploading asset: ${err.message}`);
         }
