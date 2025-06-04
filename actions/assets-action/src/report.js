@@ -1,26 +1,42 @@
+const core = require("@actions/core");
 
-async function showReport(reportSummary) {
+class Report {
+    async writeSummary(items, owner, repo, releaseTag, dryRun = false) {
+        if (!items || items.length === 0) {
+            core.info("❗️No assets uploaded, ничего записывать не нужно.");
+            return;
+        }
 
-    const { owner, repo, releaseTag, items } = reportSummary;
+        const dryRunText = dryRun ? "(Dry Run)" : "";
+        const totalItems = items.length;
 
-    console.info(`\n\n📊 Report Summary:`);
-    console.info(`Owner: ${owner}`);
-    console.info(`Repo: ${repo}`);
-    console.info(`Release Tag: ${releaseTag}`);
-    console.info(`Uploaded Items:`);
+        // Формируем заголовок таблицы
+        const tableData = [
+            [
+                { data: "File Name", header: true },
+                { data: "Archive Path", header: true }
+            ]
+        ];
 
-    if (items.length === 0) {
-        console.info("No items uploaded.");
-        return;
+        items.forEach(({ fileName, itemPath }) => {
+            tableData.push([
+                fileName,
+                itemPath
+            ]);
+        });
+
+        core.summary.addRaw(`## 📦 Asset Uploader Summary ${dryRunText}\n\n`);
+        core.summary.addRaw(`**Repository:** ${owner}/${repo}  \n`);
+        core.summary.addRaw(`**Release Tag:** \`${releaseTag}\`  \n`);
+        core.summary.addRaw(`**Total Assets Uploaded:** ${totalItems}\n\n`);
+        core.summary.addRaw(`---\n\n`);
+
+        core.summary.addTable(tableData);
+
+        core.summary.addRaw(`\n\n✅ Все активные файлы были загружены.\n`);
+
+        await core.summary.write();
     }
-
-    items.forEach((item, index) => {
-        console.info(`${index + 1}. File Name: ${item.fileName}, Item Path: ${item.itemPath}`);
-    });
-
-    console.info(`\n✅ Report completed successfully.`);
-
 }
 
-
-exports.showReport = showReport;
+module.exports = Report;

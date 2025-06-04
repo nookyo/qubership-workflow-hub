@@ -5,7 +5,7 @@ const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
 const path = require("path");
-const report = require("./report");
+const Report = require("./report");
 
 async function getInput() {
   return {
@@ -26,7 +26,7 @@ async function run() {
     const input = await getInput();
     const { owner, repo } = github.context.repo;
 
-    let reportItem = [];
+    let reportItems = [];
 
     if (!owner || !repo) {
       throw new Error(`❗️ Cant get owner/repo from github.context.repository`)
@@ -66,14 +66,14 @@ async function run() {
         delay: input.delay,
         factor: input.factor
       }).then((fileName) => {
-        reportItem.push({ fileName: fileName, itemPath: archivePath, })
+        reportItems.push({ fileName: fileName, itemPath: archivePath, })
       });
 
     }
 
-    const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, items: reportItem };
+    //const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, dryRun: false, items: reportItem };
 
-    await report.showReport(reportSummary);
+    await new Report().writeSummary(reportItems, owner, repo, input.releaseTag, false);
 
     core.info('✅ Action completed successfully!');
   } catch (error) {
