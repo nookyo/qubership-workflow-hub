@@ -14,7 +14,8 @@ async function getInput() {
     itemPath: core.getInput("item-path").trim(),
     retries: parseInt(core.getInput("retries"), 10) || 3,
     delay: parseInt(core.getInput("retry-delay-ms"), 10) || 1000,
-    factor: parseFloat(core.getInput("factor")) || 1
+    factor: parseFloat(core.getInput("factor")) || 1,
+    dryRun: core.getInput("dry-run") === "true"
   };
 }
 
@@ -51,6 +52,7 @@ async function run() {
 
       if (!fs.existsSync(itemPath)) {
         core.info(`⚠️ File or folder not found: ${itemPath}`);
+        reportItems.push({ fileName: null, itemPath, success: false, error: "NotFound" });
         continue;
       }
 
@@ -66,7 +68,9 @@ async function run() {
         delay: input.delay,
         factor: input.factor
       }).then((fileName) => {
-        // reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
+        reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
+      }).catch((error) => {
+        reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
       });
 
     }
