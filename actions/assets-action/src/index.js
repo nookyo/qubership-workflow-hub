@@ -39,9 +39,9 @@ async function run() {
       throw new Error(`❗️ Failed to initialize AssetUploader`);
     }
 
-    core.info(`🔹 Using archive type: ${input.archiveType}`);
+    core.info(`Using archive type: ${input.archiveType}`);
     core.info(await assetsUploader.toString());
-    core.info(`🔹 Items: ${itemsPath}`);
+    core.info(`Items: ${itemsPath}`);
 
     let archivePath = null;
     for (const itemPath of itemsPath) {
@@ -51,7 +51,7 @@ async function run() {
         continue;
       }
 
-      core.info(`🔸 Processing item: ${itemPath}`);
+      // core.info(`🔸 Processing item: ${itemPath}`);
 
       if (fs.statSync(itemPath).isDirectory()) {
         archivePath = await addToArchive(itemPath, input.archiveType);

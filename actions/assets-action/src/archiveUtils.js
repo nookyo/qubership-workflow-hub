@@ -17,18 +17,21 @@ async function addToArchive(itemPath, archiveType) {
     const output = fs.createWriteStream(archivePath);
     const archive = archiver(archiveType, { zlib: { level: 9 } });
 
-    output.on("close", () => {
-        core.info(`Archive created: ${archivePath}`);
-    });
-
-    archive.on("error", (err) => {
-        throw new Error(`Archive error: ${err.message}`);
+    const archiveClosed = new Promise((resolve, reject) => {
+        output.on("close", () => {
+            core.info(`Archive created: ${archivePath}`);
+            resolve();
+        });
+        archive.on("error", (err) => {
+            reject(new Error(`Archive error: ${err.message}`));
+        });
     });
 
     archive.pipe(output);
     archive.directory(itemPath, false);
 
     await archive.finalize();
+    await archiveClosed;
 
     return archivePath;
 }
