@@ -23,7 +23,7 @@ class Report {
             ]
         ];
 
-        const statusCell = '';
+        let statusCell = '';
          items.forEach(({ fileName, itemPath, success, error }) => {
             const displayName = fileName || "-";
             switch (success) {
