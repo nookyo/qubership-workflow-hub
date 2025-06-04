@@ -36,7 +36,7 @@ class AssetUploader {
             console.info(`✔️ Asset uploaded successfully: ${fileName} \n`);
 
         } catch (err) {
-            throw new Error(`Catched error while uploading asset: ${err.message}`);
+            throw err;
         }
     }
 }
