@@ -59,7 +59,7 @@ async function run() {
           fileName: null,
           itemPath,
           success: "NotFound",
-          error: `⚠️ File or folder not found: ${itemPath}`
+          error: `File or folder not found: ${itemPath}`
         });
 
         continue;
@@ -73,13 +73,13 @@ async function run() {
           archivePath = await addToArchive(itemPath, input.archiveType);
 
         } catch (archiveErr) {
-          core.error(`❌ Error packaging ${itemPath}: ${archiveErr.message}`);
+          core.error(`Error packaging ${itemPath}: ${archiveErr.message}`);
 
           reportEntries.push({
             fileName: null,
             itemPath,
             success: "Error",
-            error: `❌ Error packaging ${itemPath}: ${archiveErr.message}`
+            error: `Error packaging ${itemPath}: ${archiveErr.message}`
           });
 
           continue;
@@ -103,13 +103,13 @@ async function run() {
         });
 
       } catch (uploadErr) {
-        core.info(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
+        core.info(`Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
 
         reportEntries.push({
           fileName: path.basename(archivePath),
           itemPath,
           success: "Failed",
-          error: `❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`
+          error: `Failed to upload asset: ${archivePath}. ${uploadErr.message}`
         });
 
       }
@@ -118,6 +118,7 @@ async function run() {
     // Generate the final report (table) and write the Summary
     const report = new Report();
     await report.writeSummary(reportEntries, owner, repo, input.releaseTag);
+
     reportEntries.forEach(element => {
       core.info(`Report Entry: ${JSON.stringify(element)}`);
     });
