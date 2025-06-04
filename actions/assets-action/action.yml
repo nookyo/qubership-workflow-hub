@@ -1,4 +1,4 @@
-name: "Upload Release Assets"
+name: "Upload Assets to Release"
 description: "Upload all files from a folder to a GitHub release using gh CLI"
 inputs:
   tag:
