@@ -24,7 +24,7 @@ class Report {
         ];
 
         const statusCell = '';
-        items.forEach(({ fileName, itemPath, success, error }) => {
+         items.forEach(({ fileName, itemPath, success, error }) => {
             const displayName = fileName || "-";
             switch (success) {
                 case "Success":
