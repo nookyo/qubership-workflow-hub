@@ -18,7 +18,7 @@ inputs:
   retry-delay-ms:
     description: "Delay between retries in milliseconds"
     required: false
-    default: "2000"
+    default: "1000"
   factor:
     description: "Exponential backoff factor for retries"
     required: false
