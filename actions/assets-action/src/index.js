@@ -5,6 +5,7 @@ const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
 const path = require("path");
+const { report } = require("./report");
 
 async function getInput() {
   return {
@@ -18,11 +19,14 @@ async function getInput() {
 }
 
 
+
 async function run() {
   try {
     const token = process.env.GITHUB_TOKEN;
     const input = await getInput();
     const { owner, repo } = github.context.repo;
+
+    let reportItem = [];
 
     if (!owner || !repo) {
       throw new Error(`❗️ Cant get owner/repo from github.context.repository`)
@@ -61,10 +65,14 @@ async function run() {
         retries: input.retries,
         delay: input.delay,
         factor: input.factor
-      })
-        // .then(() => core.info(`Asset uploaded successfully: ${archivePath}`))
-        // .catch((error) => core.setFailed(`❗️ Failed to upload asset: ${error.message}`));
+      }).then((fileName) => {
+        reportItem.push({ fileName: fileName, itemPath: archivePath, })
+      });
+
     }
+
+    const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, items: reportItem };
+    report.showReport(reportSummary);
 
     core.info('✅ Action completed successfully!');
   } catch (error) {
