@@ -5,7 +5,7 @@ const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
 const path = require("path");
-const { report } = require("./report");
+const report = require("./report");
 
 async function getInput() {
   return {
@@ -72,7 +72,8 @@ async function run() {
     }
 
     const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, items: reportItem };
-    report.showReport(reportSummary);
+
+    await report.showReport(reportSummary);
 
     core.info('✅ Action completed successfully!');
   } catch (error) {
