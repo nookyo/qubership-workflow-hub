@@ -53,7 +53,7 @@ async function run() {
       core.info(`🔸 Processing item: ${itemPath}`);
 
       if (!fs.existsSync(itemPath)) {
-        core.info(`⚠️ File or folder not found: ${itemPath} \n Skipping...`);
+        core.info(`⚠️ File or folder not found: ${itemPath} \n Skipping... \n`);
         continue;
       }
 
