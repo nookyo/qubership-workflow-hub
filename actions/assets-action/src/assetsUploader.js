@@ -10,12 +10,12 @@ class AssetUploader {
     }
 
     async toString() {
-        return `AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`;
+        return `ℹ️ AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`;
     }
 
     async upload(assetPath) {
         if (!this.owner || !this.repo || !this.releaseTag) {
-            throw new Error("AssetUploader не инициализирован: нет owner/repo или releaseTag");
+            throw new Error(`❗️ Incorrect initialization of AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`);
         }
 
         const absPath = path.resolve(assetPath);
@@ -30,11 +30,11 @@ class AssetUploader {
                 "--clobber"
             ].join(" ");
 
-            console.info(`Try Uploading asset: ${absPath} to release: ${this.releaseTag} in repo: ${repoArg}`);
+            console.info(`💡 Try Uploading asset: ${absPath} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
-            console.info(`Asset uploaded successfully: ${absPath}`);
+            console.info(`🔸 Asset uploaded successfully: ${absPath}`);
         } catch (err) {
-            throw new Error(`Catched error while uploading asset: ${err.message}`);
+            throw new Error(`❗️ Catched error while uploading asset: ${err.message}`);
         }
     }
 }

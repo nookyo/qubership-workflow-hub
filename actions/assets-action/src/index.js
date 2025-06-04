@@ -25,29 +25,29 @@ async function run() {
     const { owner, repo } = github.context.repo;
 
     if (!owner || !repo) {
-      throw new Error(`Cant get owner/repo from github.context.repository`)
+      throw new Error(`❗️ Cant get owner/repo from github.context.repository`)
     }
 
     const itemsPath = typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
 
     if (itemsPath.length === 0) {
-      throw new Error("No valid file or folder paths provided.");
+      throw new Error("❗️ No valid file or folder paths provided.");
     }
 
     const assetsUploader = new AssetUploader(token, input.releaseTag, owner, repo);
     if (!assetsUploader) {
-      throw new Error(`Failed to initialize AssetUploader`);
+      throw new Error(`❗️ Failed to initialize AssetUploader`);
     }
 
-    core.info(`Using archive type: ${input.archiveType}`);
+    core.info(`🔸 Using archive type: ${input.archiveType}`);
     core.info(await assetsUploader.toString());
-    core.info(`Items path: ${itemsPath}`);
+    core.info(`🔸 Items: ${itemsPath}`);
 
     let archivePath = null;
     for (const itemPath of itemsPath) {
 
       if (!fs.existsSync(itemPath)) {
-        core.info(`File or folder not found: ${itemPath}`);
+        core.info(`⚠️ File or folder not found: ${itemPath}`);
         continue;
       }
 
@@ -58,11 +58,12 @@ async function run() {
         factor: input.factor
       })
         .then(() => core.info(`Asset uploaded successfully: ${archivePath}`))
-        .catch((error) => core.setFailed(`Failed to upload asset: ${error.message}`));
+        .catch((error) => core.setFailed(`❗️ Failed to upload asset: ${error.message}`));
     }
 
+     core.info('✅ Action completed successfully!');
   } catch (error) {
-    core.setFailed(`Error: ${error.message}`);
+    core.setFailed(`❌ Error: ${error.message}`);
   }
 }
 

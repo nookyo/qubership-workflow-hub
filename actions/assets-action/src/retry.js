@@ -12,12 +12,12 @@ const core = require('@actions/core');
             if (retries === 0) {
                 throw error;
             }
-            console.warn(`Retrying due to error: ${error.message}. Retries left: ${retries}. Delay: ${delay}ms`);
+            console.info(`⚠️ Retrying due to error: ${error.message}. Retries left: ${retries}. Delay: ${delay}ms`);
             constDelay *= factor; // Increase delay for next retry
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
-    throw new Error("Unknow error. All retries failed.");
+    throw new Error("❗️ Unknow error. All retries failed.");
 }
 
 exports.retryAsync = retryAsync;
