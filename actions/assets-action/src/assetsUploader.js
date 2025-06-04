@@ -35,8 +35,6 @@ class AssetUploader {
             core.info(`Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
             core.info(`✔️ Asset uploaded successfully: ${fileName} \n`);
-            core.info(``);
-
         } catch (err) {
             throw err;
         }
