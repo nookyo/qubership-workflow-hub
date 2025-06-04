@@ -61,7 +61,7 @@ async function run() {
 
       // If it's a directory, bundle it into an archive first
       let archivePath = itemPath;
-      if (fs.statSync(itemPath).isDirectory()) {
+      if (fs.statSync(itemPath).isDirectory() || fs.existsSync(itemPath)) {
         try {
           archivePath = await addToArchive(itemPath, input.archiveType);
         } catch (archiveErr) {
