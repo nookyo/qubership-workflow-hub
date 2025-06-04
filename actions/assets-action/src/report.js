@@ -5,7 +5,7 @@ class Report {
     async writeSummary(items, owner, repo, releaseTag) {
 
         if (!Array.isArray(items) || items.length === 0) {
-            core.info("❗️No assets processed — нечего добавлять в сводку.");
+            core.info("❗️ No assets processed.");
             return;
         }
 
@@ -24,6 +24,7 @@ class Report {
         ];
 
         let statusCell = '';
+
          items.forEach(({ fileName, itemPath, success, error }) => {
             const displayName = fileName || "-";
             switch (success) {
@@ -36,7 +37,7 @@ class Report {
                 case "NotFound":
                     statusCell = "⚠️ File or folder not found: ${displayName}";
                 default:
-                    statusCell = ` Status unknown for: ${displayName}`;
+                    statusCell = `❗️  Status unknown`;
             }
 
             tableData.push([displayName, itemPath, statusCell]);
