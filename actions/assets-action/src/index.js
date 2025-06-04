@@ -53,7 +53,7 @@ async function run() {
       core.info(`Processing item: ${itemPath}`);
 
       if (!fs.existsSync(itemPath)) {
-        core.info(`⚠️ File or folder not found: ${itemPath} /n`);
+        core.info(`⚠️ File or folder not found: ${itemPath} \n`);
         reportItems.push({ fileName: null, itemPath, success: false, error: "NotFound" });
         continue;
       }
@@ -71,14 +71,14 @@ async function run() {
       }).then((fileName) => {
         reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
       }).catch((error) => {
-        //reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
+        reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
       });
 
     }
 
     //const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, dryRun: false, items: reportItem };
 
-    // await new Report().writeSummary(reportItems, owner, repo, input.releaseTag);
+    await new Report().writeSummary(reportItems, owner, repo, input.releaseTag);
 
     core.info('✅ Action completed successfully!');
   } catch (error) {
