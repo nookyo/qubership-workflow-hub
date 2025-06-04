@@ -39,8 +39,6 @@ async function run() {
       throw new Error(`Failed to initialize AssetUploader`);
     }
 
-    await assetsUploader.init()
-
     core.info(`Using archive type: ${input.archiveType}`);
     core.info(await assetsUploader.toString());
     core.info(`Items path: ${itemsPath}`);

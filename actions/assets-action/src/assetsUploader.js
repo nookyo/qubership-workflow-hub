@@ -1,56 +1,45 @@
-const fs = require("fs");
+const { execSync } = require("child_process");
 const path = require("path");
-const github = require("@actions/github");
-
 
 class AssetUploader {
     constructor(token, releaseTag, owner, repo) {
         this.token = token;
         this.releaseTag = releaseTag;
-        this.octokit = github.getOctokit(token);
-
         this.owner = owner;
         this.repo = repo;
-        this.releaseId;
     }
 
     async toString() {
         return `AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`;
     }
 
-    async init() {
-        const release = await this.octokit.rest.repos.getReleaseByTag({
-            owner: this.owner,
-            repo: this.repo,
-            tag: this.releaseTag,
-        });
-
-        this.releaseId = release.data.id;
-    }
-
     async upload(assetPath) {
-
-        if (!this.owner || !this.repo || !this.releaseId) {
-            throw new Error("AssetUploader has not been initialized. Call init() first.");
+        if (!this.owner || !this.repo || !this.releaseTag) {
+            throw new Error("AssetUploader не инициализирован: нет owner/repo или releaseTag");
         }
 
-        const releaseId = this.releaseId;
-        const assetName = path.basename(assetPath);
+        const absPath = path.resolve(assetPath);
+        const repoArg = `${this.owner}/${this.repo}`;
 
-        await this.octokit.rest.repos.uploadReleaseAsset({
-            owner: this.owner,
-            repo: this.repo,
-            release_id: releaseId,
-            name: assetName,
-        });
+        try {
+            const cmd = [
+                "gh", "release", "upload",
+                this.releaseTag,
+                `"${absPath}"`,
+                "--repo", repoArg,
+                "--clobber"
+            ].join(" ");
+
+            console.info(`Try Uploading asset: ${absPath} to release: ${this.releaseTag} in repo: ${repoArg}`);
+            execSync(cmd, { stdio: "inherit", env: process.env });
+            console.info(`Asset uploaded successfully: ${absPath}`);
+        } catch (err) {
+            throw new Error(`Catched error while uploading asset: ${err.message}`);
+        }
     }
 }
 
-
-
-module.exports = AssetUploader
-
-
+module.exports = AssetUploader;
 
 // async function addToAssets(itemPaths) {
 //     const octokit = github.getOctokit(core.getInput('token', { required: true }));
