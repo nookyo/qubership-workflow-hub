@@ -48,9 +48,9 @@ async function run() {
     core.info(await assetsUploader.toString());
     core.info(`Items: ${itemsPath}`);
 
-
-    core.info(`Processing item: ${itemPath}`);
     for (const itemPath of itemsPath) {
+
+      core.info(`Processing item: ${itemPath}`);
 
       if (!fs.existsSync(itemPath)) {
         core.info(`⚠️ File or folder not found: ${itemPath} /n`);
