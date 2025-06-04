@@ -54,10 +54,10 @@ async function run() {
       core.info(`Processing item: ${itemPath}`);
 
       if (fs.statSync(itemPath).isDirectory()) {
-        archivePath = await addToArchive(itemPath, input.archiveType);
+        itemPath = await addToArchive(itemPath, input.archiveType);
       }
 
-      await retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
+      await retryAsync(async () => Promise.resolve(assetsUploader.upload(itemPath)), {
         retries: input.retries,
         delay: input.delay,
         factor: input.factor
