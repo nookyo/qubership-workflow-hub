@@ -14,7 +14,6 @@ class AssetUploader {
     }
 
     async upload(assetPath) {
-        let reportItem = [];
         if (!this.owner || !this.repo || !this.releaseTag) {
             throw new Error(`❗️ Incorrect initialization of AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`);
         }
