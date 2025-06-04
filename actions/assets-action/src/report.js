@@ -42,7 +42,7 @@ class Report {
                     statusCell = `❗️  Status unknown`;
             }
 
-            tableData.push([displayName, itemPath, statusCell]);
+            tableData.push([displayName, itemPath, statusCell, error || "-"]);
         });
 
         core.summary.addTable(tableData);
