@@ -31,7 +31,7 @@ class Report {
                 case "Success":
                     statusCell = "✅ Uploaded";
                     break;
-                case "Error":
+                case "Failed":
                     statusCell = `❌ Failed: ${error || "unknown error"}`;
                     break;
                 case "NotFound":

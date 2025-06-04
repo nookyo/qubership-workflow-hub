@@ -104,6 +104,14 @@ async function run() {
 
       } catch (uploadErr) {
         core.info(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
+
+        reportEntries.push({
+          fileName: path.basename(archivePath),
+          itemPath,
+          success: "Failed",
+          error: null
+        });
+
       }
     }
 
