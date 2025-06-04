@@ -23,23 +23,21 @@ class Report {
             ]
         ];
 
+        const statusCell = '';
         items.forEach(({ fileName, itemPath, success, error }) => {
             const displayName = fileName || "-";
             switch (success) {
                 case "Success":
-                    core.info(`✔️ Successfully uploaded: ${displayName}`);
+                    statusCell = "✅ Uploaded";
                     break;
-                case "Failed":
-                    core.error(`❌ Failed to upload: ${displayName}. Error: ${error || "unknown error"}`);
+                case "Error":
+                    statusCell = `❌ Failed: ${error || "unknown error"}`;
                     break;
                 case "NotFound":
-                    core.warning(`⚠️ File or folder not found: ${displayName}`);
+                    statusCell = "⚠️ File or folder not found: ${displayName}";
                 default:
-                    core.warning(`⚠️ Status unknown for: ${displayName}`);
+                    statusCell = ` Status unknown for: ${displayName}`;
             }
-            const statusCell = success
-                ? "✅ Uploaded"
-                : `❌ Failed: ${error || "unknown error"}`;
 
             tableData.push([displayName, itemPath, statusCell]);
         });
