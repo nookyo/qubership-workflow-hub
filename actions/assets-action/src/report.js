@@ -33,7 +33,7 @@ class Report {
                     statusCell = "✅ Uploaded";
                     break;
                 case "Failed":
-                    statusCell = `❌ Failed`;
+                    statusCell = `❗️ Failed`;
                     break;
                 case "NotFound":
                     statusCell = "⚠️ NotFound";
