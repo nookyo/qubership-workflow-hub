@@ -49,12 +49,13 @@ async function run() {
     const reportEntries = [];
 
     for (const itemPath of itemsPath) {
+
+      core.info(`🔸 Processing item: ${itemPath}`);
+
       if (!fs.existsSync(itemPath)) {
         core.warning(`⚠️ File or folder not found: ${itemPath}`);
         continue;
       }
-
-      core.info(`🔸 Processing item: ${itemPath}`);
 
       // Default to the item path if not archiving
       let archivePath = itemPath;
