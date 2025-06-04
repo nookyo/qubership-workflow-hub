@@ -32,9 +32,6 @@ class Report {
         });
 
         core.summary.addTable(tableData);
-
-        core.summary.addRaw(`\n\n✅ Report completed. (см. таблицу выше)\n`);
-
         await core.summary.write();
     }
 }
