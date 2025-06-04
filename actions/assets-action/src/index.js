@@ -10,6 +10,9 @@ async function getInput() {
     releaseTag: core.getInput("tag", { required: true }),
     archiveType: core.getInput("archive-type").trim() || "zip",
     itemPath: core.getInput("item-path").trim(),
+    retries: parseInt(core.getInput("retries"), 10) || 3,
+    delay: parseInt(core.getInput("retry-delay-ms"), 10) || 1000,
+    factor: parseFloat(core.getInput("factor")) || 1
   };
 }
 
@@ -41,14 +44,22 @@ async function run() {
     core.info(await assetsUploader.toString());
     core.info(`Items path: ${itemsPath}`);
 
+    let archivePath = null;
     for (const itemPath of itemsPath) {
+
       if (!fs.existsSync(itemPath)) {
         core.info(`File or folder not found: ${itemPath}`);
         continue;
       }
 
-      await addToArchive(itemPath, input.archiveType);
-
+      archivePath = await addToArchive(itemPath, input.archiveType);
+      AssetUploader.retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
+        retries: input.retries,
+        delay: input.delay,
+        factor: input.factor
+      })
+        .then(() => core.info(`Asset uploaded successfully: ${archivePath}`))
+        .catch((error) => core.setFailed(`Failed to upload asset: ${error.message}`));
     }
 
   } catch (error) {

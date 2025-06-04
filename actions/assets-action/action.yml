@@ -19,6 +19,10 @@ inputs:
     description: "Delay between retries in milliseconds"
     required: false
     default: "2000"
+  factor:
+    description: "Exponential backoff factor for retries"
+    required: false
+    default: "1"
 runs:
   using: "node20"
   main: "src/index.js"
