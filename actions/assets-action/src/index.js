@@ -54,11 +54,14 @@ async function run() {
 
       if (!fs.existsSync(itemPath)) {
         core.info(`⚠️ File or folder not found: ${itemPath}. \n Skipping... \n`);
+
         reportEntries.push({
-          fileName: path.basename(itemPath),
+          fileName: null,
           itemPath,
-          success: "NotFound"
+          success: "NotFound",
+          error: `⚠️ File or folder not found: ${itemPath}`
         });
+
         continue;
       }
 
@@ -68,8 +71,24 @@ async function run() {
       if (fs.statSync(itemPath).isDirectory()) {
         try {
           archivePath = await addToArchive(itemPath, input.archiveType);
+
+          reportEntries.push({
+            fileName: path.basename(archivePath),
+            itemPath,
+            success: "Success",
+            error: null
+          });
+
         } catch (archiveErr) {
           core.error(`❌ Error packaging ${itemPath}: ${archiveErr.message}`);
+
+          reportEntries.push({
+            fileName: null,
+            itemPath,
+            success: "Error",
+            error: `❌ Error packaging ${itemPath}: ${archiveErr.message}`
+          });
+
           continue;
         }
       }
