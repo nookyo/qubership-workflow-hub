@@ -53,7 +53,7 @@ async function run() {
     for (const itemPath of itemsPath) {
       if (!fs.existsSync(itemPath)) {
         core.warning(`⚠️ File or folder not found: ${itemPath}`);
-        reportItems.push({ fileName: null, itemPath, success: false, error: "NotFound" });
+        reportItems.push({ fileName: null, itemPath, success: "NotFound", error: "NotFound" });
         continue;
       }
 
@@ -67,7 +67,7 @@ async function run() {
         } catch (archiveErr) {
           core.error(`❌ Error packaging ${itemPath}: ${archiveErr.message}`);
           reportItems.push({
-            fileName: null, itemPath, success: false, error: `Archive Error: ${archiveErr.message}`
+            fileName: null, itemPath, success: "Error", error: `Archive Error: ${archiveErr.message}`
           });
           continue;
         }
@@ -83,7 +83,7 @@ async function run() {
             factor: input.factor
           }
         );
-        reportItems.push({ fileName, itemPath: archivePath, success: true });
+        reportItems.push({ fileName, itemPath: archivePath, success: "Success" });
       } catch (uploadErr) {
         core.error(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
         reportItems.push({ fileName: null, itemPath: archivePath, success: false, error: uploadErr.message });
@@ -93,6 +93,7 @@ async function run() {
     // Generate the final report (table) and write the Summary
     const report = new Report();
     await report.writeSummary(reportItems, owner, repo, input.releaseTag);
+
 
     core.info("✅ Action completed successfully!");
   } catch (err) {
