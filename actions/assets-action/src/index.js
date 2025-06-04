@@ -48,15 +48,16 @@ async function run() {
     core.info(await assetsUploader.toString());
     core.info(`Items: ${itemsPath}`);
 
+
+    core.info(`Processing item: ${itemPath}`);
     for (const itemPath of itemsPath) {
 
       if (!fs.existsSync(itemPath)) {
-        core.info(`⚠️ File or folder not found: ${itemPath}`);
-        // reportItems.push({ fileName: null, itemPath, success: false, error: "NotFound" });
+        core.info(`⚠️ File or folder not found: ${itemPath} /n`);
+        reportItems.push({ fileName: null, itemPath, success: false, error: "NotFound" });
         continue;
       }
 
-      core.info(`Processing item: ${itemPath}`);
 
       let archivePath = itemPath;
       if (fs.statSync(itemPath).isDirectory()) {
@@ -68,7 +69,7 @@ async function run() {
         delay: input.delay,
         factor: input.factor
       }).then((fileName) => {
-        //reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
+        reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
       }).catch((error) => {
         //reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
       });
