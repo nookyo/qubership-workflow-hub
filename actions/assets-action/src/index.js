@@ -1,7 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require("fs");
-const { execSync } = require("child_process");
 const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
@@ -54,7 +53,7 @@ async function run() {
 
       core.info(`🔸 Processing item: ${itemPath}`);
 
-      if (path.isfolder(itemPath)) {
+      if (fs.statSync(itemPath).isDirectory()) {
         archivePath = await addToArchive(itemPath, input.archiveType);
       }
 
