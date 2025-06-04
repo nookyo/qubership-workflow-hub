@@ -51,7 +51,7 @@ async function run() {
         continue;
       }
 
-      // core.info(`🔸 Processing item: ${itemPath}`);
+      core.info(`Processing item: ${itemPath}`);
 
       if (fs.statSync(itemPath).isDirectory()) {
         archivePath = await addToArchive(itemPath, input.archiveType);
