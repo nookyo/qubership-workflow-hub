@@ -27,29 +27,26 @@ async function run() {
     const { owner, repo } = github.context.repo;
 
     if (!owner || !repo) {
-      throw new Error("❗️Failed to get owner/repo from github.context.repository");
+      throw new Error("❗️ Failed to get owner/repo from github.context.repository");
     }
 
     // Split itemPath into an array of paths (comma-separated)
-    const itemsPath = input.itemPath
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
+    const itemsPath = input.itemPath.split(",").map((p) => p.trim()).filter(Boolean);
 
     if (itemsPath.length === 0) {
-      throw new Error("❗️No file or folder paths provided for processing");
+      throw new Error("❗️ No file or folder paths provided for processing");
     }
 
     const assetsUploader = new AssetUploader(token, input.releaseTag, owner, repo);
     if (!assetsUploader) {
-      throw new Error("❗️Failed to initialize AssetUploader");
+      throw new Error("❗️ Failed to initialize AssetUploader");
     }
 
     core.info(`🔹 Using archive type: ${input.archiveType}`);
     core.info(`🔹 Items to process: ${itemsPath.join(", ")}`);
 
     // Collect information for the final report
-    const reportItems = [];
+    const reportEntries = [];
 
     for (const itemPath of itemsPath) {
       if (!fs.existsSync(itemPath)) {
@@ -59,9 +56,10 @@ async function run() {
 
       core.info(`🔸 Processing item: ${itemPath}`);
 
-      // If it's a directory, bundle it into an archive first
+      // Default to the item path if not archiving
       let archivePath = itemPath;
-      if (fs.statSync(itemPath).isDirectory() || ) {
+
+      if (fs.statSync(itemPath).isDirectory()) {
         try {
           archivePath = await addToArchive(itemPath, input.archiveType);
         } catch (archiveErr) {
