@@ -1,10 +1,11 @@
+// actions/assets-action/src/index.js
 const core = require("@actions/core");
 const github = require("@actions/github");
 const fs = require("fs");
+const path = require("path");
 const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
-const path = require("path");
 const Report = require("./report");
 
 async function getInput() {
@@ -19,70 +20,100 @@ async function getInput() {
   };
 }
 
-
-
 async function run() {
   try {
     const token = process.env.GITHUB_TOKEN;
     const input = await getInput();
     const { owner, repo } = github.context.repo;
 
-    let reportItems = [];
-
     if (!owner || !repo) {
-      throw new Error(`❗️ Cant get owner/repo from github.context.repository`)
+      throw new Error("❗️Failed to get owner/repo from github.context.repository");
     }
 
-    const itemsPath = typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
+    // Split itemPath into an array of paths (comma-separated)
+    const itemsPath = input.itemPath
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
 
     if (itemsPath.length === 0) {
-      throw new Error("❗️ No valid file or folder paths provided.");
+      throw new Error("❗️No file or folder paths provided for processing");
     }
 
     const assetsUploader = new AssetUploader(token, input.releaseTag, owner, repo);
     if (!assetsUploader) {
-      throw new Error(`❗️ Failed to initialize AssetUploader`);
+      throw new Error("❗️Failed to initialize AssetUploader");
     }
 
-    core.info(`Using archive type: ${input.archiveType}`);
-    core.info(await assetsUploader.toString());
-    core.info(`Items: ${itemsPath}`);
+    core.info(`🔹 Using archive type: ${input.archiveType}`);
+    core.info(`🔹 Items to process: ${itemsPath.join(", ")}`);
 
+    // Collect information for the final report
+    const reportItems = [];
     for (const itemPath of itemsPath) {
-
-      core.info(`Processing item: ${itemPath}`);
-
       if (!fs.existsSync(itemPath)) {
-        core.info(`⚠️ File or folder not found: ${itemPath} \n`);
-        reportItems.push({ fileName: null, itemPath, success: false, error: "NotFound" });
+        core.warning(`⚠️ File or folder not found: ${itemPath}`);
+        reportItems.push({
+          fileName: null,
+          itemPath,
+          success: false,
+          error: "NotFound"
+        });
         continue;
       }
 
+      core.info(`🔸 Processing item: ${itemPath}`);
 
+      // If it's a directory, bundle it into an archive first
       let archivePath = itemPath;
       if (fs.statSync(itemPath).isDirectory()) {
-        archivePath = await addToArchive(itemPath, input.archiveType);
+        try {
+          archivePath = await addToArchive(itemPath, input.archiveType);
+        } catch (archiveErr) {
+          core.error(`❌ Error packaging ${itemPath}: ${archiveErr.message}`);
+          reportItems.push({
+            fileName: null,
+            itemPath,
+            success: false,
+            error: `ArchiveError: ${archiveErr.message}`
+          });
+          continue;
+        }
       }
 
-      await retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
-        retries: input.retries,
-        delay: input.delay,
-        factor: input.factor
-      }).then((fileName) => {
-        reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
-      }).catch((error) => {
-        // reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
-      });
-
+      // Attempt to upload the archive or file
+      try {
+        const fileName = await retryAsync(
+          () => Promise.resolve(assetsUploader.upload(archivePath)),
+          {
+            retries: input.retries,
+            delay: input.delay,
+            factor: input.factor
+          }
+        );
+        reportItems.push({
+          fileName,
+          itemPath: archivePath,
+          success: true
+        });
+      } catch (uploadErr) {
+        core.error(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
+        reportItems.push({
+          fileName: null,
+          itemPath: archivePath,
+          success: false,
+          error: uploadErr.message
+        });
+      }
     }
 
-    //const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, dryRun: false, items: reportItem };
+    // Generate the final report (table) and write the Summary
+    const report = new Report();
+    await report.writeSummary(reportItems, owner, repo, input.releaseTag);
 
-    await new Report().writeSummary(reportItems, owner, repo, input.releaseTag);
-
-    core.info('✅ Action completed successfully!');
-  } catch (error) {
-    core.setFailed(`❌ Error: ${error.message}`);
+    core.info("✅ Action completed successfully!");
+  } catch (err) {
+    core.setFailed(`❌ Error: ${err.message}`);
   }
 }
 
