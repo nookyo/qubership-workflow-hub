@@ -72,13 +72,6 @@ async function run() {
         try {
           archivePath = await addToArchive(itemPath, input.archiveType);
 
-          reportEntries.push({
-            fileName: path.basename(archivePath),
-            itemPath,
-            success: "Success",
-            error: null
-          });
-
         } catch (archiveErr) {
           core.error(`❌ Error packaging ${itemPath}: ${archiveErr.message}`);
 
@@ -101,6 +94,14 @@ async function run() {
             delay: input.delay,
             factor: input.factor
           });
+
+        reportEntries.push({
+          fileName: path.basename(archivePath),
+          itemPath,
+          success: "Success",
+          error: null
+        });
+
       } catch (uploadErr) {
         core.info(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
       }
