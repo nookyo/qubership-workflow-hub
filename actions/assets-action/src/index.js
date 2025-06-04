@@ -43,9 +43,9 @@ async function run() {
     core.info(await assetsUploader.toString());
     core.info(`Items: ${itemsPath}`);
 
-    let archivePath = null;
     for (const itemPath of itemsPath) {
 
+      let archivePath = itemPath
       if (!fs.existsSync(itemPath)) {
         core.info(`⚠️ File or folder not found: ${itemPath}`);
         continue;
@@ -54,7 +54,7 @@ async function run() {
       core.info(`Processing item: ${itemPath}`);
 
       if (fs.statSync(itemPath).isDirectory()) {
-        itemPath = await addToArchive(itemPath, input.archiveType);
+        archivePath = await addToArchive(itemPath, input.archiveType);
       }
 
       await retryAsync(async () => Promise.resolve(assetsUploader.upload(itemPath)), {
