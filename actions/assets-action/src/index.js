@@ -53,8 +53,12 @@ async function run() {
       core.info(`🔸 Processing item: ${itemPath}`);
 
       if (!fs.existsSync(itemPath)) {
-        core.info(`⚠️ File or folder not found: ${itemPath}. \n Skipping... `);
-        core.info(``);
+        core.info(`⚠️ File or folder not found: ${itemPath}. \n Skipping... \n`);
+        reportEntries.push({
+          fileName: path.basename(itemPath),
+          itemPath,
+          success: "NotFound"
+        });
         continue;
       }
 
@@ -86,7 +90,9 @@ async function run() {
     // Generate the final report (table) and write the Summary
     // const report = new Report();
     // await report.writeSummary(reportItems, owner, repo, input.releaseTag);
-
+    reportEntries.forEach(element => {
+      core.info(`Report Entry: ${JSON.stringify(element)}`);
+    });
 
     core.info("✅ Action completed successfully!");
   } catch (err) {
