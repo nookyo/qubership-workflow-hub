@@ -31,7 +31,7 @@ class AssetUploader {
                 "--clobber"
             ].join(" ");
 
-            console.info(`💡 Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
+            console.info(`Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
             console.info(`✔️ Asset uploaded successfully: ${fileName} \n`);
         } catch (err) {
