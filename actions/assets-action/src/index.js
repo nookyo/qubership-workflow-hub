@@ -57,7 +57,7 @@ async function run() {
         archivePath = await addToArchive(itemPath, input.archiveType);
       }
 
-      await retryAsync(async () => Promise.resolve(assetsUploader.upload(itemPath)), {
+      await retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
         retries: input.retries,
         delay: input.delay,
         factor: input.factor
