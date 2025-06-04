@@ -4,6 +4,7 @@ const fs = require("fs");
 const { execSync } = require("child_process");
 const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
+const { retryAsync } = require("./retry");
 
 async function getInput() {
   return {
@@ -53,7 +54,7 @@ async function run() {
       }
 
       archivePath = await addToArchive(itemPath, input.archiveType);
-      AssetUploader.retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
+      retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
         retries: input.retries,
         delay: input.delay,
         factor: input.factor
