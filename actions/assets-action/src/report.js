@@ -9,7 +9,7 @@ class Report {
             return;
         }
 
-        core.summary.addRaw(`## 📊 Report Summary\n\n`);
+        core.summary.addRaw(`## 🧪 Report Summary\n\n`);
         core.summary.addRaw(`**Owner:** ${owner}  \n`);
         core.summary.addRaw(`**Repo:** ${repo}  \n`);
         core.summary.addRaw(`**Release Tag:** \`${releaseTag}\`  \n\n`);
