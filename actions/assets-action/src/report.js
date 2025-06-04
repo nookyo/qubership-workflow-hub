@@ -19,7 +19,8 @@ class Report {
             [
                 { data: "File Name", header: true },
                 { data: "Item Path", header: true },
-                { data: "Status", header: true }
+                { data: "Status", header: true },
+                { data: "Error", header: true }
             ]
         ];
 
@@ -32,7 +33,7 @@ class Report {
                     statusCell = "✅ Uploaded";
                     break;
                 case "Failed":
-                    statusCell = `❌ Failed: ${error || "unknown error"}`;
+                    statusCell = `❌ Failed`;
                     break;
                 case "NotFound":
                     statusCell = "⚠️ File or folder not found: ${displayName}";
