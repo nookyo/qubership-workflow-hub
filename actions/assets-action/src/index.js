@@ -62,7 +62,7 @@ async function run() {
         delay: input.delay,
         factor: input.factor
       })
-        .then(() => core.info(`Asset uploaded successfully: ${archivePath}`))
+        // .then(() => core.info(`Asset uploaded successfully: ${archivePath}`))
         .catch((error) => core.setFailed(`❗️ Failed to upload asset: ${error.message}`));
     }
 
