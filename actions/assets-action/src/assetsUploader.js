@@ -10,7 +10,7 @@ class AssetUploader {
     }
 
     async toString() {
-        return `ℹ️ AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`;
+        return `AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`;
     }
 
     async upload(assetPath) {
@@ -33,7 +33,7 @@ class AssetUploader {
 
             console.info(`💡 Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
-            console.info(`🔸 Asset uploaded successfully: ${absPath}`);
+            console.info(`✔️Asset uploaded successfully: ${absPath}`);
         } catch (err) {
             throw new Error(`Catched error while uploading asset: ${err.message}`);
         }
