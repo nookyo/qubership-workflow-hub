@@ -3,6 +3,7 @@ const core = require("@actions/core");
 class Report {
 
     async writeSummary(items, owner, repo, releaseTag) {
+
         if (!Array.isArray(items) || items.length === 0) {
             core.info("❗️No assets processed — нечего добавлять в сводку.");
             return;
