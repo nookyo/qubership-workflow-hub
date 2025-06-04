@@ -39,8 +39,6 @@ class AssetUploader {
         } catch (err) {
             throw new Error(`Catched error while uploading asset: ${err.message}`);
         }
-
-        return fileName;
     }
 }
 
