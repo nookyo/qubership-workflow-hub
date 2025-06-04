@@ -53,7 +53,7 @@ async function run() {
     for (const itemPath of itemsPath) {
       if (!fs.existsSync(itemPath)) {
         core.warning(`⚠️ File or folder not found: ${itemPath}`);
-        reportItems.push({ fileName: null, itemPath, success: "NotFound", error: "NotFound" });
+        reportItems.push({ fileName: null, itemPath, success: "NotFound", error: "File or folder not found" });
         continue;
       }
 
