@@ -45,7 +45,6 @@ async function run() {
 
     for (const itemPath of itemsPath) {
 
-      let archivePath = itemPath
       if (!fs.existsSync(itemPath)) {
         core.info(`⚠️ File or folder not found: ${itemPath}`);
         continue;
@@ -53,6 +52,7 @@ async function run() {
 
       core.info(`Processing item: ${itemPath}`);
 
+      let archivePath = itemPath;
       if (fs.statSync(itemPath).isDirectory()) {
         archivePath = await addToArchive(itemPath, input.archiveType);
       }
