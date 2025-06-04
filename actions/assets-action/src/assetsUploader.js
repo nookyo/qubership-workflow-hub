@@ -18,6 +18,7 @@ class AssetUploader {
             throw new Error(`❗️ Incorrect initialization of AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`);
         }
 
+        const fileName = path.basename(assetPath);
         const absPath = path.resolve(assetPath);
         const repoArg = `${this.owner}/${this.repo}`;
 
@@ -30,11 +31,11 @@ class AssetUploader {
                 "--clobber"
             ].join(" ");
 
-            console.info(`💡 Try Uploading asset: ${absPath} to release: ${this.releaseTag} in repo: ${repoArg}`);
+            console.info(`💡 Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
             console.info(`🔸 Asset uploaded successfully: ${absPath}`);
         } catch (err) {
-            throw new Error(`❗️ Catched error while uploading asset: ${err.message}`);
+            throw new Error(`Catched error while uploading asset: ${err.message}`);
         }
     }
 }
