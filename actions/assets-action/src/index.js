@@ -86,7 +86,7 @@ async function run() {
         reportItems.push({ fileName, itemPath: archivePath, success: "Success" });
       } catch (uploadErr) {
         core.error(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
-        reportItems.push({ fileName: null, itemPath: archivePath, success: false, error: uploadErr.message });
+        reportItems.push({ fileName: null, itemPath: archivePath, success: "Error", error: uploadErr.message });
       }
     }
 
