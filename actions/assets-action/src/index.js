@@ -99,7 +99,7 @@ async function run() {
           fileName: path.basename(archivePath),
           itemPath,
           success: "Success",
-          error: null
+          error: ''
         });
 
       } catch (uploadErr) {
@@ -109,7 +109,7 @@ async function run() {
           fileName: path.basename(archivePath),
           itemPath,
           success: "Failed",
-          error: null
+          error: `❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`
         });
 
       }
