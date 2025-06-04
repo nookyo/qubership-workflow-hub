@@ -13,7 +13,7 @@ class Report {
         const tableData = [
             [
                 { data: "File Name", header: true },
-                { data: "Archive Path", header: true }
+                { data: "Archive Path", header: true },
                 { data: "Status", header: true }
             ]
         ];
