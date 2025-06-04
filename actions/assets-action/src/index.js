@@ -5,6 +5,7 @@ const { execSync } = require("child_process");
 const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
+const path = require("path");
 
 async function getInput() {
   return {
@@ -51,7 +52,12 @@ async function run() {
         continue;
       }
 
-      archivePath = await addToArchive(itemPath, input.archiveType);
+      core.info(`🔸 Processing item: ${itemPath}`);
+
+      if (path.isfolder(itemPath)) {
+        archivePath = await addToArchive(itemPath, input.archiveType);
+      }
+
       await retryAsync(async () => Promise.resolve(assetsUploader.upload(archivePath)), {
         retries: input.retries,
         delay: input.delay,
@@ -61,7 +67,7 @@ async function run() {
         .catch((error) => core.setFailed(`❗️ Failed to upload asset: ${error.message}`));
     }
 
-     core.info('✅ Action completed successfully!');
+    core.info('✅ Action completed successfully!');
   } catch (error) {
     core.setFailed(`❌ Error: ${error.message}`);
   }
