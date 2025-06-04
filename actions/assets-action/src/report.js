@@ -17,7 +17,7 @@ class Report {
 
         const tableData = [
             [
-                { data: "Original Item", header: true },
+                { data: "Item", header: true },
                 { data: "Asset", header: true },
                 { data: "Status", header: true },
                 { data: "Message", header: true }
