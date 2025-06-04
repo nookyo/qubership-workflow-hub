@@ -1,5 +1,6 @@
 const { execSync } = require("child_process");
 const path = require("path");
+const core = require("@actions/core");
 
 class AssetUploader {
     constructor(token, releaseTag, owner, repo) {
@@ -31,9 +32,10 @@ class AssetUploader {
                 "--clobber"
             ].join(" ");
 
-            console.info(`Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
+            core.info(`Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
             execSync(cmd, { stdio: "inherit", env: process.env });
-            console.info(`✔️ Asset uploaded successfully: ${fileName} \n`);
+            core.info(`✔️ Asset uploaded successfully: ${fileName} \n`);
+            core.info(``);
 
         } catch (err) {
             throw err;
