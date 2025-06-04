@@ -72,14 +72,12 @@ async function run() {
 
       // Attempt to upload the archive or file
       try {
-        const fileName = await retryAsync(
-          () => Promise.resolve(assetsUploader.upload(archivePath)),
+        await retryAsync(() => Promise.resolve(assetsUploader.upload(archivePath)),
           {
             retries: input.retries,
             delay: input.delay,
             factor: input.factor
-          }
-        );
+          });
       } catch (uploadErr) {
         core.info(`❌ Failed to upload asset: ${archivePath}. ${uploadErr.message}`);
       }
