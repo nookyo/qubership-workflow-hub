@@ -36,7 +36,8 @@ class Report {
                     statusCell = `❌ Failed`;
                     break;
                 case "NotFound":
-                    statusCell = "⚠️ File or folder not found: ${displayName}";
+                    statusCell = "⚠️ NotFound";
+                    break;
                 default:
                     statusCell = `❗️  Status unknown`;
             }
