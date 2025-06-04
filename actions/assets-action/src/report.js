@@ -17,16 +17,16 @@ class Report {
 
         const tableData = [
             [
-                { data: "File Name", header: true },
-                { data: "Item Path", header: true },
+                { data: "Original Item", header: true },
+                { data: "Asset", header: true },
                 { data: "Status", header: true },
-                { data: "Error", header: true }
+                { data: "Message", header: true }
             ]
         ];
 
         let statusCell = '';
 
-         items.forEach(({ fileName, itemPath, success, error }) => {
+         items.forEach(({ itemPath, fileName, success, error }) => {
             const displayName = fileName || "-";
             switch (success) {
                 case "Success":
