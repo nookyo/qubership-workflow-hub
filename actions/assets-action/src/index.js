@@ -71,7 +71,7 @@ async function run() {
       }).then((fileName) => {
         reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath).toString(), status: "✅" });
       }).catch((error) => {
-        reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
+        // reportItems.push({ fileName: path.basename(archivePath), itemPath: path.relative(archivePath).toString(), success: false, error: error.message });
       });
 
     }
