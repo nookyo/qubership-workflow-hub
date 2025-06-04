@@ -73,7 +73,7 @@ async function run() {
 
     //const reportSummary = { owner: owner, repo: repo, releaseTag: input.releaseTag, dryRun: false, items: reportItem };
 
-    await new Report().writeSummary(reportItems, owner, repo, input.releaseTag, false);
+    await new Report().writeSummary(reportItems, owner, repo, input.releaseTag);
 
     core.info('✅ Action completed successfully!');
   } catch (error) {

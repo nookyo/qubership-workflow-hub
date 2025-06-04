@@ -10,7 +10,6 @@ class Report {
         const dryRunText = dryRun ? "(Dry Run)" : "";
         const totalItems = items.length;
 
-        // Формируем заголовок таблицы
         const tableData = [
             [
                 { data: "File Name", header: true },
@@ -25,15 +24,13 @@ class Report {
             ]);
         });
 
-        core.summary.addRaw(`## 📦 Asset Uploader Summary ${dryRunText}\n\n`);
+        core.summary.addRaw(`## 🧪 Asset Uploader Summary ${dryRunText}\n\n`);
         core.summary.addRaw(`**Repository:** ${owner}/${repo}  \n`);
         core.summary.addRaw(`**Release Tag:** \`${releaseTag}\`  \n`);
         core.summary.addRaw(`**Total Assets Uploaded:** ${totalItems}\n\n`);
         core.summary.addRaw(`---\n\n`);
 
         core.summary.addTable(tableData);
-
-        core.summary.addRaw(`\n\n✅ Все активные файлы были загружены.\n`);
 
         await core.summary.write();
     }
