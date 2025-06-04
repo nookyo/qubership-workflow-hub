@@ -24,9 +24,9 @@ async function run() {
       throw new Error(`Cant get owner/repo from github.context.repository`)
     }
 
-    const itemPaths = typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
+    const itemsPath = typeof input.itemPath === "string" ? input.itemPath.split(",").map((p) => p.trim()).filter(Boolean) : [];
 
-    if (itemPaths.length === 0) {
+    if (itemsPath.length === 0) {
       throw new Error("No valid file or folder paths provided.");
     }
 
@@ -34,16 +34,14 @@ async function run() {
     if (!assetsUploader) {
       throw new Error(`Failed to initialize AssetUploader`);
     }
+
     await assetsUploader.init()
 
-    core.info(`AssetsUploader initialized for ${owner}/${repo} with tag ${input.releaseTag}`);
     core.info(`Using archive type: ${input.archiveType}`);
-
     core.info(await assetsUploader.toString());
+    core.info(`Items path: ${itemsPath}`);
 
-    core.info(`Item paths: ${itemPaths}`);
-
-    for (const itemPath of itemPaths) {
+    for (const itemPath of itemsPath) {
       if (!fs.existsSync(itemPath)) {
         core.info(`File or folder not found: ${itemPath}`);
         continue;
@@ -52,8 +50,6 @@ async function run() {
       await addToArchive(itemPath, input.archiveType);
 
     }
-
-    execSync(`ls -la`, { stdio: "inherit" });
 
   } catch (error) {
     core.setFailed(`Error: ${error.message}`);
