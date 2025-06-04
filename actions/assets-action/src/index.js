@@ -116,7 +116,7 @@ async function run() {
     }
 
     // Generate the final report (table) and write the Summary
-    // const report = new Report();
+    const report = new Report();
     await report.writeSummary(reportEntries, owner, repo, input.releaseTag);
     reportEntries.forEach(element => {
       core.info(`Report Entry: ${JSON.stringify(element)}`);
