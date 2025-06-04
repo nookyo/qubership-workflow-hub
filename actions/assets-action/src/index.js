@@ -66,7 +66,7 @@ async function run() {
         delay: input.delay,
         factor: input.factor
       }).then((fileName) => {
-        reportItems.push({ fileName: fileName, itemPath: archivePath, })
+        reportItems.push({ fileName: fileName, itemPath: path.relative(archivePath), status: "✔️" });
       });
 
     }
