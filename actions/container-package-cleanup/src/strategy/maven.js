@@ -3,7 +3,7 @@ class MavenStrategy {
         this.name = 'ContainerStrategy';
     }
 
-    async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+    async  (packagesWithVersions, excludedTags, includedTags, thresholdDate) {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
         // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 

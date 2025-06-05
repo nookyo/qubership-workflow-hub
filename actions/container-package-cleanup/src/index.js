@@ -132,15 +132,6 @@ async function run() {
   await showReport(filteredPackagesWithVersionsForDelete);
 }
 
-// function wildcardMatch(tag, pattern) {
-//   if (!pattern.includes('*')) {
-//     return tag.toLowerCase() === pattern.toLowerCase();
-//   }
-//   const escapedPattern = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
-//   const regex = new RegExp(escapedPattern.replace(/\*/g, '.*'), 'i');
-//   return regex.test(tag);
-// }
-
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
   await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
   core.info("✅ All specified versions have been deleted successfully.");
