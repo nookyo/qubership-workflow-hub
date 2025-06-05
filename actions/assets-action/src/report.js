@@ -30,7 +30,7 @@ class Report {
             const displayName = fileName || "-";
             switch (success) {
                 case "Success":
-                    statusCell = "✅ Uploaded";
+                    statusCell = "✔️ Uploaded";
                     break;
                 case "Failed":
                     statusCell = `❗️ Failed`;
@@ -39,7 +39,7 @@ class Report {
                     statusCell = "⚠️ NotFound";
                     break;
                 default:
-                    statusCell = `❗️  Status unknown`;
+                    statusCell = `❗️ Status unknown`;
             }
 
             tableData.push([itemPath, displayName, statusCell, error || "-"]);
