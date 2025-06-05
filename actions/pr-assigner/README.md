@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: PR Auto-Assignment
-        uses: netcracker/qubership-workflow-hub/actions/pr-assigner@main
+        uses: netcracker/qubership-workflow-hub/actions/pr-assigner@v1.0.3
         with:
           configuration-path: ".github/pr-assigner-config.yml"
           shuffle: 2
