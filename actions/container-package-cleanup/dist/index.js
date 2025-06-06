@@ -29967,7 +29967,7 @@ module.exports = Report;
 /***/ 2245:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const WildCard = __nccwpck_require__(9242);
+const WildcardMatcher = __nccwpck_require__(9242);
 
 class ContainerStrategy {
     constructor() {
@@ -29976,7 +29976,7 @@ class ContainerStrategy {
 
     async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
 
-        const wildcard = new WildCard();
+        const wildcardMatcher = new WildcardMatcher();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
@@ -29988,7 +29988,7 @@ class ContainerStrategy {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
 
-                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcard.WildCardwildcardMatch(tag, pattern)))) {
+                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatcher.match(tag, pattern)))) {
                     return false;
                 }
                 return true;
@@ -29997,7 +29997,7 @@ class ContainerStrategy {
             const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
                 if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
                 const tags = version.metadata.container.tags;
-                return tags.some(tag => includedTags.some(pattern => wildcard.wildcardMatch(tag, pattern)));
+                return tags.some(tag => includedTags.some(pattern => wildcardMatcher.match(tag, pattern)));
             }) : verisonWithOutExclude;
 
             const customPackage = {
@@ -30026,7 +30026,7 @@ class MavenStrategy {
         this.name = 'ContainerStrategy';
     }
 
-    async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+    async  (packagesWithVersions, excludedTags, includedTags, thresholdDate) {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
         // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
@@ -30076,7 +30076,7 @@ class WildcardMatcher {
         this.name = 'WildcardMatcher';
     }
 
-    wildcardMatch(tag, pattern) {
+    match(tag, pattern) {
         const t = tag.toLowerCase();
         const p = pattern.toLowerCase();
 
@@ -32308,7 +32308,8 @@ async function run() {
   //   return;
   // }
 
-  const strategy = new ContainerStrategy();
+  //const strategy = new ContainerStrategy();
+  const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
   let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   if (isDebug) {
@@ -32333,15 +32334,6 @@ async function run() {
 
   await showReport(filteredPackagesWithVersionsForDelete);
 }
-
-// function wildcardMatch(tag, pattern) {
-//   if (!pattern.includes('*')) {
-//     return tag.toLowerCase() === pattern.toLowerCase();
-//   }
-//   const escapedPattern = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
-//   const regex = new RegExp(escapedPattern.replace(/\*/g, '.*'), 'i');
-//   return regex.test(tag);
-// }
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
   await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
