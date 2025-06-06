@@ -51,7 +51,11 @@ async function run() {
         try {
           const stat = await fsPromises.stat(filePath);
 
-          if (stat.isFile() || stat.isDirectory()) {
+          if (stat.isDirectory()) {
+            matchedFilesSet.add(filePath);
+            break; // If it's a directory, we can skip further checks for this pattern
+          }
+          if (stat.isFile()) {
             matchedFilesSet.add(filePath);
           } else {
             core.warning(`Skipping non-file/non-directory: ${filePath}`);
