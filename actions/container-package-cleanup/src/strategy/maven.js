@@ -1,3 +1,5 @@
+const core = require('@actions/core');
+
 class MavenStrategy {
     constructor() {
         this.name = 'ContainerStrategy';
@@ -5,6 +7,11 @@ class MavenStrategy {
 
     async  (packagesWithVersions, excludedTags, includedTags, thresholdDate) {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
+
+        core.warning(`🔹Executing MavenStrategy with excludedTags: ${JSON.stringify(excludedTags)}, includedTags: ${JSON.stringify(includedTags)}, thresholdDate: ${thresholdDate}`);
+        console.log(`🔹Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+
+
         // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
         //     const verisonWithOutExclude = versions.filter((version) => {
