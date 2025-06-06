@@ -7,6 +7,9 @@ const { addToArchive } = require("./archiveUtils");
 const AssetUploader = require("./assetsUploader");
 const { retryAsync } = require("./retry");
 const Report = require("./report");
+const glob = require("@actions/glob");
+const { promises: fsPromises } = require('fs');
+
 
 async function getInput() {
   return {
@@ -37,18 +40,49 @@ async function run() {
       throw new Error("❗️ No file or folder paths provided for processing");
     }
 
+    const matchedFilesSet = new Set();
+
+    for (const pattern of itemsPath) {
+
+      core.info(`🔍 Processing pattern: ${pattern}`);
+      const globber = await glob.create(pattern, { followSymbolicLinks: false });
+
+      for await (const filePath of globber.globGenerator()) {
+        try {
+          const stat = await fsPromises.stat(filePath);
+
+          if (stat.isFile() || stat.isDirectory()) {
+            matchedFilesSet.add(filePath);
+          } else {
+            core.warning(`Skipping non-file/non-directory: ${filePath}`);
+          }
+        } catch (e) {
+          core.warning(`Could not access file: ${filePath}. Error: ${e.message}`);
+        }
+      }
+    }
+
+    const matchedFiles = Array.from(matchedFilesSet);
+    if (matchedFiles.length === 0) {
+      core.setFailed(`❗️ No files or directories matched the provided patterns: ${itemsPath.join(", ")}`);
+      return;
+    }
+
     const assetsUploader = new AssetUploader(token, input.releaseTag, owner, repo);
     if (!assetsUploader) {
       throw new Error("❗️ Failed to initialize AssetUploader");
     }
 
     core.info(`🔹 Using archive type: ${input.archiveType}`);
-    core.info(`🔹 Items to process: ${itemsPath.join(", ")}`);
+    core.info(`🔹 Items to process: ${matchedFiles.join(", ")}`);
+
+
+
 
     // Collect information for the final report
     const reportEntries = [];
 
-    for (const itemPath of itemsPath) {
+    for (const itemPath of matchedFiles) {
 
       core.info(`🔸 Processing item: ${itemPath}`);
 
