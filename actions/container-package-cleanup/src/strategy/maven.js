@@ -5,7 +5,7 @@ class MavenStrategy {
         this.name = 'ContainerStrategy';
     }
 
-    async  (packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+    async  execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
         core.warning(`🔹Executing MavenStrategy with excludedTags: ${JSON.stringify(excludedTags)}, includedTags: ${JSON.stringify(includedTags)}, thresholdDate: ${thresholdDate}`);
