@@ -135,7 +135,7 @@ async function run() {
 }
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
-  await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
+  // await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
   core.info("✅ All specified versions have been deleted successfully.");
 }
 
