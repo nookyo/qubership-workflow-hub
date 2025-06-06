@@ -32230,7 +32230,7 @@ async function run() {
   const isDebug = core.getInput("debug").toLowerCase() === "true";
   const dryRun = core.getInput("dry-run").toLowerCase() === "true";
 
-  const type = core.getInput("type").toLowerCase() || "container";
+  const type = core.getInput("package-type").toLowerCase();
 
   core.info(`🔹isDebug: ${isDebug}`);
   core.info(`🔹dryRun: ${dryRun}`);
