@@ -61941,6 +61941,7 @@ class AssetUploader {
     }
 
     async upload(assetPath) {
+        process.env.GH_TOKEN = this.token;
         if (!this.owner || !this.repo || !this.releaseTag) {
             throw new Error(`❗️ Incorrect initialization of AssetUploader: { owner: ${this.owner}, repo: ${this.repo}, releaseTag: ${this.releaseTag} }`);
         }
@@ -61955,7 +61956,7 @@ class AssetUploader {
                 this.releaseTag,
                 `"${absPath}"`,
                 "--repo", repoArg,
-                "--clobber"
+                "--clobber",
             ].join(" ");
 
             core.info(`Try Uploading asset: ${fileName} to release: ${this.releaseTag} in repo: ${repoArg}`);
