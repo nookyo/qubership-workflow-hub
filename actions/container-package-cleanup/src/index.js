@@ -107,7 +107,8 @@ async function run() {
   // }
 
   //const strategy = new ContainerStrategy();
-  const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
+  // const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
+  const strategy  = new MavenStrategy();
   let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   if (isDebug) {
