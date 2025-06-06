@@ -72279,6 +72279,7 @@ async function run() {
     }
 
     const matchedFilesSet = new Set();
+    const foundDirs = new Set();
 
     for (const pattern of itemsPath) {
 
@@ -72289,13 +72290,30 @@ async function run() {
         try {
           const stat = await fsPromises.stat(filePath);
 
-          if (stat.isFile() || stat.isDirectory()) {
+          if (stat.isDirectory()) {
+            matchedFilesSet.add(filePath);
+            foundDirs.add(filePath);
+            break; // If it's a directory, we can skip further checks for this pattern
+          }
+          if (stat.isFile()) {
             matchedFilesSet.add(filePath);
           } else {
             core.warning(`Skipping non-file/non-directory: ${filePath}`);
           }
         } catch (e) {
           core.warning(`Could not access file: ${filePath}. Error: ${e.message}`);
+        }
+      }
+    }
+
+    if (foundDirs.size > 0) {
+      for (const dirPath of foundDirs) {
+        for (const existing of Array.from(matchedFilesSet)) {
+          // Если существующий путь — не сама папка, а вложенный путь (начинается с dirPath + sep), удаляем
+          if (existing !== dirPath && existing.startsWith(dirPath + path.sep)) {
+            core.info(`Removing nested path (under ${dirPath}): ${existing}`);
+            matchedFilesSet.delete(existing);
+          }
         }
       }
     }
