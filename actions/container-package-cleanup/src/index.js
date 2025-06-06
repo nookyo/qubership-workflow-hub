@@ -21,7 +21,7 @@ async function run() {
   const isDebug = core.getInput("debug").toLowerCase() === "true";
   const dryRun = core.getInput("dry-run").toLowerCase() === "true";
 
-  const type = core.getInput("package-type").toLowerCase();
+  const package_type = core.getInput("package-type").toLowerCase();
 
   core.info(`🔹isDebug: ${isDebug}`);
   core.info(`🔹dryRun: ${dryRun}`);
@@ -52,7 +52,7 @@ async function run() {
 
   // strategy will start  here for different types of packages
 
-  let packages = await wrapper.listPackages(owner, 'container', isOrganization);
+  let packages = await wrapper.listPackages(owner, package_type, isOrganization);
   // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
   let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
