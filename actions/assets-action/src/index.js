@@ -68,18 +68,6 @@ async function run() {
       }
     }
 
-    // if (foundDirs.size > 0) {
-    //   for (const dirPath of foundDirs) {
-    //     for (const existing of Array.from(matchedFilesSet)) {
-    //       // Если существующий путь — не сама папка, а вложенный путь (начинается с dirPath + sep), удаляем
-    //       if (existing !== dirPath && existing.startsWith(dirPath + path.sep)) {
-    //         core.info(`Removing nested path (under ${dirPath}): ${existing}`);
-    //         matchedFilesSet.delete(existing);
-    //       }
-    //     }
-    //   }
-    // }
-
     core.info(`🔹 Found ${matchedFilesSet.size} files/directories matching the patterns: ${Array.from(matchedFilesSet).join(", ")}`);
     const matchedFiles = Array.from(matchedFilesSet);
     if (matchedFiles.length === 0) {
