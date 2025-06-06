@@ -19,6 +19,9 @@ inputs:
   dry-run:
     description: "Enable dry run mode."
     default: "false"
+  package-type:
+    description: "Type of cleanup to perform (e.g., 'docker', 'container')."
+    default: "container"
 runs:
   using: "node20"
   main: "dist/index.js"
