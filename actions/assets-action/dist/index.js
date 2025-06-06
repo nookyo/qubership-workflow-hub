@@ -72300,6 +72300,7 @@ async function run() {
       }
     }
 
+    core.info(`🔹 Found ${matchedFilesSet.size} files/directories matching the patterns: ${Array.from(matchedFilesSet).join(", ")}`);
     const matchedFiles = Array.from(matchedFilesSet);
     if (matchedFiles.length === 0) {
       core.setFailed(`❗️ No files or directories matched the provided patterns: ${itemsPath.join(", ")}`);
