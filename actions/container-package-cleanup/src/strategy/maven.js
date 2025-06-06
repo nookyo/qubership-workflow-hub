@@ -9,7 +9,7 @@ class MavenStrategy {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
         core.warning(`🔹Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
-        console.log(`🔹Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+        //console.log(`🔹Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
 
         // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
