@@ -106,7 +106,7 @@ runs:
       if: ${{ inputs.tag-name != '' && inputs.create-release == 'true' && inputs.dry-run != 'true' }}
       shell: bash
       run: |
-        TAG_NAME="${{ inputs.tag }}"
+        TAG_NAME="${{ inputs.tag-name }}"
         RELEASE_TITLE="$TAG_NAME"
         RELEASE_BODY="Automatically generated release for tag $TAG_NAME."
 
