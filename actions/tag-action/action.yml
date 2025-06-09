@@ -119,12 +119,12 @@ runs:
           echo "🚀 Release $TAG_NAME does not exist. Creating it..."
           gh release create "$TAG_NAME" --title "$RELEASE_TITLE" --notes "$RELEASE_BODY"
         fi
-        echo "✅ Release $TAG_NAME has been created or updated successfully.
+        echo "✅ Release $TAG_NAME has been created or updated successfully."
 
     - name: Switch to tag
       if: ${{ inputs.switch-to-tag == 'true' &&  inputs.create-tag == 'true' && inputs.dry-run != 'true' }}
       shell: bash
       run: |
         git fetch --tags
-        git checkout tags/${{ inputs.tag }}
-        echo "Switched to tag '${{ inputs.tag-name }}'"
+        git checkout tags/${{ inputs.tag-name }}
+        echo "💡 Switched to tag ${{ inputs.tag-name }}"
