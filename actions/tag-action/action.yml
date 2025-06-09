@@ -26,7 +26,7 @@ inputs:
   switch-to-tag:
     description: "Switch to the created tag after creation."
     required: false
-    default: "true"
+    default: "false"
   tag-message:
     description: "Tag creation message."
     required: false
