@@ -103,7 +103,7 @@ runs:
         echo "created-tag=${{ inputs.tag-name }}" >> $GITHUB_OUTPUT
 
     - name: Check if tag was create
-      if: ${{ inputs.tag-name !== '' && inputs.create-release == 'true' && inputs.dry-run != 'true' }}
+      if: ${{ inputs.tag-name != '' && inputs.create-release == 'true' && inputs.dry-run != 'true' }}
       shell: bash
       run: |
         TAG_NAME="${{ inputs.tag }}"
