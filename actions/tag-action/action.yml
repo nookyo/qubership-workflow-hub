@@ -39,6 +39,10 @@ inputs:
     description: "Run the action in dry-run mode (no changes will be pushed)."
     required: false
     default: "false"
+  skip-checkout:
+    description: "Skip the checkout step (useful if the code is already checked out)."
+    required: false
+    default: "false"
 
 outputs:
   created-tag:
@@ -48,6 +52,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout code
+      if: ${{ inputs.skip-checkout != 'true' }}
       uses: actions/checkout@v4
       with:
         ref: ${{ inputs.ref }}
