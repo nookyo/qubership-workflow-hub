@@ -28,11 +28,15 @@ async function run() {
 
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10) || 7;
 
-  const rawIncludedTags = core.getInput('included-tags');
-  const includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
+  let excludedTags = [];
+  let includedTags = [];
+  if (package_type === "container") {
+    const rawIncludedTags = core.getInput('included-tags');
+    includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
 
-  const rawExcludedTags = core.getInput('excluded-tags');
-  const excludedTags = rawExcludedTags ? rawExcludedTags.split(",") : [];
+    const rawExcludedTags = core.getInput('excluded-tags');
+    excludedTags = rawExcludedTags ? rawExcludedTags.split(",") : [];
+  }
 
   const now = new Date();
   const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
