@@ -53,6 +53,12 @@ async function run() {
   // strategy will start  here for different types of packages
 
   let packages = await wrapper.listPackages(owner, package_type, isOrganization);
+
+  if (packages.length === 0) {
+    core.info("❗️ No packages found.");
+    return;
+  }
+
   core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
   let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
