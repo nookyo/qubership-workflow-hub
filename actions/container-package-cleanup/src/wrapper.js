@@ -17,6 +17,7 @@ class OctokitWrapper {
    */
   async isOrganization(username) {
     try {
+      console.log(`Checking if ${username} is an organization...`);
       const response = await this.octokit.rest.users.getByUsername({ username });
       return response.data.type !== 'User' ? true : false;
     } catch (error) {
