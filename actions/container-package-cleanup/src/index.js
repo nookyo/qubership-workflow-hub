@@ -52,27 +52,27 @@ async function run() {
 
   // strategy will start  here for different types of packages
 
-  let packages = await wrapper.listPackages(owner, package_type, isOrganization);
+  // let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
-  if (packages.length === 0) {
-    core.info("❗️ No packages found.");
-    return;
-  }
+  // if (packages.length === 0) {
+  //   core.info("❗️ No packages found.");
+  //   return;
+  // }
 
-  core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
+  // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
-  let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  core.info(`🔹Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+  // let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
+  // core.info(`🔹Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
 
-  let packagesNames = filteredPackages.map((pkg) => pkg.name);
-  core.info(`🔹Packages names: ${JSON.stringify(packagesNames, null, 2)}`);
+  // let packagesNames = filteredPackages.map((pkg) => pkg.name);
+  // core.info(`🔹Packages names: ${JSON.stringify(packagesNames, null, 2)}`);
 
-  const packagesWithVersions = await Promise.all(
-    filteredPackages.map(async (pkg) => {
-      const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
-      return { package: pkg, versions: versionsForPkg };
-    })
-  );
+  // const packagesWithVersions = await Promise.all(
+  //   filteredPackages.map(async (pkg) => {
+  //     const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+  //     return { package: pkg, versions: versionsForPkg };
+  //   })
+  // );
 
   // filter for container type
   // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
@@ -114,30 +114,33 @@ async function run() {
 
   //const strategy = new ContainerStrategy();
   // const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
-  const strategy  = new MavenStrategy();
-  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
-  if (isDebug) {
-    core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
-    core.info(`::group::Delete versions Log.`);
-    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-    core.info(`::endgroup::`);
-  }
 
-  if (dryRun) {
-    core.warning("Dry run mode enabled. No versions will be deleted.");
-    await showReport(filteredPackagesWithVersionsForDelete, true);
-    return;
-  }
 
-  for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-    for (const version of versions) {
-      core.info(`🔹 Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
-      await wrapper.deletePackageVersion(owner, 'container', pkg.name, version.id, isOrganization);
-    }
-  }
+  // const strategy  = new MavenStrategy();
+  // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
-  await showReport(filteredPackagesWithVersionsForDelete);
+  // if (isDebug) {
+  //   core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
+  //   core.info(`::group::Delete versions Log.`);
+  //   core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+  //   core.info(`::endgroup::`);
+  // }
+
+  // if (dryRun) {
+  //   core.warning("Dry run mode enabled. No versions will be deleted.");
+  //   await showReport(filteredPackagesWithVersionsForDelete, true);
+  //   return;
+  // }
+
+  // for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
+  //   for (const version of versions) {
+  //     core.info(`🔹 Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
+  //     await wrapper.deletePackageVersion(owner, 'container', pkg.name, version.id, isOrganization);
+  //   }
+  // }
+
+  // await showReport(filteredPackagesWithVersionsForDelete);
 }
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
