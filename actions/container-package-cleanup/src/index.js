@@ -47,8 +47,8 @@ async function run() {
 
   const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
 
-  const isOrganization = await wrapper.isOrganization(owner);
-  core.info(`🔹Organization marker: ${isOrganization}`);
+  // const isOrganization = await wrapper.isOrganization(owner);
+  // core.info(`🔹Organization marker: ${isOrganization}`);
 
   // strategy will start  here for different types of packages
 
