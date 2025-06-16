@@ -2,10 +2,10 @@ const core = require('@actions/core');
 
 class MavenStrategy {
     constructor() {
-        this.name = 'ContainerStrategy';
+        this.name = 'ManevStrategy';
     }
 
-    async  execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
+    async execute(packagesWithVersions, excludedTags, includedTags, thresholdDate) {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
         core.warning(`🔹Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
@@ -45,6 +45,10 @@ class MavenStrategy {
         // }).filter(item => item !== null && item.versions.length > 0);
 
         return filteredPackagesWithVersionsForDelete;
+    }
+
+    async toString() {
+        return this.name;
     }
 }
 

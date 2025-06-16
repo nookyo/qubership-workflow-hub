@@ -63,6 +63,7 @@ async function run() {
     core.info("❗️ No packages found.");
     return;
   }
+  
 
   // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
@@ -120,37 +121,38 @@ async function run() {
   //const strategy = new ContainerStrategy();
   // const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
+  let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
+  console.log(`🔹Using strategy: ${await strategy.toString()}`);
 
-  const strategy = new MavenStrategy();
-  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
+  // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
-  if (isDebug) {
-    core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
-    core.info(`::group::Delete versions Log.`);
-    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-    core.info(`::endgroup::`);
-  }
+  // if (isDebug) {
+  //   core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
+  //   core.info(`::group::Delete versions Log.`);
+  //   core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+  //   core.info(`::endgroup::`);
+  // }
 
-  if (dryRun) {
-    core.warning("Dry run mode enabled. No versions will be deleted.");
-    await showReport(filteredPackagesWithVersionsForDelete, true);
-    return;
-  }
+  // if (dryRun) {
+  //   core.warning("Dry run mode enabled. No versions will be deleted.");
+  //   await showReport(filteredPackagesWithVersionsForDelete, true);
+  //   return;
+  // }
 
-  for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-    for (const version of versions) {
-      core.info(`🔹 Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
-      await wrapper.deletePackageVersion(owner, 'container', pkg.name, version.id, isOrganization);
-    }
-  }
+  // for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
+  //   for (const version of versions) {
+  //     core.info(`🔹 Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
+  //     await wrapper.deletePackageVersion(owner, 'container', pkg.name, version.id, isOrganization);
+  //   }
+  // }
 
-  await showReport(filteredPackagesWithVersionsForDelete);
+  // await showReport(filteredPackagesWithVersionsForDelete);
+  // core.info("✅ All specified versions have been deleted successfully.");
 }
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
   // await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
-  core.info("✅ All specified versions have been deleted successfully.");
 }
 
 run();

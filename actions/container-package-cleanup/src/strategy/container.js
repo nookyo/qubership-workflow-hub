@@ -43,6 +43,10 @@ class ContainerStrategy {
 
         return filteredPackagesWithVersionsForDelete;
     }
+
+    async toString() {
+        return this.name;
+    }
 }
 
 module.exports = ContainerStrategy;
