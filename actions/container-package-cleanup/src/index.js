@@ -23,8 +23,8 @@ async function run() {
 
   const package_type = core.getInput("package-type").toLowerCase();
 
-  core.info(`🔹isDebug: ${isDebug}`);
-  core.info(`🔹dryRun: ${dryRun}`);
+  core.info(`Is debug?: ${isDebug}`);
+  core.info(`Dry run?: ${dryRun}`);
 
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10) || 7;
 
@@ -53,9 +53,11 @@ async function run() {
   const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
 
   const isOrganization = await wrapper.isOrganization(owner);
-  core.info(`🔹Organization marker: ${isOrganization}`);
+  core.info(`Is Organization?: ${isOrganization}`);
 
   // strategy will start  here for different types of packages
+ 
+  core.info(`Package type: ${package_type}, owner: ${owner}, repo: ${repo}`);
 
   let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
@@ -63,7 +65,7 @@ async function run() {
     core.info("❗️ No packages found.");
     return;
   }
-  
+
 
   // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
