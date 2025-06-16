@@ -42,11 +42,11 @@ async function run() {
   const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
 
   // core.info(`🔹Configuration Path: ${configurationPath}`);
-  core.info(`🔹 Threshold Days: ${thresholdDays}`);
-  core.info(`🔹 Threshold Date: ${thresholdDate}`);
+  core.info(`Threshold Days: ${thresholdDays}`);
+  core.info(`Threshold Date: ${thresholdDate}`);
 
-  excludedTags.length && core.info(`🔹 Excluded Tags: ${excludedTags}`);
-  includedTags.length && core.info(`🔹 Included Tags: ${includedTags}`);
+  excludedTags.length && core.info(`Excluded Tags: ${excludedTags}`);
+  includedTags.length && core.info(`Included Tags: ${includedTags}`);
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
@@ -57,12 +57,12 @@ async function run() {
 
   // strategy will start  here for different types of packages
 
-  // let packages = await wrapper.listPackages(owner, package_type, isOrganization);
+  let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
-  // if (packages.length === 0) {
-  //   core.info("❗️ No packages found.");
-  //   return;
-  // }
+  if (packages.length === 0) {
+    core.info("❗️ No packages found.");
+    return;
+  }
 
   // core.info(`🔹Packages ${JSON.stringify(packages, null, 2)}`);
 
@@ -122,30 +122,30 @@ async function run() {
 
 
 
-  // const strategy  = new MavenStrategy();
-  // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
+  const strategy = new MavenStrategy();
+  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
-  // if (isDebug) {
-  //   core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
-  //   core.info(`::group::Delete versions Log.`);
-  //   core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-  //   core.info(`::endgroup::`);
-  // }
+  if (isDebug) {
+    core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
+    core.info(`::group::Delete versions Log.`);
+    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    core.info(`::endgroup::`);
+  }
 
-  // if (dryRun) {
-  //   core.warning("Dry run mode enabled. No versions will be deleted.");
-  //   await showReport(filteredPackagesWithVersionsForDelete, true);
-  //   return;
-  // }
+  if (dryRun) {
+    core.warning("Dry run mode enabled. No versions will be deleted.");
+    await showReport(filteredPackagesWithVersionsForDelete, true);
+    return;
+  }
 
-  // for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-  //   for (const version of versions) {
-  //     core.info(`🔹 Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
-  //     await wrapper.deletePackageVersion(owner, 'container', pkg.name, version.id, isOrganization);
-  //   }
-  // }
+  for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
+    for (const version of versions) {
+      core.info(`🔹 Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
+      await wrapper.deletePackageVersion(owner, 'container', pkg.name, version.id, isOrganization);
+    }
+  }
 
-  // await showReport(filteredPackagesWithVersionsForDelete);
+  await showReport(filteredPackagesWithVersionsForDelete);
 }
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false) {
