@@ -30,6 +30,7 @@ async function run() {
 
   let excludedTags = [];
   let includedTags = [];
+ 
   if (package_type === "container") {
     const rawIncludedTags = core.getInput('included-tags');
     includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
@@ -58,9 +59,9 @@ async function run() {
   // strategy will start  here for different types of packages
   core.info(`Package type: ${package_type}, owner: ${owner}, repo: ${repo}`);
 
-  let packages = await wrapper.listPackages(owner, 'container', isOrganization);
+  // let packages = await wrapper.listPackages(owner, 'container', isOrganization);
 
-  //let packages = await wrapper.listPackages(owner, package_type, isOrganization);
+  let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   if (packages.length === 0) {
     core.info("❗️ No packages found.");
@@ -68,7 +69,7 @@ async function run() {
   }
 
 
-  core.info(`Packages ${JSON.stringify(packages, null, 2)}`);
+  // core.info(`Packages ${JSON.stringify(packages, null, 2)}`);
 
   // let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
   // core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
