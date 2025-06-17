@@ -21,7 +21,7 @@ async function run() {
   const isDebug = core.getInput("debug").toLowerCase() === "true";
   const dryRun = core.getInput("dry-run").toLowerCase() === "true";
 
-  const   = core.getInput("package-type").toLowerCase();
+  const package_type = core.getInput("package-type").toLowerCase();
 
   core.info(`Is debug? -> ${isDebug}`);
   core.info(`Dry run? -> ${dryRun}`);
