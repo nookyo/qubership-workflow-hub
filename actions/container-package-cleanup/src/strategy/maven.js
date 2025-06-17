@@ -8,8 +8,17 @@ class MavenStrategy {
     async execute({ filteredPackages, excludedTags, includedTags, thresholdDate, wrapper, owner, isOrganization }) {
         let filteredPackagesWithVersionsForDelete = filteredPackages;
 
-        core.warning(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
-        core.warning(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+        const packagesWithVersions = await Promise.all(
+            filteredPackages.map(async (pkg) => {
+                const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+                return { package: pkg, versions: versionsForPkg };
+            })
+        );
+
+
+        core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
+        //core.warning(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+        core.info(`package with Version ${JSON.stringify(packagesWithVersions, null, 2)}`);
         //console.log(`🔹Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
 
