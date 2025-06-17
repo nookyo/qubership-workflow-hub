@@ -10,12 +10,12 @@ This **GitHub Release Drafter** GitHub Workflow drafts a new release based on me
 
 ## 📌 Inputs
 
-| Name          | Description                              | Required | Default                     |
-| ------------- | ---------------------------------------- | -------- | --------------------------- |
-| `version`     | Release version                          | Yes      | None                        |
-| `ref`         | Branch name to create release from       | No       | `main`                      |
-| `publish`     | Enable publish release?                  | No       | `false`                     |
-| `config-name` | Release Drafter configuration file       | No       | `release-drafter-config.yml`|
+| Name          | Description                        | Required | Default                      |
+| ------------- | ---------------------------------- | -------- | ---------------------------- |
+| `version`     | Release version                    | Yes      | None                         |
+| `ref`         | Branch name to create release from | No       | `main`                       |
+| `publish`     | Enable publish release?            | No       | `false`                      |
+| `config-name` | Release Drafter configuration file | No       | `release-drafter-config.yml` |
 
 ## Usage Example
 
@@ -42,3 +42,4 @@ jobs:
       config-name: "release-drafter-config.yml"
     secrets:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
