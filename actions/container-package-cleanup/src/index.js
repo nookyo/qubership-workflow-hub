@@ -63,6 +63,8 @@ async function run() {
 
   let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
+  core.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
+
   if (packages.length === 0) {
     core.info("❗️ No packages found.");
     return;
