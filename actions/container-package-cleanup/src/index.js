@@ -30,7 +30,7 @@ async function run() {
 
   let excludedTags = [];
   let includedTags = [];
- 
+
   if (package_type === "container") {
     const rawIncludedTags = core.getInput('included-tags');
     includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
@@ -63,6 +63,10 @@ async function run() {
 
   let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
+  let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
+  core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+
+
   core.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
 
   if (packages.length === 0) {
@@ -70,6 +74,15 @@ async function run() {
     return;
   }
 
+  const strategyContext = {
+    filteredPackages: filteredPackages,
+    excludedTags,
+    includedTags,
+    thresholdDate,
+    wrapper,
+    owner,
+    isOrganization
+  };
 
   // core.info(`Packages ${JSON.stringify(packages, null, 2)}`);
 
@@ -131,7 +144,7 @@ async function run() {
 
   console.log(`🔹Using strategy: ${await strategy.toString()}`);
 
-  strategy = await strategy.execute(packages, excludedTags, includedTags, thresholdDate);
+  strategy = await strategy.execute(strategyContext);
 
   // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 

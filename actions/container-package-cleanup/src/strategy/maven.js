@@ -5,10 +5,11 @@ class MavenStrategy {
         this.name = 'ManevStrategy';
     }
 
-    async execute(packagesWithVersions, excludedTags =[], includedTags = [], thresholdDate) {
+    async execute({ filteredPackages, thresholdDate }) {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
         core.warning(`🔹Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
+        core.warning(`🔹Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
         //console.log(`🔹Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
 

@@ -5,7 +5,7 @@ class ContainerStrategy {
         this.name = 'ContainerStrategy';
     }
 
-    async execute(filteredPackages, excludedTags, includedTags, thresholdDate) {
+    async execute(filteredPackages, excludedTags, includedTags, thresholdDate, wrapper, owner, isOrganization) {
 
         const wildcardMatcher = new WildcardMatcher();
 
