@@ -58,7 +58,9 @@ async function run() {
   // strategy will start  here for different types of packages
   core.info(`Package type: ${package_type}, owner: ${owner}, repo: ${repo}`);
 
-  let packages = await wrapper.listPackages(owner, package_type, isOrganization);
+  let packages = await wrapper.listPackages(owner, 'container', isOrganization);
+
+  //let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   if (packages.length === 0) {
     core.info("❗️ No packages found.");
