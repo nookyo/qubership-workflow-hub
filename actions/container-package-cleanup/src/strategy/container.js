@@ -11,8 +11,8 @@ class ContainerStrategy {
 
         const packagesWithVersions = await Promise.all(
             filteredPackages.map(async (pkg) => {
-            const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
-            return { package: pkg, versions: versionsForPkg };
+                const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+                return { package: pkg, versions: versionsForPkg };
             })
         );
 
