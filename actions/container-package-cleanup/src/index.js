@@ -84,6 +84,13 @@ async function run() {
     isOrganization
   };
 
+
+  let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
+
+  console.log(`🔹Using strategy: ${await strategy.toString()}`);
+
+  strategy = await strategy.execute(strategyContext);
+
   // core.info(`Packages ${JSON.stringify(packages, null, 2)}`);
 
   // let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
@@ -140,11 +147,11 @@ async function run() {
   //const strategy = new ContainerStrategy();
   // const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
-  let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
+  // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
-  console.log(`🔹Using strategy: ${await strategy.toString()}`);
+  // console.log(`🔹Using strategy: ${await strategy.toString()}`);
 
-  strategy = await strategy.execute(strategyContext);
+  // strategy = await strategy.execute(strategyContext);
 
   // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
