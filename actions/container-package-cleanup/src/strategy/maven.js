@@ -5,16 +5,8 @@ class MavenStrategy {
         this.name = 'ManevStrategy';
     }
 
-    async execute({ filteredPackages, excludedTags, includedTags, thresholdDate, wrapper, owner, isOrganization }) {
-        let filteredPackagesWithVersionsForDelete = filteredPackages;
-
-        const packagesWithVersions = await Promise.all(
-            filteredPackages.map(async (pkg) => {
-                const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
-                return { package: pkg, versions: versionsForPkg };
-            })
-        );
-
+    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, wrapper, owner, isOrganization }) {
+        let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
         core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
         //core.warning(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
