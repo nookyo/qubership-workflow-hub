@@ -131,6 +131,8 @@ async function run() {
 
   console.log(`🔹Using strategy: ${await strategy.toString()}`);
 
+  strategy = await strategy.execute(packages, excludedTags, includedTags, thresholdDate);
+
   // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
   // if (isDebug) {
