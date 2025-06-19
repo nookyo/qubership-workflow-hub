@@ -126,7 +126,7 @@ async function run() {
   // core.info("✅ All specified versions have been deleted successfully.");
 }
 
-async function showReport(packagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun = false, type = 'container') {
+async function showReport(packagesWithVersionsForDelete, thresholdDate, thresholdDays, dryRun = false, type = 'container') {
   let report = type === 'container' ? new ContainerReport() : new MavenReport();
   await report.writeSummary(packagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun);
 
