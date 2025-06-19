@@ -109,7 +109,7 @@ async function run() {
 
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
-    await showReport(filteredPackagesWithVersionsForDelete, true, package_type);
+    await showReport(filteredPackagesWithVersionsForDelete, thresholdDate, thresholdDays, true, package_type,);
     return;
   }
 
@@ -126,9 +126,9 @@ async function run() {
   // core.info("✅ All specified versions have been deleted successfully.");
 }
 
-async function showReport(packagesWithVersionsForDelete, dryRun = false, type = 'container') {
+async function showReport(packagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun = false, type = 'container') {
   let report = type === 'container' ? new ContainerReport() : new MavenReport();
-  await report.writeSummary(packagesWithVersionsForDelete, dryRun);
+  await report.writeSummary(packagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun);
 
 }
 
