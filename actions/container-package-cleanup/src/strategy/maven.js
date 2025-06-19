@@ -40,7 +40,7 @@ class MavenStrategy {
 
             return { package: customPackage, versions: versionForDelete };
 
-        }).filter(item => item !== null && item.versions.length > 0);
+        }).filter(item => item !== null && item != undefined && item.versions.length > 0);
 
         debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
