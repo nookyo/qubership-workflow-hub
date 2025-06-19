@@ -113,17 +113,17 @@ async function run() {
     return;
   }
 
-  for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-    for (const version of versions) {
-      core.info(` Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
-      await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
-    }
-  }
+  // for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
+  //   for (const version of versions) {
+  //     core.info(` Package: ${pkg.name} (${pkg.type}) deleting version: ${version.id} (${version.metadata.container.tags.join(", ")})`);
+  //     await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
+  //   }
+  // }
 
-  core.info("✅ All specified versions have been deleted successfully.");
+  // core.info("✅ All specified versions have been deleted successfully.");
 
-  await showReport(filteredPackagesWithVersionsForDelete);
-  core.info("✅ All specified versions have been deleted successfully.");
+  // await showReport(filteredPackagesWithVersionsForDelete);
+  // core.info("✅ All specified versions have been deleted successfully.");
 }
 
 async function showReport(packagesWithVersionsForDelete, dryRun = false, type = 'container') {
