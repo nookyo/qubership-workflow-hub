@@ -1,68 +1,76 @@
-const core = require('@actions/core');
+const core = require("@actions/core");
 
 class MavenStrategy {
-    constructor() {
-        this.name = 'ManevStrategy';
-    }
+  constructor() {
+    this.name = "ManevStrategy";
+  }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
+  async execute({
+    packagesWithVersions,
+    excludedTags,
+    includedTags,
+    thresholdDate,
+  }) {
+    core.info(
+      `Filtered packages with Maven type: ${JSON.stringify(packagesWithVersions, null, 2)}`,
+    );
 
-        core.info(`Filtered packages with Maven type: ${JSON.stringify(packagesWithVersions, null, 2)}`);
+    let versionsToDelete;
+    let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(
+      ({ package: pkg, versions }) => {
+        let customPackage = {
+          id: pkg.id,
+          name: pkg.name,
+          type: pkg.package_type,
+          versions: pkg.versions,
+        };
 
-        let versionsToDelete;
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions}) => {
+        return { package: customPackage, versions: versions };
+      },
+    );
 
-            let customPackage = {
-                id: pkg.id,
-                name: pkg.name,
-                type: pkg.package_type,
-                versions: pkg.versions
-            };
+    core.info(
+      `Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`,
+    );
 
-            return { package: customPackage, versions: versions };
-        });
+    // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-        core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    //     const verisonWithOutExclude = versions.filter((version) => {
+    //         const createdAt = new Date(version.created_at);
+    //         const isOldEnough = createdAt <= thresholdDate;
 
+    //         if (!isOldEnough) return false;
+    //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+    //         const tags = version.metadata.container.tags;
 
-        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+    //         if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
+    //             return false;
+    //         }
+    //         return true;
+    //     });
 
-        //     const verisonWithOutExclude = versions.filter((version) => {
-        //         const createdAt = new Date(version.created_at);
-        //         const isOldEnough = createdAt <= thresholdDate;
+    //     const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
+    //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+    //         const tags = version.metadata.container.tags;
+    //         return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
+    //     }) : verisonWithOutExclude;
 
-        //         if (!isOldEnough) return false;
-        //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-        //         const tags = version.metadata.container.tags;
+    //     const customPackage = {
+    //         id: pkg.id,
+    //         name: pkg.name,
+    //         type: pkg.package_type
+    //     };
 
-        //         if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
-        //             return false;
-        //         }
-        //         return true;
-        //     });
+    //     return { package: customPackage, versions: versionsToDelete };
 
-        //     const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
-        //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-        //         const tags = version.metadata.container.tags;
-        //         return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
-        //     }) : verisonWithOutExclude;
+    // }).filter(item => item !== null && item.versions.length > 0);
 
-        //     const customPackage = {
-        //         id: pkg.id,
-        //         name: pkg.name,
-        //         type: pkg.package_type
-        //     };
+    return filteredPackagesWithVersionsForDelete;
+  }
 
-        //     return { package: customPackage, versions: versionsToDelete };
-
-        // }).filter(item => item !== null && item.versions.length > 0);
-
-        return filteredPackagesWithVersionsForDelete;
-    }
-
-    async toString() {
-        return this.name;
-    }
+  async toString() {
+    return this.name;
+  }
 }
 
 module.exports = MavenStrategy;
