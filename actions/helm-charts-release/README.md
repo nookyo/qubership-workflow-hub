@@ -44,11 +44,11 @@ The updated image versions in JSON format.
 
 ```json
 {
-"qubership-zookeeper-operator": "1.1.8",
-"qubership-docker-zookeeper": "1.1.8",
-"qubership-zookeeper-monitoring": "1.1.8",
-"qubership-zookeeper-backup-daemon": "1.1.8",
-"qubership-zookeeper-integration-tests": "1.1.8-3.8.4"
+  "qubership-zookeeper-operator": "1.1.8",
+  "qubership-docker-zookeeper": "1.1.8",
+  "qubership-zookeeper-monitoring": "1.1.8",
+  "qubership-zookeeper-backup-daemon": "1.1.8",
+  "qubership-zookeeper-integration-tests": "1.1.8-3.8.4"
 }
 ```
 
@@ -67,12 +67,12 @@ jobs:
       - name: Release Helm Charts
         uses: netcracker/qubership-workflow-hub/actions/helm-charts-release@main
         with:
-          release-version: '1.0.0'
-          chart-version: '1.0.0'
-          config-file: './config/charts-config.yaml'
-          create-release-branch: 'true'
-          version-replace-method: 'parse'
-          working-directory: './charts'
+          release-version: "1.0.0"
+          chart-version: "1.0.0"
+          config-file: "./config/charts-config.yaml"
+          create-release-branch: "true"
+          version-replace-method: "parse"
+          working-directory: "./charts"
 ```
 
 ## How It Works
@@ -93,4 +93,4 @@ jobs:
   - `image`: List of image keys to update in `values.yaml`.
 
 > Example: [helm-charts-release-config.yaml](./helm-charts-release-config.yaml).
-Ensure that the Python environment is set up to run the `yaml` module for processing the configuration file.
+> Ensure that the Python environment is set up to run the `yaml` module for processing the configuration file.

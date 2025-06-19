@@ -1,5 +1,4 @@
 ---
-
 # Input parameter project_type is optional.
 # If not provided, the script will try to detect the project type automatically.
 # More info on possible values for project_type can be found there:
@@ -23,7 +22,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-
     - name: "Checout code"
       uses: actions/checkout@v4
 
