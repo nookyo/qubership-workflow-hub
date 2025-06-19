@@ -13,20 +13,12 @@ class MavenStrategy {
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-            let oldEnoughVersions = versions.filter((version) => {
+            let versionForDelete = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
                 console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
-                return isOldEnough;
-            });
-
-            let versionForDelete = oldEnoughVersions.filter((version) => {
-                let t = wildcardMatcher.match(version.name, '*SNAPSHOT*');
-                if(!t) {
-                    core.info(`Version ${version.name} does not match '*SNAPSHOT*'`);
-                }
-                core.info(`Version ${version.name} matches '*SNAPSHOT*': ${t}`);
-
+                if (!isOldEnough) return false;
+                return wildcardMatcher.match(version.name, '*SNAPSHOT*');
             });
 
             let customPackage = {
