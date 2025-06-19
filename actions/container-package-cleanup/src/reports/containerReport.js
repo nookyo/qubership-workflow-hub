@@ -1,6 +1,16 @@
 const core = require("@actions/core");
 class ContainerReport {
-    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun = false) {
+    async writeSummary(context) {
+
+        const {
+            filteredPackagesWithVersionsForDelete,
+            dryRun,
+            thresholdDays,
+            thresholdDate,
+            includedTags,
+            excludedTags
+        } = context;
+
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
             return;
@@ -31,8 +41,18 @@ class ContainerReport {
         });
 
         core.summary.addRaw(`## 🎯 Container Package Cleanup Summary ${dryRunText}\n\n`);
-        core.summary.addRaw(`**Total Packages Processed:** ${totalPackages}
-                             **Total Deleted Versions:** ${totalDeletedVersions}\n\n`);
+        core.summary.addRaw(`**Threshold:** versions older than **${thresholdDays} days** (created before **${thresholdDate.toISOString().slice(0, 10)}**)\n\n`);
+        core.summary.addRaw(`**Total Packages Processed:** ${totalPackages}  \n`);
+        core.summary.addRaw(`**Total Deleted Versions:** ${totalDeletedVersions}\n\n`);
+        core.summary.addRaw(`---\n\n`);
+        core.summary.addRaw(`**Parameters:**\n\n`);
+        core.summary.addRaw(`- Threshold Days: ${thresholdDays}\n`);
+        core.summary.addRaw(`- Threshold Date: ${thresholdDate.toISOString().slice(0, 10)}\n`);
+
+        includedTags.length && core.summary.addRaw(`- Included Patterns: ${includedTags.length ? includedTags.map(t => `<code>${t}</code>`).join(", ") : "None"}\n`);
+        excludedTags.length && core.summary.addRaw(`- Excluded Patterns: ${excludedTags.length ? excludedTags.map(t => `<code>${t}</code>`).join(", ") : "None"}\n\n`);
+
+
         core.summary.addRaw(`---\n\n`);
         core.summary.addTable(tableData);
         core.summary.addRaw(`\n\n✅ Cleanup operation completed successfully.`);
