@@ -1,7 +1,7 @@
 const core = require("@actions/core");
 
 class MavenReport {
-    async writeSummary(filteredPackagesWithVersionsForDelete, dryRun = false) {
+    async writeSummary(filteredPackagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun = false) {
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
             return;
@@ -29,10 +29,14 @@ class MavenReport {
             });
         });
 
-        core.summary.addRaw(`## 🎯 Maven Package Cleanup Summary ${dryRunText}\n\n`);
-        core.summary.addRaw(`**Total Packages Processed:** ${totalPackages}  \n`);
-        core.summary.addRaw(`**Total Deleted Versions:** ${totalDeletedVersions}\n\n`);
-        core.summary.addRaw(`---\n\n`);
+        core.summary.addRaw(
+            `## 🎯 Container Package Cleanup Summary ${dryRunText}\n\n` +
+            `**Threshold:** versions older than **${thresholdDays} days** ` +
+            `(created before **${thresholdDate.toISOString().slice(0, 10)}**)\n\n` +
+            `**Total Packages Processed:** ${totalPackages}  \n` +
+            `**Total Deleted Versions:** ${totalDeletedVersions}\n\n` +
+            `---\n\n`
+        );
         core.summary.addTable(tableData);
         core.summary.addRaw(`\n\n✅ Cleanup operation completed successfully.`);
 
