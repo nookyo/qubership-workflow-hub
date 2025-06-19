@@ -1,82 +1,89 @@
-const core = require('@actions/core');
+const core = require("@actions/core");
 const WildcardMatcher = require("./wildcardMatcher");
 
-
 class MavenStrategy {
-    constructor() {
-        this.name = 'ManevStrategy';
-    }
+  constructor() {
+    this.name = "ManevStrategy";
+  }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = true }) {
+  async execute({
+    packagesWithVersions,
+    excludedTags,
+    includedTags,
+    thresholdDate,
+    debug = true,
+  }) {
+    const wildcardMatcher = new WildcardMatcher();
 
-        const wildcardMatcher = new WildcardMatcher();
+    let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(
+      ({ package: pkg, versions }) => {
+        let versionForDelete = versions.filter((version) => {
+          const createdAt = new Date(version.created_at);
+          const isOldEnough = createdAt <= thresholdDate;
 
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+          if (debug) {
+            console.log(
+              `Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`,
+            );
+          }
 
-            let versionForDelete = versions.filter((version) => {
-                const createdAt = new Date(version.created_at);
-                const isOldEnough = createdAt <= thresholdDate;
-
-                if (debug) {
-                    console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
-                }
-
-
-                if (!isOldEnough) return false;
-                return wildcardMatcher.match(version.name, '*SNAPSHOT*');
-            });
-
-            let customPackage = {
-                id: pkg.id,
-                name: pkg.name,
-                type: pkg.package_type,
-                versions: pkg.versions
-            };
-
-            return { package: customPackage, versions: versionForDelete };
+          if (!isOldEnough) return false;
+          return wildcardMatcher.match(version.name, "*SNAPSHOT*");
         });
 
-        core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+        let customPackage = {
+          id: pkg.id,
+          name: pkg.name,
+          type: pkg.package_type,
+          versions: pkg.versions,
+        };
 
+        return { package: customPackage, versions: versionForDelete };
+      },
+    );
 
-        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+    core.info(
+      `Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`,
+    );
 
-        //     const verisonWithOutExclude = versions.filter((version) => {
-        //         const createdAt = new Date(version.created_at);
-        //         const isOldEnough = createdAt <= thresholdDate;
+    // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-        //         if (!isOldEnough) return false;
-        //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-        //         const tags = version.metadata.container.tags;
+    //     const verisonWithOutExclude = versions.filter((version) => {
+    //         const createdAt = new Date(version.created_at);
+    //         const isOldEnough = createdAt <= thresholdDate;
 
-        //         if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
-        //             return false;
-        //         }
-        //         return true;
-        //     });
+    //         if (!isOldEnough) return false;
+    //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+    //         const tags = version.metadata.container.tags;
 
-        //     const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
-        //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-        //         const tags = version.metadata.container.tags;
-        //         return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
-        //     }) : verisonWithOutExclude;
+    //         if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
+    //             return false;
+    //         }
+    //         return true;
+    //     });
 
-        //     const customPackage = {
-        //         id: pkg.id,
-        //         name: pkg.name,
-        //         type: pkg.package_type
-        //     };
+    //     const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
+    //         if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+    //         const tags = version.metadata.container.tags;
+    //         return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
+    //     }) : verisonWithOutExclude;
 
-        //     return { package: customPackage, versions: versionsToDelete };
+    //     const customPackage = {
+    //         id: pkg.id,
+    //         name: pkg.name,
+    //         type: pkg.package_type
+    //     };
 
-        // }).filter(item => item !== null && item.versions.length > 0);
+    //     return { package: customPackage, versions: versionsToDelete };
 
-        return filteredPackagesWithVersionsForDelete;
-    }
+    // }).filter(item => item !== null && item.versions.length > 0);
 
-    async toString() {
-        return this.name;
-    }
+    return filteredPackagesWithVersionsForDelete;
+  }
+
+  async toString() {
+    return this.name;
+  }
 }
 
 module.exports = MavenStrategy;
