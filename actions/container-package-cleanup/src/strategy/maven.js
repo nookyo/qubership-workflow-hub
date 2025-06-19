@@ -9,12 +9,11 @@ class MavenStrategy {
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-            versions = versions.filter((version) => {
+            let versionsOldEnough = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
                 console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
-                if (!isOldEnough) return false;
-                return true;
+                return isOldEnough;
             });
 
             let customPackage = {
@@ -24,7 +23,7 @@ class MavenStrategy {
                 versions: pkg.versions
             };
 
-            return { package: customPackage, versions: versions };
+            return { package: customPackage, versions: versionsOldEnough };
         });
 
         core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
