@@ -6,12 +6,12 @@ class MavenStrategy {
     }
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
-        // let filteredPackagesWithVersionsForDelete = packagesWithVersions;
+        let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
-        core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
-        core.info(`package with Version ${JSON.stringify(packagesWithVersions, null, 2)}`);
+        // core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
+        // core.info(`package with Version ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
-        const filtered = packagesWithVersions.filter((t) => t.package_type === 'maven');
+        const filtered = packagesWithVersions.filter((t) => t.package.package_type === 'maven');
 
         core.info(`Filtered packages with Maven type: ${JSON.stringify(filtered, null, 2)}`);
 
