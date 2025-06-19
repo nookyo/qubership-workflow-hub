@@ -100,7 +100,7 @@ async function run() {
   let filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 
   if (isDebug) {
-    core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
+
     core.info(`::group::Delete versions Log.`);
     core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
     core.info(`::endgroup::`);
