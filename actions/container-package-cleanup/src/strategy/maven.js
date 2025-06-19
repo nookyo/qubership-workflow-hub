@@ -25,6 +25,7 @@ class MavenStrategy {
                 if(!t) {
                     core.info(`Version ${version.name} does not match '*SNAPSHOT*'`);
                 }
+                core.info(`Version ${version.name} matches '*SNAPSHOT*': ${t}`);
 
             });
 
