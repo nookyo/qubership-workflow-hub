@@ -9,6 +9,7 @@ class MavenStrategy {
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = true }) {
 
+        includedTags = `*SNAPDHOT*`;
         const wildcardMatcher = new WildcardMatcher();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
