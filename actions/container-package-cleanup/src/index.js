@@ -88,7 +88,8 @@ async function run() {
     thresholdDate,
     wrapper,
     owner,
-    isOrganization
+    isOrganization,
+    debug: isDebug
   };
 
 

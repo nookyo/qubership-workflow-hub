@@ -7,7 +7,7 @@ class MavenStrategy {
         this.name = 'ManevStrategy';
     }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = true }) {
+    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
 
         includedTags = ['*SNAPSHOT*', ...includedTags];
         const wildcardMatcher = new WildcardMatcher();
