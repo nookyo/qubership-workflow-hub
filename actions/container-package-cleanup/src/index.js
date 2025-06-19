@@ -97,7 +97,7 @@ async function run() {
 
   console.log(`Using strategy: ${await strategy.toString()}`);
 
-  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
+  let filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 
   if (isDebug) {
     core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
