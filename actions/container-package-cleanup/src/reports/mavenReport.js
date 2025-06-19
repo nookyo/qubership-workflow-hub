@@ -3,17 +3,23 @@ const core = require("@actions/core");
 class MavenReport {
 
     /**
-      * @param {Array<{package: {id, name, type}, versions: Array<{name, created_at}>}>} filteredPackagesWithVersionsForDelete
-      * @param {boolean} dryRun
-      * @param {number} thresholdDays    // Number of days before which versions are considered for deletion
-      * @param {Date} thresholdDate      // Edge date for deletion, versions created before this date will be considered
-      * @returns {Promise<void>}
-      * @description Writes a summary of the packages and versions that are eligible for deletion.
-      * The summary includes package names, version names, creation dates, and the total count of packages and versions.
-      * If dryRun is true, it indicates that no actual deletions will occur.
-      */
+   * @param {Array<{package: {id, name, type}, versions: Array<{name, created_at}>}>} filteredPackagesWithVersionsForDelete
+   * @param {boolean} dryRun
+   * @param {number} thresholdDays    // количество дней «старше» которых версии удаляются
+   * @param {Date} thresholdDate      // пороговая дата — всё что создано до неё удаляется
+   * @param {string[]} includedTags   // паттерны для поиска по имени версии
+   */
 
-    async writeSummary(filteredPackagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun = false) {
+    async writeSummary(context) {
+        const {
+            filteredPackagesWithVersionsForDelete,
+            dryRun,
+            thresholdDays,
+            thresholdDate,
+            includedTags,
+            excludedTags
+        } = context;
+
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
             return;

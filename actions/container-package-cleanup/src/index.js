@@ -107,9 +107,18 @@ async function run() {
     core.info(`::endgroup::`);
   }
 
+  let reportContext = {
+    filteredPackagesWithVersionsForDelete,
+    thresholdDays,
+    thresholdDate,
+    dryRun,
+    includedTags,
+    excludedTags
+  };
+
   if (dryRun) {
     core.warning("Dry run mode enabled. No versions will be deleted.");
-    await showReport(filteredPackagesWithVersionsForDelete, thresholdDate, thresholdDays, true, package_type,);
+    await showReport(reportContext, package_type,);
     return;
   }
 
@@ -126,9 +135,9 @@ async function run() {
   // core.info("✅ All specified versions have been deleted successfully.");
 }
 
-async function showReport(packagesWithVersionsForDelete, thresholdDate, thresholdDays, dryRun = false, type = 'container') {
+async function showReport(context, type = 'container') {
   let report = type === 'container' ? new ContainerReport() : new MavenReport();
-  await report.writeSummary(packagesWithVersionsForDelete, thresholdDays, thresholdDate, dryRun);
+  await report.writeSummary(context);
 
 }
 
