@@ -7,7 +7,7 @@ class MavenStrategy {
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
 
-        // core.info(`Filtered packages with Maven type: ${JSON.stringify(filtered, null, 2)}`);
+        core.info(`Filtered packages with Maven type: ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
         let versionsToDelete;
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
@@ -17,8 +17,7 @@ class MavenStrategy {
             let customPackage = {
                 id: pkg.id,
                 name: pkg.name,
-                type: pkg.package_type,
-                versions: pkg.package.versions
+                type: pkg.package_type
             };
 
             return { package: customPackage, versions: versionsToDelete };
