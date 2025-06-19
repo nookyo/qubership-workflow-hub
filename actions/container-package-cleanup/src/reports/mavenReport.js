@@ -48,14 +48,15 @@ class MavenReport {
         });
 
         core.summary.addRaw(`## 🎯 Container Package Cleanup Summary ${dryRunText}\n\n`);
+        core.summary.addRaw(`**Threshold:** versions older than **${thresholdDays} days** (created before **${thresholdDate.toISOString().slice(0, 10)}**)\n\n`);
         core.summary.addRaw(`**Total Packages Processed:** ${totalPackages}  \n`);
         core.summary.addRaw(`**Total Deleted Versions:** ${totalDeletedVersions}\n\n`);
         core.summary.addRaw(`---\n\n`);
         core.summary.addRaw(`**Parameters:**\n\n`);
         core.summary.addRaw(`- Threshold Days: ${thresholdDays}\n`);
         core.summary.addRaw(`- Threshold Date: ${thresholdDate.toISOString().slice(0, 10)}\n`);
-        core.summary.addRaw(`- Included Tags Patterns: ${includedTags.length ? includedTags.map(t => `<code>${t}</code>`).join(", ") : "None"}\n`);
-        core.summary.addRaw(`- Excluded Tags Patterns: ${excludedTags.length ? excludedTags.map(t => `<code>${t}</code>`).join(", ") : "None"}\n\n`);
+        includedTags.length && core.summary.addRaw(`- Included Patterns: ${includedTags.length ? includedTags.map(t => `<code>${t}</code>`).join(", ") : "None"}\n`);
+        excludedTags.length && core.summary.addRaw(`- Excluded Patterns: ${excludedTags.length ? excludedTags.map(t => `<code>${t}</code>`).join(", ") : "None"}\n\n`);
         core.summary.addRaw(`---\n\n`);
         // `**Threshold:** versions older than **${thresholdDays} days** ` +
         //     `(created before **${thresholdDate.toISOString().slice(0, 10)}**)\n\n` +
