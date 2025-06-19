@@ -13,6 +13,7 @@ class ReportContext {
      * @param {string[]} [params.includedTags=[]]
      * @param {string[]} [params.excludedTags=[]]
      */
+    constructor(){}
     // constructor({
     //     filteredPackagesWithVersionsForDelete,
     //     dryRun = false,
