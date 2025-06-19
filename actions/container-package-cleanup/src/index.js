@@ -10,7 +10,6 @@ const ContainerStrategy = require("./strategy/container");
 const MavenStrategy = require("./strategy/maven");
 
 async function run() {
-
   // const configurationPath = core.getInput('config-file-path');
 
   // if (configurationPath === "") {
@@ -26,21 +25,23 @@ async function run() {
   core.info(`Is debug? -> ${isDebug}`);
   core.info(`Dry run? -> ${dryRun}`);
 
-  const thresholdDays = parseInt(core.getInput('threshold-days'), 10) || 7;
+  const thresholdDays = parseInt(core.getInput("threshold-days"), 10) || 7;
 
   let excludedTags = [];
   let includedTags = [];
 
   if (package_type === "container") {
-    const rawIncludedTags = core.getInput('included-tags');
+    const rawIncludedTags = core.getInput("included-tags");
     includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
 
-    const rawExcludedTags = core.getInput('excluded-tags');
+    const rawExcludedTags = core.getInput("excluded-tags");
     excludedTags = rawExcludedTags ? rawExcludedTags.split(",") : [];
   }
 
   const now = new Date();
-  const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
+  const thresholdDate = new Date(
+    now.getTime() - thresholdDays * 24 * 60 * 60 * 1000,
+  );
 
   // core.info(`Configuration Path: ${configurationPath}`);
   core.info(`Threshold Days: ${thresholdDays}`);
@@ -61,13 +62,20 @@ async function run() {
 
   // let packages = await wrapper.listPackages(owner, 'container', isOrganization);
 
-  let packages = await wrapper.listPackages(owner, package_type, isOrganization);
+  let packages = await wrapper.listPackages(
+    owner,
+    package_type,
+    isOrganization,
+  );
 
-  let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
+  let filteredPackages = packages.filter(
+    (pkg) => pkg.repository?.name === repo,
+  );
   // core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
 
-
-  core.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
+  core.info(
+    `Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`,
+  );
 
   if (packages.length === 0) {
     core.info("❗️ No packages found.");
@@ -76,9 +84,14 @@ async function run() {
 
   const packagesWithVersions = await Promise.all(
     filteredPackages.map(async (pkg) => {
-      const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+      const versionsForPkg = await wrapper.listVersionsForPackage(
+        owner,
+        pkg.package_type,
+        pkg.name,
+        isOrganization,
+      );
       return { package: pkg, versions: versionsForPkg };
-    })
+    }),
   );
 
   const strategyContext = {
@@ -89,20 +102,29 @@ async function run() {
     wrapper,
     owner,
     isOrganization,
-    debug: isDebug
+    debug: isDebug,
   };
 
-
-  let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
+  let strategy =
+    package_type === "container"
+      ? new ContainerStrategy()
+      : new MavenStrategy();
 
   console.log(`Using strategy: ${await strategy.toString()}`);
 
-  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
+  let filteredPackagesWithVersionsForDelete = await strategy.execute(
+    packagesWithVersions,
+    excludedTags,
+    includedTags,
+    thresholdDate,
+  );
 
   if (isDebug) {
     core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
     core.info(`::group::Delete versions Log.`);
-    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    core.info(
+      `💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`,
+    );
     core.info(`::endgroup::`);
   }
 
