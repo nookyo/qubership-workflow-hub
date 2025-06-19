@@ -10,7 +10,7 @@ class MavenStrategy {
         core.info(`Filtered packages with Maven type: ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
         let versionsToDelete;
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg }) => {
+        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions}) => {
 
             let customPackage = {
                 id: pkg.id,
@@ -19,7 +19,7 @@ class MavenStrategy {
                 versions: pkg.versions
             };
 
-            return { package: customPackage };
+            return { package: customPackage, versions: versions };
         });
 
         core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
