@@ -6,10 +6,24 @@ class MavenStrategy {
     }
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions;
+        // let filteredPackagesWithVersionsForDelete = packagesWithVersions;
 
         core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
         core.info(`package with Version ${JSON.stringify(packagesWithVersions, null, 2)}`);
+
+        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+
+        //     const verisonWithOutExclude = versions.filter((version) => {
+        //         const createdAt = new Date(version.created_at);
+        //         const isOldEnough = createdAt <= thresholdDate;
+        //         if (!isOldEnough) return false;
+        //         const name = version.name;
+        //         // Add additional filtering logic here if needed
+        //         return true;
+        //     });
+
+        //     return { package: pkg, versions: verisonWithOutExclude };
+        // });
 
 
         // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
