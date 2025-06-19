@@ -14,6 +14,7 @@ class MavenStrategy {
                 const isOldEnough = createdAt <= thresholdDate;
                 console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
                 if (!isOldEnough) return false;
+                return true;
             });
 
             let customPackage = {
