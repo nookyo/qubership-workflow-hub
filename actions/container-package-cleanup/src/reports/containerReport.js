@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-class Report {
+class ContainerReport {
     async writeSummary(filteredPackagesWithVersionsForDelete, dryRun = false) {
         if (!filteredPackagesWithVersionsForDelete || filteredPackagesWithVersionsForDelete.length === 0) {
             core.info("❗️No packages or versions to delete.");
@@ -41,4 +41,4 @@ class Report {
     }
 }
 
-module.exports = Report;
+module.exports = ContainerReport;

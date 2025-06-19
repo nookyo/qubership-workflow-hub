@@ -5,7 +5,8 @@
 
 const core = require("@actions/core");
 const OctokitWrapper = require("./wrapper");
-const Report = require("./report");
+const ContainerReport = require("./reports/containerReport");
+const MavenReport = require("./reports/mavenReport");
 const ContainerStrategy = require("./strategy/container");
 const MavenStrategy = require("./strategy/maven");
 
@@ -119,12 +120,16 @@ async function run() {
     }
   }
 
-  // await showReport(filteredPackagesWithVersionsForDelete);
-  // core.info("✅ All specified versions have been deleted successfully.");
+  core.info("✅ All specified versions have been deleted successfully.");
+
+  await showReport(filteredPackagesWithVersionsForDelete);
+  core.info("✅ All specified versions have been deleted successfully.");
 }
 
-async function showReport(packagesWithVersionsForDelete, dryRun = false) {
-  // await new Report().writeSummary(packagesWithVersionsForDelete, dryRun);
+async function showReport(packagesWithVersionsForDelete, dryRun = false, type = 'container') {
+  let report = type === 'container' ? new ContainerReport() : new MavenReport();
+  await report.writeSummary(packagesWithVersionsForDelete, dryRun);
+
 }
 
 run();
