@@ -97,86 +97,20 @@ async function run() {
 
   console.log(`Using strategy: ${await strategy.toString()}`);
 
+  let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
 
+  if (isDebug) {
+    core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
+    core.info(`::group::Delete versions Log.`);
+    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    core.info(`::endgroup::`);
+  }
 
-  strategy = await strategy.execute(strategyContext);
-
-  // core.info(`Packages ${JSON.stringify(packages, null, 2)}`);
-
-  // let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  // core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
-
-  // let packagesNames = filteredPackages.map((pkg) => pkg.name);
-  // core.info(`Packages names: ${JSON.stringify(packagesNames, null, 2)}`);
-
-  // const packagesWithVersions = await Promise.all(
-  //   filteredPackages.map(async (pkg) => {
-  //     const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
-  //     return { package: pkg, versions: versionsForPkg };
-  //   })
-  // );
-
-  // filter for container type
-  // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
-
-  //   const verisonWithOutExclude = versions.filter((version) => {
-  //     const createdAt = new Date(version.created_at);
-  //     const isOldEnough = createdAt <= thresholdDate;
-
-  //     if (!isOldEnough) return false;
-  //     if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-  //     const tags = version.metadata.container.tags;
-
-  //     if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatch(tag, pattern)))) {
-  //       return false;
-  //     }
-  //     return true;
-  //   });
-
-  //   const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
-  //     if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
-  //     const tags = version.metadata.container.tags;
-  //     return tags.some(tag => includedTags.some(pattern => wildcardMatch(tag, pattern)));
-  //   }) : verisonWithOutExclude;
-
-  //   const customPackage = {
-  //     id: pkg.id,
-  //     name: pkg.name,
-  //     type: pkg.package_type
-  //   };
-
-  //   return { package: customPackage, versions: versionsToDelete };
-
-  // }).filter(item => item !== null && item.versions.length > 0);
-
-  // if (filteredPackagesWithVersionsForDelete.length === 0) {
-  //   core.info("❗️ No versions to delete.");
-  //   return;
-  // }
-
-  //const strategy = new ContainerStrategy();
-  // const strategy = type === 'container' ? new ContainerStrategy() : new MavenStrategy();
-
-  // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
-
-  // console.log(`🔹Using strategy: ${await strategy.toString()}`);
-
-  // strategy = await strategy.execute(strategyContext);
-
-  // let filteredPackagesWithVersionsForDelete = await strategy.execute(packagesWithVersions, excludedTags, includedTags, thresholdDate);
-
-  // if (isDebug) {
-  //   core.info(`💡 Packages name: ${JSON.stringify(packagesNames, null, 2)}`);
-  //   core.info(`::group::Delete versions Log.`);
-  //   core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-  //   core.info(`::endgroup::`);
-  // }
-
-  // if (dryRun) {
-  //   core.warning("Dry run mode enabled. No versions will be deleted.");
-  //   await showReport(filteredPackagesWithVersionsForDelete, true);
-  //   return;
-  // }
+  if (dryRun) {
+    core.warning("Dry run mode enabled. No versions will be deleted.");
+    await showReport(filteredPackagesWithVersionsForDelete, true);
+    return;
+  }
 
   // for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
   //   for (const version of versions) {
