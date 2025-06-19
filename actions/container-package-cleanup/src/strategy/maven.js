@@ -17,13 +17,11 @@ class MavenStrategy {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
 
-                if (debug) {
-                    console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
-                }
-
+                debug && console.log(`Version name: ${version.name} created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
 
                 if (!isOldEnough) return false;
                 return wildcardMatcher.match(version.name, '*SNAPSHOT*');
+
             });
 
             let customPackage = {
