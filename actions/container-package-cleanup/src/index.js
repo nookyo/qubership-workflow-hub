@@ -94,7 +94,7 @@ async function run() {
 
   let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
-  console.log(`🔹Using strategy: ${await strategy.toString()}`);
+  console.log(`Using strategy: ${await strategy.toString()}`);
 
 
 
