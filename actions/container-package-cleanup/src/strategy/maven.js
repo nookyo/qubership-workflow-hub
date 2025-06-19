@@ -18,7 +18,9 @@ class MavenStrategy {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
 
+                debug && core.info(`::group:: Package version check.`);
                 debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+                debug && core.info(`::endgroup::`);
 
                 if (!isOldEnough) return false;
 
@@ -43,7 +45,7 @@ class MavenStrategy {
 
         }).filter(item => item !== null && item != undefined && item.versions.length > 0);
 
-        debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+        // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
         return filteredPackagesWithVersionsForDelete;
     }
