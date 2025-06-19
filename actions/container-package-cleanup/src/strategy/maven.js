@@ -17,7 +17,8 @@ class MavenStrategy {
             let customPackage = {
                 id: pkg.id,
                 name: pkg.name,
-                type: pkg.package_type
+                type: pkg.package_type,
+                versions: pkg.versions
             };
 
             return { package: customPackage, versions: versionsToDelete };
