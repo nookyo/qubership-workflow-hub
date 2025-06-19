@@ -7,7 +7,7 @@ class MavenStrategy {
         this.name = 'ManevStrategy';
     }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
+    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = true }) {
 
         const wildcardMatcher = new WildcardMatcher();
 
@@ -16,7 +16,12 @@ class MavenStrategy {
             let versionForDelete = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
-                console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+
+                if (debug) {
+                    console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+                }
+
+
                 if (!isOldEnough) return false;
                 return wildcardMatcher.match(version.name, '*SNAPSHOT*');
             });
