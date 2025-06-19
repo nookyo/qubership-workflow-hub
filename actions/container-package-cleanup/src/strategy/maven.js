@@ -6,28 +6,25 @@ class MavenStrategy {
     }
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions;
-
-        // core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
-        // core.info(`package with Version ${JSON.stringify(packagesWithVersions, null, 2)}`);
-
-        const filtered = packagesWithVersions.filter((t) => t.package.package_type === 'maven');
 
         core.info(`Filtered packages with Maven type: ${JSON.stringify(filtered, null, 2)}`);
 
-        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+        let versionsToDelete;
+        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-        //     const verisonWithOutExclude = versions.filter((version) => {
-        //         const createdAt = new Date(version.created_at);
-        //         const isOldEnough = createdAt <= thresholdDate;
-        //         if (!isOldEnough) return false;
-        //         const name = version.name;
-        //         // Add additional filtering logic here if needed
-        //         return true;
-        //     });
 
-        //     return { package: pkg, versions: verisonWithOutExclude };
-        // });
+
+            let customPackage = {
+                id: pkg.id,
+                name: pkg.name,
+                type: pkg.package_type,
+                versions: pkg.package.versions
+            };
+
+            return { package: customPackage, versions: versionsToDelete };
+        });
+
+        core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
 
         // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
