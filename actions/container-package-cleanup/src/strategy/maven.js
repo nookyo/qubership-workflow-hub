@@ -1,4 +1,6 @@
 const core = require('@actions/core');
+const WildcardMatcher = require("./wildcardMatcher");
+
 
 class MavenStrategy {
     constructor() {
@@ -7,13 +9,19 @@ class MavenStrategy {
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate }) {
 
+        const wildcardMatcher = new WildcardMatcher();
+
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-            let versionsOldEnough = versions.filter((version) => {
+            let oldEnoughVersions = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
                 console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
                 return isOldEnough;
+            });
+
+            let versionForDelete = oldEnoughVersions.filter((version) => {
+                return wildcardMatcher.match(version.name, '*SHAPSHOT*')
             });
 
             let customPackage = {
@@ -23,7 +31,7 @@ class MavenStrategy {
                 versions: pkg.versions
             };
 
-            return { package: customPackage, versions: versionsOldEnough };
+            return { package: customPackage, versions: versionForDelete };
         });
 
         core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
