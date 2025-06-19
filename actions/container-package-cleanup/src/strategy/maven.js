@@ -11,7 +11,7 @@ class MavenStrategy {
         core.info(`Executing MavenStrategy with thresholdDate: ${thresholdDate}`);
         core.info(`package with Version ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
-        const filtered = packagesWithVersions.filter((package) => package.package_type === 'maven');
+        const filtered = packagesWithVersions.filter((t) => t.package_type === 'maven');
 
         core.info(`Filtered packages with Maven type: ${JSON.stringify(filtered, null, 2)}`);
 
