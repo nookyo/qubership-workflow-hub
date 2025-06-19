@@ -40,6 +40,8 @@ async function run() {
     excludedTags = rawExcludedTags ? rawExcludedTags.split(",") : [];
   }
 
+  if (package_type === "maven")  includedTags = ['*SNAPSHOT*', ...includedTags];
+
   const now = new Date();
   const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
 
