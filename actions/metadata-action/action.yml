@@ -1,64 +1,64 @@
 name: "Metadata Action"
 description: ""
 inputs:
-    configuration-path:
-        description: "Path to the configuration file."
-        required: false
-    short-sha:
-        description: "Short SHA deep."
-        default: "7"
-        required: false
-    default-template:
-        description: "Default template."
-        default: ""
-        required: false
-    default-tag:
-        description: "Default tag."
-        default: ""
-        required: false
-    extra-tags:
-        description: "Extra tags."
-        default: ""
-        required: false
-    merge-tags:
-        default: "true"
-        description: "Merge extra tags."
-        required: false
-    debug:
-        description: "Debug mode."
-        default: "false"
-        required: false
-    show-report:
-        description: "Show report."
-        default: "true"
-        required: false
-    dry-run:
-        description: "Dry run mode."
-        default: "false"
-        required: false
+  configuration-path:
+    description: "Path to the configuration file."
+    required: false
+  short-sha:
+    description: "Short SHA deep."
+    default: "7"
+    required: false
+  default-template:
+    description: "Default template."
+    default: ""
+    required: false
+  default-tag:
+    description: "Default tag."
+    default: ""
+    required: false
+  extra-tags:
+    description: "Extra tags."
+    default: ""
+    required: false
+  merge-tags:
+    default: "true"
+    description: "Merge extra tags."
+    required: false
+  debug:
+    description: "Debug mode."
+    default: "false"
+    required: false
+  show-report:
+    description: "Show report."
+    default: "true"
+    required: false
+  dry-run:
+    description: "Dry run mode."
+    default: "false"
+    required: false
 outputs:
-    result:
-        description: "Current timestamp."
-    ref:
-        description: "Current branch or tag ref."
-    ref-name:
-        description: "Current branch or tag name."
-    date:
-        description: "Current date."
-    time:
-        description: "Current time."
-    timestamp:
-        description: "Current timestamp."
-    dist-tag:
-        description: "Current tag."
-    major:
-        description: "Major version."
-    minor:
-        description: "Minor version."
-    patch:
-        description: "Patch version."
-    short-sha:
-        description: "Short SHA."
+  result:
+    description: "Current timestamp."
+  ref:
+    description: "Current branch or tag ref."
+  ref-name:
+    description: "Current branch or tag name."
+  date:
+    description: "Current date."
+  time:
+    description: "Current time."
+  timestamp:
+    description: "Current timestamp."
+  dist-tag:
+    description: "Current tag."
+  major:
+    description: "Major version."
+  minor:
+    description: "Minor version."
+  patch:
+    description: "Patch version."
+  short-sha:
+    description: "Short SHA."
 runs:
   using: "node20"
   main: "dist/index.js"
