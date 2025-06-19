@@ -9,7 +9,7 @@ class MavenStrategy {
 
     async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
 
-        includedTags = ['*SNAPSHOT*', ...includedTags];
+        // includedTags = ['*SNAPSHOT*', ...includedTags];
         const wildcardMatcher = new WildcardMatcher();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
