@@ -12,7 +12,7 @@ class MavenStrategy {
             versions = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
-                сore.info(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+                console.log(`Version created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
                 if (!isOldEnough) return false;
             });
 
