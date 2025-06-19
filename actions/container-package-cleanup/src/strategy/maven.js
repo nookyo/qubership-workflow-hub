@@ -20,15 +20,22 @@ class MavenStrategy {
                 debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
 
                 if (!isOldEnough) return false;
-                return wildcardMatcher.match(version.name, '*SNAPSHOT*');
+
+                return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
 
             });
+
+            if (versionForDelete.length === 0) {
+
+                debug && core.info(`No versions found for package: ${pkg.name} that match the criteria.`);
+                return false;
+            }
+
 
             let customPackage = {
                 id: pkg.id,
                 name: pkg.name,
-                type: pkg.package_type,
-                versions: pkg.versions
+                type: pkg.package_type
             };
 
             return { package: customPackage, versions: versionForDelete };
