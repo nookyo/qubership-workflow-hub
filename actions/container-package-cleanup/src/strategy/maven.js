@@ -21,7 +21,10 @@ class MavenStrategy {
             });
 
             let versionForDelete = oldEnoughVersions.filter((version) => {
-                return wildcardMatcher.match(version.name, '*SHAPSHOT')
+                if(!wildcardMatcher.match(version.name, '*SHAPSHOT')) {
+                    return false;
+                }
+                return version.name;
             });
 
             let customPackage = {
