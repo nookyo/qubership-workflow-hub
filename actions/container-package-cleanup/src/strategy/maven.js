@@ -31,7 +31,7 @@ class MavenStrategy {
             if (versionForDelete.length === 0) {
 
                 debug && core.info(`No versions found for package: ${pkg.name} that match the criteria.`);
-                return [];
+                return null;
             }
 
 
@@ -41,7 +41,7 @@ class MavenStrategy {
                 type: pkg.package_type
             };
 
-            return [{ package: customPackage, versions: versionForDelete }];
+            return { package: customPackage, versions: versionForDelete };
 
         });
 
