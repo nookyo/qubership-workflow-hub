@@ -10,13 +10,13 @@ function getStrategy(packageType) {
     const StrategyClass = strategyRegistry[packageType];
 
     if (!StrategyClass) {
-        throw new Error(`❌ Unsupported package type: ${packageType}`);
+        throw new Error(`Unsupported package type: ${packageType}`);
     }
 
     const instance = new StrategyClass();
 
     if (typeof instance.execute !== 'function') {
-        throw new Error(`❌ Strategy ${packageType} must implement 'execute()'`);
+        throw new Error(`Strategy ${packageType} must implement 'execute()'`);
     }
 
     return instance;
