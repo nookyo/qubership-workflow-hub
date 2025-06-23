@@ -26,7 +26,7 @@ class MavenStrategy extends AbstractPackageStrategy {
 
                 if (!isOldEnough) return false;
 
-                if (excludedTags.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
+                // if (excludedTags.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
 
                 return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
 
