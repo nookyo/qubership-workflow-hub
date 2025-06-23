@@ -1,5 +1,5 @@
-const MavenStrategy = require('./MavenStrategy');
-const ContainerStrategy = require('./ContainerStrategy');
+const MavenStrategy = require('./container');
+const ContainerStrategy = require('./maven');
 
 const strategyRegistry = {
     maven: MavenStrategy,
