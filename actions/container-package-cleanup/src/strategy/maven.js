@@ -1,7 +1,5 @@
 const core = require('@actions/core');
 const WildcardMatcher = require("./wildcardMatcher");
-const { version } = require('react');
-
 
 class MavenStrategy {
     constructor() {
@@ -16,7 +14,7 @@ class MavenStrategy {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
             if(versions.length === 1) return [];
-            
+
             let versionForDelete = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
