@@ -15,17 +15,19 @@ class MavenStrategy {
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
             if (versions.length === 1) return null;
-                let versionForDelete = versions.filter((version) => {
-                    const createdAt = new Date(version.created_at);
-                    const isOldEnough = createdAt <= thresholdDate;
+            let versionForDelete = versions.filter((version) => {
+                const createdAt = new Date(version.created_at);
+                const isOldEnough = createdAt <= thresholdDate;
 
-                    debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+                debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
 
-                    if (!isOldEnough) return false;
+                if (!isOldEnough) return false;
 
-                    return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
+                if (excludedTags.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
 
-                });
+                return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
+
+            });
 
             if (versionForDelete.length === 0) {
 
@@ -42,9 +44,9 @@ class MavenStrategy {
 
             return { package: customPackage, versions: versionForDelete };
 
-        }).filter(item => item != null && item != undefined);
+        }).filter(Boolean);
 
-       // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+        // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
         return filteredPackagesWithVersionsForDelete;
     }
