@@ -1,5 +1,5 @@
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
-const WildcardMatcher = require("./wildcardMatcher");
+const WildcardMatcher = require("../utils/wildcardMatcher");
 
 class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {

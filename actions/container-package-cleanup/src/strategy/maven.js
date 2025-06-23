@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const WildcardMatcher = require("./wildcardMatcher");
+const WildcardMatcher = require("../utils/wildcardMatcher");
 const AbstractPackageStrategy = require('./abstractPackageStrategy');
 
 
