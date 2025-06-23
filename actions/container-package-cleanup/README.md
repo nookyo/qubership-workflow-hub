@@ -17,13 +17,13 @@ This **Container Package Cleanup** GitHub Action automates the cleanup of old Do
 
 ## 📌 Inputs
 
-| Name               | Description                                                                 | Required | Default                     |
-| ------------------ | --------------------------------------------------------------------------- | -------- | --------------------------- |
-| `threshold-days`   | The number of days to keep container package versions. Older versions will be deleted. | No       | `7`                         |
-| `included-tags`    | A comma-separated list of tags to include for deletion. Wildcards (`*`) are supported. | No       | `""` (all tags included)     |
-| `excluded-tags`    | A comma-separated list of tags to exclude from deletion. Wildcards (`*`) are supported.| No       | `""` (no tags excluded)      |
-| `dry-run`          | Enable dry-run mode to preview deletions without making changes.            | No       | `false`                     |
-| `debug`            | Enable debug mode for detailed logging.                                     | No       | `false`                     |
+| Name             | Description                                                                             | Required | Default                  |
+| ---------------- | --------------------------------------------------------------------------------------- | -------- | ------------------------ |
+| `threshold-days` | The number of days to keep container package versions. Older versions will be deleted.  | No       | `7`                      |
+| `included-tags`  | A comma-separated list of tags to include for deletion. Wildcards (`*`) are supported.  | No       | `""` (all tags included) |
+| `excluded-tags`  | A comma-separated list of tags to exclude from deletion. Wildcards (`*`) are supported. | No       | `""` (no tags excluded)  |
+| `dry-run`        | Enable dry-run mode to preview deletions without making changes.                        | No       | `false`                  |
+| `debug`          | Enable debug mode for detailed logging.                                                 | No       | `false`                  |
 
 ---
 
@@ -40,6 +40,7 @@ This action does not produce any outputs. It performs cleanup operations directl
 | `PACKAGE_TOKEN` | GitHub token with permissions to manage packages | Yes      |
 
 > **Note:** The `PACKAGE_TOKEN` must have the following permissions:
+>
 > - **`read:packages`**: To list and retrieve package information.
 > - **`delete:packages`**: To delete package versions.
 
@@ -137,6 +138,7 @@ The action filters tags in the following order of priority:
 #### Filtering Process
 
 The filtering process works as follows:
+
 1. **Step 1**: Exclude versions with tags matching `excluded-tags`.
 2. **Step 2**: From the remaining versions, include only those matching `included-tags` (if specified).
 3. **Step 3**: If `included-tags` is not specified, all remaining versions are considered for deletion.
@@ -157,9 +159,9 @@ The action supports flexible tag matching using exact matches and wildcard patte
 
 #### Examples
 
-| Pattern       | Matches                          | Does Not Match       |
-|---------------|----------------------------------|----------------------|
-| `release*`    | `release`, `release-v1`          | `v1-release`         |
-| `*release`    | `v1-release`, `candidate-release`| `release-v1`         |
-| `*release*`   | `v1-release-candidate`, `release-v1` | `v1-candidate`    |
-| `release*v1`  | `release-v1`, `release-candidate-v1` | `release-v2`     |
+| Pattern      | Matches                              | Does Not Match |
+| ------------ | ------------------------------------ | -------------- |
+| `release*`   | `release`, `release-v1`              | `v1-release`   |
+| `*release`   | `v1-release`, `candidate-release`    | `release-v1`   |
+| `*release*`  | `v1-release-candidate`, `release-v1` | `v1-candidate` |
+| `release*v1` | `release-v1`, `release-candidate-v1` | `release-v2`   |
