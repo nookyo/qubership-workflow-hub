@@ -14,8 +14,6 @@ class MavenStrategy {
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-            if(versions.length === 1) return [];
-            
             let versionForDelete = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
@@ -43,7 +41,7 @@ class MavenStrategy {
 
             return { package: customPackage, versions: versionForDelete };
 
-        });
+        }).filter(item => item != null && item != undefined);
 
         debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
