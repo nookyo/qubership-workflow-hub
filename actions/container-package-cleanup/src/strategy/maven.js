@@ -1,56 +1,67 @@
-const core = require('@actions/core');
+const core = require("@actions/core");
 const WildcardMatcher = require("./wildcardMatcher");
 
-
 class MavenStrategy {
-    constructor() {
-        this.name = 'ManevStrategy';
-    }
+  constructor() {
+    this.name = "ManevStrategy";
+  }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
+  async execute({
+    packagesWithVersions,
+    excludedTags,
+    includedTags,
+    thresholdDate,
+    debug = false,
+  }) {
+    // includedTags = ['*SNAPSHOT*', ...includedTags];
+    const wildcardMatcher = new WildcardMatcher();
 
-        // includedTags = ['*SNAPSHOT*', ...includedTags];
-        const wildcardMatcher = new WildcardMatcher();
+    let filteredPackagesWithVersionsForDelete = packagesWithVersions
+      .map(({ package: pkg, versions }) => {
+        let versionForDelete = versions.filter((version) => {
+          const createdAt = new Date(version.created_at);
+          const isOldEnough = createdAt <= thresholdDate;
 
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+          debug &&
+            core.info(
+              `Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`,
+            );
 
-            let versionForDelete = versions.filter((version) => {
-                const createdAt = new Date(version.created_at);
-                const isOldEnough = createdAt <= thresholdDate;
+          if (!isOldEnough) return false;
 
-                debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+          return includedTags.some((pattern) =>
+            wildcardMatcher.match(version.name, pattern),
+          );
+        });
 
-                if (!isOldEnough) return false;
+        if (versionForDelete.length === 0) {
+          debug &&
+            core.info(
+              `No versions found for package: ${pkg.name} that match the criteria.`,
+            );
+          return false;
+        }
 
-                return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
+        let customPackage = {
+          id: pkg.id,
+          name: pkg.name,
+          type: pkg.package_type,
+        };
 
-            });
+        return { package: customPackage, versions: versionForDelete };
+      })
+      .filter(
+        (item) => item != null && item != undefined && item.versions.length > 0,
+      );
 
-            if (versionForDelete.length === 0) {
+    // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
-                debug && core.info(`No versions found for package: ${pkg.name} that match the criteria.`);
-                return false;
-            }
+    return filteredPackagesWithVersionsForDelete;
+  }
 
-
-            let customPackage = {
-                id: pkg.id,
-                name: pkg.name,
-                type: pkg.package_type
-            };
-
-            return { package: customPackage, versions: versionForDelete };
-
-        }).filter(item => item != null && item != undefined && item.versions.length > 0);
-
-        // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-
-        return filteredPackagesWithVersionsForDelete;
-    }
-
-    async toString() {
-        return this.name;
-    }
+  async toString() {
+    return this.name;
+  }
 }
 
 module.exports = MavenStrategy;
