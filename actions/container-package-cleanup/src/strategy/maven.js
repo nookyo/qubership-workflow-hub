@@ -25,7 +25,7 @@ class MavenStrategy extends AbstractPackageStrategy {
 
                 if (!isOldEnough) return false;
 
-                // if (excludedTags.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
+                if (excludedTags.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
 
                 return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
 
@@ -37,6 +37,13 @@ class MavenStrategy extends AbstractPackageStrategy {
                 return null;
             }
 
+            // Sort versions by creation date in descending order
+            versionForDelete.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            
+            // Remove the most recent version (the first one after sorting)
+            if (versionForDelete.length > 1) {
+                versionForDelete = versionForDelete.slice(1);
+            }
 
             let customPackage = {
                 id: pkg.id,
