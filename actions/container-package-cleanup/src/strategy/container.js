@@ -1,3 +1,4 @@
+const core = require('@actions/core');
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
 
@@ -16,6 +17,9 @@ class ContainerStrategy extends AbstractPackageStrategy {
             const versionsWithoutExclude = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
+
+                debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+
 
                 if (!isOldEnough) return false;
                 if (!this.isValidMetadata(version)) return false;

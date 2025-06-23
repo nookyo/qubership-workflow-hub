@@ -1,7 +1,6 @@
 const core = require('@actions/core');
 const WildcardMatcher = require("../utils/wildcardMatcher");
-const AbstractPackageStrategy = require('./abstractPackageStrategy');
-
+const AbstractPackageStrategy = require("./abstractPackageStrategy");
 
 class MavenStrategy extends AbstractPackageStrategy {
     constructor() {

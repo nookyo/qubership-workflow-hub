@@ -7,8 +7,6 @@ const core = require("@actions/core");
 const OctokitWrapper = require("./utils/wrapper");
 const ContainerReport = require("./reports/containerReport");
 const MavenReport = require("./reports/mavenReport");
-const ContainerStrategy = require("./strategy/container");
-const MavenStrategy = require("./strategy/maven");
 const { getStrategy } = require("./strategy/strategyRegistry");
 
 async function run() {
