@@ -9,6 +9,7 @@ const ContainerReport = require("./reports/containerReport");
 const MavenReport = require("./reports/mavenReport");
 const ContainerStrategy = require("./strategy/container");
 const MavenStrategy = require("./strategy/maven");
+const { getStrategy } = require("./strategy/strategyRegistry");
 
 async function run() {
 
@@ -96,7 +97,8 @@ async function run() {
   };
 
 
-  let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
+  let strategy = getStrategy(package_type);
+  // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
   console.log(`Using strategy: ${await strategy.toString()}`);
 
