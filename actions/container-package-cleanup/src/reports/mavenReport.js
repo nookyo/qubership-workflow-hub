@@ -39,12 +39,13 @@ class MavenReport {
         ];
 
         filteredPackagesWithVersionsForDelete.forEach(({ package: pkg, versions }) => {
-            versions.forEach(version => {
-                const pkgInfo = `<strong>${pkg.name}</strong><br/>(ID: ${pkg.id})`;
-                const versionInfo = `<code>${version.name}</code>`;
-                const createdAt = new Date(version.created_at).toISOString();
-                tableData.push([pkgInfo, versionInfo, createdAt]);
-            });
+            // versions.forEach(version => {
+            //     const pkgInfo = `<strong>${pkg.name}</strong><br/>(ID: ${pkg.id})`;
+            //     const versionInfo = `<code>${version.name}</code>`;
+            //     const createdAt = new Date(version.created_at).toISOString();
+            //     tableData.push([pkgInfo, versionInfo, createdAt]);
+            // });
+            console.info(`Package: ${pkg}, Version: ${versions}`)
         });
 
         core.summary.addRaw(`## 🎯 Container Package Cleanup Summary ${dryRunText}\n\n`);
