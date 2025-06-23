@@ -17,20 +17,20 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 
 ## 📌 Inputs
 
-| Name                      | Description                                                                                                                        | Required | Default                                                      |
-|---------------------------|------------------------------------------------------------------------------------------------------------------------------------|----------|--------------------------------------------------------------|
-| `ref`                     | Branch to create a release from.                                                                                                   | No       | `""`                                                         |
-| `custom-image-name`       | Custom name for the Docker image. If not provided, it will be auto-generated.                                                      | No       | `""`                                                         |
-| `context`                 | Pipeline context.                                                                                                                  | No       | `git`                                                        |
-| `dry-run`                 | Run without pushing (dry run).                                                                                                     | No       | `false`                                                      |
-| `download-artifact`       | Flag to download the artifact.                                                                                                     | No       | `false`                                                      |
-| `component`               | Component configuration in JSON format (an array with a single object).                                                            | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
-| `platforms`               | Platforms for which the Docker image will be built.                                                                                | No       | `linux/amd64`                                                |
-| `tags`                    | Docker image tags. If empty, tags will be generated automatically.                                                                 | No       | `""`                                                         |
-| `download-artifact-ids`   | IDs of the artifacts to download, comma-separated. Either inputs `artifact-ids` or `name` can be used, but not both. Optional      | No       | `""`                                                         |
-| `download-artifact-path`  | Destination path. Supports basic tilde expansion. Optional. Default is `$GITHUB_WORKSPACE`                                         | No       | `""`                                                         |
-| `download-artifact-pattern`| A glob pattern to the artifacts that should be downloaded. Ignored if name is specified. Optional.                                | No       | `false`                                                         |
-| `sbom`                    | Flag to enable SBoM generation.
+| Name                        | Description                                                                                                                   | Required | Default                                                         |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `ref`                       | Branch to create a release from.                                                                                              | No       | `""`                                                            |
+| `custom-image-name`         | Custom name for the Docker image. If not provided, it will be auto-generated.                                                 | No       | `""`                                                            |
+| `context`                   | Pipeline context.                                                                                                             | No       | `git`                                                           |
+| `dry-run`                   | Run without pushing (dry run).                                                                                                | No       | `false`                                                         |
+| `download-artifact`         | Flag to download the artifact.                                                                                                | No       | `false`                                                         |
+| `component`                 | Component configuration in JSON format (an array with a single object).                                                       | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
+| `platforms`                 | Platforms for which the Docker image will be built.                                                                           | No       | `linux/amd64`                                                   |
+| `tags`                      | Docker image tags. If empty, tags will be generated automatically.                                                            | No       | `""`                                                            |
+| `download-artifact-ids`     | IDs of the artifacts to download, comma-separated. Either inputs `artifact-ids` or `name` can be used, but not both. Optional | No       | `""`                                                            |
+| `download-artifact-path`    | Destination path. Supports basic tilde expansion. Optional. Default is `$GITHUB_WORKSPACE`                                    | No       | `""`                                                            |
+| `download-artifact-pattern` | A glob pattern to the artifacts that should be downloaded. Ignored if name is specified. Optional.                            | No       | `false`                                                         |
+| `sbom`                      | Flag to enable SBoM generation.                                                                                               |
 
 ---
 
@@ -125,5 +125,6 @@ with:
 ```
 
 In this configuration:
+
 - If `custom-image-name` is left empty, the action will use the `name` field from the `component` configuration (`custom-image-name`) as the Docker image name.
 - If no `component` is provided, the repository name will be used as the fallback.
