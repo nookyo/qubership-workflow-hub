@@ -45,7 +45,9 @@ class MavenReport {
             //     const createdAt = new Date(version.created_at).toISOString();
             //     tableData.push([pkgInfo, versionInfo, createdAt]);
             // });
-            console.info(`Package: ${pkg}, Version: ${versions}`)
+         
+            console.info(`Package: ${pkg.name}, Version: ${versions.map(v => v.name).join(", ")}`);
+            console.info(`Vvesions type: ${typeof versions}`);
         });
 
         core.summary.addRaw(`## 🎯 Container Package Cleanup Summary ${dryRunText}\n\n`);
