@@ -26,7 +26,7 @@ async function run() {
   core.info(`Is debug? -> ${isDebug}`);
   core.info(`Dry run? -> ${dryRun}`);
 
-  const thresholdDays = parseInt(core.getInput('threshold-days'), 10) || 7;
+  const thresholdDays = parseInt(core.getInput('threshold-days'), 10);
 
   let excludedTags = [];
   let includedTags = [];
