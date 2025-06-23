@@ -39,7 +39,7 @@ class MavenStrategy extends AbstractPackageStrategy {
 
             // Sort versions by creation date in descending order
             versionForDelete.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-            debug && core.info(`Versions to delete for package: ${pkg.name} after sorting: ${JSON.stringify(versionForDelete, null, 2)}`);
+
             // Remove the most recent version (the first one after sorting)
             if (versionForDelete.length > 1) {
                 versionForDelete = versionForDelete.slice(1);
