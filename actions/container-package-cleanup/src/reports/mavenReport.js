@@ -27,7 +27,7 @@ class MavenReport {
 
         const dryRunText = dryRun ? "(Dry Run)" : "";
         const totalPackages = filteredPackagesWithVersionsForDelete.length;
-        const totalDeletedVersions = 0 //filteredPackagesWithVersionsForDelete.reduce((sum, item) => sum + item.versions.length, 0);
+        const totalDeletedVersions = filteredPackagesWithVersionsForDelete.reduce((sum, item) => sum + item.versions.length, 0);
 
 
         const tableData = [
@@ -39,12 +39,12 @@ class MavenReport {
         ];
 
         filteredPackagesWithVersionsForDelete.forEach(({ package: pkg, versions }) => {
-            // versions.forEach(version => {
-            //     const pkgInfo = `<strong>${pkg.name}</strong><br/>(ID: ${pkg.id})`;
-            //     const versionInfo = `<code>${version.name}</code>`;
-            //     const createdAt = new Date(version.created_at).toISOString();
-            //     tableData.push([pkgInfo, versionInfo, createdAt]);
-            // });
+            versions.forEach(version => {
+                const pkgInfo = `<strong>${pkg.name}</strong><br/>(ID: ${pkg.id})`;
+                const versionInfo = `<code>${version.name}</code>`;
+                const createdAt = new Date(version.created_at).toISOString();
+                tableData.push([pkgInfo, versionInfo, createdAt]);
+            });
          
             console.info(`Package: ${pkg.name}, Version: ${versions.map(v => v.name).join(", ")}`);
             console.info(`Vvesions type: ${typeof versions}`);
