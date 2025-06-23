@@ -1,13 +1,14 @@
 const core = require('@actions/core');
 const WildcardMatcher = require("./wildcardMatcher");
+const AbstractPackageStrategy = require('./abstractPackageStrategy');
 
 
-class MavenStrategy {
+class MavenStrategy extends AbstractPackageStrategy {
     constructor() {
         this.name = 'ManevStrategy';
     }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
+    execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
 
         // includedTags = ['*SNAPSHOT*', ...includedTags];
         const wildcardMatcher = new WildcardMatcher();

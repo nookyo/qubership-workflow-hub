@@ -1,22 +1,23 @@
+const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("./wildcardMatcher");
 
-class ContainerStrategy {
+class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
         this.name = 'ContainerStrategy';
     }
 
-    async execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
+    execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
 
         const wildcardMatcher = new WildcardMatcher();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-            const verisonWithOutExclude = versions.filter((version) => {
+            const versionsWithoutExclude = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
 
                 if (!isOldEnough) return false;
-                if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+                if (!this.isValidMetadata(version)) return false;
                 const tags = version.metadata.container.tags;
 
                 if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatcher.match(tag, pattern)))) {
@@ -25,11 +26,10 @@ class ContainerStrategy {
                 return true;
             });
 
-            const versionsToDelete = includedTags.length > 0 ? verisonWithOutExclude.filter((version) => {
-                if (!version.metadata || !version.metadata.container || !Array.isArray(version.metadata.container.tags)) return false;
+            const versionsToDelete = includedTags.length > 0 ? versionsWithoutExclude.filter((version) => {
                 const tags = version.metadata.container.tags;
                 return tags.some(tag => includedTags.some(pattern => wildcardMatcher.match(tag, pattern)));
-            }) : verisonWithOutExclude;
+            }) : versionsWithoutExclude;
 
             const customPackage = {
                 id: pkg.id,
@@ -44,7 +44,11 @@ class ContainerStrategy {
         return filteredPackagesWithVersionsForDelete;
     }
 
-    async toString() {
+    isValidMetadata(version) {
+        return Array.isArray(version?.metadata?.container?.tags);
+    }
+
+    toString() {
         return this.name;
     }
 }
