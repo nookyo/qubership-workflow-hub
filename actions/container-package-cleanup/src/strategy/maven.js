@@ -5,7 +5,8 @@ const AbstractPackageStrategy = require('./abstractPackageStrategy');
 
 class MavenStrategy extends AbstractPackageStrategy {
     constructor() {
-        this.name = 'ManevStrategy';
+        super();
+        this.name = 'Maven Strategy';
     }
 
     execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {

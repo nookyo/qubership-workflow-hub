@@ -3,7 +3,8 @@ const WildcardMatcher = require("./wildcardMatcher");
 
 class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
-        this.name = 'ContainerStrategy';
+        super();
+        this.name = 'Container Strategy';
     }
 
     execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
