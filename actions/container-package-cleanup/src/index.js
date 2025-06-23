@@ -98,7 +98,7 @@ async function run() {
   let strategy = getStrategy(package_type);
   // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
-  console.log(`Using strategy: ${await strategy.toString()}`);
+  console.log(`Using strategy -> ${await strategy.toString()}`);
 
   let filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 

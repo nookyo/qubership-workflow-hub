@@ -15,7 +15,9 @@ class MavenStrategy extends AbstractPackageStrategy {
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
+            debug && core.info(`Processing package: ${pkg.name}, count versions: ${ versions.length }.`);
             if (versions.length === 1) return null;
+
             let versionForDelete = versions.filter((version) => {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
