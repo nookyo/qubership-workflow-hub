@@ -1,44 +1,44 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Metadata configuration file schema",
-    "type": "object",
-    "properties": {
-        "branches-template": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "minProperties": 1,
-                "maxProperties": 1,
-                "patternProperties": {
-                    "^[-a-zA-Z0-9_*/]+$": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
-        "distribution-tag": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "minProperties": 1,
-                "maxProperties": 1,
-                "patternProperties": {
-                    "^[-a-zA-Z0-9_*/]+$": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
-        "default-tag": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata configuration file schema",
+  "type": "object",
+  "properties": {
+    "branches-template": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "patternProperties": {
+          "^[-a-zA-Z0-9_*/]+$": {
             "type": "string"
+          }
         },
-        "default-template": {
-            "type": "string"
-        }
+        "additionalProperties": false
+      }
     },
-    "additionalProperties": false
+    "distribution-tag": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "patternProperties": {
+          "^[-a-zA-Z0-9_*/]+$": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "default-tag": {
+      "type": "string"
+    },
+    "default-template": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
 }
