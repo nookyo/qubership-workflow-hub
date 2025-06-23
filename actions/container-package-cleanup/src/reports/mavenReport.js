@@ -27,7 +27,7 @@ class MavenReport {
 
         const dryRunText = dryRun ? "(Dry Run)" : "";
         const totalPackages = filteredPackagesWithVersionsForDelete.length;
-        const totalDeletedVersions = filteredPackagesWithVersionsForDelete.reduce((sum, item) => sum + item.versions.length, 0);
+        const totalDeletedVersions = 0 //filteredPackagesWithVersionsForDelete.reduce((sum, item) => sum + item.versions.length, 0);
 
 
         const tableData = [
