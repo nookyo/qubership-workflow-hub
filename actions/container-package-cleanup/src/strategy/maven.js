@@ -8,11 +8,12 @@ class MavenStrategy extends AbstractPackageStrategy {
         this.name = 'Maven Strategy';
     }
 
-    execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
+    execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
         // includedTags = ['*SNAPSHOT*', ...includedTags];
         const wildcardMatcher = new WildcardMatcher();
 
+        // Filter packages with versions based on the threshold date and patterns
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
             if (versions.length === 1) return core.info(`Skipping package: ${pkg.name} — only one version.`), null;
@@ -25,9 +26,9 @@ class MavenStrategy extends AbstractPackageStrategy {
 
                 if (!isOldEnough) return false;
 
-                if (excludedTags.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
+                if (excludedPatterns.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
 
-                return includedTags.some(pattern => wildcardMatcher.match(version.name, pattern));
+                return includedPatterns.some(pattern => wildcardMatcher.match(version.name, pattern));
 
             });
 

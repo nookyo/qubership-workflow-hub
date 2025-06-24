@@ -85,8 +85,8 @@ async function run() {
 
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
-    excludedTags,
-    includedTags,
+    excludedPatterns: excludedTags,
+    includedPatterns: includedTags,
     thresholdDate,
     wrapper,
     owner,

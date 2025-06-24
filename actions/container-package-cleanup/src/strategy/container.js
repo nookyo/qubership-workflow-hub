@@ -8,7 +8,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         this.name = 'Container Strategy';
     }
 
-    execute({ packagesWithVersions, excludedTags, includedTags, thresholdDate, debug = false }) {
+    execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
         const wildcardMatcher = new WildcardMatcher();
 
@@ -25,15 +25,15 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 if (!this.isValidMetadata(version)) return false;
                 const tags = version.metadata.container.tags;
 
-                if (excludedTags.length > 0 && tags.some(tag => excludedTags.some(pattern => wildcardMatcher.match(tag, pattern)))) {
+                if (excludedPatterns.length > 0 && tags.some(tag => excludedPatterns.some(pattern => wildcardMatcher.match(tag, pattern)))) {
                     return false;
                 }
                 return true;
             });
 
-            const versionsToDelete = includedTags.length > 0 ? versionsWithoutExclude.filter((version) => {
+            const versionsToDelete = includedPatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
                 const tags = version.metadata.container.tags;
-                return tags.some(tag => includedTags.some(pattern => wildcardMatcher.match(tag, pattern)));
+                return tags.some(tag => includedPatterns.some(pattern => wildcardMatcher.match(tag, pattern)));
             }) : versionsWithoutExclude;
 
             const customPackage = {
