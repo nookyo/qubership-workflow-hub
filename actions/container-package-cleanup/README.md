@@ -76,30 +76,31 @@ jobs:
 - All Maven versions older than `threshold-days` and matching the filters will be deleted (unless `dry-run` is enabled).
 
 **Example for Maven:**
+
 ```yaml
-      - name: Run Maven Package Cleanup
-        uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@main
-        with:
-          threshold-days: 14
-          included-tags: "*SNAPSHOT*"
-          excluded-tags: "release*"
-          package-type: maven
-        env:
-          PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+- name: Run Maven Package Cleanup
+  uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@main
+  with:
+    threshold-days: 14
+    included-tags: "*SNAPSHOT*"
+    excluded-tags: "release*"
+    package-type: maven
+  env:
+    PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 ```
 
 ---
 
 ## Inputs
 
-| Name               | Description                                                                 | Required | Default                     |
-| ------------------ | --------------------------------------------------------------------------- | -------- | --------------------------- |
-| `threshold-days`   | The number of days to keep package versions. Older versions will be deleted. | No       | `7`                         |
-| `included-tags`    | A comma-separated list of tags/versions to include for deletion. Wildcards (`*`) are supported. | No       | `""` (all tags included, or `*SNAPSHOT*` for Maven) |
-| `excluded-tags`    | A comma-separated list of tags/versions to exclude from deletion. Wildcards (`*`) are supported.| No       | `""` (no tags excluded)      |
-| `package-type`     | Type of package to clean up: `container` or `maven`.                        | No       | `container`                  |
-| `dry-run`          | Enable dry-run mode to preview deletions without making changes.            | No       | `false`                     |
-| `debug`            | Enable debug mode for detailed logging.                                     | No       | `false`                     |
+| Name             | Description                                                                                      | Required | Default                                             |
+| ---------------- | ------------------------------------------------------------------------------------------------ | -------- | --------------------------------------------------- |
+| `threshold-days` | The number of days to keep package versions. Older versions will be deleted.                     | No       | `7`                                                 |
+| `included-tags`  | A comma-separated list of tags/versions to include for deletion. Wildcards (`*`) are supported.  | No       | `""` (all tags included, or `*SNAPSHOT*` for Maven) |
+| `excluded-tags`  | A comma-separated list of tags/versions to exclude from deletion. Wildcards (`*`) are supported. | No       | `""` (no tags excluded)                             |
+| `package-type`   | Type of package to clean up: `container` or `maven`.                                             | No       | `container`                                         |
+| `dry-run`        | Enable dry-run mode to preview deletions without making changes.                                 | No       | `false`                                             |
+| `debug`          | Enable debug mode for detailed logging.                                                          | No       | `false`                                             |
 
 ---
 
@@ -110,6 +111,7 @@ jobs:
 | `PACKAGE_TOKEN` | GitHub token with permissions to manage packages | Yes      |
 
 > **Note:** The `PACKAGE_TOKEN` must have the following permissions:
+>
 > - **`read:packages`**: To list and retrieve package information.
 > - **`delete:packages`**: To delete package versions.
 
@@ -141,12 +143,12 @@ The action filters tags/versions in the following order of priority:
 
 Supported patterns for tags/versions:
 
-| Pattern       | Matches                          | Does Not Match       |
-|---------------|----------------------------------|----------------------|
-| `release*`    | `release`, `release-v1`          | `v1-release`         |
-| `*release`    | `v1-release`, `candidate-release`| `release-v1`         |
-| `*release*`   | `v1-release-candidate`, `release-v1` | `v1-candidate`    |
-| `release*v1`  | `release-v1`, `release-candidate-v1` | `release-v2`     |
+| Pattern      | Matches                              | Does Not Match |
+| ------------ | ------------------------------------ | -------------- |
+| `release*`   | `release`, `release-v1`              | `v1-release`   |
+| `*release`   | `v1-release`, `candidate-release`    | `release-v1`   |
+| `*release*`  | `v1-release-candidate`, `release-v1` | `v1-candidate` |
+| `release*v1` | `release-v1`, `release-candidate-v1` | `release-v2`   |
 
 ---
 
