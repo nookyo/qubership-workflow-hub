@@ -38,8 +38,6 @@ Below is a general example of how to use this action in a GitHub Actions workflo
 name: Cleanup Old Packages
 
 on:
-  schedule:
-    - cron: "0 0 * * 0" # Runs weekly on Sunday at midnight
   workflow_dispatch:
     inputs:
       threshold-days:
@@ -53,11 +51,19 @@ on:
       excluded-tags:
         description: "Tags to exclude from deletion"
         required: false
-        default: "release*"
+        default: ""
+      debug:
+        description: "Enable debug mode"
+        required: false
+        default: "false"
       dry-run:
         description: "Enable dry-run mode"
         required: false
         default: "false"
+      package-type:
+        description: "Type of package to clean up (container or maven)"
+        required: false
+        default: "container"
 
 jobs:
   cleanup:
@@ -70,12 +76,12 @@ jobs:
       - name: Run Package Cleanup Action
         uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@main
         with:
-          threshold-days: ${{ github.event.inputs.threshold-days }}
-          included-tags: ${{ github.event.inputs.included-tags }}
-          excluded-tags: ${{ github.event.inputs.excluded-tags }}
-          debug: ${{ github.event.inputs.debug }}
-          dry-run: ${{ github.event.inputs.dry-run }}
-          package-type: container # or maven
+          threshold-days: ${{ github.event.inputs.threshold-days || 7 }}
+          included-tags: ${{ github.event.inputs.included-tags || '' }}
+          excluded-tags: ${{ github.event.inputs.excluded-tags || '' }}
+          debug: ${{ github.event.inputs.debug || 'false' }}
+          dry-run: ${{ github.event.inputs.dry-run || 'false' }}
+          package-type: ${{ github.event.inputs.package-type || 'container' }}
         env:
           PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 ```
