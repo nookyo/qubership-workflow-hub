@@ -4,7 +4,6 @@ This **Package Cleanup** GitHub Action automates the cleanup of old package vers
 It supports both Docker/container images and Maven packages.
 
 ---
----
 
 ## Inputs
 
@@ -31,7 +30,6 @@ It supports both Docker/container images and Maven packages.
 
 ---
 
----
 ## How to Use
 
 Below is a general example of how to use this action in a GitHub Actions workflow:
