@@ -4,7 +4,34 @@ This **Package Cleanup** GitHub Action automates the cleanup of old package vers
 It supports both Docker/container images and Maven packages.
 
 ---
+---
 
+## Inputs
+
+| Name               | Description                                                                 | Required | Default                     |
+| ------------------ | --------------------------------------------------------------------------- | -------- | --------------------------- |
+| `threshold-days`   | The number of days to keep package versions. Older versions will be deleted. | No       | `7`                         |
+| `included-tags`    | A comma-separated list of tags/versions to include for deletion. Wildcards (`*`) are supported. | No       | `""` (all tags included, or `*SNAPSHOT*` for Maven) |
+| `excluded-tags`    | A comma-separated list of tags/versions to exclude from deletion. Wildcards (`*`) are supported.| No       | `""` (no tags excluded)      |
+| `package-type`     | Type of package to clean up: `container` or `maven`.                        | No       | `container`                  |
+| `dry-run`          | Enable dry-run mode to preview deletions without making changes.            | No       | `false`                     |
+| `debug`            | Enable debug mode for detailed logging.                                     | No       | `false`                     |
+
+---
+
+## Environment Variables
+
+| Name            | Description                                      | Required |
+| --------------- | ------------------------------------------------ | -------- |
+| `PACKAGE_TOKEN` | GitHub token with permissions to manage packages | Yes      |
+
+> **Note:** The `PACKAGE_TOKEN` must have the following permissions:
+> - **`read:packages`**: To list and retrieve package information.
+> - **`delete:packages`**: To delete package versions.
+
+---
+
+---
 ## How to Use
 
 Below is a general example of how to use this action in a GitHub Actions workflow:
@@ -88,32 +115,6 @@ jobs:
           PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 ```
 
----
-
-## Inputs
-
-| Name               | Description                                                                 | Required | Default                     |
-| ------------------ | --------------------------------------------------------------------------- | -------- | --------------------------- |
-| `threshold-days`   | The number of days to keep package versions. Older versions will be deleted. | No       | `7`                         |
-| `included-tags`    | A comma-separated list of tags/versions to include for deletion. Wildcards (`*`) are supported. | No       | `""` (all tags included, or `*SNAPSHOT*` for Maven) |
-| `excluded-tags`    | A comma-separated list of tags/versions to exclude from deletion. Wildcards (`*`) are supported.| No       | `""` (no tags excluded)      |
-| `package-type`     | Type of package to clean up: `container` or `maven`.                        | No       | `container`                  |
-| `dry-run`          | Enable dry-run mode to preview deletions without making changes.            | No       | `false`                     |
-| `debug`            | Enable debug mode for detailed logging.                                     | No       | `false`                     |
-
----
-
-## Environment Variables
-
-| Name            | Description                                      | Required |
-| --------------- | ------------------------------------------------ | -------- |
-| `PACKAGE_TOKEN` | GitHub token with permissions to manage packages | Yes      |
-
-> **Note:** The `PACKAGE_TOKEN` must have the following permissions:
-> - **`read:packages`**: To list and retrieve package information.
-> - **`delete:packages`**: To delete package versions.
-
----
 
 ## Tag/Version Filtering Logic
 
