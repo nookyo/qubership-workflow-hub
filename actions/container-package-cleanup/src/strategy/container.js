@@ -10,6 +10,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
     execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
+        debug && core.info(`Pacjage with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
         const wildcardMatcher = new WildcardMatcher();
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
