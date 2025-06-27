@@ -28,7 +28,7 @@ inputs:
   platforms:
     description: "Platforms for which the Docker image will be built."
     required: false
-    default: "linux/amd64"
+    default: "linux/amd64,linux/arm64"
   tags:
     description: "Docker image tags. If empty, tags will be generated automatically."
     required: false
