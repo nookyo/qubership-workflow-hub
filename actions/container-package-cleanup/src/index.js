@@ -32,15 +32,11 @@ async function run() {
   let includedTags = [];
 
   if (package_type === "container") {
-    const rawIncludedTags = core.getInput('included-tags') || core.getInput('included-patterns');
+    const rawIncludedTags = core.getInput('included-tags');
     includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
 
-   
-
-    const rawExcludedTags = core.getInput('excluded-tags') || core.getInput('excluded-patterns');
+    const rawExcludedTags = core.getInput('excluded-tags');
     excludedTags = rawExcludedTags ? rawExcludedTags.split(",") : [];
- 
-    }
   }
 
   if (package_type === "maven") includedTags = ['*SNAPSHOT*', ...includedTags];
@@ -108,9 +104,9 @@ async function run() {
 
   if (isDebug) {
 
-    core.debug(`::group::Delete versions Log.`);
-    core.debug(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-    core.debug(`::endgroup::`);
+    core.info(`::group::Delete versions Log.`);
+    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    core.info(`::endgroup::`);
   }
 
   let reportContext = {
