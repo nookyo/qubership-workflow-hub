@@ -85,8 +85,8 @@ async function run() {
 
   const t = packagesWithVersions.map(({ package: pkg, versions }) => {
     core.info(`Package: ${pkg.name} (${pkg.package_type}) has ${versions.length} versions.`);
-    versions.forEach((version) => {
-      const r = wrapper.getPackageVersionDetails(owner, package_type, pkg.name, version.id, isOrganization)
+    versions.forEach(async (version) => {
+      const r = await wrapper.getPackageVersionDetails(owner, package_type, pkg.name, version.id, isOrganization)
       core.info(JSON.stringify(r, null, 2));
     })
     return { package: pkg, versions };
