@@ -76,21 +76,14 @@ async function run() {
     return;
   }
 
-  const packagesWithVersions = await Promise.all(
-    filteredPackages.map(async (pkg) => {
-      const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
-      return { package: pkg, versions: versionsForPkg };
-    })
-  );
+  // const packagesWithVersions = await Promise.all(
+  //   filteredPackages.map(async (pkg) => {
+  //     const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+  //     return { package: pkg, versions: versionsForPkg };
+  //   })
+  // );
 
-  const t = packagesWithVersions.map(({ package: pkg, versions }) => {
-    core.info(`Package: ${pkg.name} (${pkg.package_type}) has ${versions.length} versions.`);
-    versions.forEach(async (version) => {
-      const r = await wrapper.getPackageVersionDetails(owner, package_type, pkg.name, version.id, isOrganization)
-      core.info(JSON.stringify(r, null, 2));
-    })
-    return { package: pkg, versions };
-  });
+
 
   core.info(JSON.stringify(t, null, 2));
   const strategyContext = {

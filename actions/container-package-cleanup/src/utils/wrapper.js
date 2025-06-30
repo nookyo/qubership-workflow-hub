@@ -45,8 +45,25 @@ class OctokitWrapper {
    * @param {boolean} type - True if the owner is an organization, false if it's a user.
    * @returns {Promise<Array>} - A list of package versions.
    */
-  async listVersionsForPackage(owner, package_type, package_name, type) {
-    return type ? this.getPackageVersionsForOrganization(owner, package_type, package_name) : this.getPackageVersionsForUser(owner, package_type, package_name);
+  // async listVersionsForPackage(owner, package_type, package_name, type) {
+  //   return type ? this.getPackageVersionsForOrganization(owner, package_type, package_name) : this.getPackageVersionsForUser(owner, package_type, package_name);
+  // }
+
+  async listVersionsForPackage(owner, package_type, package_name, isOrg) {
+    // 1) получаем rawList (без digest)
+    const rawList = isOrg
+      ? await this.getPackageVersionsForOrganization(owner, package_type, package_name)
+      : await this.getPackageVersionsForUser(owner, package_type, package_name);
+
+    // 2) параллельно запрашиваем детали каждой версии
+    const detailed = await Promise.all(
+      rawList.map(v =>
+        this.getPackageVersionDetails(owner, package_type, package_name, v.id, isOrg)
+      )
+    );
+
+    // 3) возвращаем массив объектов версии, у которых уже есть metadata.container.digest
+    return detailed;
   }
 
   /**
