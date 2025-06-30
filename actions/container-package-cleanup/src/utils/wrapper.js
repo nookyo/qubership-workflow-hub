@@ -170,6 +170,23 @@ class OctokitWrapper {
     }
   }
 
+  /**
+ * Возвращает массив digest’ов из manifest-list для заданного тега.
+ *
+ * @param {string} owner — организация или пользователь
+ * @param {string} packageName — имя контейнерного пакета
+ * @param {string} tag — тег образа
+ * @returns {Promise<string[]>} — список digest’ов для всех платформ
+ */
+  async getManifestDigests(owner, packageName, tag) {
+    const ref = `ghcr.io/${owner}/${packageName}:${tag}`;
+    // запуским docker manifest inspect и распарсим JSON
+    const { stdout } = await execPromise(`docker manifest inspect ${ref}`);
+    const manifest = JSON.parse(stdout);
+    // вернём digest из каждого entry в manifests
+    return manifest.manifests.map(m => m.digest);
+  }
+
 }
 
 module.exports = OctokitWrapper;
