@@ -39,7 +39,6 @@ class MavenReport {
         ];
 
         // Prepare table data
-        core.info(`Preparing summary table data for ${totalPackages} packages with ${totalDeletedVersions} versions to delete...`);
         filteredPackagesWithVersionsForDelete.forEach(({ package: pkg, versions }) => {
             versions.forEach(version => {
 
