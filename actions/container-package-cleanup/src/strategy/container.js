@@ -13,6 +13,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         const excludePatterns = excludedPatterns.map(p => p.toLowerCase());
         const includePatterns = includedPatterns.map(p => p.toLowerCase());
+        const createdAt = new Date(version.created_at);
 
         debug && core.debug(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
@@ -22,7 +23,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
                 if (!this.isValidMetadata(version)) return false;
 
-                const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
 
                 debug && core.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
@@ -41,7 +41,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 const tags = version.metadata.container.tags;
 
                 if (tags.length === 0 && version.name.startsWith('sha256:')) return true;
-                
+
                 return tags.some(tag => includePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)));
             }) : versionsWithoutExclude;
 
