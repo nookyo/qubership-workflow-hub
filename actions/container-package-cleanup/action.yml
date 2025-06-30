@@ -22,6 +22,12 @@ inputs:
   package-type:
     description: "Type of cleanup to perform (e.g., 'docker', 'container')."
     default: "container"
+  included-patterns:
+    description: "A comma-separated list of patterns to include for deletion."
+    default: "" 
+  excluded-patterns:
+    description: "A comma-separated list of patterns to exclude from deletion."
+    default: ""  
 runs:
   using: "node20"
   main: "src/index.js"
