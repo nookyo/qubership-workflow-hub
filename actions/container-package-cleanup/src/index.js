@@ -48,8 +48,8 @@ async function run() {
   core.info(`Threshold Days: ${thresholdDays}`);
   core.info(`Threshold Date: ${thresholdDate}`);
 
-  excludedTags.length && core.info(`Excluded Tags: ${excludedTags}`);
-  includedTags.length && core.info(`Included Tags: ${includedTags}`);
+  excludedTags.length && core.debug(`Excluded Tags: ${excludedTags}`);
+  includedTags.length && core.debug(`Included Tags: ${includedTags}`);
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
