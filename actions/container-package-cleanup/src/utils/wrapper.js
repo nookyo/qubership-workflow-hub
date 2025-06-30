@@ -45,22 +45,10 @@ class OctokitWrapper {
    * @param {boolean} type - True if the owner is an organization, false if it's a user.
    * @returns {Promise<Array>} - A list of package versions.
    */
-  // async listVersionsForPackage(owner, package_type, package_name, type) {
-  //   return type ? this.getPackageVersionsForOrganization(owner, package_type, package_name) : this.getPackageVersionsForUser(owner, package_type, package_name);
-  // }
-  async listVersionsForPackage(owner, package_type, package_name, isOrg) {
-    // 1) Получаем базовый список версий (без digest)
-    const rawList = isOrg
-      ? await this.getPackageVersionsForOrganization(owner, package_type, package_name)
-      : await this.getPackageVersionsForUser(owner, package_type, package_name);
-
-    // 2) Делаем параллельные запросы за деталями (с digest)
-    const detailed = await Promise.all(
-      rawList.map(v => this.getPackageVersionDetails(owner, package_type, package_name, v.id, isOrg))
-    );
-
-    return detailed;
+  async listVersionsForPackage(owner, package_type, package_name, type) {
+    return type ? this.getPackageVersionsForOrganization(owner, package_type, package_name) : this.getPackageVersionsForUser(owner, package_type, package_name);
   }
+
   /**
    * Lists packages for an organization.
    * @param {string} org - The organization name.
@@ -101,26 +89,6 @@ class OctokitWrapper {
     } catch (error) {
       console.error(`Error fetching packages for user ${username}:`, error);
       throw error;
-    }
-  }
-
-  async getPackageVersionDetails(owner, package_type, package_name, version_id, isOrg) {
-    if (isOrg) {
-      const res = await this.octokit.rest.packages.getPackageVersionForOrg({
-        org: owner,
-        package_type,
-        package_name,
-        package_version_id: version_id
-      });
-      return res.data;
-    } else {
-      const res = await this.octokit.rest.packages.getPackageVersionForUser({
-        username: owner,
-        package_type,
-        package_name,
-        package_version_id: version_id
-      });
-      return res.data;
     }
   }
 
