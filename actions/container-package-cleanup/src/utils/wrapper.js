@@ -45,60 +45,9 @@ class OctokitWrapper {
    * @param {boolean} type - True if the owner is an organization, false if it's a user.
    * @returns {Promise<Array>} - A list of package versions.
    */
-  // async listVersionsForPackage(owner, package_type, package_name, type) {
-  //   return type ? this.getPackageVersionsForOrganization(owner, package_type, package_name) : this.getPackageVersionsForUser(owner, package_type, package_name);
-  // }
-
-  async listVersionsForPackage(owner, package_type, package_name, isOrg) {
-    // 1) получаем «сырые» версии (без digest)
-    const rawList = isOrg
-      ? await this.getPackageVersionsForOrganization(owner, package_type, package_name)
-      : await this.getPackageVersionsForUser(owner, package_type, package_name);
-
-    // 2) параллельно дозапрашиваем детали каждой версии, чтобы получить digest
-    const detailed = await Promise.all(
-      rawList.map(v =>
-        this.getPackageVersionDetails(owner, package_type, package_name, v.id, isOrg)
-      )
-    );
-
-    // 3) возвращаем «обогащённые» объекты версий
-    return detailed;
+  async listVersionsForPackage(owner, package_type, package_name, type) {
+    return type ? this.getPackageVersionsForOrganization(owner, package_type, package_name) : this.getPackageVersionsForUser(owner, package_type, package_name);
   }
-
-
-
-async getPackageVersionDetails(owner, package_type, package_name, versionId, isOrg) {
-    if (isOrg) {
-      const res = await this.octokit.rest.packages.getPackageVersionForOrg({
-        org: owner,
-        package_type,
-        package_name,
-        package_version_id: versionId
-      });
-      return res.data;
-    } else {
-      const res = await this.octokit.rest.packages.getPackageVersionForUser({
-        username: owner,
-        package_type,
-        package_name,
-        package_version_id: versionId
-      });
-      return res.data;
-    }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
 
   /**
    * Lists packages for an organization.
@@ -220,7 +169,6 @@ async getPackageVersionDetails(owner, package_type, package_name, versionId, isO
       throw error;
     }
   }
-
 
 }
 
