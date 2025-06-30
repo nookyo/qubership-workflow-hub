@@ -28,13 +28,11 @@ async function run() {
 
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10);
 
-  let excludedPatterns = [];
-  let includedPatterns = [];
+  // let excludedPatterns = [];
+  // let includedPatterns = [];
 
-  if (package_type === 'container') {
-    excludedPatterns = collectInputPatterns('excluded-tags', 'excluded-patterns');
-    includedPatterns = collectInputPatterns('included-tags', 'included-patterns');
-  }
+  let excludedPatterns = collectInputPatterns('excluded-tags', 'excluded-patterns');
+  let includedPatterns = collectInputPatterns('included-tags', 'included-patterns');
 
   if (package_type === "maven") includedPatterns = ['*SNAPSHOT*', ...includedPatterns];
 
