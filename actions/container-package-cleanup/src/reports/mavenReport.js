@@ -38,8 +38,11 @@ class MavenReport {
             ]
         ];
 
+        // Prepare table data
+        core.debug(`Preparing summary table data for ${totalPackages} packages with ${totalDeletedVersions} versions to delete...`);
         filteredPackagesWithVersionsForDelete.forEach(({ package: pkg, versions }) => {
             versions.forEach(version => {
+
                 const pkgInfo = `<strong>${pkg.name}</strong><br/>(ID: ${pkg.id})`;
                 const versionInfo = `<code>${version.name}</code>`;
                 const createdAt = new Date(version.created_at).toISOString();
