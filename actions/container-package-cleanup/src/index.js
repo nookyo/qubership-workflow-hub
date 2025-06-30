@@ -83,7 +83,40 @@ async function run() {
     })
   );
 
-  core.info(JSON.stringify(packagesWithVersions, null, 2));
+
+  // 3) Для каждого пакета группируем тэг → его manifest digest’ы → архитектурные слои
+  for (const { package: pkg, versions } of packagesWithVersions) {
+    // оставляем только версии с тегами
+    const tagged = versions.filter(v => (v.metadata.container.tags || []).length > 0);
+    if (tagged.length === 0) {
+      core.info(`→ ${pkg.name}: нет версий с тегами`);
+      continue;
+    }
+
+    for (const tagVer of tagged) {
+      // возьмём, например, первый тег
+      const tag = tagVer.metadata.container.tags[0];
+      core.info(`\nПакет ${pkg.name} — версия id=${tagVer.id}, tag=${tag}`);
+
+      // получаем через docker manifest digest’ы всех платформ
+      const digests = await wrapper.getManifestDigests(owner, pkg.name, tag);
+      core.info(` → manifest-list digests:\n   ${digests.join("\n   ")}`);
+
+      // сопоставляем с sha-версиями из GH Packages
+      const archLayers = versions.filter(v => digests.includes(v.name));
+      if (archLayers.length) {
+        core.info(` → связанные архитектурные слои:`);
+        archLayers.forEach(v =>
+          core.info(`    • id=${v.id}, name=${v.name}`)
+        );
+      } else {
+        core.info(` → архитектурные слои не найдены.`);
+      }
+    }
+  }
+
+
+  //core.info(JSON.stringify(packagesWithVersions, null, 2));
 
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
