@@ -6,35 +6,43 @@ class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
         super();
         this.name = 'Container Strategy';
+        this.wildcardMatcher = new WildcardMatcher();
     }
 
     execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
-        debug && core.info(`Pacjage with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
-        const wildcardMatcher = new WildcardMatcher();
+        const excludePatterns = excludedPatterns.map(p => p.toLowerCase());
+        const includePatterns = includedPatterns.map(p => p.toLowerCase());
+
+        debug && core.debug(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
         let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
             const versionsWithoutExclude = versions.filter((version) => {
+
+                if (!this.isValidMetadata(version)) return false;
+
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
 
-                debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
-
+                debug && core.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
 
                 if (!isOldEnough) return false;
-                if (!this.isValidMetadata(version)) return false;
-                const tags = version.metadata.container.tags;
 
-                if (excludedPatterns.length > 0 && tags.some(tag => excludedPatterns.some(pattern => wildcardMatcher.match(tag, pattern)))) {
+                const tags = version.metadata.container.tags || [];
+
+                if (excludePatterns.length > 0 && tags.some(tag => excludePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
                     return false;
                 }
                 return true;
             });
 
-            const versionsToDelete = includedPatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
+            const versionsToDelete = includePatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
                 const tags = version.metadata.container.tags;
-                return tags.some(tag => includedPatterns.some(pattern => wildcardMatcher.match(tag, pattern)));
+
+                if (tags.length === 0 && version.name.startsWith('sha256:')) return true;
+                
+                return tags.some(tag => includePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)));
             }) : versionsWithoutExclude;
 
             const customPackage = {
