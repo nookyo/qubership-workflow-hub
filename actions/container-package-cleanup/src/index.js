@@ -85,7 +85,8 @@ async function run() {
 
 
 
-  core.info(JSON.stringify(t, null, 2));
+  core.info(JSON.stringify(packagesWithVersions, null, 2));
+  
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
     excludedPatterns: excludedTags,
