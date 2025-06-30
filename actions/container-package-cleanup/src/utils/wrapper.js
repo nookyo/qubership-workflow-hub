@@ -170,6 +170,26 @@ class OctokitWrapper {
     }
   }
 
+  async getPackageVersionDetails(owner, package_type, package_name, versionId, isOrg) {
+    if (isOrg) {
+      const res = await this.octokit.rest.packages.getPackageVersionForOrg({
+        org: owner,
+        package_type,
+        package_name,
+        package_version_id: versionId
+      });
+      return res.data;
+    } else {
+      const res = await this.octokit.rest.packages.getPackageVersionForUser({
+        username: owner,
+        package_type,
+        package_name,
+        package_version_id: versionId
+      });
+      return res.data;
+    }
+  }
+
 }
 
 module.exports = OctokitWrapper;

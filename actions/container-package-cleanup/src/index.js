@@ -83,6 +83,16 @@ async function run() {
     })
   );
 
+  const t = packagesWithVersions.map(({ package: pkg, versions }) => {
+    core.info(`Package: ${pkg.name} (${pkg.package_type}) has ${versions.length} versions.`);
+    versions.forEach((version) => {
+      const r = wrapper.getPackageVersionDetails(owner, package_type, pkg.name, version.id, isOrganization)
+      core.info(JSON.stringify(r, null, 2));
+    })
+
+
+  });
+
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
     excludedPatterns: excludedTags,
@@ -94,13 +104,6 @@ async function run() {
     debug: isDebug
   };
 
-  core.info(`Found ${packagesWithVersions.length} packages with versions.`);
-
-  if (isDebug) {
-    core.info(`::group::Packages with versions Log.`);
-    core.info(`💡 Packages with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
-    core.info(`::endgroup::`);
-  }
 
   // let strategy = getStrategy(package_type);
   // // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
