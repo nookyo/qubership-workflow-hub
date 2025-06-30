@@ -34,8 +34,13 @@ class ContainerReport {
             const pkgInfo = `<strong>${pkg.name}</strong>&#10;(ID: ${pkg.id})`;
 
             const versionsInfo = versions
-                .map(v => `• <code>${v.id}</code> — ${v.metadata.container.tags.join(", ")}`)
-                .join("<br>");
+                .map(({ id, name, metadata }) => {
+                  
+                    const tags = metadata?.container?.tags ?? []; 
+                    const label = tags.length ? tags.join(', ') : `<em>${name}</em>`;
+                    return `• <code>${id}</code> — ${label}`;
+                })
+                .join('<br>');
 
             tableData.push([pkgInfo, versionsInfo]);
         });
