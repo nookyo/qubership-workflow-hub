@@ -28,13 +28,15 @@ async function run() {
 
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10);
 
-  // let excludedPatterns = [];
-  // let includedPatterns = [];
+  let excludedTags = [];
+  let includedTags = [];
 
-  let excludedPatterns = collectInputPatterns('excluded-tags', 'excluded-patterns');
-  let includedPatterns = collectInputPatterns('included-tags', 'included-patterns');
+  if (package_type === 'container') {
+    excludedTags = collectInputPatterns('excluded-tags', 'excluded-patterns');
+    includedTags = collectInputPatterns('included-tags', 'included-patterns');
+  }
 
-  if (package_type === "maven") includedPatterns = ['*SNAPSHOT*', ...includedPatterns];
+  if (package_type === "maven") includedTags = ['*SNAPSHOT*', ...includedTags];
 
   const now = new Date();
   const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
@@ -43,8 +45,8 @@ async function run() {
   core.info(`Threshold Days: ${thresholdDays}`);
   core.info(`Threshold Date: ${thresholdDate}`);
 
-  excludedPatterns.length && core.info(`Excluded patterns: ${excludedPatterns}`);
-  includedPatterns.length && core.info(`Included patterns: ${includedPatterns}`);
+  excludedTags.length && core.info(`Excluded patterns: ${excludedTags}`);
+  includedTags.length && core.info(`Included patterns: ${includedTags}`);
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
@@ -80,8 +82,8 @@ async function run() {
 
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
-    excludedPatterns: excludedPatterns,
-    includedPatterns: includedPatterns,
+    excludedPatterns: excludedTags,
+    includedPatterns: includedTags,
     thresholdDate,
     wrapper,
     owner,
@@ -109,8 +111,8 @@ async function run() {
     thresholdDays,
     thresholdDate,
     dryRun,
-    includedTags: includedPatterns,
-    excludedTags: excludedPatterns
+    includedTags,
+    excludedTags
   };
 
   if (dryRun) {
