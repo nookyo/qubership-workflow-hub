@@ -48,8 +48,8 @@ async function run() {
   core.info(`Threshold Days: ${thresholdDays}`);
   core.info(`Threshold Date: ${thresholdDate}`);
 
-  excludedTags.length && core.debug(`Excluded Tags: ${excludedTags}`);
-  includedTags.length && core.debug(`Included Tags: ${includedTags}`);
+  excludedTags.length && core.info(`Excluded Tags: ${excludedTags}`);
+  includedTags.length && core.info(`Included Tags: ${includedTags}`);
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
@@ -104,9 +104,9 @@ async function run() {
 
   if (isDebug) {
 
-    core.info(`::group::Delete versions Log.`);
-    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-    core.info(`::endgroup::`);
+    core.debug(`::group::Delete versions Log.`);
+    core.debug(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    core.debug(`::endgroup::`);
   }
 
   let reportContext = {
