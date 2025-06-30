@@ -84,7 +84,7 @@ async function run() {
   );
 
   packagesWithVersions = await Promise.all(packagesWithVersions.map(async v => {
-    const detail = await wrapper.getPackageVersionDetails(owner, package_type, v.name, v.id, isOrganization);
+    const detail = await wrapper.getPackageVersionDetails(owner, package_type, v.package.name, v.package.id, isOrganization);
     v.metadata.container.digest = detail.metadata.container.digest;
     return v;
   }));
