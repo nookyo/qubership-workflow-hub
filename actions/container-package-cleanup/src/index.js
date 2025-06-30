@@ -76,17 +76,23 @@ async function run() {
     return;
   }
 
-  const packagesWithVersions = await Promise.all(
-    filteredPackages.map(async (pkg) => {
-      const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
-      return { package: pkg, versions: versionsForPkg };
-    })
-  );
+
+     const packagesWithVersions = await Promise.all(
+     filteredPackages.map(async (pkg) => {
+       const versionsForPkg = await wrapper.listVersionsForPackage(
+         owner,
+         pkg.package_type,
+         pkg.name,
+         isOrganization
+       );
+       return { package: pkg, versions: versionsForPkg };
+     })
+   );
 
 
 
   core.info(JSON.stringify(packagesWithVersions, null, 2));
-  
+
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
     excludedPatterns: excludedTags,
