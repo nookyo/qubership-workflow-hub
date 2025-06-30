@@ -92,6 +92,20 @@ class OctokitWrapper {
     }
   }
 
+  async getPackageVersionDetails(owner, package_type, package_name, version_id, isOrg) {
+    if (isOrg) {
+      const res = await this.octokit.rest.packages.getPackageVersionForOrg({
+        org: owner, package_type, package_name, package_version_id: version_id
+      });
+      return res.data;
+    } else {
+      const res = await this.octokit.rest.packages.getPackageVersionForUser({
+        username: owner, package_type, package_name, package_version_id: version_id
+      });
+      return res.data;
+    }
+  }
+
   /**
    * Gets all versions of a specific package owned by a user.
    * @param {string} owner - The username.
