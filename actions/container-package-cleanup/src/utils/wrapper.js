@@ -1,4 +1,7 @@
 const github = require("@actions/github");
+const { exec } = require("child_process"); 
+const util = require("util");
+const execPromise = util.promisify(exec);
 
 class OctokitWrapper {
 
