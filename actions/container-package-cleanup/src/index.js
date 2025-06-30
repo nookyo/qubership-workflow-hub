@@ -89,10 +89,10 @@ async function run() {
       const r = wrapper.getPackageVersionDetails(owner, package_type, pkg.name, version.id, isOrganization)
       core.info(JSON.stringify(r, null, 2));
     })
-
-
+    return { package: pkg, versions };
   });
 
+  core.info(JSON.stringify(t, null, 2));
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
     excludedPatterns: excludedTags,
