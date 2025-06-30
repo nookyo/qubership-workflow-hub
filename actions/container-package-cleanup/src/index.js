@@ -31,12 +31,9 @@ async function run() {
   let excludedTags = [];
   let includedTags = [];
 
-  if (package_type === "container") {
-    const rawIncludedTags = core.getInput('included-tags');
-    includedTags = rawIncludedTags ? rawIncludedTags.split(",") : [];
-
-    const rawExcludedTags = core.getInput('excluded-tags');
-    excludedTags = rawExcludedTags ? rawExcludedTags.split(",") : [];
+  if (package_type === 'container') {
+    includedTags = collectInputPatterns('included-tags', 'included-patterns');
+    excludedTags = collectInputPatterns('excluded-tags', 'excluded-patterns');
   }
 
   if (package_type === "maven") includedTags = ['*SNAPSHOT*', ...includedTags];
@@ -140,6 +137,13 @@ async function showReport(context, type = 'container') {
   let report = type === 'container' ? new ContainerReport() : new MavenReport();
   await report.writeSummary(context);
 
+}
+
+function collectInputPatterns(...keys) {
+  return keys.flatMap(key => {
+    const raw = core.getInput(key);
+    return raw ? raw.split(',') : [];
+  }).map(s => s.trim()).filter(Boolean);
 }
 
 run();
