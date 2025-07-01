@@ -16,13 +16,13 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         debug && core.debug(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
-        for (const { pkg, version } of packagesWithVersions) {
-            if (!pkg.versions || !Array.isArray(pkg.versions)) {
+        for (const { pkg, versions } of packagesWithVersions) {
+            if (!pkg.versions || !Array.isArray(versions)) {
                 core.warning(`Package ${pkg.name} does not have valid versions array.`);
                 continue;
             }
 
-            const candidates = pkg.versions.filter(v => {
+            const candidates = versions.filter(v => {
                 if (!this.isValidMetadata(v)) return false;
 
                 const createdAt = new Date(v.created_at);
