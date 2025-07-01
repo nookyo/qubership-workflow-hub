@@ -11,16 +11,16 @@ This **Docker Publish** GitHub Workflow automates building and publishing Docker
 
 ## 📌 Inputs
 
-| Name               | Description                                                                 | Required | Default |
-| ------------------ | --------------------------------------------------------------------------- | -------- | ------- |
-| `ref`              | Tag or branch name to create release from.                                 | No       | None    |
-| `artifact-id`      | Artifact ID to use for naming the Docker image.                            | No       | None    |
-| `context`          | Docker build context. Can be `git` or `workflow`.                          | No       | `git`   |
-| `dry-run`          | If true, performs a dry run without pushing the image.                     | No       | `false` |
-| `download-artifact`| If true, downloads the artifact before building the Docker image.           | No       | `false` |
-| `component`        | JSON string describing components for building Docker images.              | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
-| `platforms`        | Platforms to build the Docker image for (e.g., `linux/amd64`).             | No       | `linux/amd64` |
-| `tags`             | Custom tags to override the default tagging strategy.                      | No       | None    |
+| Name                | Description                                                       | Required | Default                                                         |
+| ------------------- | ----------------------------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `ref`               | Tag or branch name to create release from.                        | No       | None                                                            |
+| `artifact-id`       | Artifact ID to use for naming the Docker image.                   | No       | None                                                            |
+| `context`           | Docker build context. Can be `git` or `workflow`.                 | No       | `git`                                                           |
+| `dry-run`           | If true, performs a dry run without pushing the image.            | No       | `false`                                                         |
+| `download-artifact` | If true, downloads the artifact before building the Docker image. | No       | `false`                                                         |
+| `component`         | JSON string describing components for building Docker images.     | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
+| `platforms`         | Platforms to build the Docker image for (e.g., `linux/amd64`).    | No       | `linux/amd64`                                                   |
+| `tags`              | Custom tags to override the default tagging strategy.             | No       | None                                                            |
 
 ### Detailed Description of Variables
 
@@ -33,7 +33,7 @@ This **Docker Publish** GitHub Workflow automates building and publishing Docker
   - `name`: Name of the component.
   - `file`: Path to the Dockerfile.
   - `context`: Build context for the Docker image.
-  The default is one component with the name `default`, a Dockerfile in the root of the repository, and the context `.`.
+    The default is one component with the name `default`, a Dockerfile in the root of the repository, and the context `.`.
 - **`platforms`**: Platforms to build the Docker image for. Default is `linux/amd64`.
 - **`tags`**: Custom tags to override the default tagging strategy. Tags should be provided as a comma-separated string.
 
@@ -43,8 +43,12 @@ If you have multiple components, you can define them as follows:
 
 ```json
 [
-  {"name": "default", "file": "./Dockerfile", "context": "."},
-  {"name": "another-component", "file": "./another/Dockerfile", "context": "./another"}
+  { "name": "default", "file": "./Dockerfile", "context": "." },
+  {
+    "name": "another-component",
+    "file": "./another/Dockerfile",
+    "context": "./another"
+  }
 ]
 ```
 
@@ -80,8 +84,10 @@ jobs:
 ```
 
 ### Additional Information
+
 - Custom Tags: If tags-override is provided, the workflow will use these tags instead of the default tagging strategy.
 - Default Tagging Strategy: If tags-override is not provided, the workflow uses the docker/metadata-action to generate tags based on the following strategy branch/tags (semver based):
+
 ```yaml
 tags: |
   type=ref,event=branch
@@ -89,5 +95,6 @@ tags: |
   type=semver,pattern={{major}}.{{minor}}
   type=semver,pattern={{major}}
 ```
+
 - Metadata Extraction: The workflow uses the docker/metadata-action to extract metadata such as tags and labels based on the GitHub context.
 - Multi-Platform Support: The workflow supports building images for multiple platforms using docker/setup-buildx-action.

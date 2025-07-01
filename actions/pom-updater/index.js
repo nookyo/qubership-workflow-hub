@@ -24,7 +24,8 @@ async function getArtifactId() {
 async function run() {
   try {
     core.warning("💥🚀 This action is deprecated. Will be removed.");
-    const filePathsInput = core.getInput("file_path") || '{"default": "pom.xml"}';
+    const filePathsInput =
+      core.getInput("file_path") || '{"default": "pom.xml"}';
     let filePathsObj;
     try {
       filePathsObj = JSON.parse(filePathsInput);
@@ -33,7 +34,8 @@ async function run() {
     }
     const filePaths = Object.values(filePathsObj);
 
-    const xpathExpression = core.getInput("path") || "//p:project/p:properties/p:revision";
+    const xpathExpression =
+      core.getInput("path") || "//p:project/p:properties/p:revision";
     const newValue = core.getInput("new_value");
     if (!newValue) throw new Error('❗️ Input "new_value" is required.');
 
