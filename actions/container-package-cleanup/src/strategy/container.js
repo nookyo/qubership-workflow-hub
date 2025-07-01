@@ -11,49 +11,84 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
     execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
-        const excludePatterns = excludedPatterns.map(p => p.toLowerCase());
-        const includePatterns = includedPatterns.map(p => p.toLowerCase());
+        const excluded = excludedPatterns.map(p => p.toLowerCase());
+        const included = includedPatterns.map(p => p.toLowerCase());
 
         debug && core.debug(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
 
-        let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+        for (const { pkg, version } of packagesWithVersions) {
+            if (!pkg.versions || !Array.isArray(pkg.versions)) {
+                core.warning(`Package ${pkg.name} does not have valid versions array.`);
+                continue;
+            }
 
-            const versionsWithoutExclude = versions.filter((version) => {
+            const candidates = pkg.versions.filter(v => {
+                if (!this.isValidMetadata(v)) return false;
 
-                if (!this.isValidMetadata(version)) return false;
+                const createdAt = new Date(v.created_at);
+                if (createdAt > thresholdDate) return false;
 
-                const createdAt = new Date(version.created_at);
-                const isOldEnough = createdAt <= thresholdDate;
-
-                debug && core.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
-
-                if (!isOldEnough) return false;
-
-                const tags = version.metadata.container.tags || [];
-
-                if (excludePatterns.length > 0 && tags.some(tag => excludePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
+                const tags = v.metadata.container.tags || [];
+                if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
                     return false;
                 }
                 return true;
             });
 
-            const versionsToDelete = includePatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
-                const tags = version.metadata.container.tags;
-                
-                if (tags.length === 0 && version.name.startsWith('sha256:')) return true;
-                
-                return tags.some(tag => includePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)));
-            }) : versionsWithoutExclude;
+            debug && core.debug(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(candidates, null, 2)}`);
+        }
+        // const candidates = packagesWithVersions.filter(v => {
+        //     if (!Array.isArray(v.metadata?.container?.tags)) return false;
+        //     const createdAt = new Date(v.created_at);
 
-            const customPackage = {
-                id: pkg.id,
-                name: pkg.name,
-                type: pkg.package_type
-            };
+        //     if (createdAt > thresholdDate) return false;
 
-            return { package: customPackage, versions: versionsToDelete };
+        //     const tags = v.metadata.container.tags || [];
+        //     if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
+        //     return false;
+        //     }
+        //     return true;
 
-        }).filter(item => item !== null && item.versions.length > 0);
+        // });
+
+        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+
+        //     const versionsWithoutExclude = versions.filter((version) => {
+
+        //         if (!this.isValidMetadata(version)) return false;
+
+        //         const createdAt = new Date(version.created_at);
+        //         const isOldEnough = createdAt <= thresholdDate;
+
+        //         debug && core.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+
+        //         if (!isOldEnough) return false;
+
+        //         const tags = version.metadata.container.tags || [];
+
+        //         if (excludePatterns.length > 0 && tags.some(tag => excludePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
+        //             return false;
+        //         }
+        //         return true;
+        //     });
+
+        //     const versionsToDelete = includePatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
+        //         const tags = version.metadata.container.tags;
+
+        //         if (tags.length === 0 && version.name.startsWith('sha256:')) return true;
+
+        //         return tags.some(tag => includePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)));
+        //     }) : versionsWithoutExclude;
+
+        //     const customPackage = {
+        //         id: pkg.id,
+        //         name: pkg.name,
+        //         type: pkg.package_type
+        //     };
+
+        //     return { package: customPackage, versions: versionsToDelete };
+
+        // }).filter(item => item !== null && item.versions.length > 0);
 
         return filteredPackagesWithVersionsForDelete;
     }
