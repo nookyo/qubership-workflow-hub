@@ -16,33 +16,34 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         //debug && core.info(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
         const filteredPackagesWithVersionsForDelete = packagesWithVersions;
-        for (const { pkg, versions } of packagesWithVersions) {
-            if (!!Array.isArray(versions)) {
-                core.warning(`Package ${pkg.name} does not have valid versions array.`);
-                continue;
-            }
+        for (let t of packagesWithVersions) {
+            core.info(`Package with versions: ${JSON.stringify(t, null, 2)}`);
+            // if (!!Array.isArray(versions)) {
+            //     core.warning(`Package ${pkg} does not have valid versions array.`);
+            //     continue;
+            // }
 
-            const candidates = versions.filter(v => {
-                if (!this.isValidMetadata(v)) return false;
+            // const candidates = versions.filter(v => {
+            //     if (!this.isValidMetadata(v)) return false;
 
-                const createdAt = new Date(v.created_at);
-                if (createdAt > thresholdDate) return false;
+            //     const createdAt = new Date(v.created_at);
+            //     if (createdAt > thresholdDate) return false;
 
-                const tags = v.metadata.container.tags || [];
-                if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
-                    return false;
-                }
-                return true;
-            });
+            //     const tags = v.metadata.container.tags || [];
+            //     if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
+            //         return false;
+            //     }
+            //     return true;
+            // });
 
-            const taggedCandidates = included.length > 0 ? candidates.filter(v => {
-                const tags = v.metadata.container.tags || [];
-                included.some(pattern => {
-                    return tags.some(tag => this.wildcardMatcher.match(tag, pattern));
-                });
-            }) : candidates;
+            // const taggedCandidates = included.length > 0 ? candidates.filter(v => {
+            //     const tags = v.metadata.container.tags || [];
+            //     included.some(pattern => {
+            //         return tags.some(tag => this.wildcardMatcher.match(tag, pattern));
+            //     });
+            // }) : candidates;
 
-            debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
+            // debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
         }
         // const candidates = packagesWithVersions.filter(v => {
         //     if (!Array.isArray(v.metadata?.container?.tags)) return false;
