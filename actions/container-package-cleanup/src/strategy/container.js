@@ -44,7 +44,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 });
             }) : candidates;
 
-            debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
+            //debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
 
             const allDigests = new Set();
             for (const v of taggedCandidates) {
@@ -62,6 +62,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     }
                 }
             }
+            debug && core.info(`All digests for package ${pkg.name}: ${Array.from(allDigests).join(', ')}`);
         }
         // const candidates = packagesWithVersions.filter(v => {
         //     if (!Array.isArray(v.metadata?.container?.tags)) return false;
