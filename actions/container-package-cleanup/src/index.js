@@ -84,36 +84,36 @@ async function run() {
   );
 
 
-  // 3) Для каждого пакета группируем тэг → его manifest digest’ы → архитектурные слои
-  for (const { package: pkg, versions } of packagesWithVersions) {
-    // оставляем только версии с тегами
-    const tagged = versions.filter(v => (v.metadata.container.tags || []).length > 0);
-    if (tagged.length === 0) {
-      core.info(`→ ${pkg.name}: нет версий с тегами`);
-      continue;
-    }
+  // // 3) Для каждого пакета группируем тэг → его manifest digest’ы → архитектурные слои
+  // for (const { package: pkg, versions } of packagesWithVersions) {
+  //   // оставляем только версии с тегами
+  //   const tagged = versions.filter(v => (v.metadata.container.tags || []).length > 0);
+  //   if (tagged.length === 0) {
+  //     core.info(`→ ${pkg.name}: нет версий с тегами`);
+  //     continue;
+  //   }
 
-    for (const tagVer of tagged) {
-      // возьмём, например, первый тег
-      const tag = tagVer.metadata.container.tags[0];
-      core.info(`\nПакет ${pkg.name} — версия id=${tagVer.id}, tag=${tag}`);
+  //   for (const tagVer of tagged) {
+  //     // возьмём, например, первый тег
+  //     const tag = tagVer.metadata.container.tags[0];
+  //     core.info(`\nПакет ${pkg.name} — версия id=${tagVer.id}, tag=${tag}`);
 
-      // получаем через docker manifest digest’ы всех платформ
-      const digests = await wrapper.getManifestDigests(owner, pkg.name, tag);
-      core.info(` → manifest-list digests:\n   ${digests.join("\n   ")}`);
+  //     // получаем через docker manifest digest’ы всех платформ
+  //     const digests = await wrapper.getManifestDigests(owner, pkg.name, tag);
+  //     core.info(` → manifest-list digests:\n   ${digests.join("\n   ")}`);
 
-      // сопоставляем с sha-версиями из GH Packages
-      const archLayers = versions.filter(v => digests.includes(v.name));
-      if (archLayers.length) {
-        core.info(` → связанные архитектурные слои:`);
-        archLayers.forEach(v =>
-          core.info(`    • id=${v.id}, name=${v.name}`)
-        );
-      } else {
-        core.info(` → архитектурные слои не найдены.`);
-      }
-    }
-  }
+  //     // сопоставляем с sha-версиями из GH Packages
+  //     const archLayers = versions.filter(v => digests.includes(v.name));
+  //     if (archLayers.length) {
+  //       core.info(` → связанные архитектурные слои:`);
+  //       archLayers.forEach(v =>
+  //         core.info(`    • id=${v.id}, name=${v.name}`)
+  //       );
+  //     } else {
+  //       core.info(` → архитектурные слои не найдены.`);
+  //     }
+  //   }
+  // }
 
 
   //core.info(JSON.stringify(packagesWithVersions, null, 2));
@@ -130,12 +130,12 @@ async function run() {
   };
 
 
-  // let strategy = getStrategy(package_type);
+  let strategy = getStrategy(package_type);
   // // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
-  // console.log(`Using strategy -> ${await strategy.toString()}`);
+  console.log(`Using strategy -> ${await strategy.toString()}`);
 
-  // let filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
+  let filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 
   // if (isDebug) {
 

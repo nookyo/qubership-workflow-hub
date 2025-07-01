@@ -35,6 +35,13 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 return true;
             });
 
+            const taggetedCandidates = included.length > 0 ? candidates.filter(v => {
+                const tags = v.metadata.container.tags || [];
+                included.some(pattern => {
+                    return tags.some(tag => this.wildcardMatcher.match(tag, pattern));
+                });
+            }) : candidates;
+
             debug && core.debug(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(candidates, null, 2)}`);
         }
         // const candidates = packagesWithVersions.filter(v => {
