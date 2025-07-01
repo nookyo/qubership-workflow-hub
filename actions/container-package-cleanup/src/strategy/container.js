@@ -9,7 +9,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         this.wildcardMatcher = new WildcardMatcher();
     }
 
-    execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
+    async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
@@ -18,11 +18,11 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const filteredPackagesWithVersionsForDelete = packagesWithVersions;
         for (let { package: pkg, versions } of packagesWithVersions) {
 
-            debug && core.info(`Processing versions for package: ${JSON.stringify(versions, null, 2)}`);
-            // if (!!Array.isArray(versions)) {
-            //     core.warning(`Package ${pkg.name} does not have valid versions array.`);
-            //     continue;
-            // }
+            //debug && core.info(`Processing versions for package: ${JSON.stringify(versions, null, 2)}`);
+            if (!Array.isArray(versions)) {
+                core.warning(`Package ${pkg.name} does not have valid versions array.`);
+                continue;
+            }
 
             const candidates = versions.filter(v => {
                 if (!this.isValidMetadata(v)) return false;
@@ -36,8 +36,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
                 return true;
             });
-            
-            debug && core.debug(`Candidates for package ${pkg.name}: ${JSON.stringify(candidates, null, 2)}`);
 
             const taggedCandidates = included.length > 0 ? candidates.filter(v => {
                 const tags = v.metadata.container.tags || [];
@@ -47,6 +45,23 @@ class ContainerStrategy extends AbstractPackageStrategy {
             }) : candidates;
 
             debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
+
+            const allDigests = new Set();
+            for (const v of taggedCandidates) {
+                for (const tag of v.metadata.container.tags) {
+                    try {
+                        const digests = await wrapper.getManifestDigests(
+                            owner,
+                            pkg.name,
+                            tag,
+                            isOrganization
+                        );
+                        digests.forEach(d => allDigests.add(d));
+                    } catch (e) {
+                        debug && core.debug(`Cannot get manifest digests for package ${pkg.name} with tag ${tag}: ${e.message}`);
+                    }
+                }
+            }
         }
         // const candidates = packagesWithVersions.filter(v => {
         //     if (!Array.isArray(v.metadata?.container?.tags)) return false;

@@ -8,7 +8,7 @@ class MavenStrategy extends AbstractPackageStrategy {
         this.name = 'Maven Strategy';
     }
 
-    execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
+    async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
 
         // includedTags = ['*SNAPSHOT*', ...includedTags];
         const wildcardMatcher = new WildcardMatcher();
