@@ -18,10 +18,11 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const filteredPackagesWithVersionsForDelete = packagesWithVersions;
         for (let { package: pkg, versions } of packagesWithVersions) {
 
-            if (!!Array.isArray(versions)) {
-                core.warning(`Package ${pkg.name} does not have valid versions array.`);
-                continue;
-            }
+            debug && core.info(`Processing versions for package: ${JSON.stringify(versions, null, 2)}`);
+            // if (!!Array.isArray(versions)) {
+            //     core.warning(`Package ${pkg.name} does not have valid versions array.`);
+            //     continue;
+            // }
 
             const candidates = versions.filter(v => {
                 if (!this.isValidMetadata(v)) return false;
@@ -35,6 +36,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
                 return true;
             });
+            
+            debug && core.debug(`Candidates for package ${pkg.name}: ${JSON.stringify(candidates, null, 2)}`);
 
             const taggedCandidates = included.length > 0 ? candidates.filter(v => {
                 const tags = v.metadata.container.tags || [];
