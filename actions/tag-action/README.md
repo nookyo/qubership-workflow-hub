@@ -16,23 +16,23 @@ This **Tag Composite Action** automates the process of managing Git tags in a re
 
 ## 📌 Inputs
 
-| Name               | Description                                                                 | Required | Default                     |
-| ------------------ | --------------------------------------------------------------------------- | -------- | --------------------------- |
-| `ref`              | The branch to checkout before performing any tag operations.               | Yes      |                             |
-| `tag-name`         | The name of the tag to create or delete.                                    | Yes      |                             |
-| `check-tag`        | Check if the specified tag already exists. If enabled, the action will exit if the tag exists. | No       | `false`                     |
-| `create-tag`       | Create a new tag. If set to `false`, the action will skip tag creation.     | No       | `true`                      |
-| `force-create`     | Force create the tag even if it already exists. If enabled, the existing tag will be deleted before creating a new one. | No       | `false`                     |
-| `delete-tag`       | Delete the specified tag. If enabled, the action will delete the tag with the name provided in the `tag-name` input from both the local and remote repositories. | No       | `false`                     |
-| `dry-run`          | Run the action in dry-run mode. No changes will be pushed to the repository. Useful for testing workflows. | No       | `false`                     |
+| Name           | Description                                                                                                                                                      | Required | Default |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------- |
+| `ref`          | The branch to checkout before performing any tag operations.                                                                                                     | Yes      |         |
+| `tag-name`     | The name of the tag to create or delete.                                                                                                                         | Yes      |         |
+| `check-tag`    | Check if the specified tag already exists. If enabled, the action will exit if the tag exists.                                                                   | No       | `false` |
+| `create-tag`   | Create a new tag. If set to `false`, the action will skip tag creation.                                                                                          | No       | `true`  |
+| `force-create` | Force create the tag even if it already exists. If enabled, the existing tag will be deleted before creating a new one.                                          | No       | `false` |
+| `delete-tag`   | Delete the specified tag. If enabled, the action will delete the tag with the name provided in the `tag-name` input from both the local and remote repositories. | No       | `false` |
+| `dry-run`      | Run the action in dry-run mode. No changes will be pushed to the repository. Useful for testing workflows.                                                       | No       | `false` |
 
 ---
 
 ## 📌 Outputs
 
-| Name               | Description                                                                 |
-| ------------------ | --------------------------------------------------------------------------- |
-| `created-tag`      | The tag that was created.                                                  |
+| Name          | Description               |
+| ------------- | ------------------------- |
+| `created-tag` | The tag that was created. |
 
 ---
 
