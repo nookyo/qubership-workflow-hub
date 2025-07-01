@@ -16,8 +16,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         //debug && core.info(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
         const filteredPackagesWithVersionsForDelete = packagesWithVersions;
-        for (let t of packagesWithVersions) {
-            core.info(`Package with versions: ${JSON.stringify(t, null, 2)}`);
+        for (let {package, version } of packagesWithVersions) {
+            core.info(`Package with versions: ${JSON.stringify(package, null, 2)}`);
             // if (!!Array.isArray(versions)) {
             //     core.warning(`Package ${pkg} does not have valid versions array.`);
             //     continue;
