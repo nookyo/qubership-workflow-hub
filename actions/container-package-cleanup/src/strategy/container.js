@@ -56,10 +56,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
             debug && core.info(`Digests for ${pkg.name}: ${[...allDigests].join(', ')}`);
 
             // 4) добавляем «сырые» версии без тегов, если их sha256 попал в allDigests
-            const layersToDelete = withoutExclude.filter(v =>
-                v.metadata.container.tags.length === 0 &&
-                allDigests.has(v.name)
-            );
+            const layersToDelete = withoutExclude.filter(v => v.metadata.container.tags.length === 0 && allDigests.has(v.name));
 
             // 5) если есть что удалять — пушим в result
             const toDeleteVersions = [...taggedToDelete, ...layersToDelete];
@@ -96,55 +93,55 @@ class ContainerStrategy extends AbstractPackageStrategy {
 module.exports = ContainerStrategy;
 
 
-        // const candidates = packagesWithVersions.filter(v => {
-        //     if (!Array.isArray(v.metadata?.container?.tags)) return false;
-        //     const createdAt = new Date(v.created_at);
+// const candidates = packagesWithVersions.filter(v => {
+//     if (!Array.isArray(v.metadata?.container?.tags)) return false;
+//     const createdAt = new Date(v.created_at);
 
-        //     if (createdAt > thresholdDate) return false;
+//     if (createdAt > thresholdDate) return false;
 
-        //     const tags = v.metadata.container.tags || [];
-        //     if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
-        //     return false;
-        //     }
-        //     return true;
+//     const tags = v.metadata.container.tags || [];
+//     if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
+//     return false;
+//     }
+//     return true;
 
-        // });
+// });
 
-        // let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+// let filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
 
-        //     const versionsWithoutExclude = versions.filter((version) => {
+//     const versionsWithoutExclude = versions.filter((version) => {
 
-        //         if (!this.isValidMetadata(version)) return false;
+//         if (!this.isValidMetadata(version)) return false;
 
-        //         const createdAt = new Date(version.created_at);
-        //         const isOldEnough = createdAt <= thresholdDate;
+//         const createdAt = new Date(version.created_at);
+//         const isOldEnough = createdAt <= thresholdDate;
 
-        //         debug && core.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+//         debug && core.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
 
-        //         if (!isOldEnough) return false;
+//         if (!isOldEnough) return false;
 
-        //         const tags = version.metadata.container.tags || [];
+//         const tags = version.metadata.container.tags || [];
 
-        //         if (excludePatterns.length > 0 && tags.some(tag => excludePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
-        //             return false;
-        //         }
-        //         return true;
-        //     });
+//         if (excludePatterns.length > 0 && tags.some(tag => excludePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
+//             return false;
+//         }
+//         return true;
+//     });
 
-        //     const versionsToDelete = includePatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
-        //         const tags = version.metadata.container.tags;
+//     const versionsToDelete = includePatterns.length > 0 ? versionsWithoutExclude.filter((version) => {
+//         const tags = version.metadata.container.tags;
 
-        //         if (tags.length === 0 && version.name.startsWith('sha256:')) return true;
+//         if (tags.length === 0 && version.name.startsWith('sha256:')) return true;
 
-        //         return tags.some(tag => includePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)));
-        //     }) : versionsWithoutExclude;
+//         return tags.some(tag => includePatterns.some(pattern => this.wildcardMatcher.match(tag, pattern)));
+//     }) : versionsWithoutExclude;
 
-        //     const customPackage = {
-        //         id: pkg.id,
-        //         name: pkg.name,
-        //         type: pkg.package_type
-        //     };
+//     const customPackage = {
+//         id: pkg.id,
+//         name: pkg.name,
+//         type: pkg.package_type
+//     };
 
-        //     return { package: customPackage, versions: versionsToDelete };
+//     return { package: customPackage, versions: versionsToDelete };
 
-        // }).filter(item => item !== null && item.versions.length > 0);
+// }).filter(item => item !== null && item.versions.length > 0);
