@@ -68,18 +68,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
             const layersToDelete = candidates.filter(v => (v.metadata.container.tags || []).length === 0 && allDigests.has(v.name));
 
-            toDelete = [...taggedCandidates, ...layersToDelete].map(v => ({
-                package: {
-                    id: pkg.id,
-                    name: pkg.name,
-                    type: pkg.package_type
-                },
-                version: {
-                    id: v.id,
-                    name: v.name,
-                    metadata: v.metadata
-                }
-            }));
+            for (const v of [...taggedToDelete, ...layersToDelete]) {
+                toDelete.push({
+                    package: {
+                        id: pkg.id,
+                        name: pkg.name,
+                        type: pkg.package_type
+                    },
+                    version: {
+                        id: v.id,
+                        name: v.name,
+                        metadata: v.metadata
+                    }
+                });
+            }
 
             debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(toDelete, null, 2)}`);
 
