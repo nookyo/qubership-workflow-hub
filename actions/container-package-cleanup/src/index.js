@@ -136,40 +136,40 @@ async function run() {
   console.log(`Using strategy -> ${await strategy.toString()}`);
 
   let filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
-  // core.info(`Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+  core.info(`Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
-  // if (isDebug) {
+  if (isDebug) {
 
-  //   core.info(`::group::Delete versions Log.`);
-  //   core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-  //   core.info(`::endgroup::`);
-  // }
+    core.info(`::group::Delete versions Log.`);
+    core.info(`💡 Package with version for delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
+    core.info(`::endgroup::`);
+  }
 
-  // let reportContext = {
-  //   filteredPackagesWithVersionsForDelete,
-  //   thresholdDays,
-  //   thresholdDate,
-  //   dryRun,
-  //   includedTags,
-  //   excludedTags
-  // };
+  let reportContext = {
+    filteredPackagesWithVersionsForDelete,
+    thresholdDays,
+    thresholdDate,
+    dryRun,
+    includedTags,
+    excludedTags
+  };
 
-  // if (dryRun) {
-  //   core.warning("Dry run mode enabled. No versions will be deleted.");
-  //   await showReport(reportContext, package_type,);
-  //   return;
-  // }
+  if (dryRun) {
+    core.warning("Dry run mode enabled. No versions will be deleted.");
+    await showReport(reportContext, package_type,);
+    return;
+  }
 
-  // for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-  //   for (const version of versions) {
-  //     let detail = pkg.type === 'maven' ? version.name : (version.metadata?.container?.tags ?? []).join(', ');
-  //     core.info(`Package: ${pkg.name} (${pkg.type}) — deleting version: ${version.id} (${detail})`);
-  //     await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
-  //   }
-  // }
+  for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
+    for (const version of versions) {
+      let detail = pkg.type === 'maven' ? version.name : (version.metadata?.container?.tags ?? []).join(', ');
+      core.info(`Package: ${pkg.name} (${pkg.type}) — deleting version: ${version.id} (${detail})`);
+      await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
+    }
+  }
 
-  // await showReport(filteredPackagesWithVersionsForDelete);
-  // core.info("✅ All specified versions have been deleted successfully.");
+  await showReport(filteredPackagesWithVersionsForDelete);
+  core.info("✅ All specified versions have been deleted successfully.");
 }
 
 async function showReport(context, type = 'container') {
