@@ -42,19 +42,19 @@ Below is the short description of how to implement common workflows in any Netcr
 
 ## The organization level secrets and vars used in actions
 
-| Name                          | Purpose                                                                              |
-| ----------------------------- | ------------------------------------------------------------------------------------ |
-| secrets.GITHUB_TOKEN          | Automatic token authentication (see more [here](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#about-the-github_token-secret)) |
-| secrets.CLA_ACCESS_TOKEN      | Used by CLA workflow to access cla storage                                           |
-| secrets.MAVEN_USER            | Username to authenticate in Maven Central repository to publish released artifacts  |
-| secrets.MAVEN_PASSWORD        | User token to authenticate in Maven Central repository to publish released artifacts |
-| secrets.MAVEN_GPG_PRIVATE_KEY | GPG private key to sign artefacts (jar, pom etc) to publish them into Maven Central  |
-| secrets.MAVEN_GPG_PASSPHRASE  | GPG private key passphrase                                                           |
-| secrets.PYPI_API_TOKEN        | Token to publish packages to [PYPI](https://pypi.org/) registry                      |
-| secrets.GH_ACCESS_TOKEN       | Token for "tech user" with extended acess rights                                     |
-| secrets.WORKFLOWS_TOKEN       | Classic Token with workflow scope |
-| secrets.SONAR_TOKEN           | Token to access [SonarQube](https://www.sonarsource.com/plans-and-pricing/sonarcloud/)|
-| secrets.GH_RWD_PACKAGE_TOKEN  | Token with access to [GitHub packages](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#granular-permissions-for-userorganization-scoped-packages)  |
+| Name                          | Purpose                                                                                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| secrets.GITHUB_TOKEN          | Automatic token authentication (see more [here](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#about-the-github_token-secret))     |
+| secrets.CLA_ACCESS_TOKEN      | Used by CLA workflow to access cla storage                                                                                                                                                        |
+| secrets.MAVEN_USER            | Username to authenticate in Maven Central repository to publish released artifacts                                                                                                                |
+| secrets.MAVEN_PASSWORD        | User token to authenticate in Maven Central repository to publish released artifacts                                                                                                              |
+| secrets.MAVEN_GPG_PRIVATE_KEY | GPG private key to sign artefacts (jar, pom etc) to publish them into Maven Central                                                                                                               |
+| secrets.MAVEN_GPG_PASSPHRASE  | GPG private key passphrase                                                                                                                                                                        |
+| secrets.PYPI_API_TOKEN        | Token to publish packages to [PYPI](https://pypi.org/) registry                                                                                                                                   |
+| secrets.GH_ACCESS_TOKEN       | Token for "tech user" with extended acess rights                                                                                                                                                  |
+| secrets.WORKFLOWS_TOKEN       | Classic Token with workflow scope                                                                                                                                                                 |
+| secrets.SONAR_TOKEN           | Token to access [SonarQube](https://www.sonarsource.com/plans-and-pricing/sonarcloud/)                                                                                                            |
+| secrets.GH_RWD_PACKAGE_TOKEN  | Token with access to [GitHub packages](https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#granular-permissions-for-userorganization-scoped-packages) |
 
 ## Common workflows
 
@@ -108,7 +108,7 @@ Create a new workflow in your repository. Copy the [prepared file](https://githu
 
 #### Step 2: Add configuration file
 
-Create a new configuration file `.github/auto-labeler-config.yaml`. Copy [prepared file](./docs/examples/auto-labeler-config.yaml)  into `.github` directory of your repository.
+Create a new configuration file `.github/auto-labeler-config.yaml`. Copy [prepared file](./docs/examples/auto-labeler-config.yaml) into `.github` directory of your repository.
 
 #### Step 3: Follow the conventional commits messages strategy
 
