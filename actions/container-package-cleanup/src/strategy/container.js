@@ -15,7 +15,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const included = includedPatterns.map(p => p.toLowerCase());
 
         //debug && core.info(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
-        //const filteredPackagesWithVersionsForDelete = packagesWithVersions;
+        const filteredPackagesWithVersionsForDelete = packagesWithVersions;
         for (let { package: pkg, versions } of packagesWithVersions) {
 
             //debug && core.info(`Processing versions for package: ${JSON.stringify(versions, null, 2)}`);
