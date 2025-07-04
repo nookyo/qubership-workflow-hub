@@ -14,6 +14,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
 
+        let toDelete = [];
         //debug && core.info(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
         const filteredPackagesWithVersionsForDelete = packagesWithVersions;
         for (let { package: pkg, versions } of packagesWithVersions) {
@@ -67,7 +68,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
             const layersToDelete = candidates.filter(v => (v.metadata.container.tags || []).length === 0 && allDigests.has(v.name));
 
-            const toDelete = [...taggedCandidates, ...layersToDelete].map(v => ({
+            toDelete = [...taggedCandidates, ...layersToDelete].map(v => ({
                 package: {
                     id: pkg.id,
                     name: pkg.name,
