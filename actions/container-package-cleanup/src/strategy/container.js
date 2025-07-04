@@ -15,7 +15,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const included = includedPatterns.map(p => p.toLowerCase());
 
         //debug && core.info(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
-        const filteredPackagesWithVersionsForDelete = packagesWithVersions;
+        //const filteredPackagesWithVersionsForDelete = packagesWithVersions;
         for (let { package: pkg, versions } of packagesWithVersions) {
 
             //debug && core.info(`Processing versions for package: ${JSON.stringify(versions, null, 2)}`);
@@ -62,7 +62,26 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     }
                 }
             }
+
             debug && core.info(`All digests for package ${pkg.name}: ${Array.from(allDigests).join(', ')}`);
+
+            const layersToDelete = candidates.filter(v => (v.metadata.container.tags || []).length === 0 && allDigests.has(v.name));
+
+            const toDelete = [...taggedCandidates, ...layersToDelete].map(v => ({
+                package: {
+                    id: pkg.id,
+                    name: pkg.name,
+                    type: pkg.package_type
+                },
+                version: {
+                    id: v.id,
+                    name: v.name,
+                    metadata: v.metadata
+                }
+            }));
+
+            debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(toDelete, null, 2)}`);
+
         }
         // const candidates = packagesWithVersions.filter(v => {
         //     if (!Array.isArray(v.metadata?.container?.tags)) return false;
