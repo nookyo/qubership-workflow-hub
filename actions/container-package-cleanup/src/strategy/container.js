@@ -26,12 +26,11 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 if (!Array.isArray(v.metadata?.container?.tags)) return false;
                 if (new Date(v.created_at) > thresholdDate) return false;
                 const tags = v.metadata.container.tags;
-                return !excluded.some(pattern =>
-                    tags.some(tag => this.wildcardMatcher.match(tag, pattern))
+                return !excluded.some(pattern => tags.some(tag => this.wildcardMatcher.match(tag, pattern))
                 );
             });
 
-            // 2) из оставшихся берём tagged-версии по includedPatterns (или все, если included пуст)
+            // 2) из оставшихся берём tagged-версии по includedPatterns (или все, если include пуст)
             const taggedToDelete = included.length > 0
                 ? withoutExclude.filter(v =>
                     v.metadata.container.tags.some(tag =>
@@ -40,37 +39,58 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 )
                 : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-            // 3) собираем все digest’ы из manifest-list taggedToDelete
-            const allDigests = new Set();
+            if (taggedToDelete.length === 0) {
+                debug && core.info(`No tagged versions to delete for ${pkg.name}`);
+                continue;
+            }
+
+            // 3) собираем digest’ы для каждой tagged-версии
+            const digestMap = new Map();  // version.name -> Set(digests)
             for (const v of taggedToDelete) {
+                const digs = new Set();
                 for (const tag of v.metadata.container.tags) {
                     try {
-                        const digests = await wrapper.getManifestDigests(owner, pkg.name, tag, isOrganization);
-                        digests.forEach(d => allDigests.add(d));
+                        const ds = await wrapper.getManifestDigests(owner, pkg.name, tag, isOrganization);
+                        ds.forEach(d => digs.add(d));
                     } catch (e) {
                         debug && core.debug(`Failed to inspect manifest ${pkg.name}:${tag} — ${e.message}`);
                     }
                 }
+                digestMap.set(v.name, digs);
             }
 
-            debug && core.info(`Digests for ${pkg.name}: ${[...allDigests].join(', ')}`);
+            // 4) находим «сырые» слои без тегов, у которых name (sha256) попал в любой из этих сетов
+            const layersToDelete = withoutExclude.filter(v =>
+                v.metadata.container.tags.length === 0 &&
+                // встречается ли v.name в какой-нибудь коллекции digestMap
+                Array.from(digestMap.values()).some(digs => digs.has(v.name))
+            );
 
-            // 4) добавляем «сырые» версии без тегов, если их sha256 попал в allDigests
-            const layersToDelete = withoutExclude.filter(v => v.metadata.container.tags.length === 0 && allDigests.has(v.name));
+            // 5) строим итоговый упорядоченный список: тег, его слои, следующий тег, его слои...
+            const ordered = [];
+            const usedLayers = new Set();
+            for (const v of taggedToDelete) {
+                ordered.push(v);
+                const digs = digestMap.get(v.name) || new Set();
+                for (const layer of layersToDelete) {
+                    if (!usedLayers.has(layer.name) && digs.has(layer.name)) {
+                        ordered.push(layer);
+                        usedLayers.add(layer.name);
+                    }
+                }
+            }
 
-            // 5) если есть что удалять — пушим в result
-            const toDeleteVersions = [...taggedToDelete, ...layersToDelete];
-            if (toDeleteVersions.length > 0) {
+            // 6) если есть что удалять — пушим в result
+            if (ordered.length > 0) {
                 result.push({
                     package: {
                         id: pkg.id,
                         name: pkg.name,
                         type: pkg.package_type
                     },
-                    versions: toDeleteVersions
+                    versions: ordered
                 });
-
-                debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(toDeleteVersions, null, 2)}`);
+                debug && core.info(`Versions to delete for package ${pkg.name}: ${ordered.map(v => v.id).join(', ')}`);
             }
         }
 
