@@ -10,82 +10,92 @@ class ContainerStrategy extends AbstractPackageStrategy {
     }
 
     async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, wrapper, owner, isOrganization, debug = false }) {
-
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
 
-        let toDelete = [];
-        //debug && core.info(`Package with versions: ${JSON.stringify(packagesWithVersions, null, 2)}`);
-        const filteredPackagesWithVersionsForDelete = packagesWithVersions;
-        for (let { package: pkg, versions } of packagesWithVersions) {
+        const result = [];
 
-            //debug && core.info(`Processing versions for package: ${JSON.stringify(versions, null, 2)}`);
+        for (const { package: pkg, versions } of packagesWithVersions) {
             if (!Array.isArray(versions)) {
-                core.warning(`Package ${pkg.name} does not have valid versions array.`);
+                core.warning(`Package ${pkg.name} has no versions array`);
                 continue;
             }
 
-            const candidates = versions.filter(v => {
-                if (!this.isValidMetadata(v)) return false;
-
-                const createdAt = new Date(v.created_at);
-                if (createdAt > thresholdDate) return false;
-
-                const tags = v.metadata.container.tags || [];
-                if (excluded.length > 0 && tags.some(tag => excluded.some(pattern => this.wildcardMatcher.match(tag, pattern)))) {
-                    return false;
-                }
-                return true;
+            // 1) отфильтровываем по дате и excludedPatterns
+            const withoutExclude = versions.filter(v => {
+                if (!Array.isArray(v.metadata?.container?.tags)) return false;
+                if (new Date(v.created_at) > thresholdDate) return false;
+                const tags = v.metadata.container.tags;
+                return !excluded.some(pattern =>
+                    tags.some(tag => this.wildcardMatcher.match(tag, pattern))
+                );
             });
 
-            const taggedToDelete = included.length > 0 ? candidates.filter(v => {
-                const tags = v.metadata.container.tags || [];
-                included.some(pattern => {
-                    return tags.some(tag => this.wildcardMatcher.match(tag, pattern));
-                });
-            }) : candidates;
+            // 2) из оставшихся берём tagged-версии по includedPatterns (или все, если included пуст)
+            const taggedToDelete = included.length > 0
+                ? withoutExclude.filter(v =>
+                    v.metadata.container.tags.some(tag =>
+                        included.some(pattern => this.wildcardMatcher.match(tag, pattern))
+                    )
+                )
+                : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-            //debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
-
+            // 3) собираем все digest’ы из manifest-list taggedToDelete
             const allDigests = new Set();
             for (const v of taggedToDelete) {
                 for (const tag of v.metadata.container.tags) {
                     try {
-                        const digests = await wrapper.getManifestDigests(
-                            owner,
-                            pkg.name,
-                            tag,
-                            isOrganization
-                        );
+                        const digests = await wrapper.getManifestDigests(owner, pkg.name, tag, isOrganization);
                         digests.forEach(d => allDigests.add(d));
                     } catch (e) {
-                        debug && core.debug(`Cannot get manifest digests for package ${pkg.name} with tag ${tag}: ${e.message}`);
+                        debug && core.debug(`Failed to inspect manifest ${pkg.name}:${tag} — ${e.message}`);
                     }
                 }
             }
 
-            debug && core.info(`All digests for package ${pkg.name}: ${Array.from(allDigests).join(', ')}`);
+            debug && core.info(`Digests for ${pkg.name}: ${[...allDigests].join(', ')}`);
 
-            const layersToDelete = candidates.filter(v => (v.metadata.container.tags || []).length === 0 && allDigests.has(v.name));
+            // 4) добавляем «сырые» версии без тегов, если их sha256 попал в allDigests
+            const layersToDelete = withoutExclude.filter(v =>
+                v.metadata.container.tags.length === 0 &&
+                allDigests.has(v.name)
+            );
 
-            for (const v of [...taggedToDelete, ...layersToDelete]) {
-                toDelete.push({
+            // 5) если есть что удалять — пушим в result
+            const toDeleteVersions = [...taggedToDelete, ...layersToDelete];
+            if (toDeleteVersions.length > 0) {
+                result.push({
                     package: {
                         id: pkg.id,
                         name: pkg.name,
                         type: pkg.package_type
                     },
-                    version: {
-                        id: v.id,
-                        name: v.name,
-                        metadata: v.metadata
-                    }
+                    versions: toDeleteVersions
                 });
+
+                debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(
+                    toDeleteVersions.map(v => v.id),
+                    null,
+                    2
+                )}`);
             }
-
-            debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(toDelete, null, 2)}`);
-
         }
+
+        return result;
+    }
+
+    isValidMetadata(version) {
+        return Array.isArray(version?.metadata?.container?.tags);
+    }
+
+    toString() {
+        return this.name;
+    }
+}
+
+module.exports = ContainerStrategy;
+
+
         // const candidates = packagesWithVersions.filter(v => {
         //     if (!Array.isArray(v.metadata?.container?.tags)) return false;
         //     const createdAt = new Date(v.created_at);
@@ -138,17 +148,3 @@ class ContainerStrategy extends AbstractPackageStrategy {
         //     return { package: customPackage, versions: versionsToDelete };
 
         // }).filter(item => item !== null && item.versions.length > 0);
-
-        return toDelete;
-    }
-
-    isValidMetadata(version) {
-        return Array.isArray(version?.metadata?.container?.tags);
-    }
-
-    toString() {
-        return this.name;
-    }
-}
-
-module.exports = ContainerStrategy;
