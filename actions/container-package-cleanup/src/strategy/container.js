@@ -38,7 +38,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 return true;
             });
 
-            const taggedCandidates = included.length > 0 ? candidates.filter(v => {
+            const taggedToDelete = included.length > 0 ? candidates.filter(v => {
                 const tags = v.metadata.container.tags || [];
                 included.some(pattern => {
                     return tags.some(tag => this.wildcardMatcher.match(tag, pattern));
@@ -48,7 +48,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
             //debug && core.info(`Filtered candidates for package ${pkg.name}: ${JSON.stringify(taggedCandidates, null, 2)}`);
 
             const allDigests = new Set();
-            for (const v of taggedCandidates) {
+            for (const v of taggedToDelete) {
                 for (const tag of v.metadata.container.tags) {
                     try {
                         const digests = await wrapper.getManifestDigests(
