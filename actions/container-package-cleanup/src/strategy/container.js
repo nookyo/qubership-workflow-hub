@@ -70,11 +70,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     versions: toDeleteVersions
                 });
 
-                debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(
-                    toDeleteVersions.map(v => v.id),
-                    null,
-                    2
-                )}`);
+                debug && core.info(`Versions to delete for package ${pkg.name}: ${JSON.stringify(toDeleteVersions, null, 2)}`);
             }
         }
 
