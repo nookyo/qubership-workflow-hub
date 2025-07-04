@@ -33,10 +33,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
             // 2) из оставшихся берём tagged-версии по includedPatterns (или все, если include пуст)
             const taggedToDelete = included.length > 0
                 ? withoutExclude.filter(v =>
-                    v.metadata.container.tags.some(tag =>
-                        included.some(pattern => this.wildcardMatcher.match(tag, pattern))
-                    )
-                )
+                    v.metadata.container.tags.some(tag => included.some(pattern => this.wildcardMatcher.match(tag, pattern))))
                 : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
             if (taggedToDelete.length === 0) {
