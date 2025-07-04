@@ -136,7 +136,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         // }).filter(item => item !== null && item.versions.length > 0);
 
-        return filteredPackagesWithVersionsForDelete;
+        return toDelete;
     }
 
     isValidMetadata(version) {
