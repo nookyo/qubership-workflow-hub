@@ -9,7 +9,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         this.wildcardMatcher = new WildcardMatcher();
     }
 
-    async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, debug = false }) {
+    async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, wrapper, owner, isOrganization, debug = false }) {
 
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
