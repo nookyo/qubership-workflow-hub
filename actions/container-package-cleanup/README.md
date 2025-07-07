@@ -147,7 +147,7 @@ jobs:
 
 ---
 
-## Usage for Maven JAR Files
+## Usage for Maven Packages
 
 - Set `package-type: maven`.
 - Filtering by `included-patterns` and `excluded-patterns` works on Maven version names.
@@ -170,7 +170,7 @@ The action filters tags/versions in the following order of priority:
 
 3. **Default Behavior**:
    - If neither `included-tags` nor `included-patterns` is specified, all versions are considered for deletion, except those explicitly excluded by `excluded-tags` or `excluded-patterns`.
-   - **For Maven:** If neither `included-tags` nor `included-patterns` is specified, only `*SNAPSHOT*` versions are considered for deletion by default.
+   - **For Maven:** If neither `included-tags` or `included-patterns` is specified, only `*SNAPSHOT*` versions are considered for deletion by default.
 
 #### Filtering Process
 
