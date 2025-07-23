@@ -35,7 +35,6 @@ class ContainerReport {
 
             const versionsInfo = versions
                 .map(({ id, name, metadata }) => {
-                  
                     const tags = metadata?.container?.tags ?? []; 
                     const label = tags.length ? tags.join(', ') : `<em>${name}</em>`;
                     return `• <code>${id}</code> — ${label}`;

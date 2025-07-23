@@ -178,12 +178,15 @@ async function run() {
     }
   }
 
+  core.info("All specified versions have been deleted successfully.");
   await showReport(filteredPackagesWithVersionsForDelete);
   core.info("✅ Action completed successfully.");
 }
 
 async function showReport(context, type = 'container') {
   let report = type === 'container' ? new ContainerReport() : new MavenReport();
+
+  core.info(`Context for report: ${JSON.stringify(context, null, 2)}`);
   await report.writeSummary(context);
 
 }
