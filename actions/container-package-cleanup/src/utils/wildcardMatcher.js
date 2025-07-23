@@ -7,28 +7,11 @@ class WildcardMatcher {
         const t = tag.toLowerCase();
         const p = pattern.toLowerCase();
 
-        if (!p.includes('*')) {
-            return t === p;
-        }
+        // Экранируем всё, кроме *
+        const escaped = p.replace(/[-[\]{}()+?.\\^$|]/g, '\\$&').replace(/\*/g, '.*');
 
-        if (p.endsWith('*') && !p.startsWith('*')) {
-            const prefix = p.slice(0, -1);
-            return t.startsWith(prefix);
-        }
-
-        if (p.startsWith('*') && !p.endsWith('*')) {
-            const suffix = p.slice(1);
-            return t.endsWith(suffix);
-        }
-
-        if (p.startsWith('*') && p.endsWith('*')) {
-            const substr = p.slice(1, -1);
-            return t.includes(substr);
-        }
-
-        const escaped = p.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.*');
-        const re = new RegExp(`^${escaped}$`, 'i');
-        return re.test(tag);
+        const regex = new RegExp(`^${escaped}$`, 'i');
+        return regex.test(t);
     }
 }
 
