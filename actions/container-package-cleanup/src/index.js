@@ -169,6 +169,8 @@ async function run() {
       } catch (error) {
         if (error.status === 400 && error.message.includes('You cannot delete the last tagged version of a package')) {
           core.warning(`Skipping version ${version.id} for package ${pkg.name}: it is the last tagged version and cannot be deleted.`);
+        } else if (error.status === 400 && error.message.includes('more than 5000 downloads')) {
+          core.warning(`Skipping version ${version.id} for package ${pkg.name}: it has more than 5000 downloads and cannot be deleted.`);
         } else {
           throw error;
         }
