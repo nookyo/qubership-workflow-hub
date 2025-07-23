@@ -87,7 +87,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     },
                     versions: ordered
                 });
-                debug && core.info(`Versions to delete for package ${pkg.name}: ${ordered.map(v => v.id).join(', ')}`);
+                debug && core.info(`Versions to delete for package ${pkg.name}: ${ordered.map(v => v.id + ' (' + v.metadata?.container?.tags?.join(', ') + ')').join(', ')}`);
             }
         }
 
