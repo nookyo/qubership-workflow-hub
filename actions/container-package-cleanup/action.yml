@@ -24,10 +24,10 @@ inputs:
     default: "container"
   included-patterns:
     description: "A comma-separated list of patterns to include for deletion."
-    default: "" 
+    default: ""
   excluded-patterns:
     description: "A comma-separated list of patterns to exclude from deletion."
-    default: ""  
+    default: ""
 runs:
   using: "node20"
   main: "src/index.js"

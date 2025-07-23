@@ -164,7 +164,15 @@ async function run() {
     for (const version of versions) {
       let detail = pkg.type === 'maven' ? version.name : (version.metadata?.container?.tags ?? []).join(', ');
       core.info(`Package: ${pkg.name} (${pkg.type}) — deleting version: ${version.id} (${detail})`);
-      await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
+      try {
+        await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
+      } catch (error) {
+        if (error.status === 400 && error.message.includes('You cannot delete the last tagged version of a package')) {
+          core.warning(`Skipping version ${version.id} for package ${pkg.name}: it is the last tagged version and cannot be deleted.`);
+        } else {
+          throw error;
+        }
+      }
     }
   }
 
