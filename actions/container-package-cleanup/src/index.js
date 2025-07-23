@@ -161,7 +161,42 @@ async function run() {
   }
 
   for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-    for (const version of versions) {
+    let versionsToDelete = [...versions];
+    const originalPackageData = packagesWithVersions.find(p => p.package.name === pkg.name);
+    const totalVersionCount = originalPackageData ? originalPackageData.versions.length : 0;
+
+    // If the number of versions to delete is equal to the total number of versions,
+    // it means we are about to delete all versions. In this case, we should keep the last one with its layers.
+    if (totalVersionCount > 0 && totalVersionCount === versionsToDelete.length) {
+      core.warning(`All versions of package ${pkg.name} are marked for deletion. Keeping the most recent tagged version and its layers.`);
+
+      const allVersions = originalPackageData.versions;
+      // Find the latest version that has tags. Versions are sorted from oldest to newest.
+      const latestTaggedVersion = [...allVersions].reverse().find(v => v.metadata?.container?.tags?.length > 0);
+
+      if (latestTaggedVersion) {
+        const tag = latestTaggedVersion.metadata.container.tags[0];
+        core.info(`Latest tagged version is ${latestTaggedVersion.id} with tag ${tag}. Finding its layers.`);
+
+        try {
+          const digests = await wrapper.getManifestDigests(owner, pkg.name, tag);
+          const layersToKeep = allVersions.filter(v => digests.includes(v.name));
+          const idsToKeep = new Set([latestTaggedVersion.id, ...layersToKeep.map(l => l.id)]);
+
+          core.info(`Keeping version ${latestTaggedVersion.id} and ${layersToKeep.length} associated layers.`);
+          versionsToDelete = versionsToDelete.filter(v => !idsToKeep.has(v.id));
+
+        } catch (error) {
+          core.warning(`Could not get manifest for ${pkg.name}:${tag}. Will only keep the main tagged version. Error: ${error.message}`);
+          versionsToDelete = versionsToDelete.filter(v => v.id !== latestTaggedVersion.id);
+        }
+      } else {
+        core.warning(`No tagged versions found for package ${pkg.name}. Keeping the most recent version.`);
+        versionsToDelete.pop();
+      }
+    }
+
+    for (const version of versionsToDelete) {
       let detail = pkg.type === 'maven' ? version.name : (version.metadata?.container?.tags ?? []).join(', ');
       core.info(`Package: ${pkg.name} (${pkg.type}) — deleting version: ${version.id} (${detail})`);
       try {
