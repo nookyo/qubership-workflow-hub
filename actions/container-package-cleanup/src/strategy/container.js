@@ -26,8 +26,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 if (!Array.isArray(v.metadata?.container?.tags)) return false;
                 if (new Date(v.created_at) > thresholdDate) return false;
                 const tags = v.metadata.container.tags;
-                return !excluded.some(pattern => tags.some(tag => this.wildcardMatcher.match(tag, pattern))
-                );
+                return !excluded.some(pattern => tags.some(tag => this.wildcardMatcher.match(tag, pattern))) &&
+                       !tags.includes('latest');
             });
 
             // 2) из оставшихся берём tagged-версии по includedPatterns (или все, если include пуст)
@@ -59,8 +59,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
             // 4) находим «сырые» слои без тегов, у которых name (sha256) попал в любой из этих сетов
             const layersToDelete = withoutExclude.filter(v =>
                 v.metadata.container.tags.length === 0 &&
-                // встречается ли v.name в какой-нибудь коллекции digestMap
-                Array.from(digestMap.values()).some(digs => digs.has(v.name))
+                Array.from(digestMap.values()).some(digs => digs.has(v.name)) &&
+                !Array.from(digestMap.values()).some(digs => digs.has('latest'))
             );
 
             // 5) строим итоговый упорядоченный список: тег, его слои, следующий тег, его слои...
