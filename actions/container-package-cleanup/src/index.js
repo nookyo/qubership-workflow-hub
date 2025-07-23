@@ -166,17 +166,17 @@ async function run() {
     const totalVersionCount = originalPackageData ? originalPackageData.versions.length : 0;
 
     // If the number of versions to delete is equal to the total number of versions,
-    // it means we are about to delete all versions. In this case, we should keep the last one with its layers.
+    // it means we are about to delete all versions. In this case, we should keep the version tagged 'latest' and its layers.
     if (totalVersionCount > 0 && totalVersionCount === versionsToDelete.length) {
-      core.warning(`All versions of package ${pkg.name} are marked for deletion. Keeping the most recent tagged version and its layers.`);
+      core.warning(`All versions of package ${pkg.name} are marked for deletion. Keeping the version tagged 'latest' and its layers.`);
 
       const allVersions = originalPackageData.versions;
-      // Find the latest version that has tags. Versions are sorted from oldest to newest.
-      const latestTaggedVersion = [...allVersions].reverse().find(v => v.metadata?.container?.tags?.length > 0);
+      // Find the version with the 'latest' tag.
+      const latestTaggedVersion = allVersions.find(v => v.metadata?.container?.tags?.includes('latest'));
 
       if (latestTaggedVersion) {
-        const tag = latestTaggedVersion.metadata.container.tags[0];
-        core.info(`Latest tagged version is ${latestTaggedVersion.id} with tag ${tag}. Finding its layers.`);
+        const tag = 'latest';
+        core.info(`Version ${latestTaggedVersion.id} is tagged 'latest'. Finding its layers.`);
 
         try {
           const digests = await wrapper.getManifestDigests(owner, pkg.name, tag);
@@ -191,7 +191,7 @@ async function run() {
           versionsToDelete = versionsToDelete.filter(v => v.id !== latestTaggedVersion.id);
         }
       } else {
-        core.warning(`No tagged versions found for package ${pkg.name}. Keeping the most recent version.`);
+        core.warning(`No version with 'latest' tag found for package ${pkg.name}. Keeping the most recent version overall.`);
         versionsToDelete.pop();
       }
     }
