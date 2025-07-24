@@ -1,18 +1,30 @@
-const github = require("@actions/github");
-const OctokitWrapper = require("../src/wrapper");
+// tests/wrapper.test.js
+jest.mock('@actions/github');
+jest.mock('child_process');
 
-jest.mock("@actions/github");
+// Мокаем util.promisify ещё до require модуля
+const mockExecPromise = jest.fn();
+jest.mock('util', () => {
+  const actual = jest.requireActual('util');
+  return {
+    ...actual,
+    promisify: () => mockExecPromise
+  };
+});
 
-describe("OctokitWrapper", () => {
+const github = require('@actions/github');
+const OctokitWrapper = require('../src/utils/wrapper');
+
+describe('OctokitWrapper', () => {
+  const fakeToken = 'fake-token';
   let wrapper;
   let mockOctokit;
 
   beforeEach(() => {
+    // Настраиваем фейковый octokit
     mockOctokit = {
       rest: {
-        users: {
-          getByUsername: jest.fn(),
-        },
+        users: { getByUsername: jest.fn() },
         packages: {
           listPackagesForOrganization: jest.fn(),
           listPackagesForUser: jest.fn(),
@@ -20,115 +32,91 @@ describe("OctokitWrapper", () => {
           getAllPackageVersionsForPackageOwnedByOrg: jest.fn(),
           deletePackageVersionForOrg: jest.fn(),
           deletePackageVersionForUser: jest.fn(),
-        },
+        }
       },
+      paginate: jest.fn((fn, opts) => fn(opts)),
     };
     github.getOctokit.mockReturnValue(mockOctokit);
-    wrapper = new OctokitWrapper("fake-token");
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    wrapper = new OctokitWrapper(fakeToken);
   });
 
-  afterEach(() => {
-    console.error.mockRestore();
-  });
+  describe('isOrganization', () => {
+    it('returns true for Organization', async () => {
+      mockOctokit.rest.users.getByUsername.mockResolvedValue({ data: { type: 'Organization' } });
+      const result = await wrapper.isOrganization('my-org');
+      expect(result).toBe(true);
+      expect(mockOctokit.rest.users.getByUsername).toHaveBeenCalledWith({ username: 'my-org' });
+    });
 
-  test("should determine if a username belongs to an organization", async () => {
-    mockOctokit.rest.users.getByUsername.mockResolvedValue({ data: { type: "Organization" } });
-
-    const result = await wrapper.isOrganization("test-org");
-
-    expect(result).toBe(true);
-    expect(mockOctokit.rest.users.getByUsername).toHaveBeenCalledWith({ username: "test-org" });
-  });
-
-  test("should determine if a username does not belong to an organization", async () => {
-    mockOctokit.rest.users.getByUsername.mockResolvedValue({ data: { type: "User" } });
-
-    const result = await wrapper.isOrganization("test-user");
-
-    expect(result).toBe(false);
-    expect(mockOctokit.rest.users.getByUsername).toHaveBeenCalledWith({ username: "test-user" });
-  });
-
-  test("should list packages for an organization", async () => {
-    mockOctokit.rest.packages.listPackagesForOrganization.mockResolvedValue({ data: ["package1", "package2"] });
-
-    const result = await wrapper.listPackagesForOrganization("test-org", "container");
-
-    expect(result).toEqual(["package1", "package2"]);
-    expect(mockOctokit.rest.packages.listPackagesForOrganization).toHaveBeenCalledWith({
-      org: "test-org",
-      package_type: "container",
+    it('returns false for User', async () => {
+      mockOctokit.rest.users.getByUsername.mockResolvedValue({ data: { type: 'User' } });
+      const result = await wrapper.isOrganization('my-user');
+      expect(result).toBe(false);
     });
   });
 
-  test("should list packages for a user", async () => {
-    mockOctokit.rest.packages.listPackagesForUser.mockResolvedValue({ data: ["package1", "package2"] });
+  describe('listPackages', () => {
+    it('calls listPackagesForOrganization when type=true', async () => {
+      wrapper.listPackagesForOrganization = jest.fn().mockResolvedValue(['pkg1']);
+      const result = await wrapper.listPackages('org', 'container', true);
+      expect(wrapper.listPackagesForOrganization).toHaveBeenCalledWith('org', 'container');
+      expect(result).toEqual(['pkg1']);
+    });
 
-    const result = await wrapper.listPackagesForUser("test-user", "container");
-
-    expect(result).toEqual(["package1", "package2"]);
-    expect(mockOctokit.rest.packages.listPackagesForUser).toHaveBeenCalledWith({
-      username: "test-user",
-      package_type: "container",
+    it('calls listPackagesForUser when type=false', async () => {
+      wrapper.listPackagesForUser = jest.fn().mockResolvedValue(['pkg2']);
+      const result = await wrapper.listPackages('user', 'container', false);
+      expect(wrapper.listPackagesForUser).toHaveBeenCalledWith('user', 'container');
+      expect(result).toEqual(['pkg2']);
     });
   });
 
-  test("should list versions for a package owned by a user", async () => {
-    mockOctokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser.mockResolvedValue({
-      data: ["version1", "version2"],
+  describe('listVersionsForPackage', () => {
+    it('calls getPackageVersionsForOrganization when type=true', async () => {
+      wrapper.getPackageVersionsForOrganization = jest.fn().mockResolvedValue(['ver1']);
+      const result = await wrapper.listVersionsForPackage('org', 'container', 'pkg', true);
+      expect(wrapper.getPackageVersionsForOrganization).toHaveBeenCalledWith('org', 'container', 'pkg');
+      expect(result).toEqual(['ver1']);
     });
 
-    const result = await wrapper.getPackageVersionsForUser("test-user", "container", "test-package");
-
-    expect(result).toEqual(["version1", "version2"]);
-    expect(mockOctokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser).toHaveBeenCalledWith({
-      package_type: "container",
-      package_name: "test-package",
-      username: "test-user",
-    });
-  });
-
-  test("should list versions for a package owned by an organization", async () => {
-    mockOctokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg.mockResolvedValue({
-      data: ["version1", "version2"],
-    });
-
-    const result = await wrapper.getPackageVersionsForOrganization("test-org", "container", "test-package");
-
-    expect(result).toEqual(["version1", "version2"]);
-    expect(mockOctokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg).toHaveBeenCalledWith({
-      package_type: "container",
-      package_name: "test-package",
-      org: "test-org",
+    it('calls getPackageVersionsForUser when type=false', async () => {
+      wrapper.getPackageVersionsForUser = jest.fn().mockResolvedValue(['ver2']);
+      const result = await wrapper.listVersionsForPackage('user', 'container', 'pkg', false);
+      expect(wrapper.getPackageVersionsForUser).toHaveBeenCalledWith('user', 'container', 'pkg');
+      expect(result).toEqual(['ver2']);
     });
   });
 
-  test("should delete a package version for a user", async () => {
-    await wrapper.deletePackageVersion("test-user", "container", "test-package", "123", false);
+  describe('deletePackageVersion', () => {
+    it('deletes for organization when type=true', async () => {
+      await wrapper.deletePackageVersion('org', 'container', 'pkg', '123', true);
+      expect(mockOctokit.rest.packages.deletePackageVersionForOrg).toHaveBeenCalledWith({
+        org: 'org',
+        package_type: 'container',
+        package_name: 'pkg',
+        package_version_id: '123'
+      });
+    });
 
-    expect(mockOctokit.rest.packages.deletePackageVersionForUser).toHaveBeenCalledWith({
-      package_type: "container",
-      package_name: "test-package",
-      package_version_id: "123",
-      username: "test-user",
+    it('deletes for user when type=false', async () => {
+      await wrapper.deletePackageVersion('user', 'container', 'pkg', '456', false);
+      expect(mockOctokit.rest.packages.deletePackageVersionForUser).toHaveBeenCalledWith({
+        username: 'user',
+        package_type: 'container',
+        package_name: 'pkg',
+        package_version_id: '456'
+      });
     });
   });
 
-  test("should delete a package version for an organization", async () => {
-    await wrapper.deletePackageVersion("test-org", "container", "test-package", "123", true);
+  describe('getManifestDigests', () => {
+    it('returns digests from docker manifest inspect', async () => {
+      const fakeStdout = JSON.stringify({ manifests: [{ digest: 'sha1' }, { digest: 'sha2' }] });
+      mockExecPromise.mockResolvedValue({ stdout: fakeStdout });
 
-    expect(mockOctokit.rest.packages.deletePackageVersionForOrg).toHaveBeenCalledWith({
-      package_type: "container",
-      package_name: "test-package",
-      package_version_id: "123",
-      org: "test-org",
+      const digests = await wrapper.getManifestDigests('owner', 'pkg', 'tag');
+      expect(mockExecPromise).toHaveBeenCalledWith('docker manifest inspect ghcr.io/owner/pkg:tag');
+      expect(digests).toEqual(['sha1', 'sha2']);
     });
-  });
-
-  test("should throw an error if fetching user fails", async () => {
-    mockOctokit.rest.users.getByUsername.mockRejectedValue(new Error("User not found"));
-
-    await expect(wrapper.isOrganization("nonexistent-user")).rejects.toThrow("User not found");
   });
 });

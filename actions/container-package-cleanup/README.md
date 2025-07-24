@@ -184,12 +184,18 @@ The action filters tags/versions in the following order of priority:
 
 Supported patterns for tags/versions:
 
-| Pattern       | Matches                          | Does Not Match       |
-|---------------|----------------------------------|----------------------|
-| `release*`    | `release`, `release-v1`          | `v1-release`         |
-| `*release`    | `v1-release`, `candidate-release`| `release-v1`         |
-| `*release*`   | `v1-release-candidate`, `release-v1` | `v1-candidate`    |
-| `release*v1`  | `release-v1`, `release-candidate-v1` | `release-v2`     |
+| Pattern        | Description                                     | Examples                                                                                             |
+|----------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| `release*`     | Starts with "release"                           | `release`, `release-v1`                                                                              |
+| `*release`     | Ends with "release"                             | `v1-release`, `candidate-release`                                                                    |
+| `*release*`    | Contains "release"                              | `v1-release-candidate`, `release-v1`                                                                 |
+| `v*`           | Starts with "v" (common for versions)           | `v1.0.0`, `v2.0.0-beta`                                                                              |
+| `*.*.*`        | Semantic versioning (e.g., three parts)         | `1.2.3`, `10.20.30`                                                                                  |
+| `*.*.*-*`      | Semantic versioning with a suffix               | `1.2.3-beta`, `10.20.30-rc1`                                                                         |
+| `dependabot-*` | Starts with "dependabot-"                       | `dependabot-pip-integration-tests-certifi-2025.6.15`                                                 |
+| `sha256:*`     | Starts with "sha256:" (for image digests)       | `sha256:abc123def456`                                                                                |
+| `?*`           | Alphanumeric with at least one digit (for hashes) | `a1b2c3`, `f1234567890`                                                                              |
+| `*-tests-*`    | Contains "-tests-"                              | `feature-tests-xyz`                                                                                  |
 
 ---
 

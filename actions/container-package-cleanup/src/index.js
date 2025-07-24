@@ -144,7 +144,7 @@ async function run() {
   }
 
   await showReport(reportContext, package_type);
-  core.info("✅ All specified versions have been deleted successfully.");
+  core.info("✅ Action completed.");
 }
 
 async function showReport(context, type = 'container') {
