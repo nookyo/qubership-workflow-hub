@@ -127,7 +127,7 @@ class OctokitWrapper {
    */
   async getPackageVersionsForOrganization(org, package_type, package_name) {
     try {
-       console.log(`Owner: ${owner}, Package Type: ${package_type}, Package Name: ${package_name}`);
+       console.log(`Owner: ${org}, Package Type: ${package_type}, Package Name: ${package_name}`);
       return await this.octokit.paginate(this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
         {
           package_type,
