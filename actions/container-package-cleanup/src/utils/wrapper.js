@@ -63,7 +63,7 @@ class OctokitWrapper {
       return await this.octokit.paginate(this.octokit.rest.packages.listPackagesForOrganization,
         {
           org: org,
-          package_type: 'container',
+          package_type,
           per_page: 100,      // максимум 100 пакетов за запрос
         }
       );
