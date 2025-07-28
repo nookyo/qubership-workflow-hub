@@ -66,7 +66,7 @@ async function run() {
   let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  // core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+  core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
 
 
   core.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
