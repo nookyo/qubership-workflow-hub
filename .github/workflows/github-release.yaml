@@ -61,7 +61,7 @@ jobs:
         run: |
           # shellcheck disable=2038
           find . -type f -name '*.yaml' -or -name '*.yml' -or -name '*.md' -and -not -name 'github-release.yml' | \
-          xargs sed -i 's|uses: netcracker/qubership-workflow-hub/\(.*\)@main|uses: netcracker/qubership-workflow-hub/\1@v${{ inputs.version }}|gi'
+          xargs sed -i 's|uses: netcracker/qubership-workflow-hub/\(.*\)@v1.0.4|uses: netcracker/qubership-workflow-hub/\1@v${{ inputs.version }}|gi'
       - name: Commit and push changes
         run: |
           git config --global user.name "${{ github.actor }}"
@@ -73,7 +73,7 @@ jobs:
           git push origin "v${{ inputs.version }}"
   create-github-release:
     needs: [release-preparation]
-    uses: netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@v1.0.4
     with:
       version: ${{ inputs.version }}
       publish: false
