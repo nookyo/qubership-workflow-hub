@@ -80,6 +80,10 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
             }
 
+            core.info(`archDigests for ${archDigests}}`);
+            core.info(`archDigests for ${Array.from(archDigests).join(', ')}`);
+            core.info(`uniqueTags for ${Array.from(uniqueTags).join(', ')}`);
+
             // Получим платформенные дайджесты из manifest-list для каждого уникального тега
             for (const tag of uniqueTags) {
                 try {
