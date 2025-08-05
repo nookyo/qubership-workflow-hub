@@ -80,7 +80,7 @@ async function run() {
     filteredPackages.map(async (pkg) => {
       const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
       core.info(`Found ${versionsForPkg.length} versions for package: ${pkg.name}`);
-      core.info(JSON.stringify(versionsForPkg, null, 2));
+      // core.info(JSON.stringify(versionsForPkg, null, 2));
       return { package: pkg, versions: versionsForPkg };
     })
   );
