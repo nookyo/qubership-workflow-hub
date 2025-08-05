@@ -23,7 +23,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
     async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, wrapper, owner, isOrganization, debug = false }) {
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
-        const result = [];
+        let result = [];
         result = packagesWithVersions;
 
         core.info(`Executing ContainerStrategy with ${packagesWithVersions.length} packages.`);
