@@ -9,7 +9,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
         this.wildcardMatcher = new WildcardMatcher();
     }
 
-
     async parse(raw) {
         try {
             const data = Array.isArray(raw) ? raw : JSON.parse(raw);
@@ -26,7 +25,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 versions: versions.map(v => ({
                     id: v.id,
                     digest: v.name,
-                    tags: (v.metadata.container && v.metadata.container.tags) || [],
+                    // Если tags придут не массивом, ниже в execute мы дополнительно нормализуем
+                    tags: (v.metadata && v.metadata.container && v.metadata.container.tags) || [],
                     createdAt: v.created_at,
                     updatedAt: v.updated_at
                 }))
@@ -40,89 +40,94 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
     /**
      * @param {Object} params
-     * @param {Array<{ package: Object, versions: Array }>} params.packagesWithVersions
+     * @param {Array<{ package: Object, versions: Array }>|string} params.packagesWithVersions
      * @param {string[]} params.excludedPatterns
      * @param {string[]} params.includedPatterns
      * @param {Date} params.thresholdDate
-     * @param {Object} params.wrapper - octokit or docker registry wrapper
+     * @param {Object} params.wrapper - octokit or docker registry wrapper (должен иметь getManifestDigests)
      * @param {string} params.owner
      * @param {boolean} params.isOrganization
      * @param {boolean} [params.debug=false]
+     * @returns {Promise<Array<{package:{id,name,type},versions:Array}>>}
      */
     async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, wrapper, owner, isOrganization, debug = false }) {
-        // 1) Распарсим вход (или просто используем готовый массив)
+        // Оставляем на будущее — для этой задачи (dangling) паттерны обычно не нужны
+        const excluded = (excludedPatterns || []).map(p => p.toLowerCase());
+        const included = (includedPatterns || []).map(p => p.toLowerCase());
+
+        core.info(`Executing ContainerStrategy with ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+
+        // 1) Распарсим вход (может быть строкой JSON или уже массивом)
         const packages = await this.parse(packagesWithVersions);
+        console.log('Parsed packages:', JSON.stringify(packages, null, 2));
 
-        core.info(`Executing ContainerStrategy with ${packages.length} packages.`);
-
-        // Здесь будем складывать результат
         const result = [];
 
+        // 2) Для каждого пакета собираем «защищённые» дайджесты:
+        //    - дайджесты самих тегнутых версий (single-arch или manifest-list)
+        //    - плюс платформенные дайджесты из manifest-list по каждому тегу
         for (const pkg of packages) {
-            // 2) Фильтруем версии по дате, excluded/included и т.д.
-            // ... ваш существующий код фильтрации, получающий массив taggedToDelete
+            const archDigests = new Set();
+            const uniqueTags = new Set();
 
-            const taggedToDelete = packages;
-
-            if (!taggedToDelete.length) continue;
-
-            // 3) Сбор manifest-digests для каждой tagged-версии
-            const digestMap = new Map();  // version.digest -> Set<digest>
-            for (const v of taggedToDelete) {
-                const digs = new Set();
-                for (const tag of v.tags) {
-                    try {
-                        // именно сюда попадает ваша функция
-                        const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
-                        ds.forEach(d => digs.add(d));
-                        debug && core.info(`Got ${ds.length} digests for ${pkg.name}:${tag}`);
-                    } catch (err) {
-                        core.warning(`Failed to fetch manifests for ${pkg.name}:${tag} — ${err.message}`);
-                    }
-                }
-                digestMap.set(v.digest, digs);
-            }
-
-            // 4) По digestMap найдём все untagged-слои
-            const layersToDelete = pkg.versions.filter(v =>
-                v.tags.length === 0 &&
-                Array.from(digestMap.values()).some(set => set.has(v.digest))
-            );
-
-            // 5) Соберём упорядоченный список: сначала tagged, потом связанные слои
-            const ordered = [];
-            const used = new Set();
-            for (const v of taggedToDelete) {
-                ordered.push(v);
-                const digs = digestMap.get(v.digest) || new Set();
-                for (const layer of layersToDelete) {
-                    if (!used.has(layer.digest) && digs.has(layer.digest)) {
-                        ordered.push(layer);
-                        used.add(layer.digest);
-                    }
+            // Защитим сами тегнутые манифесты и соберём список уникальных тегов
+            for (const v of pkg.versions) {
+                const tags = Array.isArray(v.tags) ? v.tags : [];
+                if (tags.length > 0) {
+                    // защищаем digest тега (single-arch или сам список manifest-list)
+                    archDigests.add(v.digest);
+                    tags.forEach(t => uniqueTags.add(t));
                 }
             }
 
-            // 6) Добавим в итог, если есть что удалять
-            if (ordered.length) {
+            // Получим платформенные дайджесты из manifest-list для каждого уникального тега
+            for (const tag of uniqueTags) {
+                try {
+                    const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
+                    if (Array.isArray(ds)) {
+                        ds.forEach(d => archDigests.add(d));
+                    } else if (ds) {
+                        archDigests.add(ds);
+                    }
+                    debug && core.info(`[digests] ${pkg.name}:${tag} -> ${JSON.stringify(ds)}`);
+                } catch (e) {
+                    core.warning(`Failed to fetch manifests for ${pkg.name}:${tag} — ${e.message}`);
+                }
+            }
+
+            // 3) Кандидаты на удаление: версии без тегов, чей digest НЕ в archDigests
+            let dangling = pkg.versions.filter(v => {
+                const tags = Array.isArray(v.tags) ? v.tags : [];
+                const isUntagged = tags.length === 0;
+                const isReferencedByActiveTag = archDigests.has(v.digest);
+                return isUntagged && !isReferencedByActiveTag;
+            });
+
+            // (Опционально) Фильтр по дате-порогу, если передан
+            if (thresholdDate instanceof Date && !isNaN(thresholdDate)) {
+                dangling = dangling.filter(v => new Date(v.createdAt) <= thresholdDate);
+            }
+
+            if (dangling.length > 0) {
                 result.push({
                     package: {
                         id: pkg.id,
                         name: pkg.name,
                         type: pkg.packageType
                     },
-                    versions: ordered
+                    versions: dangling
                 });
+
                 debug && core.info(
-                    `To delete for ${pkg.name}: ` +
-                    ordered.map(v => `${v.digest} [${v.tags.join(', ')}]`).join(', ')
+                    `[dangling] ${pkg.name}: ${dangling.length} -> ` +
+                    dangling.map(v => v.digest).join(', ')
                 );
             }
         }
 
+        // Возвращаем список пакетов с версиями-кандидатами на удаление
         return result;
     }
-
 
     isValidMetadata(version) {
         return Array.isArray(version?.metadata?.container?.tags);
