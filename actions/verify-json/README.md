@@ -28,13 +28,14 @@ jobs:
       - name: Verify JSON file
         uses: ./actions/verify-json
         with:
-          json-file: 'path/to/your.json'
-          schema-file: 'path/to/your-schema.json'
+          json-file: "path/to/your.json"
+          schema-file: "path/to/your-schema.json"
 ```
 
 ## Details
 
 This action performs the following steps:
+
 1. Checks out the repository code.
 2. Installs the necessary tools (`python3-jsonschema`).
 3. Validates the JSON file against the schema file and sets the output `is-valid`.
