@@ -103,10 +103,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 return isUntagged && !isReferencedByActiveTag;
             });
 
-            // (Опционально) Фильтр по дате-порогу, если передан
-            // if (thresholdDate instanceof Date && !isNaN(thresholdDate)) {
-            //     dangling = dangling.filter(v => new Date(v.createdAt) <= thresholdDate);
-            // }
 
             if (dangling.length > 0) {
                 result.push({
@@ -118,9 +114,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     versions: dangling
                 });
 
-                debug && core.info(
-                    `[dangling] ${pkg.name}: ${dangling.length} -> ` + dangling.map(v => v.digest).join(', ')
-                );
+                debug && core.info(`[dangling] ${pkg.name}: ${dangling.length} -> ` + dangling.map(v => v.digest).join(', '));
             }
 
             core.info(`result: ${JSON.stringify(result, null, 2)}`);
