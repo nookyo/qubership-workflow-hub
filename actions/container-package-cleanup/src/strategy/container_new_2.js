@@ -12,7 +12,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
     async parse(raw) {
         try {
-            const data = JSON.parse(raw);
+            const data = Array.isArray(raw) ? raw : JSON.parse(raw);
 
             const packages = data.map(({ package: pkg, versions }) => ({
                 id: pkg.id,
