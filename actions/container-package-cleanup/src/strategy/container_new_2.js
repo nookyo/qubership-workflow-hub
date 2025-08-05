@@ -43,11 +43,13 @@ class ContainerStrategy extends AbstractPackageStrategy {
                        && !tags.includes('latest');
             });
 
-            // 2) из оставшихся берём tagged-версии по includedPatterns (или все, если include пуст)
+            // 2) выбираем все tagged-версии (если include.empty, то просто все)
             const taggedToDelete = included.length > 0
                 ? withoutExclude.filter(v =>
-                    v.metadata.container.tags.some(tag => included.some(pattern => this.wildcardMatcher.match(tag, pattern))))
+                    v.metadata.container.tags.some(tag => included.some(pat => this.wildcardMatcher.match(tag, pat))))
                 : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
+
+            debug && core.debug(`Package ${pkg.name}: taggedToDelete = [${taggedToDelete.map(v => v.name)}]`);
 
             // 3) собираем реальные layer-digests из манифестов tagged-образов
             const digestMap = new Map(); // version.name -> Set(layerDigest)
@@ -55,12 +57,9 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 const digs = new Set();
                 for (const tag of v.metadata.container.tags) {
                     try {
-                        // получить полный манифест образа
                         const manifest = await wrapper.getManifest(owner, pkg.name, tag, isOrganization);
                         if (Array.isArray(manifest.layers)) {
-                            manifest.layers.forEach(layer => {
-                                if (layer.digest) digs.add(layer.digest);
-                            });
+                            manifest.layers.forEach(layer => layer.digest && digs.add(layer.digest));
                         }
                     } catch (e) {
                         debug && core.debug(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
@@ -69,11 +68,12 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 digestMap.set(v.name, digs);
             }
 
-            // 4) среди без-тегов ищем те слои, которые встречаются в любом tagged-манифесте
+            // 4) среди untagged ищем те слои, которые встречаются в любом tagged-манифесте
             const layersToDelete = withoutExclude.filter(v =>
                 v.metadata.container.tags.length === 0 &&
                 Array.from(digestMap.values()).some(digs => digs.has(v.name))
             );
+            debug && core.debug(`Package ${pkg.name}: layersToDelete = [${layersToDelete.map(v => v.name)}]`);
 
             // 5) итоговый упорядоченный список: сначала tagged-версии, затем их слои
             const ordered = [];
