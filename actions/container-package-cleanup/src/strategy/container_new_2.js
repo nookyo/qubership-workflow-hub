@@ -48,10 +48,10 @@ class ContainerStrategy extends AbstractPackageStrategy {
      * @param {string} params.owner
      * @param {boolean} params.isOrganization
      * @param {boolean} [params.debug=false]
-     * @returns {Promise<Array<{package:{id,name,type},versions:Array}>>}
+     * @returns {Promise<Array>}  // пока возвращаем исходное packagesWithVersions
      */
     async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, wrapper, owner, isOrganization, debug = false }) {
-        // Оставляем на будущее — для этой задачи (dangling) паттерны обычно не нужны
+        // Паттерны пока не используем для dangling
         const excluded = (excludedPatterns || []).map(p => p.toLowerCase());
         const included = (includedPatterns || []).map(p => p.toLowerCase());
 
@@ -61,30 +61,26 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const packages = await this.parse(packagesWithVersions);
         console.log('Parsed packages:', JSON.stringify(packages, null, 2));
 
-        const result = [];
+        // --------------------------
+        // D A N G L I N G  (отдельно)
+        // --------------------------
+        const dangling = [];
 
-        // 2) Для каждого пакета собираем «защищённые» дайджесты:
-        //    - дайджесты самих тегнутых версий (single-arch или manifest-list)
-        //    - плюс платформенные дайджесты из manifest-list по каждому тегу
         for (const pkg of packages) {
             const archDigests = new Set();
             const uniqueTags = new Set();
 
-            // Защитим сами тегнутые манифесты и соберём список уникальных тегов
+            // Собираем digest'ы всех текущих тегов и список уникальных тегов
             for (const v of pkg.versions) {
                 const tags = Array.isArray(v.tags) ? v.tags : [];
                 if (tags.length > 0) {
-                    // защищаем digest тега (single-arch или сам список manifest-list)
+                    // Защищаем digest тегнутой версии (single-arch или manifest-list)
                     archDigests.add(v.digest);
                     tags.forEach(t => uniqueTags.add(t));
                 }
             }
 
-            core.info(`archDigests for ${archDigests}}`);
-            core.info(`archDigests for ${Array.from(archDigests).join(', ')}`);
-            core.info(`uniqueTags for ${Array.from(uniqueTags).join(', ')}`);
-
-            // Получим платформенные дайджесты из manifest-list для каждого уникального тега
+            // Добавляем платформенные digest'ы из manifest-list для каждого тега
             for (const tag of uniqueTags) {
                 try {
                     const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
@@ -99,32 +95,30 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
             }
 
-            // 3) Кандидаты на удаление: версии без тегов, чей digest НЕ в archDigests
-            let dangling = pkg.versions.filter(v => {
+            // Кандидаты на удаление: версии без тегов, чей digest не используется активными тегами/платформами
+            const danglingForPkg = pkg.versions.filter(v => {
                 const tags = Array.isArray(v.tags) ? v.tags : [];
-                const isUntagged = tags.length === 0;
-                const isReferencedByActiveTag = archDigests.has(v.digest);
-                return isUntagged && !isReferencedByActiveTag;
+                return tags.length === 0 && !archDigests.has(v.digest);
             });
 
-
-            if (dangling.length > 0) {
-                result.push({
-                    package: {
-                        id: pkg.id,
-                        name: pkg.name,
-                        type: pkg.packageType
-                    },
-                    versions: dangling
+            if (danglingForPkg.length > 0) {
+                dangling.push({
+                    package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
+                    versions: danglingForPkg
                 });
-
-                debug && core.info(`[dangling] ${pkg.name}: ${dangling.length} -> ` + dangling.map(v => v.digest).join(', '));
+                debug && core.info(
+                    `[dangling] ${pkg.name}: ${danglingForPkg.length} -> ${danglingForPkg.map(v => v.digest).join(', ')}`
+                );
             }
-
-            core.info(`result: ${JSON.stringify(result, null, 2)}`);
         }
 
-        // Возвращаем список пакетов с версиями-кандидатами на удаление
+        // Логируем dangling для наглядности (но не возвращаем)
+        core.info(`Dangling candidates:\n${JSON.stringify(dangling, null, 2)}`);
+
+        // --------------------------
+        // R E S U L T  (как просил: пока равен исходному входу)
+        // --------------------------
+        const result = packagesWithVersions;
         return result;
     }
 
