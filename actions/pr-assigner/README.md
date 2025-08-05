@@ -9,10 +9,10 @@ This **PR Assigner** GitHub Action automatically assigns a pull request to users
 
 ## 📌 Inputs
 
-| Name                  | Description                                      | Required | Default                          |
-| --------------------- | ------------------------------------------------ | -------- | -------------------------------- |
-| `configuration-path`  | Path to the configuration file.                  | No       | `.github/pr-assigner-config.yml` |
-| `shuffle`             | Number of assignees to assign.                   | No       | `1`                              |
+| Name                 | Description                     | Required | Default                          |
+| -------------------- | ------------------------------- | -------- | -------------------------------- |
+| `configuration-path` | Path to the configuration file. | No       | `.github/pr-assigner-config.yml` |
+| `shuffle`            | Number of assignees to assign.  | No       | `1`                              |
 
 ## Usage Example
 
@@ -62,7 +62,7 @@ count: 2
 
 - If the configuration file is not found, the action will attempt to use the CODEOWNERS file to determine the assignees.
 - If the CODEOWNERS file is not found or cannot be processed, the action will fail.
-- The action will look for a line starting with * in the CODEOWNERS file and use the users listed there as assignees.
+- The action will look for a line starting with \* in the CODEOWNERS file and use the users listed there as assignees.
 - The assignees array is shuffled using the Fisher-Yates algorithm to ensure even distribution of assignments.
 
 ### Configuration File Schema
@@ -71,26 +71,23 @@ The configuration file for this action must adhere to the schema defined [here](
 
 ```json
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-        "assignees": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "minItems": 1,
-            "uniqueItems": true
-        },
-        "count": {
-            "type": "integer",
-            "minimum": 1
-        }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "assignees": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
     },
-    "required": [
-        "assignees",
-        "count"
-    ],
-    "additionalProperties": false
+    "count": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": ["assignees", "count"],
+  "additionalProperties": false
 }
 ```
