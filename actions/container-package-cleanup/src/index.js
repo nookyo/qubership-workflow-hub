@@ -66,7 +66,7 @@ async function run() {
   let packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   let filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  // core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+  core.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
 
 
   core.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
@@ -79,11 +79,14 @@ async function run() {
   const packagesWithVersions = await Promise.all(
     filteredPackages.map(async (pkg) => {
       const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+      core.info(`Found ${versionsForPkg.length} versions for package: ${pkg.name}`);
+      core.info(JSON.stringify(versionsForPkg, null, 2));
       return { package: pkg, versions: versionsForPkg };
     })
   );
 
-  //core.info(JSON.stringify(packagesWithVersions, null, 2));
+
+  core.info(JSON.stringify(packagesWithVersions, null, 2));
 
   const strategyContext = {
     packagesWithVersions: packagesWithVersions,
