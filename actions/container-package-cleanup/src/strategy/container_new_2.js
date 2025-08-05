@@ -24,82 +24,85 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
         const result = [];
+        result = packagesWithVersions;
 
-        for (const { package: pkg, versions } of packagesWithVersions) {
-            if (!Array.isArray(versions)) {
-                core.warning(`Package ${pkg.name} has no versions array`);
-                continue;
-            }
+        core.info(`Executing ContainerStrategy with ${packagesWithVersions.length} packages.`);
 
-            // 1) Filter by date and excludedPatterns
-            const withoutExclude = versions.filter(v => {
-                if (!Array.isArray(v.metadata?.container?.tags)) return false;
-                if (new Date(v.created_at) > thresholdDate) return false;
-                const tags = v.metadata.container.tags;
-                return !excluded.some(pattern => tags.some(tag => this.wildcardMatcher.match(tag, pattern)));
-            });
+        // for (const { package: pkg, versions } of packagesWithVersions) {
+        //     if (!Array.isArray(versions)) {
+        //         core.warning(`Package ${pkg.name} has no versions array`);
+        //         continue;
+        //     }
 
-            // 2) Pick tagged versions for deletion based on includedPatterns (or all if none provided)
-            const taggedToDelete = included.length > 0
-                ? withoutExclude.filter(v =>
-                    v.metadata.container.tags.some(tag => included.some(pattern => this.wildcardMatcher.match(tag, pattern))))
-                : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
+        //     // 1) Filter by date and excludedPatterns
+        //     const withoutExclude = versions.filter(v => {
+        //         if (!Array.isArray(v.metadata?.container?.tags)) return false;
+        //         if (new Date(v.created_at) > thresholdDate) return false;
+        //         const tags = v.metadata.container.tags;
+        //         return !excluded.some(pattern => tags.some(tag => this.wildcardMatcher.match(tag, pattern)));
+        //     });
 
-            if (taggedToDelete.length === 0) {
-                debug && core.info(`No tagged versions to delete for ${pkg.name}`);
-                continue;
-            }
+        //     // 2) Pick tagged versions for deletion based on includedPatterns (or all if none provided)
+        //     const taggedToDelete = included.length > 0
+        //         ? withoutExclude.filter(v =>
+        //             v.metadata.container.tags.some(tag => included.some(pattern => this.wildcardMatcher.match(tag, pattern))))
+        //         : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-            // 3) Collect manifest digests for each tagged version
-            //    Map: version.id -> Set(digests)
-            const digestMap = new Map();
-            for (const v of taggedToDelete) {
-                const digs = new Set();
-                for (const tag of v.metadata.container.tags) {
-                    try {
-                        const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
-                        ds.forEach(d => digs.add(d));
-                    } catch (e) {
-                        debug && core.debug(`Failed to inspect manifest ${pkg.name}:${tag} — ${e.message}`);
-                    }
-                }
-                digestMap.set(v.id, digs);
-            }
+        //     if (taggedToDelete.length === 0) {
+        //         debug && core.info(`No tagged versions to delete for ${pkg.name}`);
+        //         continue;
+        //     }
 
-            // 4) Find all untagged layer versions whose digest is in any digestMap
-            const layersToDelete = withoutExclude.filter(v =>
-                v.metadata.container.tags.length === 0 &&
-                Array.from(digestMap.values()).some(digs => digs.has(v.name))
-            );
+        //     // 3) Collect manifest digests for each tagged version
+        //     //    Map: version.id -> Set(digests)
+        //     const digestMap = new Map();
+        //     for (const v of taggedToDelete) {
+        //         const digs = new Set();
+        //         for (const tag of v.metadata.container.tags) {
+        //             try {
+        //                 const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
+        //                 ds.forEach(d => digs.add(d));
+        //             } catch (e) {
+        //                 debug && core.debug(`Failed to inspect manifest ${pkg.name}:${tag} — ${e.message}`);
+        //             }
+        //         }
+        //         digestMap.set(v.id, digs);
+        //     }
 
-            // 5) Build ordered list: tagged version, its layers, next tagged, its layers...
-            const ordered = [];
-            const usedLayerIds = new Set();
+        //     // 4) Find all untagged layer versions whose digest is in any digestMap
+        //     const layersToDelete = withoutExclude.filter(v =>
+        //         v.metadata.container.tags.length === 0 &&
+        //         Array.from(digestMap.values()).some(digs => digs.has(v.name))
+        //     );
 
-            for (const v of taggedToDelete) {
-                ordered.push(v);
-                const digs = digestMap.get(v.id) || new Set();
-                for (const layer of layersToDelete) {
-                    if (!usedLayerIds.has(layer.id) && digs.has(layer.name)) {
-                        ordered.push(layer);
-                        usedLayerIds.add(layer.id);
-                    }
-                }
-            }
+        //     // 5) Build ordered list: tagged version, its layers, next tagged, its layers...
+        //     const ordered = [];
+        //     const usedLayerIds = new Set();
 
-            // 6) Append to result if anything to delete
-            if (ordered.length > 0) {
-                result.push({
-                    package: {
-                        id: pkg.id,
-                        name: pkg.name,
-                        type: pkg.package_type
-                    },
-                    versions: ordered
-                });
-                debug && core.info(`Versions to delete for package ${pkg.name}: ${ordered.map(v => v.id + ' (' + (v.metadata?.container?.tags||[]).join(', ') + ')').join(', ')}`);
-            }
-        }
+        //     for (const v of taggedToDelete) {
+        //         ordered.push(v);
+        //         const digs = digestMap.get(v.id) || new Set();
+        //         for (const layer of layersToDelete) {
+        //             if (!usedLayerIds.has(layer.id) && digs.has(layer.name)) {
+        //                 ordered.push(layer);
+        //                 usedLayerIds.add(layer.id);
+        //             }
+        //         }
+        //     }
+
+        //     // 6) Append to result if anything to delete
+        //     if (ordered.length > 0) {
+        //         result.push({
+        //             package: {
+        //                 id: pkg.id,
+        //                 name: pkg.name,
+        //                 type: pkg.package_type
+        //             },
+        //             versions: ordered
+        //         });
+        //         debug && core.info(`Versions to delete for package ${pkg.name}: ${ordered.map(v => v.id + ' (' + (v.metadata?.container?.tags||[]).join(', ') + ')').join(', ')}`);
+        //     }
+        // }
 
         return result;
     }
