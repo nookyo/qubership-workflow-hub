@@ -9,6 +9,35 @@ class ContainerStrategy extends AbstractPackageStrategy {
         this.wildcardMatcher = new WildcardMatcher();
     }
 
+
+    async parse(raw) {
+        try {
+            const data = JSON.parse(raw);
+
+            const packages = data.map(({ package: pkg, versions }) => ({
+                id: pkg.id,
+                name: pkg.name,
+                packageType: pkg.package_type,
+                repository: pkg.repository.full_name,
+                createdAt: pkg.created_at,
+                updatedAt: pkg.updated_at,
+
+                // Версии — массив объектов с id, digest (имя) и тегами
+                versions: versions.map(v => ({
+                    id: v.id,
+                    digest: v.name,
+                    tags: (v.metadata.container && v.metadata.container.tags) || [],
+                    createdAt: v.created_at,
+                    updatedAt: v.updated_at
+                }))
+            }));
+
+            return packages;
+        } catch (err) {
+            core.setFailed(`Action failed: ${err.message}`);
+        }
+    }
+
     /**
      * @param {Object} params
      * @param {Array<{ package: Object, versions: Array }>} params.packagesWithVersions
@@ -27,6 +56,10 @@ class ContainerStrategy extends AbstractPackageStrategy {
         result = packagesWithVersions;
 
         core.info(`Executing ContainerStrategy with ${packagesWithVersions.length} packages.`);
+
+        let packages = await this.parse(packagesWithVersions);
+        console.log('Parsed packages:', JSON.stringify(packages, null, 2));
+
 
         // for (const { package: pkg, versions } of packagesWithVersions) {
         //     if (!Array.isArray(versions)) {
