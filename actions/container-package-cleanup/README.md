@@ -7,16 +7,16 @@ It supports both Docker/container images and Maven JAR files.
 
 ## Inputs
 
-| Name               | Description                                                                 | Required | Default                     |
-| ------------------ | --------------------------------------------------------------------------- | -------- | --------------------------- |
-| `threshold-days`   | The number of days to keep package versions. Older versions will be deleted. | No       | `7`                         |
-| `included-tags`    | A comma-separated list of tags/versions to include for deletion. Wildcards (`*`) are supported. | No       | `""` (all tags included, or `*SNAPSHOT*` for Maven) |
-| `excluded-tags`    | A comma-separated list of tags/versions to exclude from deletion. Wildcards (`*`) are supported.| No       | `""` (no tags excluded)      |
-| `included-patterns`| A comma-separated list of patterns to include for deletion. Wildcards (`*`) are supported. | No       | `""`                       |
-| `excluded-patterns`| A comma-separated list of patterns to exclude from deletion. Wildcards (`*`) are supported. | No       | `""`                       |
-| `package-type`     | Type of package to clean up: `container` or `maven`.                        | No       | `container`                  |
-| `dry-run`          | Enable dry-run mode to preview deletions without making changes.            | No       | `false`                     |
-| `debug`            | Enable debug mode for detailed logging.                                     | No       | `false`                     |
+| Name                | Description                                                                                      | Required | Default                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------ | -------- | --------------------------------------------------- |
+| `threshold-days`    | The number of days to keep package versions. Older versions will be deleted.                     | No       | `7`                                                 |
+| `included-tags`     | A comma-separated list of tags/versions to include for deletion. Wildcards (`*`) are supported.  | No       | `""` (all tags included, or `*SNAPSHOT*` for Maven) |
+| `excluded-tags`     | A comma-separated list of tags/versions to exclude from deletion. Wildcards (`*`) are supported. | No       | `""` (no tags excluded)                             |
+| `included-patterns` | A comma-separated list of patterns to include for deletion. Wildcards (`*`) are supported.       | No       | `""`                                                |
+| `excluded-patterns` | A comma-separated list of patterns to exclude from deletion. Wildcards (`*`) are supported.      | No       | `""`                                                |
+| `package-type`      | Type of package to clean up: `container` or `maven`.                                             | No       | `container`                                         |
+| `dry-run`           | Enable dry-run mode to preview deletions without making changes.                                 | No       | `false`                                             |
+| `debug`             | Enable debug mode for detailed logging.                                                          | No       | `false`                                             |
 
 ---
 
@@ -27,6 +27,7 @@ It supports both Docker/container images and Maven JAR files.
 | `PACKAGE_TOKEN` | GitHub token with permissions to manage packages | Yes      |
 
 > **Note:** The `PACKAGE_TOKEN` must have the following permissions:
+>
 > - **`read:packages`**: To list and retrieve package information.
 > - **`delete:packages`**: To delete package versions.
 
@@ -184,18 +185,18 @@ The action filters tags/versions in the following order of priority:
 
 Supported patterns for tags/versions:
 
-| Pattern        | Description                                     | Examples                                                                                             |
-|----------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| `release*`     | Starts with "release"                           | `release`, `release-v1`                                                                              |
-| `*release`     | Ends with "release"                             | `v1-release`, `candidate-release`                                                                    |
-| `*release*`    | Contains "release"                              | `v1-release-candidate`, `release-v1`                                                                 |
-| `v*`           | Starts with "v" (common for versions)           | `v1.0.0`, `v2.0.0-beta`                                                                              |
-| `*.*.*`        | Semantic versioning (e.g., three parts)         | `1.2.3`, `10.20.30`                                                                                  |
-| `*.*.*-*`      | Semantic versioning with a suffix               | `1.2.3-beta`, `10.20.30-rc1`                                                                         |
-| `dependabot-*` | Starts with "dependabot-"                       | `dependabot-pip-integration-tests-certifi-2025.6.15`                                                 |
-| `sha256:*`     | Starts with "sha256:" (for image digests)       | `sha256:abc123def456`                                                                                |
-| `?*`           | Alphanumeric with at least one digit (for hashes) | `a1b2c3`, `f1234567890`                                                                              |
-| `*-tests-*`    | Contains "-tests-"                              | `feature-tests-xyz`                                                                                  |
+| Pattern        | Description                                       | Examples                                             |
+| -------------- | ------------------------------------------------- | ---------------------------------------------------- |
+| `release*`     | Starts with "release"                             | `release`, `release-v1`                              |
+| `*release`     | Ends with "release"                               | `v1-release`, `candidate-release`                    |
+| `*release*`    | Contains "release"                                | `v1-release-candidate`, `release-v1`                 |
+| `v*`           | Starts with "v" (common for versions)             | `v1.0.0`, `v2.0.0-beta`                              |
+| `*.*.*`        | Semantic versioning (e.g., three parts)           | `1.2.3`, `10.20.30`                                  |
+| `*.*.*-*`      | Semantic versioning with a suffix                 | `1.2.3-beta`, `10.20.30-rc1`                         |
+| `dependabot-*` | Starts with "dependabot-"                         | `dependabot-pip-integration-tests-certifi-2025.6.15` |
+| `sha256:*`     | Starts with "sha256:" (for image digests)         | `sha256:abc123def456`                                |
+| `?*`           | Alphanumeric with at least one digit (for hashes) | `a1b2c3`, `f1234567890`                              |
+| `*-tests-*`    | Contains "-tests-"                                | `feature-tests-xyz`                                  |
 
 ---
 
