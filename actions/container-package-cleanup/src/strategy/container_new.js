@@ -3,144 +3,175 @@ const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
 
 class ContainerStrategy extends AbstractPackageStrategy {
-    constructor() {
-        super();
-        this.name = 'Container Strategy';
-        this.wildcardMatcher = new WildcardMatcher();
+  constructor() {
+    super();
+    this.name = 'Container Strategy';
+    this.wildcardMatcher = new WildcardMatcher();
+  }
+
+  async parse(raw) {
+    try {
+      const data = Array.isArray(raw) ? raw : JSON.parse(raw);
+      return data.map(({ package: pkg, versions }) => ({
+        id: pkg.id,
+        name: pkg.name,
+        packageType: pkg.package_type,
+        repository: pkg.repository.full_name,
+        createdAt: pkg.created_at,
+        updatedAt: pkg.updated_at,
+        versions: (versions || []).map(v => ({
+          id: v.id,
+          name: v.name,
+          metadata: {
+            container: {
+              tags: Array.isArray(v.metadata?.container?.tags)
+                ? v.metadata.container.tags
+                : []
+            }
+          },
+          createdAt: v.created_at,
+          updatedAt: v.updated_at
+        }))
+      }));
+    } catch (err) {
+      core.setFailed(`Action failed: ${err.message}`);
     }
+  }
 
-    async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, wrapper, owner, isOrganization, debug = false }) {
-        const excluded = excludedPatterns.map(p => p.toLowerCase());
-        const included = includedPatterns.map(p => p.toLowerCase());
+  /**
+   * @param {Object} params
+   * @param {Array<{ package: Object, versions: Array }>|string} params.packagesWithVersions
+   * @param {string[]} params.excludedPatterns
+   * @param {string[]} params.includedPatterns
+   * @param {Date} params.thresholdDate
+   * @param {Object} params.wrapper — должен иметь getManifestDigests(owner, repo, tag)
+   * @param {string} params.owner
+   * @param {boolean} params.isOrganization
+   * @param {boolean} [params.debug=false]
+   * @returns {Promise<Array<{ package: Object, versions: Array }>>}
+   */
+  async execute({
+    packagesWithVersions,
+    excludedPatterns = [],
+    includedPatterns = [],
+    thresholdDate,
+    wrapper,
+    owner,
+    isOrganization,
+    debug = false
+  }) {
+    core.info(`Executing ContainerStrategy with ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
 
-        const result = [];
+    const excluded = excludedPatterns.map(p => p.toLowerCase());
+    const included = includedPatterns.map(p => p.toLowerCase());
 
-        for (const { package: pkg, versions } of packagesWithVersions) {
-            if (!Array.isArray(versions)) {
-                core.warning(`Package ${pkg.name} has no versions array`);
-                continue;
-            }
+    const packages = await this.parse(packagesWithVersions);
+    const result = [];
 
-            if (versions.length <= 1) {
-                debug && core.info(`Skipping package: ${pkg.name} — only ${versions.length} version(s).`);
-                continue;
-            }
-
-            // Группируем версии по времени создания (в пределах минуты считаем одним пушем)
-            const groupedVersions = this.groupVersionsByTime(versions, debug);
-            
-            const versionsToDelete = [];
-
-            for (const group of groupedVersions) {
-                // Проверяем, что группа достаточно старая
-                const groupTime = new Date(group[0].created_at);
-                if (groupTime > thresholdDate) {
-                    debug && core.info(`Skipping group for ${pkg.name} - too recent: ${groupTime}`);
-                    continue;
-                }
-
-                // Ищем версию с тегами в группе
-                const taggedVersion = group.find(v => 
-                    Array.isArray(v.metadata?.container?.tags) && 
-                    v.metadata.container.tags.length > 0
-                );
-
-                if (!taggedVersion) {
-                    debug && core.info(`Skipping group for ${pkg.name} - no tagged version found`);
-                    continue;
-                }
-
-                const tags = taggedVersion.metadata.container.tags;
-
-                // Проверяем исключения
-                const shouldExclude = excluded.some(pattern => 
-                    tags.some(tag => this.wildcardMatcher.match(tag, pattern))
-                ) || tags.includes('latest');
-
-                if (shouldExclude) {
-                    debug && core.info(`Excluding group for ${pkg.name} - tags: ${tags.join(', ')}`);
-                    continue;
-                }
-
-                // Проверяем включения (если заданы)
-                const shouldInclude = included.length === 0 || 
-                    included.some(pattern => 
-                        tags.some(tag => this.wildcardMatcher.match(tag, pattern))
-                    );
-
-                if (!shouldInclude) {
-                    debug && core.info(`Not including group for ${pkg.name} - tags: ${tags.join(', ')}`);
-                    continue;
-                }
-
-                // Добавляем всю группу для удаления
-                versionsToDelete.push(...group);
-                debug && core.info(`Adding group for deletion: ${pkg.name} - tags: ${tags.join(', ')}, versions: ${group.length}`);
-            }
-
-            if (versionsToDelete.length > 0) {
-                // Сортируем по времени создания (самые новые первыми)
-                versionsToDelete.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-                result.push({
-                    package: {
-                        id: pkg.id,
-                        name: pkg.name,
-                        type: pkg.package_type
-                    },
-                    versions: versionsToDelete
-                });
-                debug && core.info(`Versions to delete for package ${pkg.name}: ${versionsToDelete.map(v => v.id + ' (' + (v.metadata?.container?.tags?.join(', ') || 'untagged') + ')').join(', ')}`);
-            }
+    for (const pkg of packages) {
+      // 1) фильтруем версии по дате и excludedPatterns
+      const withoutExclude = pkg.versions.filter(v => {
+        // только контейнеры с валидными метаданными
+        if (!Array.isArray(v.metadata.container.tags)) return false;
+        if (new Date(v.createdAt) > thresholdDate) return false;
+        const tags = v.metadata.container.tags;
+        // убрать любые, что попадают под excludedPatterns или «latest»
+        if (tags.includes('latest')) return false;
+        if (excluded.some(pat => tags.some(t => this.wildcardMatcher.match(t, pat)))) {
+          return false;
         }
+        return true;
+      });
 
-        return result;
-    }
+      // 2) из оставшихся выбираем tagged-версии по включению
+      const taggedToDelete = included.length > 0
+        ? withoutExclude.filter(v =>
+            v.metadata.container.tags.some(t =>
+              included.some(pat => this.wildcardMatcher.match(t, pat))
+            )
+          )
+        : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-    // Группирует версии по времени создания (версии созданные в течение минуты считаются одним пушем)
-    groupVersionsByTime(versions, debug = false) {
-        if (!versions || versions.length === 0) return [];
+      if (debug) {
+        core.info(`Package ${pkg.name}: Tagged to delete: ${taggedToDelete.map(v => v.name).join(', ')}`);
+      }
 
-        // Сортируем по времени создания
-        const sorted = [...versions].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        
-        const groups = [];
-        let currentGroup = [sorted[0]];
-        
-        for (let i = 1; i < sorted.length; i++) {
-            const current = new Date(sorted[i].created_at);
-            const previous = new Date(sorted[i-1].created_at);
-            const diffMinutes = (current - previous) / (1000 * 60);
-            
-            // Если разница меньше минуты, добавляем в текущую группу
-            if (diffMinutes < 1) {
-                currentGroup.push(sorted[i]);
-            } else {
-                // Иначе начинаем новую группу
-                groups.push(currentGroup);
-                currentGroup = [sorted[i]];
-            }
+      // 3) собираем digest’ы для каждого тега
+      const digestMap = new Map(); // tag-name → Set<digest>
+      for (const v of taggedToDelete) {
+        const digs = new Set();
+        for (const tag of v.metadata.container.tags) {
+          try {
+            const ds = await wrapper.getManifestDigests(owner, pkg.name, tag, isOrganization);
+            if (Array.isArray(ds)) ds.forEach(d => digs.add(d));
+            else if (ds) digs.add(ds);
+          } catch (e) {
+            debug && core.warning(`Failed to inspect manifest ${pkg.name}:${tag} — ${e.message}`);
+          }
         }
-        
-        // Добавляем последнюю группу
-        groups.push(currentGroup);
-        
-        debug && groups.forEach((group, i) => {
-            const taggedVersion = group.find(v => v.metadata?.container?.tags?.length > 0);
-            const tags = taggedVersion?.metadata?.container?.tags || ['untagged'];
-            core.info(`Group ${i}: ${group.length} versions, tags: ${tags.join(', ')}, time: ${group[0].created_at}`);
+        digestMap.set(v.name, digs);
+      }
+
+      // 4) слои без тегов, которые входят в любой из этих сетов
+      const orphanLayers = withoutExclude.filter(v =>
+        v.metadata.container.tags.length === 0 &&
+        Array.from(digestMap.values()).some(digs => digs.has(v.name))
+      );
+
+      if (debug) {
+        core.info(`Package ${pkg.name}: Orphan layers to delete: ${orphanLayers.map(v => v.name).join(', ')}`);
+      }
+
+      // 5) упорядочиваем: сначала каждый tagged-образ и его слои
+      const ordered = [];
+      const used = new Set();
+      for (const v of taggedToDelete) {
+        ordered.push(v);
+        const digs = digestMap.get(v.name) || new Set();
+        for (const layer of orphanLayers) {
+          if (!used.has(layer.name) && digs.has(layer.name)) {
+            ordered.push(layer);
+            used.add(layer.name);
+          }
+        }
+      }
+
+      // 6) **dangling** — версии без тегов и не попавшие в `orphanLayers`
+      const danglingLayers = pkg.versions.filter(v =>
+        v.metadata.container.tags.length === 0 &&
+        !Array.from(digestMap.values()).some(digs => digs.has(v.name)) &&
+        !ordered.some(o => o.name === v.name)
+      );
+
+      if (debug && danglingLayers.length) {
+        core.info(`Package ${pkg.name}: Dangling layers: ${danglingLayers.map(v => v.name).join(', ')}`);
+      }
+
+      // финальный список на удаление
+      const toDelete = [...ordered, ...danglingLayers];
+
+      if (toDelete.length > 0) {
+        result.push({
+          package: {
+            id: pkg.id,
+            name: pkg.name,
+            type: pkg.packageType
+          },
+          versions: toDelete
         });
-        
-        return groups;
+      }
     }
 
-    isValidMetadata(version) {
-        return Array.isArray(version?.metadata?.container?.tags);
-    }
+    return result;
+  }
 
-    toString() {
-        return this.name;
-    }
+  isValidMetadata(version) {
+    return Array.isArray(version?.metadata?.container?.tags);
+  }
+
+  toString() {
+    return this.name;
+  }
 }
 
 module.exports = ContainerStrategy;
