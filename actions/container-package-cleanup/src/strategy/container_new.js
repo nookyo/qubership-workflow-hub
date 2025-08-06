@@ -40,11 +40,11 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
   /**
    * @param {Object} params
-   * @param {Array<{ package: Object, versions: Array }>|string} params.packagesWithVersions
+   * @param {Array|String} params.packagesWithVersions
    * @param {string[]} params.excludedPatterns
    * @param {string[]} params.includedPatterns
    * @param {Date} params.thresholdDate
-   * @param {Object} params.wrapper — должен иметь getManifestDigests(owner, repo, tag)
+   * @param {{getManifestDigests:Function}} params.wrapper
    * @param {string} params.owner
    * @param {boolean} [params.debug=false]
    * @returns {Promise<Array<{ package: Object, versions: Array }>>}
@@ -66,7 +66,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
     const result = [];
 
     for (const pkg of packages) {
-      // 1) Отфильтровать по дате и excludedPatterns
+      // 1) Базовая фильтрация по дате и excludedPatterns
       const withoutExclude = pkg.versions.filter(v => {
         if (new Date(v.createdAt) > thresholdDate) return false;
         const tags = v.metadata.container.tags.map(t => t.toLowerCase());
@@ -77,7 +77,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         return true;
       });
 
-      // 2) Из withoutExclude: выбрать tagged-версии по includePatterns (или все, если include пуст)
+      // 2) Отбираем tagged-версии по includePatterns
       const taggedToDelete = included.length > 0
         ? withoutExclude.filter(v =>
             v.metadata.container.tags
@@ -86,11 +86,9 @@ class ContainerStrategy extends AbstractPackageStrategy {
           )
         : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-      if (debug) {
-        core.info(` [${pkg.name}] taggedToDelete: ${taggedToDelete.map(v => v.name).join(', ')}`);
-      }
+      if (debug) core.info(` [${pkg.name}] taggedToDelete: ${taggedToDelete.map(v => v.name).join(', ')}`);
 
-      // 3) Собрать digest’ы через getManifestDigests
+      // 3) Собираем manifest-digests для каждого тегнутого
       const digestMap = new Map();
       for (const v of taggedToDelete) {
         const digs = new Set();
@@ -100,23 +98,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
             if (Array.isArray(ds)) ds.forEach(d => digs.add(d));
             else if (ds) digs.add(ds);
           } catch (e) {
-            debug && core.warning(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
+            if (debug) core.warning(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
           }
         }
         digestMap.set(v.name, digs);
       }
 
-      // 4) Orphan layers: без тегов, но попадают в любой digestMap
+      // 4) Orphan layers: из withoutExclude
       const orphanLayers = withoutExclude.filter(v =>
         v.metadata.container.tags.length === 0 &&
         Array.from(digestMap.values()).some(digs => digs.has(v.name))
       );
+      if (debug) core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
 
-      if (debug) {
-        core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
-      }
-
-      // 5) Упорядочить: каждый tagged + его orphanLayers
+      // 5) Упорядочиваем tagged + их orphanLayers
       const ordered = [];
       const used = new Set();
       for (const v of taggedToDelete) {
@@ -130,13 +125,13 @@ class ContainerStrategy extends AbstractPackageStrategy {
         }
       }
 
-      // 6) Dangling: из withoutExclude, без тегов и не в ordered и не в digestMap
-      const danglingLayers = withoutExclude.filter(v =>
+      // 6) Dangling: только по дате, без тегов и не в ordered
+      const danglingLayers = pkg.versions.filter(v =>
+        new Date(v.createdAt) <= thresholdDate &&
         v.metadata.container.tags.length === 0 &&
         !Array.from(digestMap.values()).some(digs => digs.has(v.name)) &&
         !ordered.some(o => o.name === v.name)
       );
-
       if (debug && danglingLayers.length) {
         core.info(` [${pkg.name}] danglingLayers: ${danglingLayers.map(v => v.name).join(', ')}`);
       }
