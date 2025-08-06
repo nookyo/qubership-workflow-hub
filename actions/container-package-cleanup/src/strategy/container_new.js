@@ -46,7 +46,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
    * @param {Date} params.thresholdDate
    * @param {Object} params.wrapper — должен иметь getManifestDigests(owner, repo, tag)
    * @param {string} params.owner
-   * @param {boolean} params.isOrganization
    * @param {boolean} [params.debug=false]
    * @returns {Promise<Array<{ package: Object, versions: Array }>>}
    */
@@ -57,25 +56,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
     thresholdDate,
     wrapper,
     owner,
-    isOrganization,
     debug = false
   }) {
-    core.info(`Executing ContainerStrategy with ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+    core.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
 
     const excluded = excludedPatterns.map(p => p.toLowerCase());
     const included = includedPatterns.map(p => p.toLowerCase());
-
     const packages = await this.parse(packagesWithVersions);
     const result = [];
 
     for (const pkg of packages) {
-      // 1) фильтруем версии по дате и excludedPatterns
+      // 1) Отфильтровать по дате и excludedPatterns
       const withoutExclude = pkg.versions.filter(v => {
-        // только контейнеры с валидными метаданными
-        if (!Array.isArray(v.metadata.container.tags)) return false;
         if (new Date(v.createdAt) > thresholdDate) return false;
-        const tags = v.metadata.container.tags;
-        // убрать любые, что попадают под excludedPatterns или «latest»
+        const tags = v.metadata.container.tags.map(t => t.toLowerCase());
         if (tags.includes('latest')) return false;
         if (excluded.some(pat => tags.some(t => this.wildcardMatcher.match(t, pat)))) {
           return false;
@@ -83,46 +77,46 @@ class ContainerStrategy extends AbstractPackageStrategy {
         return true;
       });
 
-      // 2) из оставшихся выбираем tagged-версии по включению
+      // 2) Из withoutExclude: выбрать tagged-версии по includePatterns (или все, если include пуст)
       const taggedToDelete = included.length > 0
         ? withoutExclude.filter(v =>
-            v.metadata.container.tags.some(t =>
-              included.some(pat => this.wildcardMatcher.match(t, pat))
-            )
+            v.metadata.container.tags
+              .map(t => t.toLowerCase())
+              .some(t => included.some(pat => this.wildcardMatcher.match(t, pat)))
           )
         : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
       if (debug) {
-        core.info(`Package ${pkg.name}: Tagged to delete: ${taggedToDelete.map(v => v.name).join(', ')}`);
+        core.info(` [${pkg.name}] taggedToDelete: ${taggedToDelete.map(v => v.name).join(', ')}`);
       }
 
-      // 3) собираем digest’ы для каждого тега
-      const digestMap = new Map(); // tag-name → Set<digest>
+      // 3) Собрать digest’ы через getManifestDigests
+      const digestMap = new Map();
       for (const v of taggedToDelete) {
         const digs = new Set();
         for (const tag of v.metadata.container.tags) {
           try {
-            const ds = await wrapper.getManifestDigests(owner, pkg.name, tag, isOrganization);
+            const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
             if (Array.isArray(ds)) ds.forEach(d => digs.add(d));
             else if (ds) digs.add(ds);
           } catch (e) {
-            debug && core.warning(`Failed to inspect manifest ${pkg.name}:${tag} — ${e.message}`);
+            debug && core.warning(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
           }
         }
         digestMap.set(v.name, digs);
       }
 
-      // 4) слои без тегов, которые входят в любой из этих сетов
+      // 4) Orphan layers: без тегов, но попадают в любой digestMap
       const orphanLayers = withoutExclude.filter(v =>
         v.metadata.container.tags.length === 0 &&
         Array.from(digestMap.values()).some(digs => digs.has(v.name))
       );
 
       if (debug) {
-        core.info(`Package ${pkg.name}: Orphan layers to delete: ${orphanLayers.map(v => v.name).join(', ')}`);
+        core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
       }
 
-      // 5) упорядочиваем: сначала каждый tagged-образ и его слои
+      // 5) Упорядочить: каждый tagged + его orphanLayers
       const ordered = [];
       const used = new Set();
       for (const v of taggedToDelete) {
@@ -136,27 +130,21 @@ class ContainerStrategy extends AbstractPackageStrategy {
         }
       }
 
-      // 6) **dangling** — версии без тегов и не попавшие в `orphanLayers`
-      const danglingLayers = pkg.versions.filter(v =>
+      // 6) Dangling: из withoutExclude, без тегов и не в ordered и не в digestMap
+      const danglingLayers = withoutExclude.filter(v =>
         v.metadata.container.tags.length === 0 &&
         !Array.from(digestMap.values()).some(digs => digs.has(v.name)) &&
         !ordered.some(o => o.name === v.name)
       );
 
       if (debug && danglingLayers.length) {
-        core.info(`Package ${pkg.name}: Dangling layers: ${danglingLayers.map(v => v.name).join(', ')}`);
+        core.info(` [${pkg.name}] danglingLayers: ${danglingLayers.map(v => v.name).join(', ')}`);
       }
 
-      // финальный список на удаление
       const toDelete = [...ordered, ...danglingLayers];
-
       if (toDelete.length > 0) {
         result.push({
-          package: {
-            id: pkg.id,
-            name: pkg.name,
-            type: pkg.packageType
-          },
+          package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
           versions: toDelete
         });
       }
