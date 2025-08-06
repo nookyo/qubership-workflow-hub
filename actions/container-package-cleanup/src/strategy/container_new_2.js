@@ -116,7 +116,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         // let  t = deletePackageVersion(dangling);
 
-        const result = packages;
+        const result = packagesWithVersions;
 
 
         return result;
