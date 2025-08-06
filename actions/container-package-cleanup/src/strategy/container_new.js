@@ -1,11 +1,11 @@
-const core = require('@actions/core');
+const core = require("@actions/core");
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
 
 class ContainerStrategy extends AbstractPackageStrategy {
   constructor() {
     super();
-    this.name = 'Container Strategy';
+    this.name = "Container Strategy";
     this.wildcardMatcher = new WildcardMatcher();
   }
 
@@ -19,19 +19,19 @@ class ContainerStrategy extends AbstractPackageStrategy {
         repository: pkg.repository.full_name,
         createdAt: pkg.created_at,
         updatedAt: pkg.updated_at,
-        versions: (versions || []).map(v => ({
+        versions: (versions || []).map((v) => ({
           id: v.id,
           name: v.name,
           metadata: {
             container: {
               tags: Array.isArray(v.metadata?.container?.tags)
                 ? v.metadata.container.tags
-                : []
-            }
+                : [],
+            },
           },
           createdAt: v.created_at,
-          updatedAt: v.updated_at
-        }))
+          updatedAt: v.updated_at,
+        })),
       }));
     } catch (err) {
       core.setFailed(`Action failed: ${err.message}`);
@@ -56,37 +56,49 @@ class ContainerStrategy extends AbstractPackageStrategy {
     thresholdDate,
     wrapper,
     owner,
-    debug = false
+    debug = false,
   }) {
-    core.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+    core.info(
+      `Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : "unknown"} packages.`,
+    );
 
-    const excluded = excludedPatterns.map(p => p.toLowerCase());
-    const included = includedPatterns.map(p => p.toLowerCase());
+    const excluded = excludedPatterns.map((p) => p.toLowerCase());
+    const included = includedPatterns.map((p) => p.toLowerCase());
     const packages = await this.parse(packagesWithVersions);
     const result = [];
 
     for (const pkg of packages) {
       // 1) Базовая фильтрация по дате и excludedPatterns
-      const withoutExclude = pkg.versions.filter(v => {
+      const withoutExclude = pkg.versions.filter((v) => {
         if (new Date(v.createdAt) > thresholdDate) return false;
-        const tags = v.metadata.container.tags.map(t => t.toLowerCase());
-        if (tags.includes('latest')) return false;
-        if (excluded.some(pat => tags.some(t => this.wildcardMatcher.match(t, pat)))) {
+        const tags = v.metadata.container.tags.map((t) => t.toLowerCase());
+        if (tags.includes("latest")) return false;
+        if (
+          excluded.some((pat) =>
+            tags.some((t) => this.wildcardMatcher.match(t, pat)),
+          )
+        ) {
           return false;
         }
         return true;
       });
 
       // 2) Отбираем tagged-версии по includePatterns
-      const taggedToDelete = included.length > 0
-        ? withoutExclude.filter(v =>
-            v.metadata.container.tags
-              .map(t => t.toLowerCase())
-              .some(t => included.some(pat => this.wildcardMatcher.match(t, pat)))
-          )
-        : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
+      const taggedToDelete =
+        included.length > 0
+          ? withoutExclude.filter((v) =>
+              v.metadata.container.tags
+                .map((t) => t.toLowerCase())
+                .some((t) =>
+                  included.some((pat) => this.wildcardMatcher.match(t, pat)),
+                ),
+            )
+          : withoutExclude.filter((v) => v.metadata.container.tags.length > 0);
 
-      if (debug) core.info(` [${pkg.name}] taggedToDelete: ${taggedToDelete.map(v => v.name).join(', ')}`);
+      if (debug)
+        core.info(
+          ` [${pkg.name}] taggedToDelete: ${taggedToDelete.map((v) => v.name).join(", ")}`,
+        );
 
       // 3) Собираем manifest-digests для каждого тегнутого
       const digestMap = new Map();
@@ -95,21 +107,28 @@ class ContainerStrategy extends AbstractPackageStrategy {
         for (const tag of v.metadata.container.tags) {
           try {
             const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
-            if (Array.isArray(ds)) ds.forEach(d => digs.add(d));
+            if (Array.isArray(ds)) ds.forEach((d) => digs.add(d));
             else if (ds) digs.add(ds);
           } catch (e) {
-            if (debug) core.warning(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
+            if (debug)
+              core.warning(
+                `Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`,
+              );
           }
         }
         digestMap.set(v.name, digs);
       }
 
       // 4) Orphan layers: из withoutExclude
-      const orphanLayers = withoutExclude.filter(v =>
-        v.metadata.container.tags.length === 0 &&
-        Array.from(digestMap.values()).some(digs => digs.has(v.name))
+      const orphanLayers = withoutExclude.filter(
+        (v) =>
+          v.metadata.container.tags.length === 0 &&
+          Array.from(digestMap.values()).some((digs) => digs.has(v.name)),
       );
-      if (debug) core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
+      if (debug)
+        core.info(
+          ` [${pkg.name}] orphanLayers: ${orphanLayers.map((v) => v.name).join(", ")}`,
+        );
 
       // 5) Упорядочиваем tagged + их orphanLayers
       const ordered = [];
@@ -126,21 +145,24 @@ class ContainerStrategy extends AbstractPackageStrategy {
       }
 
       // 6) Dangling: только по дате, без тегов и не в ordered
-      const danglingLayers = pkg.versions.filter(v =>
-        new Date(v.createdAt) <= thresholdDate &&
-        v.metadata.container.tags.length === 0 &&
-        !Array.from(digestMap.values()).some(digs => digs.has(v.name)) &&
-        !ordered.some(o => o.name === v.name)
+      const danglingLayers = pkg.versions.filter(
+        (v) =>
+          new Date(v.createdAt) <= thresholdDate &&
+          v.metadata.container.tags.length === 0 &&
+          !Array.from(digestMap.values()).some((digs) => digs.has(v.name)) &&
+          !ordered.some((o) => o.name === v.name),
       );
       if (debug && danglingLayers.length) {
-        core.info(` [${pkg.name}] danglingLayers: ${danglingLayers.map(v => v.name).join(', ')}`);
+        core.info(
+          ` [${pkg.name}] danglingLayers: ${danglingLayers.map((v) => v.name).join(", ")}`,
+        );
       }
 
       const toDelete = [...ordered, ...danglingLayers];
       if (toDelete.length > 0) {
         result.push({
           package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
-          versions: toDelete
+          versions: toDelete,
         });
       }
     }
