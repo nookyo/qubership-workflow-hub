@@ -58,7 +58,30 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const result = [];
 
         for (const pkg of packages) {
-            // 1) Базовая фильтрация по дате и excludedPatterns
+            // 0) Защищённые теги: latest + те, что попали в excludedPatterns
+            const protectedTags = new Set();
+            for (const v of pkg.versions) {
+                for (const tag of v.metadata.container.tags) {
+                    const low = tag.toLowerCase();
+                    if (low === 'latest' || excluded.some(pat => this.wildcardMatcher.match(low, pat))) {
+                        protectedTags.add(tag);
+                    }
+                }
+            }
+
+            // 0a) Собираем digest'ы защищённых тегов
+            const protectedDigests = new Set();
+            for (const tag of protectedTags) {
+                try {
+                    const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
+                    if (Array.isArray(ds)) ds.forEach(d => protectedDigests.add(d));
+                    else if (ds) protectedDigests.add(ds);
+                } catch (e) {
+                    if (debug) core.warning(`Failed to fetch manifest for ${pkg.name}:${tag} — ${e.message}`);
+                }
+            }
+
+            // 1) Базовая фильтрация по дате и excludedPatterns для tagged/orphan
             const withoutExclude = pkg.versions.filter(v => {
                 if (new Date(v.createdAt) > thresholdDate) return false;
                 const tags = v.metadata.container.tags.map(t => t.toLowerCase());
@@ -96,20 +119,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 digestMap.set(v.name, digs);
             }
 
-            // 4) Arch layers: из withoutExclude
-            const archLayers = withoutExclude.filter(v =>
+            // 4) Orphan layers: из withoutExclude
+            const orphanLayers = withoutExclude.filter(v =>
                 v.metadata.container.tags.length === 0 &&
                 Array.from(digestMap.values()).some(digs => digs.has(v.name))
             );
-            if (debug) core.info(` [${pkg.name}] archLayers: ${archLayers.map(v => v.name).join(', ')}`);
+            if (debug) core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
 
-            // 5) Упорядочиваем tagged + их archLayers
+            // 5) Упорядочиваем tagged + их orphanLayers
             const ordered = [];
             const used = new Set();
             for (const v of taggedToDelete) {
                 ordered.push(v);
                 const digs = digestMap.get(v.name) || new Set();
-                for (const layer of archLayers) {
+                for (const layer of orphanLayers) {
                     if (!used.has(layer.name) && digs.has(layer.name)) {
                         ordered.push(layer);
                         used.add(layer.name);
@@ -117,11 +140,12 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
             }
 
-            // 6) Dangling: только по дате, без тегов и не в ordered
+            // 6) Dangling: только по дате, без тегов, не в ordered и не в protectedDigests
             const danglingLayers = pkg.versions.filter(v =>
                 new Date(v.createdAt) <= thresholdDate &&
                 v.metadata.container.tags.length === 0 &&
                 !Array.from(digestMap.values()).some(digs => digs.has(v.name)) &&
+                !protectedDigests.has(v.name) &&
                 !ordered.some(o => o.name === v.name)
             );
             if (debug && danglingLayers.length) {
