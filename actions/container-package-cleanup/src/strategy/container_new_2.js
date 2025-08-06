@@ -15,7 +15,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         try {
             const data = Array.isArray(raw) ? raw : JSON.parse(raw);
 
-            const packages = data.map(({ package: pkg, versions }) => ({
+            return data.map(({ package: pkg, versions }) => ({
                 id: pkg.id,
                 name: pkg.name,
                 packageType: pkg.package_type,
@@ -23,18 +23,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 createdAt: pkg.created_at,
                 updatedAt: pkg.updated_at,
 
-                // Версии — массив объектов с id, digest (имя) и тегами
                 versions: versions.map(v => ({
                     id: v.id,
-                    digest: v.name,
-                    // Если tags придут не массивом, ниже в execute мы дополнительно нормализуем
-                    tags: (v.metadata && v.metadata.container && v.metadata.container.tags) || [],
+                    name: v.name,
+                    metadata: {
+                        container: {
+                            tags: Array.isArray(v.metadata?.container?.tags)
+                                ? v.metadata.container.tags
+                                : []
+                        }
+                    },
                     createdAt: v.created_at,
                     updatedAt: v.updated_at
                 }))
             }));
-
-            return packages;
         } catch (err) {
             core.setFailed(`Action failed: ${err.message}`);
         }
@@ -69,43 +71,31 @@ class ContainerStrategy extends AbstractPackageStrategy {
             const archDigests = new Set();
             const uniqueTags = new Set();
 
-            // Собираем digest'ы всех текущих тегов и список уникальных тегов
+            // Собираем все защищённые digests из manifest-list
             for (const v of pkg.versions) {
-                const tags = Array.isArray(v.tags) ? v.tags : [];
-                if (tags.length > 0) {
-                    // Защищаем digest тегнутой версии (single-arch или manifest-list)
-                    archDigests.add(v.digest);
-                    tags.forEach(t => uniqueTags.add(t));
+                const tagList = v.metadata.container.tags;
+                if (tagList.length) {
+                    archDigests.add(v.name);
+                    tagList.forEach(t => uniqueTags.add(t));
                 }
             }
-
-            // Добавляем платформенные digest'ы из manifest-list для каждого тега
             for (const tag of uniqueTags) {
-                try {
-                    const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
-                    if (Array.isArray(ds)) {
-                        ds.forEach(d => archDigests.add(d));
-                    } else if (ds) {
-                        archDigests.add(ds);
-                    }
-                    debug && core.info(`[digests] ${pkg.name}:${tag} -> ${JSON.stringify(ds)}`);
-                } catch (e) {
-                    core.warning(`Failed to fetch manifests for ${pkg.name}:${tag} — ${e.message}`);
-                }
+                const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
+                // …добавляем в archDigests…
             }
 
-            const danglingForPkg = pkg.versions.filter(v => {
-                const tags = Array.isArray(v.tags) ? v.tags : [];
-                return tags.length === 0 && !archDigests.has(v.digest);
-            });
+            // Фильтруем «dangling» версии
+            const danglingForPkg = pkg.versions.filter(v =>
+                v.metadata.container.tags.length === 0 && !archDigests.has(v.name)
+            );
 
-            if (danglingForPkg.length > 0) {
+            if (danglingForPkg.length) {
                 dangling.push({
                     package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
                     versions: danglingForPkg
                 });
                 debug && core.info(
-                    `[dangling] ${pkg.name}: ${danglingForPkg.length} -> ${danglingForPkg.map(v => v.digest).join(', ')}`
+                    `[dangling] ${pkg.name}: ${danglingForPkg.length} → ${danglingForPkg.map(v => v.name).join(', ')}`
                 );
             }
         }
