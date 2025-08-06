@@ -2,6 +2,8 @@ const core = require('@actions/core');
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
 
+const { deletePackageVersion } = require("./utils/delete");
+
 class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
         super();
@@ -110,7 +112,11 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         core.info(`Dangling candidates:\n${JSON.stringify(dangling, null, 2)}`);
 
+        let  t = deletePackageVersion(filteredPackagesWithVersionsForDelete);
+
         const result = packagesWithVersions;
+
+
         return result;
     }
 
