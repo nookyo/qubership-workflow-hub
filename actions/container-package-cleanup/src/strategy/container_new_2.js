@@ -2,7 +2,7 @@ const core = require('@actions/core');
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
 
-const { deletePackageVersion } = require("./utils/deleteAction");
+const { deletePackageVersion } = require("../utils/deleteAction");
 
 class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
