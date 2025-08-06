@@ -61,9 +61,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const packages = await this.parse(packagesWithVersions);
         console.log('Parsed packages:', JSON.stringify(packages, null, 2));
 
-        // --------------------------
-        // D A N G L I N G  (отдельно)
-        // --------------------------
         const dangling = [];
 
         for (const pkg of packages) {
@@ -95,7 +92,6 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
             }
 
-            // Кандидаты на удаление: версии без тегов, чей digest не используется активными тегами/платформами
             const danglingForPkg = pkg.versions.filter(v => {
                 const tags = Array.isArray(v.tags) ? v.tags : [];
                 return tags.length === 0 && !archDigests.has(v.digest);
@@ -112,12 +108,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
             }
         }
 
-        // Логируем dangling для наглядности (но не возвращаем)
         core.info(`Dangling candidates:\n${JSON.stringify(dangling, null, 2)}`);
 
-        // --------------------------
-        // R E S U L T  (как просил: пока равен исходному входу)
-        // --------------------------
         const result = packagesWithVersions;
         return result;
     }
