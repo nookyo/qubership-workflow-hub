@@ -15,7 +15,7 @@ class ConfigLoader {
 
   load(filePath, debug = false) {
     const configPath = path.resolve(filePath);
-    console.log(`💡 Try to reading configuration ${configPath}`)
+    console.log(`💡 Try to reading configuration ${configPath}`);
 
     if (!fs.existsSync(configPath)) {
       core.info(`❗️ Configuration file not found: ${configPath}`);
@@ -23,34 +23,35 @@ class ConfigLoader {
       return;
     }
 
-    const fileContent = fs.readFileSync(configPath, 'utf8');
+    const fileContent = fs.readFileSync(configPath, "utf8");
 
     let config;
     try {
       config = yaml.load(fileContent);
       if (debug) {
-        console.log("🔍 Loaded configuration YAML:", JSON.stringify(config, null, 2));
+        console.log(
+          "🔍 Loaded configuration YAML:",
+          JSON.stringify(config, null, 2),
+        );
         console.log("🔑 Object Keys:", Object.keys(config));
       }
-    }
-    catch (error) {
+    } catch (error) {
       core.setFailed(`❗️ Error parsing YAML file: ${error.message}`);
       return;
     }
 
-    const schemaPath = path.resolve(__dirname, '..', 'config.schema.json');
+    const schemaPath = path.resolve(__dirname, "..", "config.schema.json");
     if (!fs.existsSync(schemaPath)) {
       core.setFailed(`❗️ Schema file not found: ${schemaPath}`);
       return;
     }
 
-    const schemaContent = fs.readFileSync(schemaPath, 'utf8');
+    const schemaContent = fs.readFileSync(schemaPath, "utf8");
 
     let schema;
     try {
       schema = JSON.parse(schemaContent);
-    }
-    catch (error) {
+    } catch (error) {
       core.setFailed(`❗️ Error parsing JSON schema: ${error.message}`);
       return;
     }
