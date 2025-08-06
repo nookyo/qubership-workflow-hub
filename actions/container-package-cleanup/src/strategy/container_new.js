@@ -49,15 +49,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
       * @param {boolean} [params.debug=false]
       * @returns {Promise<Array<{ package: Object, versions: Array }>>}
       */
-    async execute({
-        packagesWithVersions,
-        excludedPatterns = [],
-        includedPatterns = [],
-        thresholdDate,
-        wrapper,
-        owner,
-        debug = false
-    }) {
+    async execute({ packagesWithVersions, excludedPatterns = [], includedPatterns = [], thresholdDate, wrapper, owner, debug = false }) {
         core.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
 
         const excluded = excludedPatterns.map(p => p.toLowerCase());
@@ -104,20 +96,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 digestMap.set(v.name, digs);
             }
 
-            // 4) Orphan layers: из withoutExclude
-            const orphanLayers = withoutExclude.filter(v =>
+            // 4) Arch layers: из withoutExclude
+            const archLayers = withoutExclude.filter(v =>
                 v.metadata.container.tags.length === 0 &&
                 Array.from(digestMap.values()).some(digs => digs.has(v.name))
             );
-            if (debug) core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
+            if (debug) core.info(` [${pkg.name}] archLayers: ${archLayers.map(v => v.name).join(', ')}`);
 
-            // 5) Упорядочиваем tagged + их orphanLayers
+            // 5) Упорядочиваем tagged + их archLayers
             const ordered = [];
             const used = new Set();
             for (const v of taggedToDelete) {
                 ordered.push(v);
                 const digs = digestMap.get(v.name) || new Set();
-                for (const layer of orphanLayers) {
+                for (const layer of archLayers) {
                     if (!used.has(layer.name) && digs.has(layer.name)) {
                         ordered.push(layer);
                         used.add(layer.name);
