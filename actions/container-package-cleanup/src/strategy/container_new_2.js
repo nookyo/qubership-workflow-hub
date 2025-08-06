@@ -101,18 +101,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
             if (danglingForPkg.length > 0) {
                 dangling.push({
-                    package: {
-                        id: pkg.id,
-                        name: pkg.name,
-                        type: pkg.packageType
-                    },
-                    versions: danglingForPkg.map(v => ({
-                        id: v.id,
-                        name: v.digest,
-                        metadata: {
-                            container: { tags: Array.isArray(v.tags) ? v.tags : [] }
-                        }
-                    }))
+                    package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
+                    versions: danglingForPkg
                 });
                 debug && core.info(
                     `[dangling] ${pkg.name}: ${danglingForPkg.length} -> ${danglingForPkg.map(v => v.digest).join(', ')}`
