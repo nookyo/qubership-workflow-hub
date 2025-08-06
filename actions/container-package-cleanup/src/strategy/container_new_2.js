@@ -112,9 +112,9 @@ class ContainerStrategy extends AbstractPackageStrategy {
 
         core.info(`Dangling candidates:\n${JSON.stringify(dangling, null, 2)}`);
 
-        let  t = deletePackageVersion(packagesWithVersions);
+        let  t = deletePackageVersion(dangling);
 
-        const result = packagesWithVersions;
+        const result = dangling;
 
 
         return result;
