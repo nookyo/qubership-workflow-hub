@@ -1,3 +1,5 @@
+const core = require("@actions/core");
+
 async function deletePackageVersion(filteredPackagesWithVersionsForDelete) {
 
     for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
