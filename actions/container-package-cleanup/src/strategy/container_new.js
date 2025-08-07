@@ -44,7 +44,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
       * @param {string[]} params.excludedPatterns
       * @param {string[]} params.includedPatterns
       * @param {Date} params.thresholdDate
-      * @param {Object} params.wrapper — должен иметь getManifestDigests(owner, repo, tag)
+      * @param {Object} params.wrapper
       * @param {string} params.owner
       * @param {boolean} [params.debug=false]
       * @returns {Promise<Array<{ package: Object, versions: Array }>>}
@@ -58,7 +58,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const result = [];
 
         for (const pkg of packages) {
-            // 0) Защищённые теги: latest + те, что попали в excludedPatterns
+            // Защищённые теги: latest + те, что попали в excludedPatterns
             const protectedTags = new Set();
             for (const v of pkg.versions) {
                 for (const tag of v.metadata.container.tags) {
@@ -69,7 +69,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
             }
 
-            // 0a) Собираем digest'ы защищённых тегов
+            // Собираем digest'ы защищённых тегов
             const protectedDigests = new Set();
             for (const tag of protectedTags) {
                 try {
@@ -119,20 +119,20 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 digestMap.set(v.name, digs);
             }
 
-            // 4) Orphan layers: из withoutExclude
-            const orphanLayers = withoutExclude.filter(v =>
+            // 4) Arch layers: из withoutExclude
+            const archLayers = withoutExclude.filter(v =>
                 v.metadata.container.tags.length === 0 &&
                 Array.from(digestMap.values()).some(digs => digs.has(v.name))
             );
-            if (debug) core.info(` [${pkg.name}] orphanLayers: ${orphanLayers.map(v => v.name).join(', ')}`);
+            if (debug) core.info(` [${pkg.name}] archLayers: ${archLayers.map(v => v.name).join(', ')}`);
 
-            // 5) Упорядочиваем tagged + их orphanLayers
+            // 5) Упорядочиваем tagged + их archLayers
             const ordered = [];
             const used = new Set();
             for (const v of taggedToDelete) {
                 ordered.push(v);
                 const digs = digestMap.get(v.name) || new Set();
-                for (const layer of orphanLayers) {
+                for (const layer of archLayers) {
                     if (!used.has(layer.name) && digs.has(layer.name)) {
                         ordered.push(layer);
                         used.add(layer.name);
