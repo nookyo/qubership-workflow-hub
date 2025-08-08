@@ -1,3 +1,5 @@
+const escapeStringRegexp = require('escape-string-regexp');
+
 class WildcardMatcher {
   constructor() {
     this.name = 'WildcardMatcher';
@@ -6,7 +8,13 @@ class WildcardMatcher {
   match(tag, pattern) {
     const t = tag.toLowerCase();
     const p = pattern.toLowerCase();
-
+    // Специальный кейс для 'semver' -- ищем строки вида '1.2.3', 'v1.2.3', '1.2.3-alpha', 'v1.2.3-fix'
+    let regexPattern;
+    if (p === 'semver') {
+      regexPattern = '^[v]?\\d+\\.\\d+\\.\\d+[-]?.*';
+      const re = new RegExp(regexPattern, 'i');
+      return re.test(t);
+    }
     // специальный кейс для '?*' — только буквы+цифры и хотя бы одна цифра
     if (p === '?*') {
       // /^[a-z0-9]+$/ соответствует только алфа‑цифре
@@ -20,27 +28,28 @@ class WildcardMatcher {
     }
 
     // чистый префикс: xxx*
-    if (p.endsWith('*') && !p.startsWith('*') && !p.includes('?')) {
-      return t.startsWith(p.slice(0, -1));
-    }
+    //if (p.endsWith('*') && !p.startsWith('*') && !p.includes('?')) {
+    //  return t.startsWith(escapeStringRegexp(p.slice(0, -1)));
+    //}
 
     // чистый суффикс: *xxx
-    if (p.startsWith('*') && !p.endsWith('*') && !p.includes('?')) {
-      return t.endsWith(p.slice(1));
-    }
+    //if (p.startsWith('*') && !p.endsWith('*') && !p.includes('?')) {
+    //  return t.endsWith(escapeStringRegexp(p.slice(1)));
+    //}
 
     // contains: *xxx*
-    if (p.startsWith('*') && p.endsWith('*') && !p.includes('?')) {
-      return t.includes(p.slice(1, -1));
-    }
+    //if (p.startsWith('*') && p.endsWith('*') && !p.includes('?')) {
+    //  return t.includes(escapeStringRegexp(p.slice(1, -1)));
+    //}
 
     // общий вариант: билдим RegExp, эскейпим спецсимволы, затем *→.* и ?→.
-    const escaped = p
-      // эскейпим всё, кроме * и ?
-      .replace(/[-[\]{}()+\\^$|#\s.]/g, '\\$&')
-      // превращаем джокеры в RegExp
-      .replace(/\*/g, '.*')
-      .replace(/\?/g, '.');
+    console.log(`Matching tag "${t}" against pattern "${p}"`);
+    // Сначала заменяем * и ? на уникальные маркеры, затем экранируем, затем возвращаем их как .*
+    const wildcardPattern = p.replace(/\*/g, '__WILDCARD_STAR__').replace(/\?/g, '__WILDCARD_QM__');
+    const escaped = escapeStringRegexp(wildcardPattern)
+      .replace(/__WILDCARD_STAR__/g, '.*')
+      .replace(/__WILDCARD_QM__/g, '.');
+    console.log(`Transformed pattern: ${escaped}`);
 
     const re = new RegExp(`^${escaped}$`, 'i');
     return re.test(t);
