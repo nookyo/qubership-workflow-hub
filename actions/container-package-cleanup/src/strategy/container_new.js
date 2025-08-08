@@ -57,6 +57,8 @@ class ContainerStrategy extends AbstractPackageStrategy {
         const packages = await this.parse(packagesWithVersions);
         const result = [];
 
+        const ownerLC = typeof owner === 'string' ? owner.toLowerCase() : owner;
+
         for (const pkg of packages) {
             // Защищённые теги: latest + те, что попали в excludedPatterns
             const protectedTags = new Set();
@@ -109,7 +111,7 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 const digs = new Set();
                 for (const tag of v.metadata.container.tags) {
                     try {
-                        const ds = await wrapper.getManifestDigests(owner, pkg.name, tag);
+                        const ds = await wrapper.getManifestDigests(ownerLC, pkg.name, tag);
                         if (Array.isArray(ds)) ds.forEach(d => digs.add(d));
                         else if (ds) digs.add(ds);
                     } catch (e) {
