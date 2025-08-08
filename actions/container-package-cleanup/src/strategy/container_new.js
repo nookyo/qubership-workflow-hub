@@ -71,11 +71,12 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
             }
 
+            const imageLC = pkg.name.toLowerCase();
             // Собираем digest'ы защищённых тегов
             const protectedDigests = new Set();
             for (const tag of protectedTags) {
                 try {
-                    const ds = await wrapper.getManifestDigests(ownerLC, pkg.name, tag);
+                    const ds = await wrapper.getManifestDigests(ownerLC, imageLC, tag);
                     if (Array.isArray(ds)) ds.forEach(d => protectedDigests.add(d));
                     else if (ds) protectedDigests.add(ds);
                 } catch (e) {
