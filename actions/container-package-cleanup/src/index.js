@@ -151,6 +151,8 @@ async function run() {
 
   try {
     if (!dryRun && filteredPackagesWithVersionsForDelete.length > 0) {
+      let detail = pkg.type === 'maven' ? version.name : (version.metadata?.container?.tags ?? []).join(', ');
+      core.info(`Package: ${pkg.name} (${pkg.type}) — deleting version: ${version.id} (${detail})`);
       await deletePackageVersion(filteredPackagesWithVersionsForDelete, { wrapper, owner, isOrganization });
     }
 
