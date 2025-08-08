@@ -1,25 +1,65 @@
 const core = require("@actions/core");
 
-async function deletePackageVersion(filteredPackagesWithVersionsForDelete) {
+/**
+ *
+ * @param {Array<{package:{id,name,type}, versions:Array<{id,name,metadata}>}>} filtered
+ * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean }} ctx
+ */
+async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false } = {}) {
+  if (!Array.isArray(filtered) || filtered.length === 0) {
+    core.info("Nothing to delete.");
+    return;
+  }
+  if (!wrapper || typeof wrapper.deletePackageVersion !== "function") {
+    throw new Error("wrapper.deletePackageVersion is required");
+  }
+  if (!owner) {
+    throw new Error("owner is required");
+  }
 
-    for (const { package: pkg, versions } of filteredPackagesWithVersionsForDelete) {
-        for (const version of versions) {
-            try {
-                let detail = pkg.type === 'maven' ? version.name : (version.metadata?.container?.tags ?? []).join(', ');
-                core.info(`Package: ${pkg.name} (${pkg.type}) — deleting version: ${version.id} (${detail})`);
-                // await wrapper.deletePackageVersion(owner, pkg.type, pkg.name, version.id, isOrganization);
+  const ownerLC = owner.toLowerCase();
 
-            } catch (error) {
-                // Handle specific error for high download count
-                if (error.message.includes("Publicly visible package versions with more than 5000 downloads cannot be deleted")) {
-                    core.warning(`Skipping version: ${version.id} (${version.metadata?.container?.tags?.join(', ')}) due to high download count.`);
-                } else {
-                    core.error(`Failed to delete version: ${version.id} (${version.metadata?.container?.tags?.join(', ')}) — ${error.message}`);
-                }
-            }
+  for (const { package: pkg, versions } of filtered) {
+    const imageLC = (pkg.name || "").toLowerCase();
+    const type = pkg.type; // "container" | "maven" ...
+
+    for (const v of versions) {
+      const tags = v.metadata?.container?.tags ?? [];
+      const detail = type === "maven" ? v.name : (tags.length ? tags.join(", ") : v.name);
+
+      if (dryRun) {
+        core.info(`DRY-RUN: ${ownerLC}/${imageLC} (${type}) — would delete version ${v.id} (${detail})`);
+        continue;
+      }
+
+      try {
+        core.info(`Deleting ${ownerLC}/${imageLC} (${type}) — version ${v.id} (${detail})`);
+        await wrapper.deletePackageVersion(ownerLC, type, imageLC, v.id, isOrganization);
+      } catch (error) {
+        const msg = String(error && error.message || error);
+
+        // Публичные версии с >5000 загрузок
+        if (/more than 5000 downloads/i.test(msg)) {
+          core.warning(`Skipping ${imageLC} v:${v.id} (${detail}) — too many downloads.`);
+          continue;
         }
-    }
 
+        // Уже удалено / не найдено
+        if (/404|not found/i.test(msg)) {
+          core.warning(`Version not found: ${imageLC} v:${v.id} — probably already deleted.`);
+          continue;
+        }
+
+        // Рейт-лимит/права
+        if (/403|rate.?limit|insufficient permissions/i.test(msg)) {
+          core.error(`Permission/rate issue for ${imageLC} v:${v.id}: ${msg}`);
+          throw error; // пробрасываем, чтобы не молча нести дальше
+        }
+
+        core.error(`Failed to delete ${imageLC} v:${v.id} (${detail}) — ${msg}`);
+      }
+    }
+  }
 }
 
 module.exports = { deletePackageVersion };
