@@ -5,7 +5,7 @@ class WildcardMatcher {
     this.name = 'WildcardMatcher';
   }
 
-  match(tag, pattern) {
+  match(tag, pattern, debug = false) {
     const t = tag.toLowerCase();
     const p = pattern.toLowerCase();
     // Специальный кейс для 'semver' -- ищем строки вида '1.2.3', 'v1.2.3', '1.2.3-alpha', 'v1.2.3-fix'
@@ -43,13 +43,13 @@ class WildcardMatcher {
     //}
 
     // общий вариант: билдим RegExp, эскейпим спецсимволы, затем *→.* и ?→.
-    console.log(`Matching tag "${t}" against pattern "${p}"`);
+    debug && console.log(`Matching tag "${t}" against pattern "${p}"`);
     // Сначала заменяем * и ? на уникальные маркеры, затем экранируем, затем возвращаем их как .*
     const wildcardPattern = p.replace(/\*/g, '__WILDCARD_STAR__').replace(/\?/g, '__WILDCARD_QM__');
     const escaped = escapeStringRegexp(wildcardPattern)
       .replace(/__WILDCARD_STAR__/g, '.*')
       .replace(/__WILDCARD_QM__/g, '.');
-    console.log(`Transformed pattern: ${escaped}`);
+    debug && console.log(`Transformed pattern: ${escaped}`);
 
     const re = new RegExp(`^${escaped}$`, 'i');
     return re.test(t);
