@@ -38,22 +38,19 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
       } catch (error) {
         const msg = String(error && error.message || error);
 
-        // Публичные версии с >5000 загрузок
         if (/more than 5000 downloads/i.test(msg)) {
           core.warning(`Skipping ${imageLC} v:${v.id} (${detail}) — too many downloads.`);
           continue;
         }
 
-        // Уже удалено / не найдено
         if (/404|not found/i.test(msg)) {
           core.warning(`Version not found: ${imageLC} v:${v.id} — probably already deleted.`);
           continue;
         }
 
-        // Рейт-лимит/права
         if (/403|rate.?limit|insufficient permissions/i.test(msg)) {
           core.error(`Permission/rate issue for ${imageLC} v:${v.id}: ${msg}`);
-          throw error; // пробрасываем, чтобы не молча нести дальше
+          throw error;
         }
 
         core.error(`Failed to delete ${imageLC} v:${v.id} (${detail}) — ${msg}`);
