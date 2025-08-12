@@ -30,6 +30,7 @@ Qubership Workflow Hub provides:
 ## 🚀 Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/nookyo/qubership-workflow-hub.git
    cd qubership-workflow-hub
@@ -41,6 +42,7 @@ Qubership Workflow Hub provides:
 
 3. **Use an Action**
    Reference an action in your own workflow YAML:
+
    ```yaml
    jobs:
      tag:
@@ -65,11 +67,13 @@ Qubership Workflow Hub provides:
    ```
    > **Note:** Consult the individual workflow docs for specific input parameters and examples.
 
-  Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
+Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
 
-  ---
-  ## 📘 Conventions
-  Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
+---
+
+## 📘 Conventions
+
+Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
 
 ---
 
@@ -119,12 +123,12 @@ Preconfigured workflow templates you can import into your projects:
 
 ## 📚 Additional Documentation
 
-| Link | What it covers | When to read |
-|------|----------------|--------------|
-| [Getting Started (extended)](docs/getting-started.md) | Repository layout, action usage patterns, reusable workflows creation, versioning, permissions | First integration / onboarding |
-| [Conventions](docs/conventions.md) | Naming, inputs/outputs patterns, version pinning strategy, security & permissions guidelines, deprecation notes | Before adding a new action or workflow |
-| [Fork Sequence Guide](docs/fork-sequence.md) | Recommended fork + PR flow, keeping fork in sync, safe contribution practices | Before your first contribution or large refactor |
-| [CLA](CLA/cla.md) | Contributor License Agreement text | Before first PR |
+| Link                                                  | What it covers                                                                                                  | When to read                                     |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| [Getting Started (extended)](docs/getting-started.md) | Repository layout, action usage patterns, reusable workflows creation, versioning, permissions                  | First integration / onboarding                   |
+| [Conventions](docs/conventions.md)                    | Naming, inputs/outputs patterns, version pinning strategy, security & permissions guidelines, deprecation notes | Before adding a new action or workflow           |
+| [Fork Sequence Guide](docs/fork-sequence.md)          | Recommended fork + PR flow, keeping fork in sync, safe contribution practices                                   | Before your first contribution or large refactor |
+| [CLA](CLA/cla.md)                                     | Contributor License Agreement text                                                                              | Before first PR                                  |
 
 ---
 
