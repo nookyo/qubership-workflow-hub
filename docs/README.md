@@ -2,27 +2,58 @@
 
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
-## 📑 Table of Contents
-
-- [Qubership Workflow Hub](#qubership-workflow-hub)
-  - [📑 Table of Contents](#-table-of-contents)
-  - [🔍 Overview](#-overview)
-  - [🚀 Getting Started](#-getting-started)
-  - [📘 Conventions](#-conventions)
-  - [⚙️ Available Actions](#️-available-actions)
-  - [🔄 Reusable Workflows](#-reusable-workflows)
-  - [🤝 Contributing](#-contributing)
-  - [📄 License](#-license)
-
----
-
 ## 🔍 Overview
 
-Qubership Workflow Hub provides:
+### What this hub solves
+Common CI/CD tasks (tagging, semantic / metadata version generation, artifact & package publishing, Helm chart release, cleanup, event triggering) are often re‑implemented inconsistently across repositories. This hub centralises those patterns so teams get:
+* One vetted implementation instead of N ad‑hoc scripts
+* Predictable inputs/outputs and error behaviour
+* Pinned version strategy and upgrade path
+* Reduced maintenance surface in product repositories
 
-- **GitHub Actions**: Modular, reusable actions to automate tasks like versioning, tagging, publishing, and more.
-- **Reusable Workflows**: Prebuilt workflow templates for typical release and deployment processes.
-- **Comprehensive Documentation**: Guides, examples, and reference tables to help you integrate these actions and workflows quickly.
+### Core components
+| Component | Role | Location |
+|-----------|------|----------|
+| Actions | Single, composable steps (JS or composite) | `actions/<name>/` |
+| Reusable workflows | Multi‑job orchestration via `workflow_call` | `docs/reusable/*.md` (docs) / `.github/workflows` (source when defined) |
+| Conventions | Cross‑cutting rules (naming, security, versioning) | `docs/conventions.md` |
+| Guides / Tutorials | Onboarding & process | `docs/*.md` |
+
+### Principles
+| Principle | Summary | Practical outcome |
+|-----------|---------|-------------------|
+| Determinism | Pin majors or SHAs | Reproducible builds |
+| Least privilege | Start with `contents: read` only | Reduced token blast radius |
+| Composability | Small, focused actions | Easier orchestration in workflows |
+| Backwards compatibility | Major tag stable; break only with major bump | Safe incremental upgrades |
+| Observability | Summaries & clear outputs | Quick diagnosis and audit trail |
+| Explicit deprecation | Mark + replacement path | Predictable migration window |
+
+### When to use what
+| Need | Use an Action | Use a Reusable Workflow |
+|------|---------------|-------------------------|
+| One operation (tag, compute version, cleanup) | ✓ |  |
+| Multi-step, multi-job orchestration (build + test + publish) |  | ✓ |
+| Want to hide complexity behind a simple call | Possibly (if single job) | ✓ |
+| Need to expose inputs/secrets/outputs contract to consumers | ✓ | ✓ |
+
+### Versioning & deprecation (short form)
+* Prefer `@v1` major (receives backward-compatible fixes) or full commit SHA for high-integrity steps.
+* Deprecated components list a replacement; removal only after communicated grace period.
+
+### Security baseline
+* Minimal default permissions; elevate only per job requiring write.
+* Dry-run & debug flags (where available) for safe trial.
+* Encourage immutable references (SHAs) in critical release pipelines.
+
+### Extending the hub
+1. Draft a new action locally (composite or JS) under `actions/<name>/`.
+2. Provide README (purpose, inputs, outputs, minimal example, failure modes).
+3. Add to Actions index; add workflow docs if orchestration required.
+4. Create `v1` tag and (optionally) publish SHA example for security-sensitive consumers.
+5. Update conventions if introducing a new cross-cutting rule.
+
+This structured approach keeps product repositories lean while providing a dependable automation toolkit.
 
 ---
 
