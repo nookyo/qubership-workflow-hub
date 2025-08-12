@@ -21,6 +21,7 @@ To extend: add action folder + README, update index, tag `v1`, adjust convention
 ---
 
 ## 🚀 Getting Started
+Full extended guide: see [Detailed Getting Started](docs/getting-started.md) for structure, composition patterns, permissions, versioning and checklist.
 
 1. **Clone the repository**
    ```bash
