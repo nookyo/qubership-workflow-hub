@@ -2,26 +2,29 @@
 
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
+## 📑 Table of Contents
+
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Available Actions](#available-actions)
+- [Reusable Workflows](#reusable-workflows)
+- [Additional Documentation](#additional-documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
 ## 🔍 Overview
-Centralises common CI/CD tasks (tagging, version / metadata generation, artifact & package publishing, Helm chart release, cleanup, custom events) to avoid per‑repo scripts and drift.
 
-Key pieces:
-- Actions (single focused step) – `actions/<name>/`
-- Reusable workflows (multi‑job orchestration) – `reusable/*.md`
-- Conventions (rules: naming, version pinning, permissions) – `conventions.md`
+Qubership Workflow Hub provides:
 
-Core principles: deterministic (pin @v1 or SHA), least privilege (start with `contents: read`), composable (small actions), backwards compatible majors, observable outputs, explicit deprecation with replacement.
-
-Use an Action for one operation (tag, compute metadata, cleanup). Use a Reusable Workflow for multi‑job pipelines (build + test + publish). Combine both freely.
-
-Version & security: pin versions, avoid `@main`, run dry‑run first where supported, elevate permissions only where needed.
-
-To extend: add action folder + README, update index, tag `v1`, adjust conventions if introducing a new pattern.
+- **GitHub Actions**: Modular, reusable actions to automate tasks like versioning, tagging, publishing, and more.
+- **Reusable Workflows**: Prebuilt workflow templates for typical release and deployment processes.
+- **Comprehensive Documentation**: Guides, examples, and reference tables to help you integrate these actions and workflows quickly.
 
 ---
 
 ## 🚀 Getting Started
-Full extended guide: see [Detailed Getting Started](docs/getting-started.md) for structure, composition patterns, permissions, versioning and checklist.
 
 1. **Clone the repository**
    ```bash
@@ -58,12 +61,6 @@ Full extended guide: see [Detailed Getting Started](docs/getting-started.md) for
          config-file: ".github/release-drafter.yml"
    ```
    > **Note:** Consult the individual workflow docs for specific input parameters and examples.
-
-  Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
-
-  ---
-  ## 📘 Conventions
-  Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
 
 ---
 
@@ -108,6 +105,16 @@ Preconfigured workflow templates you can import into your projects:
 - [python-publish](docs/reusable/python-publish.md)
 - [release-drafter](docs/reusable/release-drafter.md)
 - [tag-creator](docs/reusable/tag-creator.md)
+
+---
+
+## 📚 Additional Documentation
+
+- [Workflow and Action Documentation](docs/README.md)
+- [Fork Sequence Guide](docs/fork-sequence.md)
+- [Maven POM Preparation](docs/maven-publish-pom-preparation_doc.md)
+- [Maven Publish Secrets](docs/maven-publish-secrets_doc.md)
+- [Contributor License Agreement (CLA)](CLA/cla.md)
 
 ---
 
