@@ -11,7 +11,6 @@ A comprehensive collection of reusable GitHub Actions and Workflows, designed to
   - [📘 Conventions](#-conventions)
   - [⚙️ Available Actions](#️-available-actions)
   - [🔄 Reusable Workflows](#-reusable-workflows)
-  - [📚 Additional Documentation](#-additional-documentation)
   - [🤝 Contributing](#-contributing)
   - [📄 License](#-license)
 
@@ -114,17 +113,6 @@ Preconfigured workflow templates you can import into your projects:
 - [python-publish](docs/reusable/python-publish.md)
 - [release-drafter](docs/reusable/release-drafter.md)
 - [tag-creator](docs/reusable/tag-creator.md)
-
----
-
-## 📚 Additional Documentation
-
-| Link | What it covers | When to read |
-|------|----------------|--------------|
-| [Getting Started (extended)](docs/getting-started.md) | Repository layout, action usage patterns, reusable workflows creation, versioning, permissions | First integration / onboarding |
-| [Conventions](docs/conventions.md) | Naming, inputs/outputs patterns, version pinning strategy, security & permissions guidelines, deprecation notes | Before adding a new action or workflow |
-| [Fork Sequence Guide](docs/fork-sequence.md) | Recommended fork + PR flow, keeping fork in sync, safe contribution practices | Before your first contribution or large refactor |
-| [CLA](CLA/cla.md) | Contributor License Agreement text | Before first PR |
 
 ---
 
