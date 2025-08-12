@@ -1,23 +1,22 @@
 # Action & Workflow Conventions
 
-RU: Коротко — единые правила: как называем inputs/outputs, чем пинним версии, какие права даём, как помечаем deprecated и как заводим баги.
-EN: Rules for naming, version pinning, permissions, deprecation and bug reporting.
+Rules for naming, version pinning, permissions, deprecation and bug reporting.
 
 Legend: MUST = required, SHOULD = recommended, MAY = optional.
 
 Bug template: section 9 (always include action version + minimal workflow snippet).
 
 ---
-## Sections
-1. Quick Rules
-2. Standard Inputs
-3. Version Pinning
-4. Outputs
-5. Security
-6. Deprecation
-7. New Action Checklist
-8. PR Review Checklist
-9. Bug / Issue Reporting
+## Table of Contents
+- [1. Quick Rules](#1-quick-rules)
+- [2. Standard Inputs](#2-standard-inputs)
+- [3. Version Pinning](#3-version-pinning)
+- [4. Outputs](#4-outputs)
+- [5. Security](#5-security)
+- [6. Deprecation](#6-deprecation)
+- [7. New Action Checklist](#7-new-action-checklist)
+- [8. PR Review Checklist](#8-pr-review-checklist)
+- [9. Bug / Issue Reporting](#9-bug--issue-reporting)
 
 
 ---
@@ -101,6 +100,46 @@ Current map:
 | Deprecation map updated | |
 
 ## 9. Bug / Issue Reporting
-Include: name + version, minimal snippet, expected vs actual, key logs (no secrets), runner OS. Security issue → private channel.
+Create issues at: https://github.com/nookyo/qubership-workflow-hub/issues
 
-— End —
+Minimum required:
+1. Action / workflow name + version (tag or SHA)
+2. Minimal reproducible workflow snippet (only failing job/step)
+3. Expected vs Actual behaviour (1–2 lines each)
+4. Key log fragment (redact secrets) – avoid full dumps
+5. Runner environment: `ubuntu-22.04`, matrix vars (language version, etc.)
+
+Bug template (paste into issue):
+```
+### Summary
+<clear one-line problem>
+
+### Action / Workflow Version
+<name>@<tag or SHA>
+
+### Minimal Snippet
+```yaml
+<workflow excerpt>
+```
+
+### Expected
+<what you wanted>
+
+### Actual
+<what happened>
+
+### Logs
+```
+<key lines>
+```
+
+### Env
+Runner: ubuntu-22.04
+Matrix: <if any>
+```
+
+Feature request: describe the use case first (problem > why existing actions insufficient > proposed behaviour). Avoid “add flag X” without context.
+Security / sensitive: do NOT disclose publicly. Use the private disclosure channel (Security Policy) or contact maintainers directly.
+Triage (internal): label (bug/enhancement/question) → reproduce → assign → milestone → close with resolution.
+Response targets (not guaranteed): bug acknowledgement <= 2 business days; critical security ASAP.
+
