@@ -166,14 +166,5 @@ repo/
 - Caching Dependencies: https://docs.github.com/actions/using-workflows/caching-dependencies-to-speed-up-workflows
 - Security Hardening: https://docs.github.com/actions/security-guides/security-hardening-for-github-actions
 
-## 12. Pre‑PR checklist
-| Check | Yes/No |
-|-------|--------|
-| Pinned action versions | |
-| Minimal permissions | |
-| Dry‑run used (if applicable) | |
-| Logs contain no secrets | |
-| Added link to indexes (actions/README.md) | |
-
 ---
 Done. Add required actions one by one and scale automation gradually.
