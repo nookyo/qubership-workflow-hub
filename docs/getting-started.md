@@ -167,4 +167,3 @@ repo/
 - Security Hardening: https://docs.github.com/actions/security-guides/security-hardening-for-github-actions
 
 ---
-Done. Add required actions one by one and scale automation gradually.
