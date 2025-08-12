@@ -5,7 +5,7 @@ Curated hub of reusable GitHub Actions and reusable workflows for tagging, relea
 > Full navigation tree: see [NAVIGATION.md](NAVIGATION.md)
 
 ---
-## 🔎 Quick Navigation
+## Quick Navigation
 | Category | Purpose | Jump |
 |----------|---------|------|
 | Actions Index | List of all actions (grouped: Active / Deprecated / Missing Docs) | [actions/README.md](actions/README.md) |
@@ -17,11 +17,11 @@ Curated hub of reusable GitHub Actions and reusable workflows for tagging, relea
 | Legal | CLA & license | [CLA](../CLA/cla.md) · [License](../LICENSE) |
 
 ---
-## 🤔 Why this hub exists
+## Why this hub exists
 Centralize shared automation so every repo does NOT reinvent tagging, version metadata, artifact publishing, or chart release logic. You: consume & pin versions. We: evolve behind stable major tags.
 
 ---
-## 🧱 Taxonomy
+## Taxonomy
 | Layer | Description | Example |
 |-------|-------------|---------|
 | Action | Atomic, one job step (JS / composite) | `tag-action` |
@@ -32,7 +32,7 @@ Centralize shared automation so every repo does NOT reinvent tagging, version me
 Status categories (see index): Active (supported) / Deprecated (avoid, will be removed) / Missing Documentation (needs README before broad adoption).
 
 ---
-## ⚡ 30‑Second Usage Examples
+## 30‑Second Usage Examples
 Action (tagging):
 ```yaml
 steps:
