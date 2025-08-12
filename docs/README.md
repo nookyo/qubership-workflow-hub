@@ -3,9 +3,11 @@
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
 ## 🔍 Overview
+
 Centralises common CI/CD tasks (tagging, version / metadata generation, artifact & package publishing, Helm chart release, cleanup, custom events) to avoid per‑repo scripts and drift.
 
 Key pieces:
+
 - Actions (single focused step) – `actions/<name>/`
 - Reusable workflows (multi‑job orchestration) – `reusable/*.md`
 - Conventions (rules: naming, version pinning, permissions) – `conventions.md`
@@ -23,6 +25,7 @@ To extend: add action folder + README, update index, tag `v1`, adjust convention
 ## 🚀 Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/nookyo/qubership-workflow-hub.git
    cd qubership-workflow-hub
@@ -34,6 +37,7 @@ To extend: add action folder + README, update index, tag `v1`, adjust convention
 
 3. **Use an Action**
    Reference an action in your own workflow YAML:
+
    ```yaml
    jobs:
      tag:
@@ -58,11 +62,13 @@ To extend: add action folder + README, update index, tag `v1`, adjust convention
    ```
    > **Note:** Consult the individual workflow docs for specific input parameters and examples.
 
-  Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
+Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
 
-  ---
-  ## 📘 Conventions
-  Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
+---
+
+## 📘 Conventions
+
+Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
 
 ---
 
