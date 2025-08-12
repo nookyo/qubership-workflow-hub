@@ -1,134 +1,136 @@
-# Documentation Hub
+# Qubership Workflow Hub
 
-Curated hub of reusable GitHub Actions and reusable workflows for tagging, releasing, packaging, metadata generation, chart management and more — all documented with plain Markdown (no static site generator required).
+A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
-> Full navigation tree: see [NAVIGATION.md](NAVIGATION.md)
+## 📑 Table of Contents
 
----
-## Quick Navigation
-| Category | Purpose | Jump |
-|----------|---------|------|
-| Actions Index | List of all actions (grouped: Active / Deprecated / Missing Docs) | [actions/README.md](actions/README.md) |
-| Reusable Workflows | Higher‑level orchestrations | [reusable/](reusable/) |
-| Conventions | Naming, inputs, version pinning, security | [conventions.md](conventions.md) |
-| Getting Started | Fast onboarding & examples | [getting-started.md](getting-started.md) |
-| Guides | Process & deep dives | [Fork Sequence](fork-sequence.md) · [Maven POM Prep](maven-publish-pom-preparation_doc.md) · [Maven Secrets](maven-publish-secrets_doc.md) |
-| Examples | Reference configs & snippets | [Release Drafter Config](examples/release-drafter-config.yml) |
-| Legal | CLA & license | [CLA](../CLA/cla.md) · [License](../LICENSE) |
+- [Qubership Workflow Hub](#qubership-workflow-hub)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🔍 Overview](#-overview)
+  - [🚀 Getting Started](#-getting-started)
+  - [⚙️ Available Actions](#️-available-actions)
+  - [🔄 Reusable Workflows](#-reusable-workflows)
+  - [📚 Additional Documentation](#-additional-documentation)
+  - [🤝 Contributing](#-contributing)
+  - [📄 License](#-license)
 
 ---
-## Why this hub exists
-Centralize shared automation so every repo does NOT reinvent tagging, version metadata, artifact publishing, or chart release logic. You: consume & pin versions. We: evolve behind stable major tags.
+
+## 🔍 Overview
+
+Qubership Workflow Hub provides:
+
+- **GitHub Actions**: Modular, reusable actions to automate tasks like versioning, tagging, publishing, and more.
+- **Reusable Workflows**: Prebuilt workflow templates for typical release and deployment processes.
+- **Comprehensive Documentation**: Guides, examples, and reference tables to help you integrate these actions and workflows quickly.
 
 ---
-## Taxonomy
-| Layer | Description | Example |
-|-------|-------------|---------|
-| Action | Atomic, one job step (JS / composite) | `tag-action` |
-| Reusable Workflow | Multi‑job orchestration via `workflow_call` | `release-drafter.yaml` |
-| Guide | Human process knowledge | `fork-sequence.md` |
-| Convention | Cross‑cutting standard / rule | `conventions.md` |
 
-Status categories (see index): Active (supported) / Deprecated (avoid, will be removed) / Missing Documentation (needs README before broad adoption).
+## 🚀 Getting Started
 
----
-## 30‑Second Usage Examples
-Action (tagging):
-```yaml
-steps:
-	- uses: actions/checkout@v4
-	- uses: nookyo/qubership-workflow-hub/actions/tag-action@v1
-		with:
-			tag-name: v1.2.3
-```
-Reusable workflow (release drafter):
-```yaml
-jobs:
-	draft:
-		uses: nookyo/qubership-workflow-hub/.github/workflows/release-drafter.yaml@v1
-		with:
-			config-file: .github/release-drafter.yml
-```
-Local composite action consumption:
-```yaml
-steps:
-	- uses: ./.github/actions/setup-env
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/nookyo/qubership-workflow-hub.git
+   cd qubership-workflow-hub
+   ```
 
-Need more context? Jump to the full [Getting Started](getting-started.md).
+2. **Explore Actions and Workflows**
+   - Browse the [`actions/`](actions/) folder for individual action packages.
+   - Browse the [`docs/reusable/`](docs/reusable/) folder for workflow templates.
 
----
-## 🏷 Versioning & Stability
-| Practice | Rationale |
-|----------|-----------|
-| Pin to `@v1` (major tag) | Stable contract, receive backward compatible fixes |
-| Pin to full SHA for critical paths | Supply‑chain integrity / deterministic builds |
-| Avoid floating refs (`@main`) | Prevent surprise breakage |
-| Increment major only on breaking change | Predictability |
+3. **Use an Action**
+   Reference an action in your own workflow YAML:
+   ```yaml
+   jobs:
+     tag:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+         - name: Create a Git Tag
+           uses: nookyo/qubership-workflow-hub/actions/tag-action@main
+           with:
+             tag-prefix: "v"
+             tag-message: "Release {{version}}"
+   ```
 
-Deprecation flow: mark in index → add replacement → soft grace period → archive.
+4. **Use a Reusable Workflow**
+   Include a reusable workflow by path:
+   ```yaml
+   jobs:
+     release:
+       uses: nookyo/qubership-workflow-hub/docs/reusable/release-drafter.md@main
+       with:
+         config-file: ".github/release-drafter.yml"
+   ```
+   > **Note:** Consult the individual workflow docs for specific input parameters and examples.
 
 ---
-## 🛠 Contribute a New Action (Checklist)
-1. Scaffold folder under `actions/<new-action>/` with `action.yml`.
-2. Implement logic (`index.js` for JS action or composite steps for composite action).
-3. Add a focused README (inputs, outputs, minimal examples, edge cases, versioning notes).
-4. Add usage example to `docs/actions/README.md` in Active section.
-5. Add any new conventions (if cross‑cutting) to `conventions.md`.
-6. Create a smoke workflow under `.github/workflows/` validating key scenarios.
-7. Tag initial release `v1` (or update major symlink tag pointing to current SHA).
-8. (Optional) Add tests / contract assertions (dry‑run, error paths).
 
-PR quality gates (see below) must be green before merge.
+## ⚙️ Available Actions
 
----
-## 🧪 Recommended Quality Gates
-| Gate | Tooling Idea | Target |
-|------|--------------|--------|
-| Lint / Format | ESLint / Prettier (JS actions) | No errors |
-| Shell safety | `shellcheck` (if shell scripts) | 0 warnings (or justified) |
-| Unit / Smoke | Minimal workflow invocation | Pass |
-| Security | Pin external actions; review diffs | All pinned |
-| Docs | Inputs / outputs documented | Complete |
-| Changelog / Release notes | Release drafter / manual summary | Updated |
+Below is a list of all core Actions provided in this repository. Click the action name to view detailed usage instructions.
 
----
-## ♻️ Common Scenarios
-| Task | Use | Notes |
-|------|-----|-------|
-| Create semantic tag | `tag-action` | Combine with `metadata-action` for computed version |
-| Publish build metadata | `metadata-action` | Supplies version for downstream steps |
-| Upload build artifacts | `archive-and-upload-assets` | Supports grouping & retention |
-| Publish Helm charts | `helm-charts-release` workflow | Ensure chart version bump first |
-| Clean old container packages | `container-package-cleanup` | Run on schedule with least permissions |
+- [archive-and-upload-assets](actions/archive-and-upload-assets/README.md)
+- [assets-action](actions/assets-action/README.md)
+- [cdxgen](actions/cdxgen/README.md)
+- [chart-release](actions/chart-release/README.md)
+- [chart-release-action](actions/chart-release-action/README.md)
+- [chart-version](actions/chart-version/README.md)
+- [commit-and-push](actions/commit-and-push/README.md)
+- [container-package-cleanup](actions/container-package-cleanup/README.md)
+- [custom-event](actions/custom-event/README.md)
+- [docker-action](actions/docker-action/README.md)
+- [helm-charts-release](actions/helm-charts-release/README.md)
+- [maven-release](actions/maven-release/README.md)
+- [maven-snapshot-deploy](actions/maven-snapshot-deploy/README.md)
+- [metadata-action](actions/metadata-action/README.md)
+- [poetry-publisher](actions/poetry-publisher/README.md)
+- [pom-updater](actions/pom-updater/README.md)
+- [pr-add-messages](actions/pr-add-messages/README.md)
+- [pr-assigner](actions/pr-assigner/README.md)
+- [store-input-params](actions/store-input-params/README.md)
+- [tag-action](actions/tag-action/README.md)
+- [tag-checker](actions/tag-checker/README.md)
+- [verify-json](actions/verify-json/README.md)
 
 ---
-## 🗺 Deprecated Map
-| Legacy | Replacement | Notes |
-|--------|-------------|-------|
-| docker-publish (workflow) | docker-action | Unified build+push |
-| tag-creator (workflow) | tag-action | Consolidated tagging logic |
-| tag-checker | tag-action | Checker integrated |
-| commit-and-push | native git steps | Simpler & transparent |
-| pom-updater | metadata-action + build | More generic metadata source |
+
+## 🔄 Reusable Workflows
+
+Preconfigured workflow templates you can import into your projects:
+
+- [broadcast-files](docs/reusable/broadcast-files.md)
+- [docker-publish](docs/reusable/docker-publish.md)
+- [github-release](docs/reusable/github-release.md)
+- [maven-publish](docs/reusable/maven-publish.md)
+- [pom-updater](docs/reusable/pom-updater.md)
+- [python-publish](docs/reusable/python-publish.md)
+- [release-drafter](docs/reusable/release-drafter.md)
+- [tag-creator](docs/reusable/tag-creator.md)
 
 ---
-## 🔐 Security & Permissions Snapshot
-Follow least privilege: start with `permissions: { contents: read }` and elevate only per job needing write (tag, release, package publish). Prefer OIDC (`id-token: write`) over long‑lived secrets for cloud auth.
+
+## 📚 Additional Documentation
+
+- [Workflow and Action Documentation](docs/README.md)
+- [Fork Sequence Guide](docs/fork-sequence.md)
+- [Maven POM Preparation](docs/maven-publish-pom-preparation_doc.md)
+- [Maven Publish Secrets](docs/maven-publish-secrets_doc.md)
+- [Contributor License Agreement (CLA)](CLA/cla.md)
 
 ---
-## 🧭 Maintenance Cadence
-| Task | Cadence | Owner (TBD) |
-|------|---------|-------------|
-| Validate internal/relative links | Monthly | |
-| Review deprecated list & sunset plan | Each release cycle | |
-| Sync new actions into index | On merge | |
-| Audit permission scopes | Quarterly | |
-| Refresh guides for ecosystem changes | Quarterly | |
+
+## 🤝 Contributing
+
+We welcome contributions from the community! To contribute:
+
+1. Review and sign the [CLA](CLA/cla.md).
+2. Check the [CODEOWNERS](CODEOWNERS) file for areas of responsibility.
+3. Open an issue to discuss your changes.
+4. Submit a pull request with tests and documentation updates.
 
 ---
-## 🤝 Contribution Notes
-Action READMEs are canonical. Keep this hub DRY: link instead of duplicating long explanations. Small, incremental PRs preferred. If adding a breaking change, coordinate a major tag update and clearly annotate the old tag.
 
----
-Happy automating. Ship confidently. 🚀
+## 📄 License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
