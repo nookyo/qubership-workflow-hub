@@ -2,7 +2,37 @@
 
 Goal: make usage of actions and reusable workflows predictable, secure, and easy to audit.
 
-Use this page when: designing a new action/workflow, reviewing a PR, or integrating an existing component.
+What are "conventions" here? They are shared rules and agreed best practices that every action and reusable workflow in this hub MUST or SHOULD follow so that code stays consistent and easy to maintain.
+
+Normative keywords legend:
+| Keyword | Strength | Meaning |
+|---------|----------|---------|
+| MUST | Mandatory | Required for correctness / security |
+| SHOULD | Strongly recommended | Deviation only with documented rationale |
+| MAY | Optional | Use if it helps your scenario |
+
+Bug / issue reporting: This document ALSO tells you exactly how to file bugs and request enhancements (see Section 12: Support / Issue Reporting). Always check here first before opening an issue.
+
+Use this page when: designing a new action/workflow, reviewing a PR, preparing a release, or filing a bug.
+
+---
+## Table of Contents
+- [Action \& Workflow Conventions](#action--workflow-conventions)
+  - [Table of Contents](#table-of-contents)
+  - [1. Quick Reference](#1-quick-reference)
+  - [2. Common Inputs (Standard Names)](#2-common-inputs-standard-names)
+  - [3. Version Pinning](#3-version-pinning)
+  - [4. Patterns \& Wildcards](#4-patterns--wildcards)
+  - [5. Outputs](#5-outputs)
+  - [6. Security \& Permissions](#6-security--permissions)
+  - [7. Step Summaries](#7-step-summaries)
+  - [8. Deprecation Policy](#8-deprecation-policy)
+  - [9. Caching \& Performance](#9-caching--performance)
+  - [10. Reproducibility Checklist](#10-reproducibility-checklist)
+  - [11. Creating a New Action (Micro Checklist)](#11-creating-a-new-action-micro-checklist)
+  - [12. Support / Issue Reporting (How to File Bugs)](#12-support--issue-reporting-how-to-file-bugs)
+  - [13. Quick Review Checklist (PR Gate)](#13-quick-review-checklist-pr-gate)
+
 
 ---
 ## 1. Quick Reference
@@ -142,13 +172,22 @@ Caching is opt‑in per consumer repo. Rationale: keep hub components generic. A
 8. Update indexes / deprecation map if relevant.
 
 ---
-## 12. Support / Issue Reporting
-Provide in an issue:
+## 12. Support / Issue Reporting (How to File Bugs)
+When opening a bug or feature request, include:
 * Action/workflow name + version (tag or SHA)
 * Workflow excerpt (minimal reproducible snippet)
 * Observed vs expected behaviour
 * Relevant log lines (redact secrets)
 * Environment specifics (runner OS, matrix values)
+
+Bug triage process (internal):
+1. Reproduce with provided snippet (MUST be reproducible or request more info).
+2. Label with `bug`, `enhancement`, or `question`.
+3. Link related deprecation / security items if relevant.
+4. Decide fix scope & milestone.
+5. Close with clear resolution note (fixed / wontfix / invalid / duplicate).
+
+If security-sensitive, DO NOT open a public issue—follow the private disclosure channel (see repository security policy if present) or contact maintainers directly.
 
 ---
 ## 13. Quick Review Checklist (PR Gate)
