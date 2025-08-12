@@ -10,12 +10,12 @@ This **Create GitHub Release** GitHub Workflow automates creating and tagging re
 
 ## 📌 Inputs
 
-| Name          | Description                              | Required | Default |
-| ------------- | ---------------------------------------- | -------- | ------- |
-| `revision`    | The version of the release               | Yes      | None    |
-| `draft`       | Whether the release is a draft           | No       | `false` |
-| `prerelease`  | Whether the release is a pre-release     | No       | `false` |
-| `release_info`| Additional information for the release   | No       | None    |
+| Name           | Description                            | Required | Default |
+| -------------- | -------------------------------------- | -------- | ------- |
+| `revision`     | The version of the release             | Yes      | None    |
+| `draft`        | Whether the release is a draft         | No       | `false` |
+| `prerelease`   | Whether the release is a pre-release   | No       | `false` |
+| `release_info` | Additional information for the release | No       | None    |
 
 ## Usage Example
 
@@ -42,3 +42,4 @@ jobs:
       release_info: "Initial release"
     secrets:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
