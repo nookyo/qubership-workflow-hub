@@ -29,6 +29,7 @@ Qubership Workflow Hub provides:
 ## 🚀 Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/nookyo/qubership-workflow-hub.git
    cd qubership-workflow-hub
@@ -40,6 +41,7 @@ Qubership Workflow Hub provides:
 
 3. **Use an Action**
    Reference an action in your own workflow YAML:
+
    ```yaml
    jobs:
      tag:
