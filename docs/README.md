@@ -17,12 +17,14 @@ Out of scope: organisation‑specific business logic or per‑project build scri
 Minimal tagging example:
 ```yaml
 steps:
-	- uses: actions/checkout@v4
-	- id: meta
-		uses: nookyo/qubership-workflow-hub/actions/metadata-action@v1
-	- uses: nookyo/qubership-workflow-hub/actions/tag-action@v1
-		with:
-			tag-name: "v${{ steps.meta.outputs.version }}"
+  - uses: actions/checkout@v4
+
+  - id: meta
+    uses: nookyo/qubership-workflow-hub/actions/metadata-action@v1
+
+  - uses: nookyo/qubership-workflow-hub/actions/tag-action@v1
+    with:
+      tag-name: "v${{ steps.meta.outputs.version }}"
 ```
 
 ---
