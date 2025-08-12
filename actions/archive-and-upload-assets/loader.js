@@ -1,9 +1,7 @@
 const path = require("path");
-const Ajv = require('ajv');
-const yaml = require('js-yaml');
+const Ajv = require("ajv");
+const yaml = require("js-yaml");
 
-class Loader{
-
-}
+class Loader {}
 
 module.exports = Loader;
