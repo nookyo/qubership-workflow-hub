@@ -64,9 +64,9 @@ Expose only stable, necessary data. Naming guidelines:
 Access pattern:
 ```yaml
 steps:
-	- id: meta
-		uses: repo/metadata-action@v1
-	- run: echo "Version=${{ steps.meta.outputs.version }}"
+    - id: meta
+      uses: repo/metadata-action@v1
+    - run: echo "Version=${{ steps.meta.outputs.version }}"
 ```
 
 ---
@@ -79,13 +79,13 @@ Principles:
 Baseline snippet:
 ```yaml
 permissions:
-	contents: read
+    contents: read
 ```
 Elevate only where needed:
 ```yaml
 permissions:
-	contents: write   # e.g. tag/release job
-	packages: write   # publishing artifacts
+    contents: write   # e.g. tag/release job
+    packages: write   # publishing artifacts
 ```
 Never echo secrets. Use `${{ secrets.NAME }}` only in environment or inputs. Avoid logging transformed secrets (hashes can still leak patterns).
 
