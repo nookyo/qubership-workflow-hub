@@ -29,6 +29,7 @@ Qubership Workflow Hub provides:
 ## 🚀 Getting Started
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/nookyo/qubership-workflow-hub.git
    cd qubership-workflow-hub
@@ -40,6 +41,7 @@ Qubership Workflow Hub provides:
 
 3. **Use an Action**
    Reference an action in your own workflow YAML:
+
    ```yaml
    jobs:
      tag:
@@ -64,11 +66,13 @@ Qubership Workflow Hub provides:
    ```
    > **Note:** Consult the individual workflow docs for specific input parameters and examples.
 
-  Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
+Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
 
-  ---
-  ## 📘 Conventions
-  Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
+---
+
+## 📘 Conventions
+
+Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
 
 ---
 
