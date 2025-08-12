@@ -58,7 +58,7 @@ Version pinning:
 Permissions baseline:
 ```yaml
 permissions:
-	contents: read
+    contents: read
 # elevate to contents: write only when creating tags/releases
 ```
 
