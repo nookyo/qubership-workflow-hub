@@ -1,10 +1,15 @@
 # Action & Workflow Conventions
 
-Rules for naming, version pinning, permissions, deprecation and bug reporting.
+Description: This document defines the mandatory (MUST) and recommended (SHOULD) conventions for creating, updating, reviewing and deprecating GitHub Actions and reusable workflows in this repository. It standardises naming (inputs/outputs), version pinning, permission model, security expectations, deprecation lifecycle, release/readiness checklists, and the required structure of bug / feature reports.
+
+Use when you: (a) add or modify an action/workflow, (b) review a PR, (c) investigate or file an issue, (d) audit security / reproducibility.
+
+In scope: inputs & outputs style, version pinning strategy, minimal permissions, deprecation stages, checklists, issue template.
+Out of scope: organization-wide security disclosure details (see Security Policy), project-specific business logic.
 
 Legend: MUST = required, SHOULD = recommended, MAY = optional.
 
-Bug template: section 9 (always include action version + minimal workflow snippet).
+Bug template location: Section 9 (always include action version + minimal workflow snippet).
 
 ---
 ## Table of Contents
