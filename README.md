@@ -14,7 +14,7 @@ Core principles: deterministic (pin @v1 or SHA), least privilege (start with `co
 
 Use an Action for one operation (tag, compute metadata, cleanup). Use a Reusable Workflow for multi‑job pipelines (build + test + publish). Combine both freely.
 
-Version & security: pin versions, avoid `@main`, run dry‑run first where supported, elevate permissions only where needed.
+Version & security: pin versions, avoid `@main`, run dry‑run first where supported, elevate permissions only where needed. For credential handling & tokens see [Secrets & Variables](docs/secrets-and-vars.md).
 
 ---
 
@@ -80,7 +80,7 @@ Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequ
 
 ## 🔄 Catalog: Actions & Reusable Workflows
 
-Full, always up-to-date list (active + deprecated) with short descriptions moved to a dedicated page: [Actions & Workflows Catalog](docs/actions-workflows-catalog.md).
+Full, always up-to-date list (active + deprecated) with short descriptions moved to a dedicated page: [Actions & Workflows Catalog](docs/actions-workflows-catalog.md). For a lighter curated view use the [Navigation Index](docs/navigation.md).
 
 Quick starts:
 * Need a specific capability? Open the catalog and search in-page.
