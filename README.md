@@ -2,15 +2,6 @@
 
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
-
-## Report a bug, request a feature
-
-> **Need to report a bug, request a feature, or file a maintenance task?** Use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (bug / feature / task templates).
->
-> **Opening a Pull Request?** Follow the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> (title format, required fields, labels, review flow).
-
----
-
 ## 🔍 Overview
 Centralises common CI/CD tasks (tagging, version / metadata generation, artifact & package publishing, Helm chart release, cleanup, custom events) to avoid per‑repo scripts and drift.
 
@@ -26,6 +17,14 @@ Use an Action for one operation (tag, compute metadata, cleanup). Use a Reusable
 Version & security: pin versions, avoid `@main`, run dry‑run first where supported, elevate permissions only where needed.
 
 To extend: add action folder + README, update index, tag `v1`, adjust conventions if introducing a new pattern.
+
+---
+
+## Report a bug, request a feature
+
+> **Need to report a bug, request a feature, or file a maintenance task?** Use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (bug / feature / task templates).
+>
+> **Opening a Pull Request?** Follow the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> (title format, required fields, labels, review flow).
 
 ---
 
