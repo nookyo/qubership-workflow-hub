@@ -2,6 +2,33 @@
 
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
+## 🔗 Quick Navigation
+Internal anchors:
+- [Qubership Workflow Hub](#qubership-workflow-hub)
+  - [🔗 Quick Navigation](#-quick-navigation)
+  - [🔍 Overview](#-overview)
+  - [📄 Report a Bug, Task or Request a Feature](#-report-a-bug-task-or-request-a-feature)
+  - [🚀 Getting Started](#-getting-started)
+  - [📘 Conventions](#-conventions)
+    - [Available Actions](#available-actions)
+    - [Deprecated](#deprecated)
+  - [🔄 Available Reusable Workflows](#-available-reusable-workflows)
+    - [Active](#active)
+    - [Deprecated](#deprecated-1)
+  - [🤝 Contributing](#-contributing)
+  - [📄 License](#-license)
+
+Key documents:
+- Getting Started: [docs/getting-started.md](docs/getting-started.md)
+- Action and Workflows: [docs/navigation.md/](docs/navigation.md)
+- Conventions: [docs/conventions.md](docs/conventions.md)
+- Issue Guidelines: [docs/issue-guidelines.md](docs/issue-guidelines.md)
+- PR Conduct: [docs/code-of-conduct-prs.md](docs/code-of-conduct-prs.md)
+- Secrets & Variables: [docs/secrets-and-vars.md](docs/secrets-and-vars.md)
+- CLA: [CLA/cla.md](CLA/cla.md)
+
+---
+
 ## 🔍 Overview
 Centralises common CI/CD tasks (tagging, version / metadata generation, artifact & package publishing, Helm chart release, cleanup, custom events) to avoid per‑repo scripts and drift.
 
@@ -142,4 +169,4 @@ We welcome contributions from the community! To contribute:
 
 ## 📄 License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+This project is licensed under the [Apache License 2.0](LICENSE)
