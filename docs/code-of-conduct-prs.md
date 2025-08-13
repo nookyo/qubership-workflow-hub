@@ -33,7 +33,7 @@ Title MUST follow Conventional Commits: `<type>(optional-scope): short imperativ
 Recommended branch naming: `<issue>-<short-kebab-summary>` (example from PR #293: `292-action-container-package-cleanup-remove-all-unnecessary-untagged-or-sha256-layers-versions`). Keep under ~72 chars where possible.
 
 Short template you can paste:
-```
+```md
 ### Summary
 <what changed and why>
 
@@ -57,14 +57,12 @@ No (or Yes + migration notes)
 
 ### Additional Notes
 <any risk, follow-up, rollout>
+```
 
 ### 2.1 PR Title Requirements
-Your PR title is REQUIRED to follow Conventional Commit style:
+Your PR title is REQUIRED to follow Conventional Commit style.
 
-Format:
-
-<type>(optional-scope): <short imperative description>
-```
+Format: `<type>(optional-scope): <short imperative description>`
 
 Allowed `<type>` values:
 | Type | Use For |
@@ -89,7 +87,7 @@ Rules:
 5. Avoid issue numbers in title (they belong in body via `Fixes #123`).
 
 Examples (GOOD):
-```
+```text
 feat(metadata-action): add dry-run input
 fix(container-package-cleanup): handle 403 errors from API
 docs: clarify version pinning section
@@ -98,7 +96,7 @@ refactor(tag-action): extract version parser
 ```
 
 Examples (BAD + reason):
-```
+```text
 Feature: Added new stuff            # Not lowercase type, vague
 feat: Fix bug with tags             # Description not imperative ("Fix"/imperative ok but context vague)
 fix(metadata-action): fixed issue   # Past tense
@@ -107,7 +105,6 @@ docs: update README.                # Trailing period
 ```
 
 If the scope is broad (touches many areas) omit scope rather than stacking multiple scopes.
-```
 
 ---
 ## 3. Labels
