@@ -57,6 +57,56 @@ No (or Yes + migration notes)
 
 ### Additional Notes
 <any risk, follow-up, rollout>
+
+### 2.1 PR Title Requirements
+Your PR title is REQUIRED to follow Conventional Commit style:
+
+Format:
+```
+<type>(optional-scope): <short imperative description>
+```
+
+Allowed `<type>` values:
+| Type | Use For |
+|------|---------|
+| feat | New feature / capability |
+| fix | Bug fix (behaviour now correct) |
+| docs | Documentation-only changes |
+| refactor | Internal code change without behaviour change |
+| perf | Performance improvement |
+| test | Add / adjust tests only |
+| ci | Workflow / pipeline changes |
+| build | Build system or dependencies |
+| chore | Maintenance (no prod behaviour impact) |
+| revert | Revert a previous commit |
+| deprecate | Mark functionality as deprecated |
+
+Rules:
+1. Exactly one type (no stacking like `feat fix:`).
+2. Scope optional; if used, lowercase kebab-case (e.g. `metadata-action`).
+3. Description: imperative mood, lowercase first letter (unless proper noun), no trailing period.
+4. Keep total length ≤ 72 characters where feasible.
+5. Avoid issue numbers in title (they belong in body via `Fixes #123`).
+
+Examples (GOOD):
+```
+feat(metadata-action): add dry-run input
+fix(container-package-cleanup): handle 403 errors from API
+docs: clarify version pinning section
+ci: parallelize sbom and test jobs
+refactor(tag-action): extract version parser
+```
+
+Examples (BAD + reason):
+```
+Feature: Added new stuff            # Not lowercase type, vague
+feat: Fix bug with tags             # Description not imperative ("Fix"/imperative ok but context vague)
+fix(metadata-action): fixed issue   # Past tense
+feat+fix: add and repair things     # Multiple types
+docs: update README.                # Trailing period
+```
+
+If the scope is broad (touches many areas) omit scope rather than stacking multiple scopes.
 ```
 
 ---
