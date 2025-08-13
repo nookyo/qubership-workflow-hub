@@ -3,7 +3,7 @@
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
 
-## Repoerting
+## Report a bug, request a feature
 
 > **Need to report a bug, request a feature, or file a maintenance task?** Use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (bug / feature / task templates).
 >
