@@ -128,6 +128,8 @@ We welcome contributions from the community! To contribute:
 3. Open an issue to discuss your changes.
 4. Submit a pull request with tests and documentation updates.
 
+> IMPORTANT: Before opening an issue or pull request you MUST read the [Contribution & PR Conduct](docs/code-of-conduct-prs.md). It defines required PR fields (Project/Area, linked Issue, labels) and the correct way to format and link issues.
+
 ---
 
 ## 📄 License
