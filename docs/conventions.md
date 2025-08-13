@@ -12,25 +12,6 @@ Legend: MUST = required, SHOULD = recommended, MAY = optional.
 Bug template location: Section 9 (always include action version + minimal workflow snippet).
 
 ---
-## Table of Contents
-- [Action \& Workflow Conventions](#action--workflow-conventions)
-  - [Table of Contents](#table-of-contents)
-  - [1. Quick Rules](#1-quick-rules)
-  - [2. Standard Inputs](#2-standard-inputs)
-  - [3. Version Pinning](#3-version-pinning)
-  - [4. Outputs](#4-outputs)
-  - [5. Security](#5-security)
-  - [6. Deprecation](#6-deprecation)
-  - [7. New Action Checklist](#7-new-action-checklist)
-  - [8. PR Review Checklist](#8-pr-review-checklist)
-  - [9. Bug / Issue Reporting](#9-bug--issue-reporting)
-    - [Expected](#expected)
-    - [Actual](#actual)
-    - [Logs](#logs)
-    - [Env](#env)
-
-
----
 ## 1. Quick Rules
 | Area | MUST / SHOULD |
 |------|---------------|
