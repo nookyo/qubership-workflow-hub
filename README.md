@@ -23,7 +23,7 @@ Priority order (read top → bottom when starting / contributing):
 
 | # | Read When | Purpose | Document |
 |---|-----------|---------|----------|
-| 1 | BEFORE opening any issue | Defines bug / feature / task templates | [Issue Guidelines](docs/issue-guidelines.md) |
+| 1 | BEFORE opening any Issue/Feature | Defines bug / feature / task templates | [Issue Guidelines](docs/issue-guidelines.md) |
 | 2 | BEFORE opening a PR | Required PR fields, title rules, labels | [PR Conduct](docs/code-of-conduct-prs.md) |
 | 3 | BEFORE forking / starting code changes | Fork & sync workflow (keeping your fork current) | [Fork Sequence Guide](docs/fork-sequence.md) |
 | 4 | BEFORE changing actions/workflows | Naming, version pinning, permissions, deprecation | [Standards & Change Policy](docs/standards-and-change-policy.md) |
