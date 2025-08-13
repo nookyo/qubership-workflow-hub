@@ -18,6 +18,10 @@ Version & security: pin versions, avoid `@main`, run dry‑run first where suppo
 
 To extend: add action folder + README, update index, tag `v1`, adjust conventions if introducing a new pattern.
 
+> **Need to report a bug, request a feature, or file a maintenance task?** Use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (bug / feature / task templates).
+>
+> **Opening a Pull Request?** Follow the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> (title format, required fields, labels, review flow).
+
 ---
 
 ## 🚀 Getting Started
@@ -126,10 +130,10 @@ We welcome contributions from the community! To contribute:
 1. Review and sign the [CLA](CLA/cla.md).
 2. Check the [CODEOWNERS](CODEOWNERS) file for areas of responsibility.
 3. Open an issue to discuss your changes.
-  - For bugs / features follow the [Issue Guidelines](docs/issue-guidelines.md) (required fields, templates, labels).
+  - For bug / feature / task use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (required fields, templates, labels).
 4. Submit a pull request with tests and documentation updates.
 
-> IMPORTANT: Before opening an issue or pull request you MUST read the [Contribution & PR Conduct](docs/code-of-conduct-prs.md) and the [Issue Guidelines](docs/issue-guidelines.md). They define required issue / PR fields, labels, and formatting.
+> IMPORTANT: Before opening an issue or pull request you MUST read the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> and the <u>[Issue Guidelines](docs/issue-guidelines.md)</u>. They define required issue / PR fields, labels, and formatting.
 
 ---
 

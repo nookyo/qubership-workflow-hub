@@ -43,6 +43,10 @@ Key actions:
 ## Conventions
 - [Action & Workflow Conventions](conventions.md)
 
+## Contribution / Process
+- [Contribution & PR Conduct](code-of-conduct-prs.md)
+- [Issue Guidelines (Bug / Task / Feature)](issue-guidelines.md)
+
 ## Examples
 - [Release Drafter example config](examples/release-drafter-config.yml)
 
