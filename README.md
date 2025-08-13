@@ -25,13 +25,14 @@ Priority order (read top → bottom when starting / contributing):
 |---|-----------|---------|----------|
 | 1 | BEFORE opening any issue | Defines bug / feature / task templates | [Issue Guidelines](docs/issue-guidelines.md) |
 | 2 | BEFORE opening a PR | Required PR fields, title rules, labels | [PR Conduct](docs/code-of-conduct-prs.md) |
-| 3 | Before changing actions/workflows | Naming, version pinning, permissions, deprecation | [Standards & Change Policy](docs/standards-and-change-policy.md) |
-| 4 | First use of the repo | How to consume actions & workflows | [Getting Started](docs/getting-started.md) |
-| 5 | Browsing catalog | Full list of actions & reusable workflows | [Catalog: Actions & Workflows](docs/actions-workflows-catalog.md) |
-| 6 | Adding secrets / vars | Secure handling & scoping guidance | [Secrets & Variables](docs/secrets-and-vars.md) |
-| 7 | Legal prerequisite | Contributor License Agreement | [CLA](CLA/cla.md) |
+| 3 | BEFORE forking / starting code changes | Fork & sync workflow (keeping your fork current) | [Fork Sequence Guide](docs/fork-sequence.md) |
+| 4 | BEFORE changing actions/workflows | Naming, version pinning, permissions, deprecation | [Standards & Change Policy](docs/standards-and-change-policy.md) |
+| 5 | First use of the repo | How to consume actions & workflows | [Getting Started](docs/getting-started.md) |
+| 6 | Browsing catalog | Full list of actions & reusable workflows | [Catalog: Actions & Workflows](docs/actions-workflows-catalog.md) |
+| 7 | Adding secrets / vars | Secure handling & scoping guidance | [Secrets & Variables](docs/secrets-and-vars.md) |
+| 8 | Legal prerequisite | Contributor License Agreement | [CLA](CLA/cla.md) |
 
-Shortcut: if contributing code start with 1 → 2 → 3, otherwise for usage start at 4.
+Shortcut: contributing code? Read 1 → 2 → 3 → 4, otherwise for usage start at 5.
 
 ---
 
