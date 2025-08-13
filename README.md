@@ -2,33 +2,6 @@
 
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
-## 🔗 Quick Navigation
-Internal anchors:
-- [Qubership Workflow Hub](#qubership-workflow-hub)
-  - [🔗 Quick Navigation](#-quick-navigation)
-  - [🔍 Overview](#-overview)
-  - [📄 Report a Bug, Task or Request a Feature](#-report-a-bug-task-or-request-a-feature)
-  - [🚀 Getting Started](#-getting-started)
-  - [📘 Conventions](#-conventions)
-    - [Available Actions](#available-actions)
-    - [Deprecated](#deprecated)
-  - [🔄 Available Reusable Workflows](#-available-reusable-workflows)
-    - [Active](#active)
-    - [Deprecated](#deprecated-1)
-  - [🤝 Contributing](#-contributing)
-  - [📄 License](#-license)
-
-Key documents:
-- Getting Started: [docs/getting-started.md](docs/getting-started.md)
-- Action and Workflows: [docs/navigation.md/](docs/navigation.md)
-- Conventions: [docs/conventions.md](docs/conventions.md)
-- Issue Guidelines: [docs/issue-guidelines.md](docs/issue-guidelines.md)
-- PR Conduct: [docs/code-of-conduct-prs.md](docs/code-of-conduct-prs.md)
-- Secrets & Variables: [docs/secrets-and-vars.md](docs/secrets-and-vars.md)
-- CLA: [CLA/cla.md](CLA/cla.md)
-
----
-
 ## 🔍 Overview
 Centralises common CI/CD tasks (tagging, version / metadata generation, artifact & package publishing, Helm chart release, cleanup, custom events) to avoid per‑repo scripts and drift.
 
@@ -47,10 +20,20 @@ To extend: add action folder + README, update index, tag `v1`, adjust convention
 
 ---
 
-## 📄 Report a Bug, Task or Request a Feature
+## 🔑 Key Documents
+Priority order (read top → bottom when starting / contributing):
 
-- **Need to report a bug, request a feature, or file a maintenance task?** Use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (bug / feature / task templates).
-- **Opening a Pull Request?** Follow the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> (title format, required fields, labels, review flow).
+| # | Read When | Purpose | Document |
+|---|-----------|---------|----------|
+| 1 | BEFORE opening any issue | Defines bug / feature / task templates | [Issue Guidelines](docs/issue-guidelines.md) |
+| 2 | BEFORE opening a PR | Required PR fields, title rules, labels | [PR Conduct](docs/code-of-conduct-prs.md) |
+| 3 | Before changing actions/workflows | Naming, version pinning, permissions, deprecation | [Conventions](docs/conventions.md) |
+| 4 | First use of the repo | How to consume actions & workflows | [Getting Started](docs/getting-started.md) |
+| 5 | Browsing catalog | Index-style navigation of docs | [Navigation Index](docs/navigation.md) |
+| 6 | Adding secrets / vars | Secure handling & scoping guidance | [Secrets & Variables](docs/secrets-and-vars.md) |
+| 7 | Legal prerequisite | Contributor License Agreement | [CLA](CLA/cla.md) |
+
+Shortcut: if contributing code start with 1 → 2 → 3, otherwise for usage start at 4.
 
 ---
 
