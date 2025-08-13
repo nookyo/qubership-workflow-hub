@@ -11,16 +11,16 @@ This Action updates specified nodes in a Maven `pom.xml` file with a new value.
 
 ## 📌 Inputs
 
-| Name        | Description                                      | Required | Default                |
-| ----------- | ------------------------------------------------ | -------- | ---------------------- |
-| `file_path` | JSON object mapping names to file paths to update. | No       | `{"default": "pom.xml"}` |
-| `path`      | XPath expression to select nodes to update.      | No       | `//p:project/p:properties/p:revision` |
-| `new_value` | The new value to set for the selected nodes.     | Yes      | None                   |
+| Name        | Description                                        | Required | Default                               |
+| ----------- | -------------------------------------------------- | -------- | ------------------------------------- |
+| `file_path` | JSON object mapping names to file paths to update. | No       | `{"default": "pom.xml"}`              |
+| `path`      | XPath expression to select nodes to update.        | No       | `//p:project/p:properties/p:revision` |
+| `new_value` | The new value to set for the selected nodes.       | Yes      | None                                  |
 
 ## Outputs
 
-| Name          | Description                |
-| ------------- | -------------------------- |
+| Name          | Description                               |
+| ------------- | ----------------------------------------- |
 | `artifact_id` | The `artifactId` from the `pom.xml` file. |
 
 ## Usage
@@ -46,8 +46,9 @@ jobs:
         uses: netcracker/qubership-workflow-hub/actions/pom-updater@main
         with:
           file_path: '{"default": "pom.xml"}'
-          path: '//p:project/p:properties/p:revision'
-          new_value: '1.2.3'
+          path: "//p:project/p:properties/p:revision"
+          new_value: "1.2.3"
 
       - name: Output artifact ID
         run: echo "Artifact ID ${{ steps.update-pom.outputs.artifact_id }}"
+```
