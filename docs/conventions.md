@@ -12,37 +12,47 @@ Legend: MUST = required, SHOULD = recommended, MAY = optional.
 Bug template location: Section 9 (always include action version + minimal workflow snippet).
 
 ---
+
 ## 1. Quick Rules
-| Area | MUST / SHOULD |
-|------|---------------|
-| Versions | MUST use `@v1` (major) or SHA. No `@main` in prod. |
+
+| Area        | MUST / SHOULD                                                   |
+| ----------- | --------------------------------------------------------------- |
+| Versions    | MUST use `@v1` (major) or SHA. No `@main` in prod.              |
 | Permissions | MUST start minimal (`contents: read`). Elevate only where used. |
-| Inputs | SHOULD kebab-case (`dry-run`). |
-| Outputs | SHOULD short nouns (`version`). |
-| Dry run | SHOULD offer `dry-run` for destructive steps. |
-| Debug | MAY add `debug` (no secrets). |
-| Secrets | MUST never echo / partially mask. |
-| Deprecation | MUST list replacement before removal. |
+| Inputs      | SHOULD kebab-case (`dry-run`).                                  |
+| Outputs     | SHOULD short nouns (`version`).                                 |
+| Dry run     | SHOULD offer `dry-run` for destructive steps.                   |
+| Debug       | MAY add `debug` (no secrets).                                   |
+| Secrets     | MUST never echo / partially mask.                               |
+| Deprecation | MUST list replacement before removal.                           |
 
 ---
+
 ## 2. Standard Inputs
-| Input | Meaning |
-|-------|---------|
-| `dry-run` | Simulate (no writes) |
-| `debug` | Verbose logs |
-| `ref` | Override branch/tag |
-| `config-file` | External config path |
+
+| Input              | Meaning                                     |
+| ------------------ | ------------------------------------------- |
+| `dry-run`          | Simulate (no writes)                        |
+| `debug`            | Verbose logs                                |
+| `ref`              | Override branch/tag                         |
+| `config-file`      | External config path                        |
 | `version-strategy` | Version mode (`auto` / `calendar` / `file`) |
-| `force-create` | Overwrite existing tag/resource |
+| `force-create`     | Overwrite existing tag/resource             |
+
 One spelling per concept; keep legacy alias only if needed.
 
 ---
+
 ## 3. Version Pinning
+
 MUST pin to major tag or SHA. Critical flows: prefer SHA. Bad: `uses: repo/action@main`.
 
 ---
+
 ## 4. Outputs
+
 Use stable nouns only. Example:
+
 ```yaml
 steps:
   - id: meta
@@ -51,16 +61,22 @@ steps:
 ```
 
 ---
+
 ## 5. Security
+
 Baseline:
+
 ```yaml
 permissions:
   contents: read
 ```
+
 Add only what you need (e.g. `contents: write`, `packages: write`). Prefer OIDC. No secret echoing.
 
 ---
+
 ## 6. Deprecation
+
 Stages: Active → Deprecated (announce + replacement) → Sunset (deadline) → Removed.
 Current map:
 | Old | Replacement |
@@ -72,6 +88,7 @@ Current map:
 | pom-updater | metadata-action + build tooling |
 
 ## 7. New Action Checklist
+
 1. Folder + `action.yml`
 2. Minimal inputs
 3. Stable outputs
@@ -81,20 +98,23 @@ Current map:
 7. Add to index/map
 
 ## 8. PR Review Checklist
-| Item | OK? |
-|------|-----|
-| Inputs minimal + kebab-case | |
-| Outputs documented | |
-| Version pin correct | |
-| Permissions minimal | |
-| Dry-run (if destructive) | |
-| README updated | |
-| Deprecation map updated | |
+
+| Item                        | OK? |
+| --------------------------- | --- |
+| Inputs minimal + kebab-case |     |
+| Outputs documented          |     |
+| Version pin correct         |     |
+| Permissions minimal         |     |
+| Dry-run (if destructive)    |     |
+| README updated              |     |
+| Deprecation map updated     |     |
 
 ## 9. Bug / Issue Reporting
+
 Create issues at: https://github.com/nookyo/qubership-workflow-hub/issues
 
 Minimum required:
+
 1. Action / workflow name + version (tag or SHA)
 2. Minimal reproducible workflow snippet (only failing job/step)
 3. Expected vs Actual behaviour (1–2 lines each)
@@ -102,7 +122,8 @@ Minimum required:
 5. Runner environment: `ubuntu-22.04`, matrix vars (language version, etc.)
 
 Bug template (paste into issue):
-```
+
+````
 ### Summary
 <clear one-line problem>
 
@@ -112,22 +133,27 @@ Bug template (paste into issue):
 ### Minimal Snippet
 ```yaml
 <workflow excerpt>
-```
+````
 
 ### Expected
+
 <what you wanted>
 
 ### Actual
+
 <what happened>
 
 ### Logs
+
 ```
 <key lines>
 ```
 
 ### Env
+
 Runner: ubuntu-22.04
 Matrix: <if any>
+
 ```
 
 Feature request: describe the use case first (problem > why existing actions insufficient > proposed behaviour). Avoid “add flag X” without context.
@@ -135,3 +161,4 @@ Security / sensitive: do NOT disclose publicly. Use the private disclosure chann
 Triage (internal): label (bug/enhancement/question) → reproduce → assign → milestone → close with resolution.
 Response targets (not guaranteed): bug acknowledgement <= 2 business days; critical security ASAP.
 
+```
