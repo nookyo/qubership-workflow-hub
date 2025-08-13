@@ -82,7 +82,7 @@ Full extended guide: see [Detailed Getting Started](docs/getting-started.md) for
 
 ---
 
-### Available Actions
+## 🔄 Available Actions
 | Action | Description |
 |--------|-------------|
 | [archive-and-upload-assets](actions/archive-and-upload-assets/README.md) | Archive build output and optionally upload as release assets |

@@ -135,27 +135,7 @@ Current map:
 | commit-and-push | inline git steps |
 | pom-updater | metadata-action + build tooling |
 
-## 9. New Action Checklist
-1. Folder + `action.yml`
-2. Minimal inputs
-3. Stable outputs
-4. README (purpose/inputs/outputs/example)
-5. Smoke workflow
-6. Tag `v1`
-7. Add to index/map
-
-## 10. PR Review Checklist
-| Item | OK? |
-|------|-----|
-| Inputs minimal + kebab-case | |
-| Outputs documented | |
-| Version pin correct | |
-| Permissions minimal | |
-| Dry-run (if destructive) | |
-| README updated | |
-| Deprecation map updated | |
-
-## 11. Issue Reporting (Pointer)
+## 9. Issue Reporting (Pointer)
 Full templates & acceptance bar: see `docs/issue-guidelines.md`.
 
 Essentials you MUST include for a bug (summary only—do not duplicate template here):
