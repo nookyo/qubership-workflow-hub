@@ -15,6 +15,8 @@ Organization-level secrets and variables referenced across actions and reusable 
 | `secrets.WORKFLOWS_TOKEN` | Classic PAT including `workflow` scope (needed to trigger/modify workflows or dispatch across repos). |
 | `secrets.SONAR_TOKEN` | Token to authenticate with SonarQube / SonarCloud for code quality analysis. |
 | `secrets.GH_RWD_PACKAGE_TOKEN` | PAT with read / write / delete permissions for GitHub Packages (publishing & cleanup). |
+| `secrets.DOCKERHUB_USER`||
+| `secrets.DOCKERHUB_RW_TOKEN`||
 
 ## Usage Guidelines
 - Prefer `GITHUB_TOKEN` when sufficient; use PATs only if extra scopes (workflow dispatch, cross-repo access, delete package) are required.

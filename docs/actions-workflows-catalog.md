@@ -59,7 +59,11 @@ Deprecation & evolution rules are defined in [Standards & Change Policy](standar
 |----------|--------------------|
 | [docker-publish](reusable/docker-publish.md) | Use docker-action (action) + custom workflow |
 | [pom-updater](reusable/pom-updater.md) | Superseded by metadata-action + build tooling |
-| [tag-creator](reusable/tag-creator.md) | Use tag-action directly |
+| [maven-central-snapshot-deploy](reusable/maven-central-snapshot-deploy-reusable.md) | |
+| [maven-publish.yml](reusable/maven-publish.md) ||
+| [prettier.yaml & prettierFix.yam]() ||
+| [re-maven-snapshot-deploy.yaml]() ||
+
 
 ---
 
