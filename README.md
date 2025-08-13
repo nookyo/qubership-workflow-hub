@@ -82,16 +82,9 @@ Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequ
 
 Full, always up-to-date list (active + deprecated) with short descriptions moved to a dedicated page: [Actions & Workflows Catalog](docs/actions-workflows-catalog.md).
 
-Why a separate catalog?
-* Keeps this README lean and focused on onboarding & contribution.
-* Single source of truth prevents table drift across files.
-* Clear separation: README = how/why; Catalog = what is available.
-
 Quick starts:
 * Need a specific capability? Open the catalog and search in-page.
 * Unsure if something is deprecated? The catalog groups deprecated items separately with replacements.
-
-For a lighter high-level index, see also the [Navigation Index](docs/navigation.md).
 
 ---
 
