@@ -3,18 +3,22 @@
 This page defines how to open a high‑quality Pull Request (PR) for this repository. Follow it to keep reviews fast, traceable and consistent.
 
 ---
+
 ## 1. PR Preconditions Checklist
+
 Before opening a PR you MUST ensure:
 | Check | Status |
 |-------|--------|
-| Related issue exists (not just an idea) |  |
-| Local lint/tests (if applicable) pass |  |
-| Docs updated (README / conventions / examples) |  |
-| Deprecation map updated (if removing/replacing) |  |
-| Version bump strategy considered (if behavior change) |  |
+| Related issue exists (not just an idea) | |
+| Local lint/tests (if applicable) pass | |
+| Docs updated (README / conventions / examples) | |
+| Deprecation map updated (if removing/replacing) | |
+| Version bump strategy considered (if behavior change) | |
 
 ---
+
 ## 2. Mandatory PR Fields
+
 Provide or verify the following in the PR description:
 | Field | MUST Have | Example |
 |-------|-----------|---------|
@@ -27,6 +31,7 @@ Provide or verify the following in the PR description:
 | Test Evidence | Link / short output / screenshot if relevant | `Logs attached` |
 
 Short template you can paste:
+
 ```
 ### Summary
 <what changed and why>
@@ -54,7 +59,9 @@ No (or Yes + migration notes)
 ```
 
 ---
+
 ## 3. Labels
+
 When a PR comes from a fork, automation may NOT apply labels. You MUST manually add labels in the GitHub UI after opening the PR.
 
 Recommended label categories:
@@ -68,8 +75,11 @@ Recommended label categories:
 Minimal required: one Type label. Add more if they add clarity.
 
 ---
+
 ## 4. Issue Linking Rules
+
 MUST link an issue unless the change is trivial (typo / formatting). Use GitHub keywords to auto-close when merged:
+
 - `Fixes #123` (will close)
 - `Closes #123`
 - `Related to #456` (won't close)
@@ -77,8 +87,11 @@ MUST link an issue unless the change is trivial (typo / formatting). Use GitHub 
 If no issue exists: open one first with context & acceptance criteria.
 
 ---
+
 ## 5. Project / Component Identification
+
 State clearly which part you touch:
+
 - Action: `actions/<name>`
 - Workflow: `reusable/<workflow-id>` or path
 - Docs: `docs/<path>`
@@ -87,17 +100,21 @@ State clearly which part you touch:
 If multiple areas: list each so reviewers can redirect to proper owners.
 
 ---
+
 ## 6. Quality Expectations
-| Aspect | Minimum |
-|--------|---------|
-| Style | Follow existing patterns; no broad reformatting |
-| Security | No new secrets; least privileges maintained |
-| Backwards compatibility | Avoid breaking unless justified + documented |
-| Logs | No sensitive info; debug behind flags |
-| Tests (if applicable) | Cover new logic or explain absence |
+
+| Aspect                  | Minimum                                         |
+| ----------------------- | ----------------------------------------------- |
+| Style                   | Follow existing patterns; no broad reformatting |
+| Security                | No new secrets; least privileges maintained     |
+| Backwards compatibility | Avoid breaking unless justified + documented    |
+| Logs                    | No sensitive info; debug behind flags           |
+| Tests (if applicable)   | Cover new logic or explain absence              |
 
 ---
+
 ## 7. Review Flow
+
 1. Open draft PR early if large.
 2. Ensure description template filled BEFORE requesting review.
 3. Add/confirm labels (fork PRs especially).
@@ -107,18 +124,23 @@ If multiple areas: list each so reviewers can redirect to proper owners.
 7. Ensure green checks before merge.
 
 ---
+
 ## 8. Do & Don't (Quick Reference)
-| Do | Don't |
-|----|-------|
-| Link an issue | Open PR with no context |
-| Keep PR focused | Mix unrelated refactors |
+
+| Do                                   | Don't                                |
+| ------------------------------------ | ------------------------------------ |
+| Link an issue                        | Open PR with no context              |
+| Keep PR focused                      | Mix unrelated refactors              |
 | Provide minimal reproducible example | Paste full raw logs without trimming |
-| Add docs for new inputs/outputs | Leave README outdated |
-| Mark breaking changes clearly | Hide silent behavior change |
+| Add docs for new inputs/outputs      | Leave README outdated                |
+| Mark breaking changes clearly        | Hide silent behavior change          |
 
 ---
+
 ## 9. Example Good PR Description
+
 Real closed example: https://github.com/Netcracker/qubership-workflow-hub/pull/293
+
 ```
 ### Summary
 Add 'dry-run' input to metadata-action to allow safe preview of computed tags.
@@ -146,26 +168,32 @@ Follow-up: add same flag to docker-action for symmetry.
 ```
 
 ---
+
 ## 10. Common Rejection Reasons
-| Reason | Fix |
-|--------|-----|
-| No linked issue | Create issue, update PR description |
-| Missing labels | Add at least a Type label |
-| Description empty sections | Fill or remove unused headers |
-| Undocumented new input/output | Update README and conventions |
-| Behavior change w/o migration notes | Add Breaking Change section |
+
+| Reason                              | Fix                                 |
+| ----------------------------------- | ----------------------------------- |
+| No linked issue                     | Create issue, update PR description |
+| Missing labels                      | Add at least a Type label           |
+| Description empty sections          | Fill or remove unused headers       |
+| Undocumented new input/output       | Update README and conventions       |
+| Behavior change w/o migration notes | Add Breaking Change section         |
 
 ---
+
 ## 11. After Merge
-| Action | When |
-|--------|------|
-| Close related issues (auto if Fixes used) | Immediately |
-| Update release notes / changelog | On merge of feature / fix |
-| Tag new version (if action changed) | After merge & validation |
-| Communicate deprecation (if applicable) | Before tag / release |
+
+| Action                                    | When                      |
+| ----------------------------------------- | ------------------------- |
+| Close related issues (auto if Fixes used) | Immediately               |
+| Update release notes / changelog          | On merge of feature / fix |
+| Tag new version (if action changed)       | After merge & validation  |
+| Communicate deprecation (if applicable)   | Before tag / release      |
 
 ---
+
 ## 12. Support
+
 Questions about this process: open an issue with label `type:docs` or ask maintainers directly.
 
 Consistent PR hygiene keeps review cycles short and quality high.
