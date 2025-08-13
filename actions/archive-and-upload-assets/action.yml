@@ -14,11 +14,11 @@ inputs:
     required: false
     default: "dist"
   upload:
-    default: 'false'
+    default: "false"
     description: "DEPRIVCATED. Upload assets to a repository."
     required: false
   dry-run:
-    default: 'false'
+    default: "false"
     description: "Dry run mode. No files will upload to assets."
     required: false
   files:
