@@ -2,6 +2,8 @@
 
 A comprehensive collection of reusable GitHub Actions and Workflows, designed to streamline your CI/CD pipelines and development processes.
 
+## Repoerting
+
 > **Need to report a bug, request a feature, or file a maintenance task?** Use the <u>[Issue Guidelines](docs/issue-guidelines.md)</u> (bug / feature / task templates).
 >
 > **Opening a Pull Request?** Follow the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> (title format, required fields, labels, review flow).
