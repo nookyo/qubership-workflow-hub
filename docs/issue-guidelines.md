@@ -1,4 +1,4 @@
-# Issue Guidelines (Bug & Feature Requests)
+# Issue Guidelines (Bug, Task & Feature Requests)
 
 Purpose: ensure every issue is actionable, unambiguous, and reviewable before any PR starts.
 
