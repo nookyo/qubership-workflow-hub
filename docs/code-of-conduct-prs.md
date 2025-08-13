@@ -69,6 +69,7 @@ Rule: pick ONE primary; do not mix feature + enhancement. Behaviour change ≠ r
 Always link an issue (except trivial typo). Use auto-close keywords:
 `Fixes #123` / `Closes #123`; use `Related to #456` for non-closing references.
 No issue? Create it first with context + acceptance criteria.
+For detailed guidelines on creating issues, see `docs/issue-guidelines.md`.
 
 ---
 ## 5. Quality & Review
