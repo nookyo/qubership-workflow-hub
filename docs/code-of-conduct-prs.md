@@ -5,6 +5,7 @@ This page defines how to open a high‑quality Pull Request (PR) for this reposi
 ---
 ## 1. PR Preconditions Checklist
 Before opening a PR you MUST ensure:
+ 
 | Check | Status |
 |-------|--------|
 | Related issue exists (not just an idea) |  |
@@ -17,6 +18,7 @@ Before opening a PR you MUST ensure:
 ---
 ## 2. Mandatory PR Fields
 Provide or verify the following in the PR description:
+ 
 | Field | MUST Have | Example |
 |-------|-----------|---------|
 | Title | Conventional commit style | `feat: implement deletePackageVersion utility` |
@@ -65,6 +67,7 @@ Your PR title is REQUIRED to follow Conventional Commit style.
 Format: `<type>(optional-scope): <short imperative description>`
 
 Allowed `<type>` values:
+ 
 | Type | Use For |
 |------|---------|
 | feat | New feature / capability |
@@ -111,6 +114,7 @@ If the scope is broad (touches many areas) omit scope rather than stacking multi
 When a PR comes from a fork, automation may NOT apply labels. You MUST manually add labels in the GitHub UI after opening the PR.
 
 Recommended label categories:
+ 
 | Category | Examples |
 |----------|----------|
 | Type | `type:feature`, `type:bug`, `type:docs`, `type:refactor` |
@@ -145,6 +149,7 @@ Disambiguation:
 - A `refactor` with a behaviour change is not a refactor: classify as `feat` or `fix`.
 
 Minimum label bundle examples:
+ 
 | Scenario | Suggested Labels |
 |----------|------------------|
 | New action added | `feature`, `scope:actions` |
@@ -210,6 +215,7 @@ Automated checks: All required GitHub Actions / CI jobs MUST be green. Example (
 ---
 ## 9. Example Good PR Description
 Real closed example (follows title, issue link, labels, green checks): https://github.com/Netcracker/qubership-workflow-hub/pull/293
+ 
 ```
 ### Summary
 Add 'dry-run' input to metadata-action to allow safe preview of computed tags.
