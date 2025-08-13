@@ -9,7 +9,7 @@ A comprehensive collection of reusable GitHub Actions and Workflows, designed to
 >
 > **Opening a Pull Request?** Follow the <u>[Contribution & PR Conduct](docs/code-of-conduct-prs.md)</u> (title format, required fields, labels, review flow).
 
-
+---
 
 ## 🔍 Overview
 Centralises common CI/CD tasks (tagging, version / metadata generation, artifact & package publishing, Helm chart release, cleanup, custom events) to avoid per‑repo scripts and drift.
