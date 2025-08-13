@@ -56,10 +56,13 @@ Types: feat, fix, docs, refactor, perf, test, ci, build, chore, revert, deprecat
 Good: `fix(container-package-cleanup): handle 403 errors`.
 
 ---
+
 ## 3. Labels (Quick)
 Primary: feature, enhancement, bug, documentation, refactor.
 Supporting: ci, perf, question, help wanted, good first issue, wontfix, duplicate, invalid.
 Rule: pick ONE primary; do not mix feature + enhancement. Behaviour change ≠ refactor.
+
+**IMPORTANT:** If your PR is from a fork, labels will NOT be set automatically. You MUST add them manually in the GitHub UI after opening the PR.
 
 ---
 ## 4. Issue Linking
