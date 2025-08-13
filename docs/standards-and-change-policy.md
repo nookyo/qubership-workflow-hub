@@ -1,4 +1,8 @@
-# Action & Workflow Conventions
+# Standards & Change Policy
+
+ This document defines stable interface rules (naming, inputs/outputs), version pinning requirements, minimal permissions & security expectations, how to safely modify or deprecate existing actions/workflows, and essentials for issue reporting. For issue / PR formatting see `issue-guidelines.md` and `code-of-conduct-prs.md`.
+
+# Action & Workflow Conventions (Legacy Heading)
 
 Description: Mandatory (MUST) and recommended (SHOULD) rules for creating, updating, reviewing and deprecating Actions & reusable workflows. Covers naming (inputs/outputs), version pinning, permissions, security expectations, deprecation lifecycle, readiness checklists, and where to find issue / PR process.
 
@@ -109,9 +113,9 @@ MUST pin to major tag or SHA. Critical flows: prefer SHA. Bad: `uses: repo/actio
 Use stable nouns only. Example:
 ```yaml
 steps:
-  - id: meta
-    uses: repo/metadata-action@v1
-  - run: echo Version=${{ steps.meta.outputs.version }}
+	- id: meta
+		uses: repo/metadata-action@v1
+	- run: echo Version=${{ steps.meta.outputs.version }}
 ```
 
 ---
@@ -119,7 +123,7 @@ steps:
 Baseline:
 ```yaml
 permissions:
-  contents: read
+	contents: read
 ```
 Add only what you need (e.g. `contents: write`, `packages: write`). Prefer OIDC. No secret echoing.
 

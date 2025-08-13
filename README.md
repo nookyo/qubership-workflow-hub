@@ -8,7 +8,7 @@ Centralises common CI/CD tasks (tagging, version / metadata generation, artifact
 Key pieces:
 - Actions (single focused step) – `actions/<name>/`
 - Reusable workflows (multi‑job orchestration) – `reusable/*.md`
-- Conventions (rules: naming, version pinning, permissions) – `conventions.md`
+- Standards & Change Policy (naming, version pinning, permissions, deprecation rules) – `standards-and-change-policy.md`
 
 Core principles: deterministic (pin @v1 or SHA), least privilege (start with `contents: read`), composable (small actions), backwards compatible majors, observable outputs, explicit deprecation with replacement.
 
@@ -25,7 +25,7 @@ Priority order (read top → bottom when starting / contributing):
 |---|-----------|---------|----------|
 | 1 | BEFORE opening any issue | Defines bug / feature / task templates | [Issue Guidelines](docs/issue-guidelines.md) |
 | 2 | BEFORE opening a PR | Required PR fields, title rules, labels | [PR Conduct](docs/code-of-conduct-prs.md) |
-| 3 | Before changing actions/workflows | Naming, version pinning, permissions, deprecation | [Conventions](docs/conventions.md) |
+| 3 | Before changing actions/workflows | Naming, version pinning, permissions, deprecation | [Standards & Change Policy](docs/standards-and-change-policy.md) |
 | 4 | First use of the repo | How to consume actions & workflows | [Getting Started](docs/getting-started.md) |
 | 5 | Browsing catalog | Index-style navigation of docs | [Navigation Index](docs/navigation.md) |
 | 6 | Adding secrets / vars | Secure handling & scoping guidance | [Secrets & Variables](docs/secrets-and-vars.md) |
@@ -77,8 +77,8 @@ Full extended guide: see [Detailed Getting Started](docs/getting-started.md) for
   Need to contribute? Read the fork workflow: [Fork Sequence Guide](docs/fork-sequence.md).
 
   ---
-  ## 📘 Conventions
-  Shared patterns (naming, inputs, version pinning, permissions, security hardening) are documented in [docs/conventions.md](docs/conventions.md).
+  ## 📘 Standards & Change Policy
+  Stable interface & evolution rules (naming, inputs/outputs, version pinning, minimal permissions, security and deprecation) are documented in [docs/standards-and-change-policy.md](docs/standards-and-change-policy.md).
 
 ---
 
