@@ -14,7 +14,7 @@ This **GitHub Metadata** GitHub Action extracts metadata from the current GitHub
 
 ### Action Result
 
-The primary output of this action is a generated version string. This string is determined by the branch or tag on which the action was executed, and it is created by applying the corresponding template defined in the configuration file. For example, if the action is triggered on the `v1.2.3` tag, the output might follow the `v{{major}}.{{minor}}.{{patch}}-{{date}}` template, resulting in a string such as `v1.2.3-20250312`. Or triggered on the `release/1.2.3` branch, resulting  `release-1.2.3-20250312`, `feature/some-feature` resulting `feature-some-feature-20250312`.
+The primary output of this action is a generated version string. This string is determined by the branch or tag on which the action was executed, and it is created by applying the corresponding template defined in the configuration file. For example, if the action is triggered on the `v1.2.3` tag, the output might follow the `v{{major}}.{{minor}}.{{patch}}-{{date}}` template, resulting in a string such as `v1.2.3-20250312`. Or triggered on the `release/1.2.3` branch, resulting `release-1.2.3-20250312`, `feature/some-feature` resulting `feature-some-feature-20250312`.
 
 ## 📌 Inputs
 
@@ -30,7 +30,6 @@ The primary output of this action is a generated version string. This string is 
 | `debug`              | Enable debug mode for detailed logging.        | No       | `false`                                    |
 | `show-report`        | Whether to display a summary report.           | No       | `true`                                     |
 | `dry-run`            | Enable dry-run mode to simulate the action.    | No       | `false`                                    |
-
 
 ---
 
@@ -74,14 +73,14 @@ jobs:
       - name: Metadata
         uses: netcracker/qubership-workflow-hub/actions/metadata-action@main
         with:
-          configuration-path: './.github/metadata-action-config.yml'
-          default-template: '{{ref-name}}-{{timestamp}}-{{runNumber}}'
-          default-tag: 'latest'
-          short-sha: '7'
-          extra-tags: 'tag1,tag2'
-          merge-tags: 'true'
-          debug: 'true'
-          show-report: 'true'
+          configuration-path: "./.github/metadata-action-config.yml"
+          default-template: "{{ref-name}}-{{timestamp}}-{{runNumber}}"
+          default-tag: "latest"
+          short-sha: "7"
+          extra-tags: "tag1,tag2"
+          merge-tags: "true"
+          debug: "true"
+          show-report: "true"
 ```
 
 ---
@@ -110,8 +109,8 @@ default-tag: "latest"
 In this example:
 
 - **Main branch template:** generates a version string in the format `vMAJOR.MINOR.PATCH-DATE` (e.g. `v1.2.3-20250313`).
-- **Feature/* branch template:** generates a version string in the format `feature-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `feature-my-feature.20250313235959.beta`).
-- **Release/* branch template:** generates a version string in the format `release-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `release-v1.2.3-20250313235959.next`).
+- **Feature/\* branch template:** generates a version string in the format `feature-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `feature-my-feature.20250313235959.beta`).
+- **Release/\* branch template:** generates a version string in the format `release-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `release-v1.2.3-20250313235959.next`).
 - **Tag template:** generates a version string in the format `vMAJOR.MINOR.PATCH` (e.g. `v1.2.3`).
 
 ## Additional Information
@@ -120,7 +119,6 @@ In this example:
 
 The GitHub context is available, allowing you to access properties such as the current branch, tag, and other metadata. This context can be used within the action to dynamically generate version strings and tailor behavior based on the repository state.
 More information [here](https://docs.github.com/ru/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs).
-
 
 ### Semantic Version Parsing Contract
 
@@ -132,47 +130,47 @@ The configuration file for this action must adhere to the schema defined [here](
 
 ```json
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Metadata configuration file schema",
-    "type": "object",
-    "properties": {
-        "branches-template": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "minProperties": 1,
-                "maxProperties": 1,
-                "patternProperties": {
-                    "^[-a-zA-Z0-9_*]+$": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
-        "distribution-tag": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "minProperties": 1,
-                "maxProperties": 1,
-                "patternProperties": {
-                    "^[-a-zA-Z0-9_*]+$": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
-        "default-template": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata configuration file schema",
+  "type": "object",
+  "properties": {
+    "branches-template": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "patternProperties": {
+          "^[-a-zA-Z0-9_*]+$": {
             "type": "string"
+          }
         },
-        "default-tag": {
-            "type": "string"
-        }
+        "additionalProperties": false
+      }
     },
-    "additionalProperties": false
+    "distribution-tag": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "patternProperties": {
+          "^[-a-zA-Z0-9_*]+$": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "default-template": {
+      "type": "string"
+    },
+    "default-tag": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
 }
 ```
