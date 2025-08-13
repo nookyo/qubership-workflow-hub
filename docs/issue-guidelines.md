@@ -3,14 +3,14 @@
 Purpose: ensure every issue is actionable, unambiguous, and reviewable before any PR starts.
 
 ---
-## 1. Decide: Bug vs Feature
+## 1. Decide: Bug vs Feature vs Task
 | Pick | When |
 |------|------|
 | Bug | Expected behaviour is broken or regressed |
-| Feature | New capability or extension of existing behaviour |
-| Enhancement | Small improvement (label only; still treat as Feature template if > trivial) |
+| Feature | Net‑new capability or user visible expansion |
+| Task | Internal maintenance: refactor, docs restructuring, CI/build, cleanup (no user visible feature) |
 
-If you're not sure: open as Feature and clearly describe the current vs desired state; maintainers can relabel.
+Unsure? Default to Feature (user facing) or Task (internal). Maintainers can relabel.
 
 ---
 ## 2. Title Conventions
@@ -20,7 +20,7 @@ Keep titles short (≤ 72 chars), specific, and solution‑agnostic.
 |------|---------|----------|
 | Bug | bug(scope): concise problem | `bug(container-cleanup): fails on 403 from API` |
 | Feature | feat(scope): capability | `feat(metadata-action): dry-run preview mode` |
-| Enhancement | enhancement(scope): improvement | `enhancement(tag-action): faster semver parsing` |
+| Task | task(scope): maintenance goal | `task(ci): unify action version pinning` |
 
 Scope = folder / component (e.g. `metadata-action`, `docker-action`, `docs`). Use lowercase kebab-case.
 
@@ -66,7 +66,7 @@ Provide ALL of the following. Incomplete bug reports may be closed as `invalid` 
 Labels to add: `bug` + `scope:<area>` (+ `impact:performance` / `impact:security` if relevant).
 
 ---
-## 4. Required Fields – Feature / Enhancement
+## 4. Required Fields – Feature
 ```md
 ### Summary
 <one sentence capability>
@@ -96,10 +96,34 @@ Out of scope: ...
 <items deliberately deferred>
 ```
 
-Labels: `feature` OR `enhancement` (NEVER both) + `scope:<area>`.
+Labels: `feature` + `scope:<area>`.
 
 ---
-## 5. Project & Metadata
+## 5. Required Fields – Task
+For refactors, CI tweaks, dependency bumps, documentation restructuring.
+```md
+### Summary
+<one sentence maintenance goal>
+
+### Rationale
+<why this is needed (tech debt, speed, reliability)>
+
+### Scope / Boundaries
+In scope: ...
+Out of scope: ... (explicitly NOT changing behaviour)
+
+### Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+### Risks / Considerations
+<regression risk, rollout plan>
+```
+
+Labels: `task` + `scope:<area>`.
+
+---
+## 6. Project & Metadata
 | Field | Guidance |
 |-------|----------|
 | Projects | Add to `Qubership-DevOps` (or relevant project board) |
@@ -110,10 +134,10 @@ Labels: `feature` OR `enhancement` (NEVER both) + `scope:<area>`.
 Fork contributors: you still can open issues; labels may need maintainer adjustment—ping politely if missing after 24h.
 
 ---
-## 6. Labels (Quick Reference)
+## 7. Labels (Quick Reference)
 | Category | Examples | Notes |
 |----------|----------|-------|
-| Type | bug, feature, enhancement | One primary only |
+| Type | bug, feature, task | Exactly one |
 | Scope | scope:actions, scope:workflows, scope:docs | Choose most specific |
 | Impact | impact:security, impact:performance, impact:breaking | Add only if true |
 | Help | help wanted, good first issue | Maintainers add after vetting |
@@ -122,19 +146,19 @@ Fork contributors: you still can open issues; labels may need maintainer adjustm
 Maintainers may refine labels for consistency.
 
 ---
-## 7. Quality Bar (Triage Criteria)
-| Aspect | Bug | Feature |
-|--------|-----|---------|
-| Clear summary | Required | Required |
-| Reproduction / Motivation | Steps + actual vs expected | Motivation + problem statement |
-| Logs / Evidence | Trimmed to essentials | Optional (unless performance/security) |
-| Acceptance Criteria | Implicit via expected behaviour | Explicit checklist |
-| Scope control | N/A | In/Out boundaries listed |
+## 8. Quality Bar (Triage Criteria)
+| Aspect | Bug | Feature | Task |
+|--------|-----|---------|------|
+| Clear summary | Required | Required | Required |
+| Reproduction / Motivation | Steps + actual vs expected | Motivation + problem statement | Rationale (benefit / debt) |
+| Logs / Evidence | Trimmed to essentials | Optional (unless perf/security) | Optional (unless perf impact) |
+| Acceptance Criteria | Expected behaviour stated | Checklist | Checklist |
+| Scope control | N/A | In/Out boundaries listed | In/Out boundaries (no behaviour change) |
 
 Issues not meeting the bar may be tagged `needs-info` and closed if idle.
 
 ---
-## 8. Example – Bug
+## 9. Example – Bug
 ```md
 Title: bug(container-package-cleanup): fails on 403 from API
 
@@ -167,7 +191,7 @@ No retry logic for 403 (treated as fatal).
 ```
 
 ---
-## 9. Example – Feature
+## 10. Example – Feature
 ```md
 Title: feat(metadata-action): dry-run preview mode
 
@@ -196,7 +220,29 @@ Ensure no side effects executed before condition check.
 ```
 
 ---
-## 10. After Issue Creation
+## 11. Example – Task
+```md
+Title: task(ci): unify action version pinning
+
+### Summary
+Ensure all workflows pin internal actions to tagged major instead of @main.
+
+### Rationale
+Reduce drift risk and accidental breaking changes from unreleased commits.
+
+### Scope / Boundaries
+In scope: update YAML in reusable workflows + docs snippet.
+Out of scope: changing action implementation.
+
+### Acceptance Criteria
+- [ ] All references use `@v1`
+- [ ] Documentation updated
+
+### Risks / Considerations
+Need to create missing tags before updating references.
+```
+
+## 12. After Issue Creation
 | Step | When |
 |------|------|
 | Maintainer triage (labels/clarify) | Within a few days |

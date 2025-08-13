@@ -126,9 +126,10 @@ We welcome contributions from the community! To contribute:
 1. Review and sign the [CLA](CLA/cla.md).
 2. Check the [CODEOWNERS](CODEOWNERS) file for areas of responsibility.
 3. Open an issue to discuss your changes.
+  - For bugs / features follow the [Issue Guidelines](docs/issue-guidelines.md) (required fields, templates, labels).
 4. Submit a pull request with tests and documentation updates.
 
-> IMPORTANT: Before opening an issue or pull request you MUST read the [Contribution & PR Conduct](docs/code-of-conduct-prs.md). It defines required PR fields (Project/Area, linked Issue, labels) and the correct way to format and link issues.
+> IMPORTANT: Before opening an issue or pull request you MUST read the [Contribution & PR Conduct](docs/code-of-conduct-prs.md) and the [Issue Guidelines](docs/issue-guidelines.md). They define required issue / PR fields, labels, and formatting.
 
 ---
 
