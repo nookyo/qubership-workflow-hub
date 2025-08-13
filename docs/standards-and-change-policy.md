@@ -113,9 +113,9 @@ MUST pin to major tag or SHA. Critical flows: prefer SHA. Bad: `uses: repo/actio
 Use stable nouns only. Example:
 ```yaml
 steps:
-	- id: meta
-		uses: repo/metadata-action@v1
-	- run: echo Version=${{ steps.meta.outputs.version }}
+    - id: meta
+      uses: repo/metadata-action@v1
+    - run: echo Version=${{ steps.meta.outputs.version }}
 ```
 
 ---
@@ -123,7 +123,7 @@ steps:
 Baseline:
 ```yaml
 permissions:
-	contents: read
+    contents: read
 ```
 Add only what you need (e.g. `contents: write`, `packages: write`). Prefer OIDC. No secret echoing.
 
@@ -156,4 +156,3 @@ Security-sensitive details: never in public issue—use private disclosure chann
 Triage flow: classify (bug / feature / task / question) → verify / reproduce (bugs) or validate scope (feature/task) → assign → milestone (if needed) → implement → close with resolution (PR link).
 
 Response goals (not guarantees): initial triage <= 2 business days; critical security ASAP.
-
