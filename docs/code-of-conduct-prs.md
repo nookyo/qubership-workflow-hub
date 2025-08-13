@@ -3,19 +3,23 @@
 This page defines how to open a high‑quality Pull Request (PR) for this repository. Follow it to keep reviews fast, traceable and consistent.
 
 ---
+
 ## 1. PR Preconditions Checklist
+
 Before opening a PR you MUST ensure:
 | Check | Status |
 |-------|--------|
-| Related issue exists (not just an idea) |  |
-| Local lint/tests (if applicable) pass |  |
-| Docs updated (README / conventions / examples) |  |
-| Deprecation map updated (if removing/replacing) |  |
-| Version bump strategy considered (if behavior change) |  |
-| Branch name references issue (e.g. `292-action-...`) |  |
+| Related issue exists (not just an idea) | |
+| Local lint/tests (if applicable) pass | |
+| Docs updated (README / conventions / examples) | |
+| Deprecation map updated (if removing/replacing) | |
+| Version bump strategy considered (if behavior change) | |
+| Branch name references issue (e.g. `292-action-...`) | |
 
 ---
+
 ## 2. Mandatory PR Fields
+
 Provide or verify the following in the PR description:
 | Field | MUST Have | Example |
 |-------|-----------|---------|
@@ -33,6 +37,7 @@ Title MUST follow Conventional Commits: `<type>(optional-scope): short imperativ
 Recommended branch naming: `<issue>-<short-kebab-summary>` (example from PR #293: `292-action-container-package-cleanup-remove-all-unnecessary-untagged-or-sha256-layers-versions`). Keep under ~72 chars where possible.
 
 Short template you can paste:
+
 ```
 ### Summary
 <what changed and why>
@@ -82,6 +87,7 @@ Allowed `<type>` values:
 | deprecate | Mark functionality as deprecated |
 
 Rules:
+
 1. Exactly one type (no stacking like `feat fix:`).
 2. Scope optional; if used, lowercase kebab-case (e.g. `metadata-action`).
 3. Description: imperative mood, lowercase first letter (unless proper noun), no trailing period.
@@ -89,6 +95,7 @@ Rules:
 5. Avoid issue numbers in title (they belong in body via `Fixes #123`).
 
 Examples (GOOD):
+
 ```
 feat(metadata-action): add dry-run input
 fix(container-package-cleanup): handle 403 errors from API
@@ -98,6 +105,7 @@ refactor(tag-action): extract version parser
 ```
 
 Examples (BAD + reason):
+
 ```
 Feature: Added new stuff            # Not lowercase type, vague
 feat: Fix bug with tags             # Description not imperative ("Fix"/imperative ok but context vague)
@@ -107,6 +115,7 @@ docs: update README.                # Trailing period
 ```
 
 If the scope is broad (touches many areas) omit scope rather than stacking multiple scopes.
+
 ```
 
 ---
@@ -214,29 +223,39 @@ Automated checks: All required GitHub Actions / CI jobs MUST be green. Example (
 ## 9. Example Good PR Description
 Real closed example (follows title, issue link, labels, green checks): https://github.com/Netcracker/qubership-workflow-hub/pull/293
 ```
+
 ### Summary
+
 Add 'dry-run' input to metadata-action to allow safe preview of computed tags.
 
 ### Issue
+
 Fixes #342
 
 ### Type
+
 feat
 
 ### Breaking Change?
+
 No
 
 ### Scope / Project
+
 actions/metadata-action
 
 ### Implementation Notes
+
 Adds optional input `dry-run`; skips tag push when true. Updated README + conventions.
 
 ### Tests / Evidence
+
 Manual run in fork: screenshot attached. Logic covered by existing tag computation test.
 
 ### Additional Notes
+
 Follow-up: add same flag to docker-action for symmetry.
+
 ```
 
 ---
@@ -267,3 +286,4 @@ Follow-up: add same flag to docker-action for symmetry.
 Questions about this process: open an issue with label `type:docs` or ask maintainers directly.
 
 Consistent PR hygiene keeps review cycles short and quality high.
+```
