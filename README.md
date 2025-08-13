@@ -16,8 +16,6 @@ Use an Action for one operation (tag, compute metadata, cleanup). Use a Reusable
 
 Version & security: pin versions, avoid `@main`, run dry‑run first where supported, elevate permissions only where needed.
 
-To extend: add action folder + README, update index, tag `v1`, adjust conventions if introducing a new pattern.
-
 ---
 
 ## 🔑 Key Documents
