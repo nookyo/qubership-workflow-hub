@@ -62,7 +62,7 @@ No (or Yes + migration notes)
 Your PR title is REQUIRED to follow Conventional Commit style:
 
 Format:
-```
+
 <type>(optional-scope): <short imperative description>
 ```
 
