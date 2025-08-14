@@ -48,7 +48,7 @@ permissions:
 
 jobs:
   call-npm-publish:
-    uses: netcracker/qubership-workflow-hub/.github/workflows/re-npm-publish.yml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/re-npm-publish.yml@v1.0.5
     with:
       version: ${{ github.event.inputs.version }}
       scope: "@netcracker"

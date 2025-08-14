@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release Helm Charts
-        uses: netcracker/qubership-workflow-hub/actions/charts-values-update-action@main
+        uses: netcracker/qubership-workflow-hub/actions/charts-values-update-action@v1.0.5
         with:
           release-version: '1.0.0'
           chart-version: '1.0.0'

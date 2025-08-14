@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy Maven Snapshot
-        uses: netcracker/qubership-workflow-hub/actions/maven-snapshot-deploy@main
+        uses: netcracker/qubership-workflow-hub/actions/maven-snapshot-deploy@v1.0.5
         with:
           java-version: '17'
           target-store: 'github'
