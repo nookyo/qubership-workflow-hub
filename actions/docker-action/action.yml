@@ -194,7 +194,8 @@ runs:
       run: |
         IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
-        SHORT="${DIGEST#sha256:}"
+        NO_PREFIX="${DIGEST#sha256:}"
+        SHORT12="${NO_PREFIX:0:12}"
 
         if command -v uuidgen >/dev/null 2>&1; then
           UUID="$(uuidgen)"
@@ -204,14 +205,14 @@ runs:
         BOM_REF="${IMAGE_NAME}:${UUID}"
 
         echo ">>> IMAGE_NAME = $IMAGE_NAME"
-        echo ">>> SHORT      = $SHORT"
         echo ">>> UUID       = $UUID"
         echo ">>> BOM_REF    = $BOM_REF"
-        echo ">>> DIGEST     = $DIGEST"
+        echo ">>> DIGEST     = $DIGEST
+        echo ">>> NO_PREFIX  = $NO_PREFIX"
+        echo ">>> SHORT12    = $SHORT12"
 
         echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
         echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-        echo "short_digest=$SHORT" >> $GITHUB_OUTPUT
 
     - name: Analyze for critical and high CVEs
       id: docker-scout-cves
