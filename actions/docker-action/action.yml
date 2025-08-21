@@ -193,7 +193,9 @@ runs:
       id: output_result
       run: |
         IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
+        DIGEST="${{ steps.dockerbuild.outputs.digest }}"
         echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+        echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
 
     - name: Prepare Metadata JSON
@@ -201,7 +203,7 @@ runs:
       shell: bash
       run: |
         IMAGE_NAME="${{ steps.prepare-image-name.outputs.CONTAINER_NAME }}"
-        VERSION="${{ steps.meta.outputs.version }}"
+        VERSION="${{ steps.dockerbuild.outputs.digest }}"
 
         # bom-ref: генерим UUID; при желании можно сделать стабильный детерминированный
         if command -v uuidgen >/dev/null 2>&1; then
@@ -215,23 +217,6 @@ runs:
         echo ">>> VERSION    = $VERSION"
         echo ">>> UUID       = $UUID"
         echo ">>> BOM_REF    = $BOM_REF"
-
-        # Если у тебя где-то формируется TAGS_OUTPUT – тоже покажем
-        echo ">>> TAGS_OUTPUT = ${TAGS_OUTPUT:-<empty>}"
-
-        echo "prepared_tags=${TAGS_OUTPUT:-}" >> "$GITHUB_OUTPUT"
-
-        cat <<EOF > metadata.json
-        {
-          "bom-ref": "${BOM_REF}",
-          "type": "container",
-          "mime-type": "application/vnd.docker.image",
-          "name": "${IMAGE_NAME}",
-          "group": "core",
-          "version": "${VERSION}",
-          "purl": "pkg:docker/core/${IMAGE_NAME}@${VERSION}?registryName=sandbox"
-        }
-        EO
 
     - name: Analyze for critical and high CVEs
       id: docker-scout-cves
