@@ -28,7 +28,7 @@ inputs:
   platforms:
     description: "Platforms for which the Docker image will be built."
     required: false
-    default: "linux/amd64,linux/arm64"
+    default: "linux/amd64"
   tags:
     description: "Docker image tags. If empty, tags will be generated automatically."
     required: false
@@ -49,7 +49,26 @@ inputs:
     description: "Flag to enable SBoM generation."
     required: false
     default: "false"
-
+  build-args:
+    description: "Build arguments for the Docker image, in JSON format."
+    required: false
+    default: ""
+  security-scan:
+    description: "Flag to enable security scanning of the Docker image."
+    required: false
+    default: "false"
+  docker-io-user:
+    description: "Docker Hub username for security scanning."
+    required: false
+    default: ""
+  docker-io-password:
+    description: "Docker Hub password for security scanning."
+    required: false
+    default: ""
+outputs:
+  image-name:
+    description: "The name of the built Docker image."
+    value: "${{ steps.output_result.outputs.image_name }}"
 runs:
   using: "composite"
   steps:
@@ -110,12 +129,6 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Create and use buildx builder
-      shell: bash
-      run: |
-        docker buildx create --name mybuilder --driver docker-container --use || docker buildx use mybuilder
-        docker buildx inspect --bootstrap
-        
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -136,6 +149,7 @@ runs:
         context: ${{ inputs.context }}
         images: ghcr.io/${{ github.repository_owner }}/${{ steps.prepare-image-name.outputs.CONTAINER_NAME }}
         tags: |
+          type=sha,format=short,prefix=,priority=10000
           type=ref,event=branch
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
@@ -162,6 +176,7 @@ runs:
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v6
+      id: dockerbuild
       with:
         provenance: false
         sbom: ${{ inputs.sbom == 'true' && 'true' || 'false' }}
@@ -171,3 +186,71 @@ runs:
         tags: ${{ inputs.tags != '' && steps.prepare-tags.outputs.prepared_tags || steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ inputs.platforms }}
+        build-args: ${{ inputs.build-args }}
+
+    - name: Output result
+      shell: bash
+      id: output_result
+      run: |
+        IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
+        echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
+
+    - name: Prepare Metadata JSON
+      id: metadata
+      shell: bash
+      run: |
+        IMAGE_NAME="${{ steps.prepare-image-name.outputs.CONTAINER_NAME }}"
+        VERSION="${{ steps.meta.outputs.version }}"
+
+        # bom-ref: генерим UUID; при желании можно сделать стабильный детерминированный
+        if command -v uuidgen >/dev/null 2>&1; then
+          UUID="$(uuidgen)"
+        else
+          UUID="${VERSION}-0000-0000-0000-000000000000"
+        fi
+        BOM_REF="${IMAGE_NAME}:${UUID}"
+
+        echo ">>> IMAGE_NAME = $IMAGE_NAME"
+        echo ">>> VERSION    = $VERSION"
+        echo ">>> UUID       = $UUID"
+        echo ">>> BOM_REF    = $BOM_REF"
+
+        # Если у тебя где-то формируется TAGS_OUTPUT – тоже покажем
+        echo ">>> TAGS_OUTPUT = ${TAGS_OUTPUT:-<empty>}"
+
+        echo "prepared_tags=${TAGS_OUTPUT:-}" >> "$GITHUB_OUTPUT"
+
+        cat <<EOF > metadata.json
+        {
+          "bom-ref": "${BOM_REF}",
+          "type": "container",
+          "mime-type": "application/vnd.docker.image",
+          "name": "${IMAGE_NAME}",
+          "group": "core",
+          "version": "${VERSION}",
+          "purl": "pkg:docker/core/${IMAGE_NAME}@${VERSION}?registryName=sandbox"
+        }
+        EO
+
+    - name: Analyze for critical and high CVEs
+      id: docker-scout-cves
+      if: ${{ inputs.security-scan == 'true' }}
+      uses: docker/scout-action@v1
+      continue-on-error: true
+      with:
+        command: cves,recommendations
+        image: ${{ steps.output_result.outputs.image_name }}
+        sarif-file: sarif.output.json
+        summary: true
+        ignore-base: false
+        dockerhub-user: ${{ inputs.docker-io-user }}
+        dockerhub-password: ${{ inputs.docker-io-password }}
+        github-token: ${{ env.GITHUB_TOKEN }}
+
+    - name: Upload SARIF result
+      id: upload-sarif
+      if: ${{ inputs.security-scan == 'true' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: sarif.output.json
