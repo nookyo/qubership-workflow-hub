@@ -195,7 +195,6 @@ runs:
         IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
         echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
 
-
     - name: Prepare Metadata JSON
       id: metadata
       shell: bash
