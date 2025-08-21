@@ -194,18 +194,8 @@ runs:
       run: |
         IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
-        echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
-        echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+        SHORT="${DIGEST#sha256:}"
 
-
-    - name: Prepare Metadata JSON
-      id: metadata
-      shell: bash
-      run: |
-        IMAGE_NAME="${{ steps.prepare-image-name.outputs.CONTAINER_NAME }}"
-        VERSION="${{ steps.dockerbuild.outputs.digest }}"
-
-        # bom-ref: генерим UUID; при желании можно сделать стабильный детерминированный
         if command -v uuidgen >/dev/null 2>&1; then
           UUID="$(uuidgen)"
         else
@@ -214,9 +204,14 @@ runs:
         BOM_REF="${IMAGE_NAME}:${UUID}"
 
         echo ">>> IMAGE_NAME = $IMAGE_NAME"
-        echo ">>> VERSION    = $VERSION"
+        echo ">>> SHORT      = $SHORT"
         echo ">>> UUID       = $UUID"
         echo ">>> BOM_REF    = $BOM_REF"
+        echo ">>> DIGEST     = $DIGEST"
+
+        echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+        echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+        echo "short_digest=$SHORT" >> $GITHUB_OUTPUT
 
     - name: Analyze for critical and high CVEs
       id: docker-scout-cves
