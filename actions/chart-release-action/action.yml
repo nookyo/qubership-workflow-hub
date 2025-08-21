@@ -1,13 +1,13 @@
-name: 'TS Hello Action'
-description: 'Simple hello world action written in TypeScript'
-author: 'your name <you@example.com>'
+name: "TS Hello Action"
+description: "Simple hello world action written in TypeScript"
+author: "your name <you@example.com>"
 inputs:
   name:
-    description: 'Name to greet'
+    description: "Name to greet"
     required: true
 outputs:
   greeting:
-    description: 'The greeting message'
+    description: "The greeting message"
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"
