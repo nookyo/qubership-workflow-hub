@@ -65,6 +65,10 @@ inputs:
     description: "Docker Hub password for security scanning."
     required: false
     default: ""
+  app-manifest-sha:
+    description: ""
+    required: false
+    default: ""
 outputs:
   image-name:
     description: "The name of the built Docker image."
@@ -149,7 +153,6 @@ runs:
         context: ${{ inputs.context }}
         images: ghcr.io/${{ github.repository_owner }}/${{ steps.prepare-image-name.outputs.CONTAINER_NAME }}
         tags: |
-          type=sha,format=short,prefix=,priority=10000
           type=ref,event=branch
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
@@ -194,29 +197,34 @@ runs:
       run: |
         IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
-        NO_PREFIX="${DIGEST#sha256:}"
-        SHORT12="${NO_PREFIX:0:12}"
+        DIGEST_NO_PREFIX="${DIGEST#sha256:}"
+        if ${{inputs.tags == '' }}; then
+          VERSION="${{ inputs.app-manifest-sha }}"
+        else
+          VERSION="${{ inputs.app-manifest-sha }}"
+        fi
 
         if command -v uuidgen >/dev/null 2>&1; then
           UUID="$(uuidgen)"
         else
           UUID="${VERSION}-0000-0000-0000-000000000000"
         fi
+
         BOM_REF="${IMAGE_NAME}:${UUID}"
 
         echo ">>> IMAGE_NAME = $IMAGE_NAME"
         echo ">>> UUID       = $UUID"
         echo ">>> BOM_REF    = $BOM_REF"
         echo ">>> DIGEST     = $DIGEST
-        echo ">>> NO_PREFIX  = $NO_PREFIX"
-        echo ">>> SHORT12    = $SHORT12"
+        echo ">>> DIGEST_NO_PREFIX  = $DIGEST_NO_PREFIX"
+        echo ">>> VERSION    = $VERSION
 
         echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
         echo "bom_ref=$BOM_REF" >> $GITHUB_OUTPUT
 
         echo "digest=$DIGEST" >> $GITHUB_OUTPUT
         echo 'digest_no_prefix=$NO_PREFIX' >> $GITHUB_OUTPUT
-        echo "digest_short=$SHORT12" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Analyze for critical and high CVEs
       id: docker-scout-cves
