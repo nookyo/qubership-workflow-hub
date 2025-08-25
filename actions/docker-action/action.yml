@@ -65,7 +65,7 @@ inputs:
     description: "Docker Hub password for security scanning."
     required: false
     default: ""
-  c:
+  short-sha:
     description: ""
     required: false
     default: ""
@@ -225,6 +225,18 @@ runs:
         echo "digest=$DIGEST" >> $GITHUB_OUTPUT
         echo 'digest_no_prefix=$NO_PREFIX' >> $GITHUB_OUTPUT
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+        # cat <<EOF > metadata.json
+        # {
+        #   "bom-ref": "${BOM_REF}",
+        #   "type": "container",
+        #   "mime-type": "application/vnd.docker.image",
+        #   "name": "${IMAGE_NAME}",
+        #   "group": "core",
+        #   "version": "${VERSION}",
+        #   "purl": "pkg:docker/core/${IMAGE_NAME}@${VERSION}?registryName=sandbox"
+        # }
+        # EOF
 
     - name: Analyze for critical and high CVEs
       id: docker-scout-cves
