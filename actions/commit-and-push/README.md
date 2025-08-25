@@ -11,11 +11,11 @@ This Action automates the process of committing changes and pushing them to a re
 
 ## 📌 Inputs
 
-| Name             | Description                            | Required | Default                               |
-| ---------------- | -------------------------------------- | -------- | ------------------------------------- |
+| Name             | Description                            | Required | Default                                |
+| ---------------- | -------------------------------------- | -------- | -------------------------------------- |
 | `author_name`    | The name of the commit author.         | No       | `qubership-actions[bot]`               |
 | `author_email`   | The email of the commit author.        | No       | `qubership-actions[bot]@qubership.com` |
-| `commit_message` | The commit message for the new commit. | No       | `Automated commit`                    |
+| `commit_message` | The commit message for the new commit. | No       | `Automated commit`                     |
 
 ## Usage Example
 
@@ -47,3 +47,4 @@ jobs:
           author_name: "Bot User"
           author_email: "bot@example.com"
           commit_message: "Automated commit from GitHub Actions"
+```
