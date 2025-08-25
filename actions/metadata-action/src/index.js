@@ -31,8 +31,8 @@ function extractSemverParts(versionString) {
 }
 
 function matchesPattern(refName, pattern) {
-  const normalizedPattern = pattern.replace(/\//g, '-').replace(/\*/g, '.*');
-  const regex = new RegExp('^' + normalizedPattern + '$');
+  const normalizedPattern = pattern.replace(/\//g, "-").replace(/\*/g, ".*");
+  const regex = new RegExp("^" + normalizedPattern + "$");
   return regex.test(refName);
 }
 
@@ -54,10 +54,10 @@ function fillTemplate(template, values) {
   });
 }
 
-function flattenObject(obj, prefix = '') {
+function flattenObject(obj, prefix = "") {
   return Object.entries(obj).reduce((acc, [key, val]) => {
     const name = prefix ? `${prefix}.${key}` : key;
-    if (val !== null && typeof val === 'object') {
+    if (val !== null && typeof val === "object") {
       Object.assign(acc, flattenObject(val, name));
     } else {
       acc[name] = val;
@@ -72,39 +72,52 @@ const selectedTemplateAndTag = {
   distTag: null,
   toString() {
     return `Template: ${this.template}, DistTag: ${this.distTag}`;
-  }
+  },
 };
 
 async function run() {
-
-  core.info(`pull_request head.ref: ${github.context.payload.pull_request?.head?.ref}`);
-  core.info(`pull_request head: ${JSON.stringify(github.context.payload.pull_request?.head, null, 2)}`);
-  let name = core.getInput('ref');
+  core.info(
+    `pull_request head.ref: ${github.context.payload.pull_request?.head?.ref}`,
+  );
+  core.info(
+    `pull_request head: ${JSON.stringify(github.context.payload.pull_request?.head, null, 2)}`,
+  );
+  let name = core.getInput("ref");
 
   if (!name) {
-    name = github.context.eventName === 'pull_request' ? github.context.payload.pull_request?.head?.ref : github.context.ref;
+    name =
+      github.context.eventName === "pull_request"
+        ? github.context.payload.pull_request?.head?.ref
+        : github.context.ref;
   }
 
   core.info(`Ref: ${name}`);
 
-  const debug = core.getInput('debug') === "true";
-  const dryRun = core.getInput('dry-run') === "true";
-  const showReport = core.getInput('show-report') === "true";
-  const isDebug = debug === 'true' || debug === '1' || debug === 'yes' || debug === 'on';
+  const debug = core.getInput("debug") === "true";
+  const dryRun = core.getInput("dry-run") === "true";
+  const showReport = core.getInput("show-report") === "true";
+  const isDebug =
+    debug === "true" || debug === "1" || debug === "yes" || debug === "on";
 
   core.info(`Debug: ${isDebug}`);
 
   const ref = new RefExtractor().extract(name);
 
-  const configurationPath = core.getInput('configuration-path') || "./.github/metadata-action-config.yml";
-  const loader = new ConfigLoader()
+  const configurationPath =
+    core.getInput("configuration-path") ||
+    "./.github/metadata-action-config.yml";
+  const loader = new ConfigLoader();
   const config = loader.load(configurationPath, debug);
 
-  const defaultTemplate = core.getInput('default-template') || config?.["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
-  const defaultTag = core.getInput('default-tag') || config?.["default-tag"] || "latest";
+  const defaultTemplate =
+    core.getInput("default-template") ||
+    config?.["default-template"] ||
+    `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+  const defaultTag =
+    core.getInput("default-tag") || config?.["default-tag"] || "latest";
 
-  const extraTags = core.getInput('extra-tags');
-  const mergeTags = core.getInput('merge-tags');
+  const extraTags = core.getInput("extra-tags");
+  const mergeTags = core.getInput("merge-tags");
 
   core.info(`🔸 defaultTemplate: ${defaultTemplate}`);
   core.info(`🔸 defaultTag: ${defaultTag}`);
@@ -112,17 +125,27 @@ async function run() {
   // core.info(`🔹 Ref: ${JSON.stringify(ref)}`);
 
   if (loader.fileExists) {
-    selectedTemplateAndTag.template = findTemplate(!ref.isTag ? ref.name : "tag", config["branches-template"]);
-    selectedTemplateAndTag.distTag = findTemplate(ref.name, config["distribution-tag"]);
+    selectedTemplateAndTag.template = findTemplate(
+      !ref.isTag ? ref.name : "tag",
+      config["branches-template"],
+    );
+    selectedTemplateAndTag.distTag = findTemplate(
+      ref.name,
+      config["distribution-tag"],
+    );
   }
 
   if (selectedTemplateAndTag.template === null) {
-    core.info(`⚠️ No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`);
+    core.info(
+      `⚠️ No template found for ref: ${ref.name}, will be used default -> ${defaultTemplate}`,
+    );
     selectedTemplateAndTag.template = defaultTemplate;
   }
 
   if (selectedTemplateAndTag.distTag === null) {
-    core.info(`⚠️ No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`);
+    core.info(
+      `⚠️ No dist-tag found for ref: ${ref.name}, will be used default -> ${defaultTag}`,
+    );
     selectedTemplateAndTag.distTag = defaultTag;
   }
 
@@ -131,15 +154,20 @@ async function run() {
 
   const shortShaDeep = +core.getInput("short-sha");
   if (!(shortShaDeep > 0)) {
-    core.info(`⚠️ Invalid short-sha value: ${shortShaDeep}, will be used default -> 12`);
+    core.info(
+      `⚠️ Invalid short-sha value: ${shortShaDeep}, will be used default -> 12`,
+    );
   }
   const shortSha = github.context.sha.slice(0, shortShaDeep);
 
   const values = {
-    ...ref, "ref-name": ref.name, "short-sha": shortSha,
-    ...semverParts, ...parts,
+    ...ref,
+    "ref-name": ref.name,
+    "short-sha": shortSha,
+    ...semverParts,
+    ...parts,
     "dist-tag": selectedTemplateAndTag.distTag,
-    ...flattenObject({ github }, '')
+    ...flattenObject({ github }, ""),
   };
 
   core.info(`🔹 time: ${JSON.stringify(parts)}`);
@@ -147,11 +175,11 @@ async function run() {
   core.info(`🔹 dist-tag: ${JSON.stringify(selectedTemplateAndTag.distTag)}`);
 
   // core.info(`Values: ${JSON.stringify(values)}`); //debug values
-  let result = fillTemplate(selectedTemplateAndTag.template, values)
+  let result = fillTemplate(selectedTemplateAndTag.template, values);
 
   core.info(`🔹 Template: ${selectedTemplateAndTag.template}`);
 
-  if (extraTags != '' && mergeTags == 'true') {
+  if (extraTags != "" && mergeTags == "true") {
     core.info(`🔹 Merging extra tags: ${extraTags}`);
     result = result + ", " + extraTags;
   }
@@ -172,19 +200,19 @@ async function run() {
 
   if (showReport) {
     const reportItem = {
-      "ref": ref.name,
-      "sha": github.context.sha,
-      "shortSha": shortSha,
-      "semver": `${semverParts.major}.${semverParts.minor}.${semverParts.patch}`,
-      "timestamp": parts.timestamp,
-      "template": selectedTemplateAndTag.template,
-      "distTag": selectedTemplateAndTag.distTag,
-      "extraTags": extraTags,
-      "renderResult": result
+      ref: ref.name,
+      sha: github.context.sha,
+      shortSha: shortSha,
+      semver: `${semverParts.major}.${semverParts.minor}.${semverParts.patch}`,
+      timestamp: parts.timestamp,
+      template: selectedTemplateAndTag.template,
+      distTag: selectedTemplateAndTag.distTag,
+      extraTags: extraTags,
+      renderResult: result,
     };
     await new Report().writeSummary(reportItem, dryRun);
   }
-  core.info('✅ Action completed successfully!');
+  core.info("✅ Action completed successfully!");
 }
 
 run();
