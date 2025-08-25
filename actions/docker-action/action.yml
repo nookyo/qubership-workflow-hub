@@ -219,12 +219,12 @@ runs:
         echo ">>> DIGEST_NO_PREFIX  = $DIGEST_NO_PREFIX"
         echo ">>> VERSION    = $VERSION
 
-        echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
-        echo "bom_ref=$BOM_REF" >> $GITHUB_OUTPUT
+        # echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+        # echo "bom_ref=$BOM_REF" >> $GITHUB_OUTPUT
 
-        echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-        echo 'digest_no_prefix=$NO_PREFIX' >> $GITHUB_OUTPUT
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        # echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+        # echo 'digest_no_prefix=$NO_PREFIX' >> $GITHUB_OUTPUT
+        # echo "version=$VERSION" >> $GITHUB_OUTPUT
 
         # cat <<EOF > metadata.json
         # {
