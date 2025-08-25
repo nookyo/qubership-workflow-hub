@@ -198,6 +198,9 @@ runs:
         IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
         DIGEST_NO_PREFIX="${DIGEST#sha256:}"
+
+
+
         if ${{inputs.tags != '' }}; then
           VERSION="${{ inputs.short-sha }}"
         else
