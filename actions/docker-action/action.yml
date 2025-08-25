@@ -237,10 +237,10 @@ runs:
           "group": "core",
           "version": "${VERSION}",
           "hashes":[
-          {
-            "alg": "${ALG}",
-            "content": "${DIGEST_NO_PREFIX}"
-          }],
+            {
+              "alg": "${ALG}",
+              "content": "${DIGEST_NO_PREFIX}"
+            }],
           "purl": "pkg:docker/core/${IMAGE_NAME}@${VERSION}?registryName=sandbox"
         }
         EOF
