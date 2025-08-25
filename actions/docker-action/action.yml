@@ -195,10 +195,11 @@ runs:
       shell: bash
       id: output_result
       run: |
-        IMAGE_NAME=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
+        IMAGE_NAME_FULL=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
+        IMAGE_NAME="${IMAGE_NAME_FULL%%:*}"
+
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
         DIGEST_NO_PREFIX="${DIGEST#sha256:}"
-
 
 
         if ${{inputs.tags != '' }}; then
