@@ -1,5 +1,4 @@
 ---
-
 name: "Charts Release"
 description: "Update helm charts versions in values.yaml file and create a release draft"
 

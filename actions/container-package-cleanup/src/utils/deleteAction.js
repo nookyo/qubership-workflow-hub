@@ -5,7 +5,10 @@ const core = require("@actions/core");
  * @param {Array<{package:{id,name,type}, versions:Array<{id,name,metadata}>}>} filtered
  * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean }} ctx
  */
-async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false } = {}) {
+async function deletePackageVersion(
+  filtered,
+  { wrapper, owner, isOrganization = true, dryRun = false } = {},
+) {
   if (!Array.isArray(filtered) || filtered.length === 0) {
     core.info("Nothing to delete.");
     return;
@@ -25,26 +28,41 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
 
     for (const v of versions) {
       const tags = v.metadata?.container?.tags ?? [];
-      const detail = type === "maven" ? v.name : (tags.length ? tags.join(", ") : v.name);
+      const detail =
+        type === "maven" ? v.name : tags.length ? tags.join(", ") : v.name;
 
       if (dryRun) {
-        core.info(`DRY-RUN: ${ownerLC}/${imageLC} (${type}) — would delete version ${v.id} (${detail})`);
+        core.info(
+          `DRY-RUN: ${ownerLC}/${imageLC} (${type}) — would delete version ${v.id} (${detail})`,
+        );
         continue;
       }
 
       try {
-        core.info(`Deleting ${ownerLC}/${imageLC} (${type}) — version ${v.id} (${detail})`);
-        await wrapper.deletePackageVersion(ownerLC, type, imageLC, v.id, isOrganization);
+        core.info(
+          `Deleting ${ownerLC}/${imageLC} (${type}) — version ${v.id} (${detail})`,
+        );
+        await wrapper.deletePackageVersion(
+          ownerLC,
+          type,
+          imageLC,
+          v.id,
+          isOrganization,
+        );
       } catch (error) {
-        const msg = String(error && error.message || error);
+        const msg = String((error && error.message) || error);
 
         if (/more than 5000 downloads/i.test(msg)) {
-          core.warning(`Skipping ${imageLC} v:${v.id} (${detail}) — too many downloads.`);
+          core.warning(
+            `Skipping ${imageLC} v:${v.id} (${detail}) — too many downloads.`,
+          );
           continue;
         }
 
         if (/404|not found/i.test(msg)) {
-          core.warning(`Version not found: ${imageLC} v:${v.id} — probably already deleted.`);
+          core.warning(
+            `Version not found: ${imageLC} v:${v.id} — probably already deleted.`,
+          );
           continue;
         }
 
@@ -53,7 +71,9 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
           throw error;
         }
 
-        core.error(`Failed to delete ${imageLC} v:${v.id} (${detail}) — ${msg}`);
+        core.error(
+          `Failed to delete ${imageLC} v:${v.id} (${detail}) — ${msg}`,
+        );
       }
     }
   }
