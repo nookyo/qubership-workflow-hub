@@ -65,6 +65,10 @@ inputs:
     description: "Docker Hub password for security scanning."
     required: false
     default: ""
+  app-manifest-group:
+    description: "Application manifest group."
+    required: false
+    default: "default"
 
 outputs:
   image-name:
@@ -209,6 +213,8 @@ runs:
         DIGEST_NO_PREFIX="${DIGEST##*:}"
         DIGEST_SHORT="${DIGEST_NO_PREFIX:0:12}"
 
+        GROUP="${{ inputs.app-manifest-group }}"
+
         VERSION="$TAG"
 
         if command -v uuidgen >/dev/null 2>&1; then
@@ -234,7 +240,7 @@ runs:
           "type": "container",
           "mime-type": "application/vnd.docker.image",
           "name": "${IMAGE_NAME}",
-          "group": "core",
+          "group": "${GROUP}",
           "version": "${VERSION}",
           "hashes":[
             {
