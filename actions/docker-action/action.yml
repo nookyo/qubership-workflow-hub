@@ -197,6 +197,7 @@ runs:
       run: |
         IMAGE_NAME_FULL=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
         IMAGE_NAME="${IMAGE_NAME_FULL%%:*}"
+        TAG="${IMAGE_NAME_FULL##*:}"
 
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
         DIGEST_NO_PREFIX="${DIGEST#sha256:}"
@@ -222,6 +223,7 @@ runs:
         echo ">>> DIGEST     = $DIGEST"
         echo ">>> DIGEST_NO_PREFIX  = $DIGEST_NO_PREFIX"
         echo ">>> VERSION    = $VERSION"
+        echo ">>> TAG        = $TAG"
 
         # echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
         # echo "bom_ref=$BOM_REF" >> $GITHUB_OUTPUT
