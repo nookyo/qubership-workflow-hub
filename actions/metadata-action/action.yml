@@ -6,7 +6,7 @@ inputs:
         required: false
     short-sha:
         description: "Short SHA deep."
-        default: "7"
+        default: "12"
         required: false
     default-template:
         description: "Default template."

@@ -131,7 +131,7 @@ async function run() {
 
   const shortShaDeep = +core.getInput("short-sha");
   if (!(shortShaDeep > 0)) {
-    core.info(`⚠️ Invalid short-sha value: ${shortShaDeep}, will be used default -> 7`);
+    core.info(`⚠️ Invalid short-sha value: ${shortShaDeep}, will be used default -> 12`);
   }
   const shortSha = github.context.sha.slice(0, shortShaDeep);
 
