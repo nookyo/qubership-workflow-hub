@@ -218,9 +218,9 @@ runs:
         echo ">>> IMAGE_NAME = $IMAGE_NAME"
         echo ">>> UUID       = $UUID"
         echo ">>> BOM_REF    = $BOM_REF"
-        echo ">>> DIGEST     = $DIGEST
+        echo ">>> DIGEST     = $DIGEST"
         echo ">>> DIGEST_NO_PREFIX  = $DIGEST_NO_PREFIX"
-        echo ">>> VERSION    = $VERSION
+        echo ">>> VERSION    = $VERSION"
 
         # echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
         # echo "bom_ref=$BOM_REF" >> $GITHUB_OUTPUT
