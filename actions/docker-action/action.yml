@@ -73,6 +73,9 @@ outputs:
   metadata-json:
     description: "Path to the generated metadata file."
     value: "${{ steps.output_result.outputs.metadata_path }}"
+  metadata-filename:
+    description: "Name of the generated metadata file."
+    value: "${{ steps.output_result.outputs.metadata_filename }}"
 runs:
   using: "composite"
   steps:
@@ -243,6 +246,7 @@ runs:
         EOF
 
         echo "metadata_path=$PWD/$FILENAME" >> "$GITHUB_OUTPUT"
+        echo "metadata_filename=$FILENAME" >> "$GITHUB_OUTPUT"
 
     - name: Analyze for critical and high CVEs
       id: docker-scout-cves
