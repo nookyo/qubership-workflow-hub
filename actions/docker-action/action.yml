@@ -73,6 +73,9 @@ inputs:
     description: "Flag to enable debug mode."
     required: false
     default: "false"
+  checkout-path:
+    description: "Path to checkout the repository into."
+    required: false
 outputs:
   image-name:
     description: "The name of the built Docker image."
@@ -121,6 +124,7 @@ runs:
       uses: actions/checkout@v5
       with:
         ref: ${{ inputs.ref }}
+        path: ${{ inputs.checkout-path != '' && inputs.checkout-path || '' }}
 
     - name: Display Debug Information
       shell: bash
