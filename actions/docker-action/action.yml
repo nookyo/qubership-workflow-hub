@@ -144,14 +144,19 @@ runs:
       shell: bash
       run: |
         shopt -s dotglob
-        if [ -d "${{ inputs.custom-image-name }}" ]; then
-          echo "📦 Flattening artifact folder..."
-          mv "${{ inputs.custom-image-name }}"/* .
-          rmdir "${{ inputs.custom-image-name }}"
-        else
-          echo "ℹ️ No folder ${{ inputs.custom-image-name }} found"
-        fi
 
+        # Получим имя артефакта: либо custom-image-name, либо fallback на имя репо
+        ARTIFACT_DIR="${{ inputs.custom-image-name != '' && inputs.custom-image-name || github.event.repository.name }}"
+
+        echo "📦 Checking for artifact folder: '$ARTIFACT_DIR'"
+
+        if [ -d "$ARTIFACT_DIR" ]; then
+          echo "📦 Flattening artifact folder: $ARTIFACT_DIR"
+          mv "$ARTIFACT_DIR"/* .
+          rmdir "$ARTIFACT_DIR"
+        else
+          echo "ℹ️ Folder '$ARTIFACT_DIR' not found, skipping flatten"
+        fi
 
     - name: Debug ls
       if: ${{ inputs.debug == 'true' }}
