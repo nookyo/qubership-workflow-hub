@@ -139,6 +139,20 @@ runs:
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '..' }}
         merge-multiple: true
 
+    - name: Flatten artifact folder
+      if: ${{ inputs.download-artifact == 'true' }}
+      shell: bash
+      run: |
+        shopt -s dotglob
+        if [ -d "${{ inputs.custom-image-name }}" ]; then
+          echo "📦 Flattening artifact folder..."
+          mv "${{ inputs.custom-image-name }}"/* .
+          rmdir "${{ inputs.custom-image-name }}"
+        else
+          echo "ℹ️ No folder ${{ inputs.custom-image-name }} found"
+        fi
+
+
     - name: Debug ls
       if: ${{ inputs.debug == 'true' }}
       shell: bash
