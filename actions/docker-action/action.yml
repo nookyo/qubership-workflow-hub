@@ -147,18 +147,19 @@ runs:
       run: |
         echo "🔍 Current directory:"
         pwd
-        echo
-        echo "📂 Full tree under workspace:"
-        ls -R -la ${{ github.workspace }} || true
 
-        echo "📁 Listing current directory:"
-        ls -la ${{ github.workspace }}/qubership-nifi-registry || true
+        ls -la
 
-        echo "📁 Listing parent directory:"
-        ls -la ${{ github.workspace }}/qubership-nifi-registry/.. || true
+        ls -la ${{ github.workspace }}
 
-        echo "📂 Full workspace tree:"
+        ls -la ${{ github.workspace }}/qubership-nifi-registry
+
         ls -la ${{ github.workspace }}/qubership-nifi-registry-deps
+
+        ls -la ${{ github.workspace }}/qubership-nifi-registry/qubership-nifi-registry-deps
+
+        ls -la ${{ github.workspace }}/qubership-nifi-registry/qubership-nifi-registry-deps/target
+
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
