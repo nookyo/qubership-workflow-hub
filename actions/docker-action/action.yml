@@ -138,6 +138,14 @@ runs:
         name: ${{ inputs.custom-image-name }}
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '..' }}
 
+    - name: Flatten artifact folder
+      if: ${{ inputs.download-artifact == 'true' }}
+      shell: bash
+      run: |
+        shopt -s dotglob
+        mv "${{ inputs.custom-image-name }}"/* .
+        rmdir "${{ inputs.custom-image-name }}"
+
     - name: Debug ls
       if: ${{ inputs.debug == 'true' }}
       shell: bash
