@@ -143,20 +143,21 @@ runs:
       if: ${{ inputs.download-artifact == 'true' }}
       shell: bash
       run: |
+        set -e
         shopt -s dotglob
 
-        # Получим имя артефакта: либо custom-image-name, либо fallback на имя репо
         ARTIFACT_DIR="${{ inputs.custom-image-name != '' && inputs.custom-image-name || github.event.repository.name }}"
 
-        echo "📦 Checking for artifact folder: '$ARTIFACT_DIR'"
+        echo "📦 Flattening artifact folder: $ARTIFACT_DIR"
 
         if [ -d "$ARTIFACT_DIR" ]; then
-          echo "📦 Flattening artifact folder: $ARTIFACT_DIR"
-          mv "$ARTIFACT_DIR"/* .
-          rmdir "$ARTIFACT_DIR"
+          echo "📥 Merging contents of '$ARTIFACT_DIR' into workspace..."
+          rsync -a "$ARTIFACT_DIR"/ ./ 
+          rm -rf "$ARTIFACT_DIR"
         else
-          echo "ℹ️ Folder '$ARTIFACT_DIR' not found, skipping flatten"
+          echo "⚠️ Folder '$ARTIFACT_DIR' not found, skipping"
         fi
+
 
     - name: Debug ls
       if: ${{ inputs.debug == 'true' }}
