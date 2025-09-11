@@ -173,15 +173,6 @@ runs:
 
         ls -la ${{ github.workspace }}
 
-        ls -la ${{ github.workspace }}/qubership-nifi-registry
-
-        ls -la ${{ github.workspace }}/qubership-nifi-registry-deps
-
-        ls -la ${{ github.workspace }}/qubership-nifi-registry/qubership-nifi-registry-deps
-
-        ls -la ${{ github.workspace }}/qubership-nifi-registry/qubership-nifi-registry-deps/target
-
-
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
 
