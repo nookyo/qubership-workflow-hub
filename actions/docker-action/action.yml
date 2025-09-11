@@ -139,25 +139,24 @@ runs:
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '..' }}
         merge-multiple: true
 
-    - name: Flatten artifact folder
-      if: ${{ inputs.download-artifact == 'true' }}
-      shell: bash
-      run: |
-        set -e
-        shopt -s dotglob
+    # - name: Flatten artifact folder
+    #   if: ${{ inputs.download-artifact == 'true' }}
+    #   shell: bash
+    #   run: |
+    #     set -e
+    #     shopt -s dotglob
 
-        ARTIFACT_DIR="${{ inputs.custom-image-name != '' && inputs.custom-image-name || github.event.repository.name }}"
+    #     ARTIFACT_DIR="${{ inputs.custom-image-name != '' && inputs.custom-image-name || github.event.repository.name }}"
 
-        echo "📦 Flattening artifact folder: $ARTIFACT_DIR"
+    #     echo "📦 Flattening artifact folder: $ARTIFACT_DIR"
 
-        if [ -d "$ARTIFACT_DIR" ]; then
-          echo "📥 Merging contents of '$ARTIFACT_DIR' into workspace..."
-          rsync -a "$ARTIFACT_DIR"/ ./ 
-          rm -rf "$ARTIFACT_DIR"
-        else
-          echo "⚠️ Folder '$ARTIFACT_DIR' not found, skipping"
-        fi
-
+    #     if [ -d "$ARTIFACT_DIR" ]; then
+    #       echo "📥 Merging contents of '$ARTIFACT_DIR' into workspace..."
+    #       rsync -a "$ARTIFACT_DIR"/ ./
+    #       rm -rf "$ARTIFACT_DIR"
+    #     else
+    #       echo "⚠️ Folder '$ARTIFACT_DIR' not found, skipping"
+    #     fi
 
     - name: Debug ls
       if: ${{ inputs.debug == 'true' }}
