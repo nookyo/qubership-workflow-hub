@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Docker Cleanup Action
-        uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@v1.0.6
+        uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@v1.0.7
         with:
           threshold-days: ${{ github.event.inputs.threshold-days || 7 }}
           included-tags: ${{ github.event.inputs.included-tags || '' }}
@@ -130,7 +130,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Maven Cleanup Action
-        uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@v1.0.6
+        uses: netcracker/qubership-workflow-hub/actions/container-package-cleanup@v1.0.7
         with:
           threshold-days: ${{ github.event.inputs.threshold-days || 14 }}
           threshold-versions: ${{ github.event.inputs.threshold-versions || 1 }}

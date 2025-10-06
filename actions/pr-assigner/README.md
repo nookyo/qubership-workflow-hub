@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: PR Auto-Assignment (from CODEOWNERS)
-        uses: netcracker/qubership-workflow-hub/actions/pr-assigner@v1.0.6
+        uses: netcracker/qubership-workflow-hub/actions/pr-assigner@v1.0.7
         with:
           shuffle: 2
         env:
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: PR Auto-Assignment
-        uses: netcracker/qubership-workflow-hub/actions/pr-assigner@v1.0.6
+        uses: netcracker/qubership-workflow-hub/actions/pr-assigner@v1.0.7
         with:
           configuration-path: ".github/pr-assigner-config.yml"
           shuffle: 2

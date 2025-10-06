@@ -52,7 +52,7 @@ permissions:
 
 jobs:
   security-scan:
-    uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@v1.0.6
+    uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@v1.0.7
     with:
       target: ${{ inputs.target }}
       image: ${{ inputs.image }}

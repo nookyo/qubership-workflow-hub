@@ -37,6 +37,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate SBOM and Vulnerability Report
-        uses: netcracker/qubership-workflow-hub/actions/cdxgen@v1.0.6
+        uses: netcracker/qubership-workflow-hub/actions/cdxgen@v1.0.7
         with:
           project_type: "npm"
