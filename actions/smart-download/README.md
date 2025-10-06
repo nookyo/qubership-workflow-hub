@@ -51,19 +51,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact by Name
-        uses: netcracker/qubership-workflow-hub/actions/smart-download@v1.0.7
+        uses: netcracker/qubership-workflow-hub/actions/smart-download@v1.0.6
         with:
           name: my-artifact
           path: ./downloads
 
       - name: Download Artifacts by IDs
-        uses: netcracker/qubership-workflow-hub/actions/smart-download@v1.0.7
+        uses: netcracker/qubership-workflow-hub/actions/smart-download@v1.0.6
         with:
           artifact-ids: 123456789,987654321
           path: ./artifacts
 
       - name: Download Artifacts by Pattern
-        uses: netcracker/qubership-workflow-hub/actions/smart-download@v1.0.7
+        uses: netcracker/qubership-workflow-hub/actions/smart-download@v1.0.6
         with:
           pattern: build-*
           path: ./builds
