@@ -16,7 +16,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: netcracker/qubership-workflow-hub/actions/pr-assigner@main
+      - uses: netcracker/qubership-workflow-hub/actions/pr-assigner@v2.0.0
         with:
           assignees-count: 2
         env:
