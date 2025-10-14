@@ -7,4 +7,4 @@ permissions:
 
 jobs:
   call-prettier-fix:
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@v2.0.1
