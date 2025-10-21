@@ -1,376 +1,164 @@
-# Weekly Changes Summary
+# Weekly Changes Summary (October 14-21, 2025)
 
-This document summarizes the changes made by @nookyo and @borislavr during the week.
+This document summarizes all changes made by @nookyo and @borislavr during the week of October 14-21, 2025 in the following repositories:
+- **Netcracker/qubership-workflow-hub**
+- **Netcracker/.github**
 
-## Changes by @nookyo
+## Repository: Netcracker/qubership-workflow-hub
 
-### Pull Requests
+### Changes by @nookyo
 
-#### PR #427 - fix: Update logging for final assignees in PR assignment process
-- **Status**: Merged (October 14, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Refactor pr-assigner action with improved logic and integrated action-logger for better user experience. Enhanced assignment logic, improved error handling, and added structured colored logging throughout the workflow.
-- **Key Changes**:
-  - Replaced console.log with `@netcracker/action-logger` for consistent, colored output
-  - Enhanced assignee selection and filtering logic
-  - Better error handling with descriptive error messages
-  - Added emoji indicators for different message types (🔍, ✔️, ❗️, ⚠️)
-  - Improved self-assignment logic
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/427
+#### Direct Commits
+1. **e0bba319fd** - `refactor: delete unnessesary` (October 16, 2025)
+2. **945ff09abd** - `Merge branch 'main'` (October 16, 2025)
+3. **1ef70f2cb1** - `fix: Correct title prefix in feature request template from "[Feature]: " to "[Feat]: "` (October 1, but visible in recent activity)
 
-#### PR #426 - Update PR assigner action and token secret (#425)
-- **Status**: Closed (October 13, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Update PR assigner action and token secret
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/426
+#### Pull Requests Merged
+- **PR #427** - fix: Update logging for final assignees in PR assignment process (Merged October 14)
+  - **Status**: Merged
+  - **Type**: Bug fix
+  - **Summary**: Refactor pr-assigner action with improved logic and integrated action-logger for better user experience
+  - **Key Changes**:
+    - Replaced console.log with `@netcracker/action-logger` for consistent, colored output
+    - Enhanced assignee selection and filtering logic
+    - Better error handling with descriptive error messages
+    - Added emoji indicators (🔍, ✔️, ❗️, ⚠️)
+    - Improved self-assignment logic
+  - **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/427
 
-#### PR #425 - fix: Update PR assigner action and token secret
-- **Status**: Merged (October 13, 2025)
-- **Type**: Bug fix
-- **Summary**: Update PR assigner action and token secret
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/425
+#### Issues Created/Updated
+- **Issue #442** - [Task]: Collect all changes made during the week (Created October 21)
+- **Issue #434** - [Task]: Add vulnerabilities scanning workflow to base-images repository (Closed October 15)
+- **Issue #433** - [Task]: [BoradCast Job Task] Automatic PR labels based on conventional commits (Closed October 16)
+- **Issue #432** - [Task]: [BoradCast Job Task] Conventional Commits PR Check (Closed October 16)
 
-#### PR #423 - 421 feat auto assign pr to author if listed in codeowners
-- **Status**: Merged (October 13, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Auto assign PR to author if listed in codeowners
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/423
+### Changes by @borislavr
 
-#### PR #420 - Update README.md
-- **Status**: Closed (October 13, 2025)
-- **Type**: Documentation update
-- **Summary**: Update README.md
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/420
+#### Direct Commits
+1. **fd2720b536** - `fix: added conditions on Upload metadata step` (October 14, 2025)
+2. **245891a0ed** - `fix: added conditions on Upload metadata step` (October 14, 2025)
+3. **c69c174950** - `fix: added conditions on Upload metadata step` (October 14, 2025)
 
-#### PR #417 - fix: Fixed errors who found in BIOME_LINT
-- **Status**: Merged (October 9, 2025)
-- **Type**: Bug fix & Enhancement & Refactor
-- **Labels**: bug, enhancement, refactor
-- **Summary**: Introduce `@netcracker/action-logger` package - a standardized, reusable logging solution for GitHub Actions in the qubership-workflow-hub.
-- **Key Changes**:
-  - Created complete `@netcracker/action-logger` package with comprehensive logging features
-  - Full migration from local logger to shared package
-  - Added comprehensive `debugJSON()` calls for inputs, loaded configuration, and template values
-  - Fixed regex character class escaping in `fillTemplate()` function
-  - Replaced unsafe `isNaN()` with `Number.isNaN()` for proper type checking
-  - Completely rewrote `flattenObject()` function using proper `for...of` iteration
-  - Fixed variable declarations (`let` to `const` where immutable)
-  - Enhanced error handling and logging throughout the action
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/417
-
-#### PR #412 - feat: introduce @netcracker/action-logger package for standardized logging across actions
-- **Status**: Merged (October 9, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Summary**: Introduce `@netcracker/action-logger` package - a standardized logging solution for GitHub Actions.
-- **Key Changes**:
-  - Created `@netcracker/action-logger` package with enhanced logging features
-  - `log.group()` and `log.endGroup()` for organized output sections
-  - `log.success()`, `log.warn()`, `log.error()` for different message types
-  - `log.dim()` for less prominent debug information
-  - `log.setDebug()` for conditional debug output control
-  - `log.debug()` for debug-only messages that respect debug mode
-  - `log.debugJSON()` for structured JSON object debugging
-  - Consistent formatting and colors for better readability
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/412
-
-#### PR #406 - refactor: consolidate input handling in run function and enhance Logger class for debug mode
-- **Status**: Merged (October 7, 2025)
-- **Type**: Enhancement, Documentation, Refactor
-- **Labels**: documentation, enhancement, refactor
-- **Summary**: Add configurable replacement for `/` characters in Git references within the metadata-action.
-- **Key Changes**:
-  - Introduced `RefNormalizer` class in `src/extractor.js`
-  - `extract(ref, replaceSymbol = "-")` method for normalizing branch/tag names
-  - Validates input and detects ref type (branch, tag, or unknown)
-  - Replaces all `/` with `replaceSymbol` using global regex
-  - Added 4 test files covering unit and integration scenarios
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/406
-
-#### PR #405 - feat: Add wait-for-workflow GitHub Action and update documentation
-- **Status**: Merged (October 6, 2025)
-- **Type**: Enhancement, Documentation, Refactor
-- **Labels**: documentation, enhancement, refactor
-- **Summary**: Adds a new GitHub Action `wait-for-workflow` that waits for a specific GitHub Actions workflow to start and complete successfully.
-- **Key Changes**:
-  - New action: `actions/wait-for-workflow`
-  - Supports two operational modes: workflow file name and numeric run ID inputs
-  - Automatically matches workflows by commit SHA or PR number
-  - Configurable timeouts for workflow start detection (`max-wait`) and completion (`timeout`)
-  - Uses GitHub CLI (`gh`) for API interactions and `jq` for JSON parsing
-  - Updated documentation with comprehensive README
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/405
-
-#### PR #397 - fix: Fix metadata-action runNumber alias resolution bug
-- **Status**: Merged (October 1, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Fix bug in metadata-action where the alias runNumber cannot be resolved in templates.
-- **Key Changes**:
-  - Added fallback for runNumber in the values object
-  - If github.context.runNumber is undefined or null, use github.run_number
-  - Updated unit tests to cover the case where runNumber is undefined
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/397
-
-#### PR #390 - feat: Add On-Demand Security Scan Workflow documentation for Grype and Trivy
-- **Status**: Merged (September 26, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Summary**: Added re-security-scan On-demand security scan (Grype + Trivy)
-- **Scope**: documentation
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/390
-
-#### PR #392 - 381 task documentation update for workflow hub
-- **Status**: Closed (September 26, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Summary**: Documentation update for workflow hub
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/392
-
-#### PR #391 - Internal merge
-- **Status**: Merged (September 26, 2025)
-- **Summary**: Internal merge
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/391
-
-#### PR #389 - fix: Remove deprecated archive-and-upload-assets action
-- **Status**: Merged (September 26, 2025)
-- **Type**: Bug fix, Documentation
-- **Labels**: bug, documentation
-- **Summary**: Eliminate the deprecated archive-and-upload-assets action and update documentation to reflect its removal.
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/389
-
-#### PR #387 - fix: Remove deprecated tag-checker action and related files
-- **Status**: Merged (September 26, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Delete tag-checker action
-- **Key Changes**:
-  - Deleted the tag-checker action implementation (index.js)
-  - Removed related license, package.json, and package-lock.json files
-  - Updated documentation to reflect deprecation
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/387
-
-#### PR #385 - fix: Remove deprecated commit-and-push action and associated files
-- **Status**: Merged (September 26, 2025)
-- **Type**: Bug fix, Documentation
-- **Labels**: bug, documentation
-- **Summary**: Remove deprecated commit-and-push action and associated files
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/385
-
-#### PR #383 - fix: Remove deprecated pom-updater action and associated files
-- **Status**: Merged (September 26, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Remove deprecated pom-updater action and associated files
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/383
-
-#### PR #378 - fix: Fix artifact download, image refs generation, and context handling in docker-action
-- **Status**: Merged (September 26, 2025)
-- **Type**: Bug fix, Documentation, Enhancement, Refactor
-- **Labels**: bug, documentation, enhancement, refactor
-- **Summary**: Address several issues in the docker-action composite action related to artifact downloading, Docker image tag generation, and build context configuration.
-- **Key Changes**:
-  - Fixed Artifact Download Logic
-  - Corrected Image Refs Generation
-  - Updated Build Context
-  - Added Debug Step
-  - Input Fixes
-  - New Action: smart-download
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/378
-
-#### PR #380 - feat: Add on-demand security scan workflow with Grype and Trivy
-- **Status**: Merged (September 26, 2025)
-- **Type**: Bug fix, Enhancement
-- **Labels**: bug, enhancement
-- **Summary**: Add on-demand security scan workflow with Grype and Trivy
-- **Scope**: reusable workflow
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/380
-
-#### PR #377 - docs: update release drafter workflow path in README
-- **Status**: Merged (September 25, 2025)
-- **Type**: Documentation
-- **Labels**: documentation
-- **Summary**: Update release drafter workflow path in README
-- **Scope**: docs
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/377
+#### Pull Requests Merged
+- **PR #419** - fix: added `ref` input to metadata-action (Merged October 10, 2025 - but part of this week's context)
+  - **Status**: Merged
+  - **Type**: Bug fix
+  - **Summary**: Added `ref` input to metadata-action
+  - **Scope**: actions
+  - **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/419
 
 ---
 
-## Changes by @borislavr
+## Repository: Netcracker/.github
 
-### Pull Requests
+### Changes by @nookyo
 
-#### PR #419 - fix: added `ref` input to metadata-action
-- **Status**: Merged (October 10, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Added `ref` input to metadata-action
-- **Scope**: actions
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/419
+#### Direct Commits (October 14-21, 2025)
+1. **229b03bbf0** - `feat(ci): update autolabler config and add automatic PR labeler workflow` (October 15)
+2. **01154b818d** - `feat: add common autolabler config files to broadcast workflow` (October 15)
+3. **1bf01caf47** - `fix: comment out unused REPO_FILE handling logic in broadcast workflow` (October 15)
+4. **008b1489fe** - `feat(ci): add conventional commits enforcement workflow for PR titles` (October 15)
+5. **5b655ee38b** - `feat: add repo-file input to broadcast workflow and include repository list` (October 15)
+6. **3c2e1aa0c6** - `feat(ci): add security scan workflow to detect vulnerabilities in dependencies` (October 15)
+7. **ec3207b5a7** - `fix: Reload security scan` (October 15)
+8. **2cfb3eb25d** - `fix: update pr-assigner action version to 2.0.1` (October 14)
 
-#### PR #418 - fix: fixed severity scope on Grype CSV file generation
-- **Status**: Merged (October 9, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Fixed severity scope on Grype CSV file generation. Now only High & Critical vulnerabilities go to CSV when `only-high-critical` workflow parameter set to `true`
-- **Scope**: workflows
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/418
+#### Pull Requests
+- **PR #181** - chore: add biome configuration file for linter setup (Merged October 16)
+  - **Summary**: Added biome configuration file for linter setup and updated super-linter environment variables
+  - **Link**: https://github.com/Netcracker/.github/pull/181
 
-#### PR #413 - feat: re-security-scan.yml now creates CSV files with found vulnerabilities
-- **Status**: Merged (October 9, 2025)
-- **Type**: Enhancement, Refactor
-- **Labels**: enhancement, refactor
-- **Summary**: re-security-scan.yml now creates CSV files with found vulnerabilities and uploads them as artifacts
-- **Key Changes**:
-  - SARIF files, generated by Grype and Trivy converted to CSV format
-- **Scope**: workflows
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/413
+#### Issues
+- **Issue #178** - [Bug]: Super-linter issue (Closed October 16)
+  - **Summary**: Fix some ZIZMOR, BIOME etc issues
+  - **Link**: https://github.com/Netcracker/.github/issues/178
 
-#### PR #407 - BREAKING: deleted unused/deprecated reusable workflows
-- **Status**: Merged (October 7, 2025)
-- **Type**: Breaking change
-- **Labels**: breaking-change
-- **Summary**: Deleted unused/deprecated reusable workflows
-- **Key Changes**:
-  - Removed create-github-release.yml
-  - Removed docker-publish.yml
-  - Removed maven-central-snapshot-deploy-reusable.yaml
-  - Removed maven-publish.yml
-  - Removed re-maven-snapshot-deploy.yaml
-  - Removed tag-creator.yml
-- **Scope**: workflows
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/407
+### Changes by @borislavr
 
-#### PR #400 - fix: Update Trivy severity levels and enhance Grype SARIF filtering logic
-- **Status**: Merged (October 7, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Trivy and Grype will report issues with existing fix only. Severity levels high (>=7.0 and <= 8.9) and critical (>=9.0)
-- **Scope**: workflows
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/400
-
-#### PR #395 - feat: charts-values-update-action can optionally publish charts to ghcr.io
-- **Status**: Merged (September 30, 2025)
-- **Type**: Bug fix, Documentation, Enhancement
-- **Labels**: bug, documentation, enhancement
-- **Summary**: charts-values-update-action can optionally publish charts to `ghcr.io` and outputs charts meta-data needed for AM generation
-- **Scope**: actions
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/395
-
-#### PR #374 - feat: update release-drafter.yml
-- **Status**: Merged (September 25, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Summary**: Added `latest` flag
-- **Scope**: workflows
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/374
-
-#### PR #370 - feat: added warning messages into chart-values-update-action log
-- **Status**: Merged (September 23, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Summary**: Added warning messages into `chart-values-update-action` log if configured image not found in values file.
-- **Scope**: actions
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/370
-
-#### PR #368 - fix: update action.yaml
-- **Status**: Merged (September 17, 2025)
-- **Type**: Bug fix
-- **Labels**: bug
-- **Summary**: Now release can be made from any branch not only from `main`
-- **Scope**: actions
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/368
-
-#### PR #344 - feat: added new parameter `download-artifact-merge-multiple` into `docker-action`
-- **Status**: Merged (September 15, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Summary**: Added new parameter `download-artifact-merge-multiple: false` to `docker-action` to support `merge-multiple` parameter of `actions/download-artifact`
-- **Scope**: actions
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/344
-
-#### PR #338 - feat: update maven-snapshot-deploy action
-- **Status**: Merged (September 5, 2025)
-- **Type**: Documentation, Enhancement
-- **Labels**: documentation, enhancement
-- **Summary**: Added `sonar-token` input parameter
-- **Scope**: actions
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/338
-
-#### PR #329 - feat: Added a new optional parameter to Container Package Cleanup Action
-- **Status**: Merged (September 4, 2025)
-- **Type**: Bug fix, Documentation, Enhancement
-- **Labels**: bug, documentation, enhancement
-- **Summary**: Added a new optional parameter `threshold-versions` to "Container Package Cleanup Action".
-- **Key Changes**:
-  - `threshold-versions` applicable only to maven artifacts cleanup
-  - When provided, the action will leave the number of newest versions untouched
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/329
-
-#### PR #313 - chore(issues): update feature_request.yml
-- **Status**: Merged (September 3, 2025)
-- **Summary**: Update feature request template
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/313
-
-#### Historical PRs (for reference):
-
-#### PR #289 - chore: Reusable workflows now have `Reusable` prefix in their names
-- **Status**: Closed (August 14, 2025)
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/289
-
-#### PR #233 - docs: add mandatory workflows list to README.md
-- **Status**: Merged (June 11, 2025)
-- **Type**: Enhancement
-- **Labels**: enhancement
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/233
-
-#### PR #206 - feat: Update Maven GitHub Action configuration
-- **Status**: Merged (June 2, 2025)
-- **Type**: Bug fix, Enhancement
-- **Labels**: bug, enhancement
-- **Summary**: Refine the GitHub Action for Maven by removing the alternative store parameter, updating the GITHUB_TOKEN reference, and adding GitHub server configuration to Maven settings.
-- **Link**: https://github.com/Netcracker/qubership-workflow-hub/pull/206
+#### Direct Commits (October 14-21, 2025)
+1. **1789097a08** - `Update broadcast-files-config.yaml` (October 13 - visible in this week)
 
 ---
 
-## Summary Statistics
+## Key Activities Summary (October 14-21, 2025)
 
-### @nookyo
-- **Total Pull Requests**: 24
-- **Merged**: 20
-- **Closed**: 4
-- **Primary Focus Areas**:
-  - Action improvements and refactoring
-  - Logging infrastructure (`@netcracker/action-logger`)
-  - Bug fixes in metadata-action
-  - Documentation updates
-  - Removal of deprecated actions
-  - Security scan workflows
+### @nookyo's Weekly Contributions
 
-### @borislavr
-- **Total Pull Requests**: 19
-- **Merged**: 17
-- **Closed**: 2
-- **Primary Focus Areas**:
-  - Workflow enhancements
-  - Security improvements (Grype, Trivy)
-  - Maven and Docker action updates
-  - Charts and container package management
-  - Breaking changes (removal of deprecated workflows)
+#### Netcracker/qubership-workflow-hub
+- **1 major PR merged**: Enhanced PR assigner action with better logging (PR #427)
+- **3 direct commits**: Refactoring and merge commits
+- **4 issues managed**: Created task for collecting changes, closed 3 broadcast job tasks
 
-## Key Themes
+#### Netcracker/.github
+- **8 direct commits**: Major improvements to CI/CD workflows
+- **1 PR merged**: Added biome linter configuration (PR #181)
+- **1 issue closed**: Fixed super-linter issues (Issue #178)
 
-1. **Code Quality & Linting**: Multiple PRs focused on improving code quality through biome linting compliance
-2. **Logging Infrastructure**: Introduction of standardized `@netcracker/action-logger` package
-3. **Security**: Enhanced security scanning with Grype and Trivy
-4. **Deprecation Cleanup**: Removal of deprecated actions and workflows
-5. **Documentation**: Multiple documentation updates and improvements
-6. **Bug Fixes**: Various bug fixes in actions and workflows
-7. **Feature Enhancements**: New features for Docker actions, Maven actions, and chart management
+**Key Contributions**:
+- Enhanced PR auto-assignment workflow with better logging and error handling
+- Added security scanning workflow for dependency vulnerability detection
+- Implemented conventional commits enforcement for PR titles
+- Added automatic PR labeler workflow based on conventional commits
+- Updated broadcast workflow with auto-labeler configuration
+- Fixed super-linter issues related to ZIZMOR and BIOME
+
+### @borislavr's Weekly Contributions
+
+#### Netcracker/qubership-workflow-hub
+- **3 direct commits**: Fixed conditions on metadata upload step
+- **1 PR merged**: Added `ref` input to metadata-action (PR #419)
+
+#### Netcracker/.github
+- **1 direct commit**: Updated broadcast-files-config.yaml
+
+**Key Contributions**:
+- Enhanced metadata-action with `ref` input parameter
+- Fixed upload metadata step conditions
+- Updated broadcast configuration files
 
 ---
 
-_Generated on: $(date)_
+## Technical Highlights
+
+### Code Quality & Linting
+- Added biome linter configuration to .github repository
+- Fixed multiple super-linter issues (ZIZMOR, BIOME)
+- Enhanced code quality checks across the organization
+
+### CI/CD Improvements
+- Enhanced PR auto-assignment workflow with improved logging using `@netcracker/action-logger`
+- Added security scanning workflow for vulnerability detection
+- Implemented conventional commits enforcement
+- Added automatic PR labeling based on commit types
+
+### Action Enhancements
+- Improved pr-assigner action with better error handling and user feedback
+- Enhanced metadata-action with `ref` input parameter
+- Fixed upload metadata conditions
+
+### Documentation & Configuration
+- Updated broadcast workflow configurations
+- Added auto-labeler configuration files
+- Improved workflow documentation and templates
+
+---
+
+## Statistics
+
+### Netcracker/qubership-workflow-hub
+- **Total Commits by @nookyo**: 3
+- **Total Commits by @borislavr**: 3
+- **Total PRs Merged**: 2 (1 by @nookyo, 1 by @borislavr)
+- **Total Issues**: 7 (4 managed by @nookyo)
+
+### Netcracker/.github
+- **Total Commits by @nookyo**: 8
+- **Total Commits by @borislavr**: 1
+- **Total PRs Merged**: 1 (by @nookyo)
+- **Total Issues**: 1 (by @nookyo)
+
+---
+
+*Generated on: October 21, 2025*
+*Report Period: October 14-21, 2025*
+*Repositories: Netcracker/qubership-workflow-hub, Netcracker/.github*
