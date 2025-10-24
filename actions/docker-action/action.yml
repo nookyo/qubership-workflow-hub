@@ -166,19 +166,19 @@ runs:
       run: |
         echo "custom-image-name: ${CUSTOM_IMAGE_NAME:-empty}"
         echo "env CONTAINER_NAME: ${{ env.CONTAINER_NAME }}"
-        if [ -n ${DOCKER_OWNER} ]; then
+        if [ -n "${DOCKER_OWNER}" ]; then
           echo "env DOCKER_OWNER: ${DOCKER_OWNER}"
         fi
-        if [ -n ${GHCR_OWNER} ]; then
+        if [ -n "${GHCR_OWNER}" ]; then
           echo "env GHCR_OWNER: ${GHCR_OWNER}"
         fi
         echo "ref: ${{ inputs.ref }}"
         echo "GITHUB_REPOSITORY: ${{ github.repository }}"
         echo "GITHUB_REF: ${{ github.ref }}"
-        if [ -n ${DOCKER_URL} ]; then
+        if [ -n "${DOCKER_URL}" ]; then
           echo "docker.io URL: ${DOCKER_URL}"
         fi
-        if [ -n ${GHCR_URL} ]; then
+        if [ -n "${GHCR_URL}" ]; then
           echo "ghcr.io URL: ${GHCR_URL}"
         fi
 
@@ -251,13 +251,13 @@ runs:
         IFS=',' read -ra TAGS <<< "$TAGS_INPUT"
 
         IMAGE_REFS=""
-        if [ -n ${GHCR_URL} ]; then
+        if [ -n "${GHCR_URL}" ]; then
           for TAG in "${TAGS[@]}"; do
             TAG=$(echo "$TAG" | xargs)
             IMAGE_REFS="$IMAGE_REFS,$GHCR_URL:$TAG"
           done
         fi
-        if [ -n ${DOCKER_URL} ]; then
+        if [ -n "${DOCKER_URL}" ]; then
           for TAG in "${TAGS[@]}"; do
             TAG=$(echo "$TAG" | xargs)
             IMAGE_REFS="$IMAGE_REFS,$DOCKER_URL:$TAG"
