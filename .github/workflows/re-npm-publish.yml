@@ -23,7 +23,7 @@ on:
         type: boolean
         default: false
       dry-run:
-        description: 'Run in dry-run mode (no actual publishing)'
+        description: "Run in dry-run mode (no actual publishing)"
         required: false
         type: boolean
         default: false
@@ -40,7 +40,10 @@ on:
 permissions:
   contents: write
   packages: write
-
+  id-token: write
+env:
+  VERSION: ${{ inputs.version }}
+  DIST_TAG: ${{ inputs.dist-tag }}
 jobs:
   npm-build-publish:
     runs-on: ubuntu-latest
@@ -53,9 +56,10 @@ jobs:
         with:
           ref: ${{ inputs.ref}}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node-version }}
           registry-url: ${{ inputs.registry-url }}
@@ -91,14 +95,14 @@ jobs:
           fi
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "Current version: $CURRENT_VERSION"
-          echo "Requested version: ${{ inputs.version }}"
+          echo "Requested version: $VERSION"
 
       - name: Validate version
         if: ${{ !inputs.dry-run }}
+        env:
+          CURRENT_VERSION: ${{ steps.current_version.outputs.current_version }}
+          REQUESTED_VERSION: ${{ env.VERSION }}
         run: |
-          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
-          REQUESTED_VERSION="${{ inputs.version }}"
-
           echo "Current version: $CURRENT_VERSION"
           echo "Requested version: $REQUESTED_VERSION"
 
@@ -120,30 +124,30 @@ jobs:
         run: |
           if [ "$IS_LERNA" = "true" ]; then
             echo "Updating version in lerna.json and all package.json files..."
-            npx lerna version ${{ inputs.version }} --yes --no-git-tag-version --no-push
+            npx lerna version $VERSION --yes --no-git-tag-version --no-push
           else
             echo "Updating version in package.json..."
-            npm version ${{ inputs.version }} --no-git-tag-version
+            npm version $VERSION --no-git-tag-version
           fi
           git diff --color
           git diff >> changes.txt
 
       - name: Commit Changes
         if: ${{ !inputs.dry-run }}
-        uses: netcracker/qubership-workflow-hub/actions/commit-and-push@v1.0.7
+        uses: netcracker/qubership-workflow-hub/actions/commit-and-push@7860be3b17e788ba26efe4ec4d699b4e786245b5 #v1.0.7
         with:
-          commit_message: "Update package.json version to ${{ inputs.version }}"
+          commit_message: "Update package.json version to $VERSION"
 
       - name: Get package version
         if: ${{ !inputs.dry-run }}
         id: get_version
         run: |
-            if [ "$IS_LERNA" == "true" ]; then
-              VERSION=$(lerna list --json | jq -r '.[0].version')
-            else
-              VERSION=$(jq -r '.version' package.json)
-            fi
-            echo "package_version=$VERSION" >> $GITHUB_OUTPUT
+          if [ "$IS_LERNA" == "true" ]; then
+            VERSION=$(lerna list --json | jq -r '.[0].version')
+          else
+            VERSION=$(jq -r '.version' package.json)
+          fi
+          echo "package_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Project
         run: |
@@ -160,10 +164,12 @@ jobs:
 
       - name: Skip publishing (dry-run mode)
         if: ${{ inputs.dry-run }}
+        env:
+          PACKAGE_VERSION: ${{ steps.get_version.outputs.package_version }}
         run: |
           echo "Publishing skipped - running in dry-run mode"
-          echo "Package version: ${{ steps.get_version.outputs.package_version }}"
-          echo "Would publish with tag: ${{ inputs.dist-tag }}"
+          echo "Package version: $PACKAGE_VERSION"
+          echo "Would publish with tag: $DIST_TAG"
 
       - name: Publish Package
         if: ${{ !inputs.dry-run }}
@@ -171,8 +177,8 @@ jobs:
           npm config get registry
           if [ "$IS_LERNA" = "true" ]; then
             echo "Publishing with Lerna..."
-            npx lerna publish from-package --yes --no-push --no-git-reset --no-git-tag-version --dist-tag ${{ inputs.dist-tag }}
+            npx lerna publish from-package --yes --no-push --no-git-reset --no-git-tag-version --dist-tag $DIST_TAG
           else
             echo "Publishing with npm..."
-            npm publish --tag ${{ inputs.dist-tag }}
+            npm publish --tag $DIST_TAG
           fi
