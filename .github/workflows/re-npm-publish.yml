@@ -37,15 +37,15 @@ on:
         type: string
         default: "main"
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
 env:
   VERSION: ${{ inputs.version }}
   DIST_TAG: ${{ inputs.dist-tag }}
 jobs:
   npm-build-publish:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
