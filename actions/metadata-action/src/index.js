@@ -1,4 +1,4 @@
-// With a motherf***ing microphone, plug it in my soul
+// With a mfk microphone, plug it in my soul
 // I'm a renegade riot getting out of control
 // I'm-a keeping it alive and continue to be
 // Flying like an eagle to my destiny
