@@ -50,17 +50,6 @@ permissions:
   packages: read
 
 jobs:
-  params:
-    name: "Show params"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug inputs
-        run: |
-          echo "target=${{ github.event.inputs.target }}"
-          echo "image=${{ github.event.inputs.image }}"
-          echo "resolved_image=${{ github.event.inputs.image || format('ghcr.io/{0}:latest', github.repository) }}"
-          echo "event_name=${{ github.event_name }}"
-
   security-scan:
     name: "Run Security Scan"
     uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
