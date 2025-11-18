@@ -39,6 +39,8 @@ on:
         required: false
         default: true
         type: boolean
+  schedule:
+    - cron: "*/2 * * * *"
 
 permissions:
   contents: read
@@ -47,13 +49,25 @@ permissions:
   packages: read
 
 jobs:
+  params:
+    name: "Show params"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug inputs
+        run: |
+          echo "target=${{ github.event.inputs.target }}"
+          echo "image=${{ github.event.inputs.image }}"
+          echo "resolved_image=${{ github.event.inputs.image || format('ghcr.io/{0}:latest', github.repository) }}"
+          echo "event_name=${{ github.event_name }}"
+
   security-scan:
+    name: "Run Security Scan"
     uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
     with:
       target: ${{ github.event.inputs.target || 'source' }}
-      image: ${{ github.event.inputs.image || '' }}
-      only-high-critical: ${{ inputs.only-high-critical}}
-      trivy-scan: ${{ inputs.trivy-scan }}
-      grype-scan: ${{ inputs.grype-scan }}
-      only-fixed: ${{ inputs.only-fixed }}
-      continue-on-error: ${{ inputs.continue-on-error }}
+      image: ${{ github.event.inputs.image || format('ghcr.io/{0}:latest', github.repository) }}
+      only-high-critical: ${{ github.event.inputs.only-high-critical || true }}
+      trivy-scan: ${{ github.event.inputs.trivy-scan || true }}
+      grype-scan: ${{ github.event.inputs.grype-scan || true }}
+      only-fixed: ${{ github.event.inputs.only-fixed || true }}
+      continue-on-error: ${{ github.event.inputs.continue-on-error || true }}
