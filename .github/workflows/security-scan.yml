@@ -40,7 +40,7 @@ on:
         default: true
         type: boolean
   schedule:
-    - cron: "*/2 * * * *"
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: read
