@@ -24,7 +24,6 @@ The target store for the artifact. Can be `central` or `github`. Defaults to `ce
 **Optional**
 Maven command to execute (default is 'deploy' for SNAPSHOT versions, 'install' otherwise).
 
-
 ### `additional-mvn-args`
 
 **Optional**
@@ -99,10 +98,10 @@ jobs:
       - name: Code quality/security scan on SonarQube
         uses: netcracker/qubership-workflow-hub/actions/maven-snapshot-deploy@main
         with:
-          java-version: '17'
-          target-store: 'github'
-          maven-command: 'clean verify'
-          additional-mvn-args: 'org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar -Dsonar.projectKey=Netcracker_qubership -Dsonar.organization=netcracker -Dsonar.host.url=https://sonarcloud.io'
+          java-version: "17"
+          target-store: "github"
+          maven-command: "clean verify"
+          additional-mvn-args: "org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar -Dsonar.projectKey=Netcracker_qubership -Dsonar.organization=netcracker -Dsonar.host.url=https://sonarcloud.io"
           maven-username: ${{ github.actor }} # For maven central repository it would be ${{ secrets.MAVEN_USER }}. Already set for Netcracker.
           maven-token: ${{ github.token }} # For maven central repository it would be ${{ secrets.MAVEN_PASSWORD}}. Already set for Netcracker.
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Organization level secret. Already set for Netcracker.
@@ -112,10 +111,10 @@ jobs:
       - name: Deploy Maven Snapshot
         uses: netcracker/qubership-workflow-hub/actions/maven-snapshot-deploy@main
         with:
-          java-version: '17'
-          target-store: 'github'
-          maven-command: 'deploy'
-          additional-mvn-args: '-Dskip.tests=true'
+          java-version: "17"
+          target-store: "github"
+          maven-command: "deploy"
+          additional-mvn-args: "-Dskip.tests=true"
           maven-username: ${{ github.actor }} # For maven central repository it would be ${{ secrets.MAVEN_USER }}. Already set for Netcracker.
           maven-token: ${{ github.token }} # For maven central repository it would be ${{ secrets.MAVEN_PASSWORD}}. Already set for Netcracker.
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Organization level secret. Already set for Netcracker.
