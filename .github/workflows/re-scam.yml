@@ -116,7 +116,7 @@ jobs:
         uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 #v7.1.0
         with:
           path: .
-          output-file: grype.sarif
+          output-file: ${{ env.grype_output}}
           fail-build: false
           severity-cutoff: critical
           only-fixed: ${{ inputs.only-fixed }}
@@ -126,7 +126,7 @@ jobs:
         env:
           ONLY_HIGH_CRITICAL: ${{ inputs['only-high-critical'] }}
         run: |
-          SARIF_FILE=grype.sarif
+          SARIF_FILE=${{ env.grype_output}}
           jq '. as $input
           | .runs[].results
           |= map(. + {
@@ -214,7 +214,7 @@ jobs:
         with:
           image-ref: "${{ env.IMAGE }}"
           severity: ${{ env.TRIVY_SEVERITY }}
-          output: trivy.sarif
+          output: ${{ env.trivy_output}}
           format: "sarif"
           ignore-unfixed: ${{ inputs.only-fixed }}
           limit-severities-for-sarif: true
@@ -227,7 +227,7 @@ jobs:
         with:
           scan-type: "fs"
           severity: ${{ env.TRIVY_SEVERITY }}
-          output: trivy.sarif
+          output: ${{ env.trivy_output}}
           format: "sarif"
           ignore-unfixed: ${{ inputs.only-fixed }}
           limit-severities-for-sarif: true
@@ -235,7 +235,7 @@ jobs:
 
       - name: "Convert Trivy SARIF to CSV"
         run: |
-          SARIF_FILE=trivy.sarif
+          SARIF_FILE=${{ env.trivy_output}}
           jq '. as $input
           | .runs[].results
           |= map(. + { security_severity: ($input.runs[0].tool.driver.rules[] as $rule
