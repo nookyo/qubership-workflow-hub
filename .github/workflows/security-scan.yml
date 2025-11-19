@@ -52,7 +52,7 @@ permissions:
 jobs:
   security-scan:
     name: "Run Security Scan"
-    uses: netcracker/qubership-workflow-hub/.github/workflows/re-security-scan.yml@main
+    uses: nookyo/qubership-workflow-hub/.github/workflows/re-scam.yml@main
     with:
       target: ${{ github.event.inputs.target || 'source' }}
       image: ${{ github.event.inputs.image || format('ghcr.io/{0}:latest', github.repository) }}
