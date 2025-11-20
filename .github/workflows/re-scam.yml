@@ -211,6 +211,7 @@ jobs:
         with:
           sarif_file: |
             ${{ env.GRYPE_FILENAME }}
+          category: grype-${{ env.GRYPE_FILENAME }}
 
       # - name: Upload all scan artifacts
       #   uses: actions/upload-artifact@v5
