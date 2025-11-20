@@ -201,13 +201,13 @@ jobs:
             ${{ env.GRYPE_FILENAME }}
           category: ${{ env.GRYPE_FILENAME }}
 
-      # - name: Upload all scan artifacts
-      #   uses: actions/upload-artifact@v5
-      #   with:
-      #     name: grype.sarif
-      #     path: |
-      #       grype.sarif
-      #       grype.csv
+      - name: Upload all scan artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: grype.sarif
+          path: |
+            ${{ env.GRYPE_FILENAME }}
+      # grype.csv
 
   # trivy-scan:
   #   runs-on: ubuntu-latest
