@@ -8,9 +8,9 @@ This **Tag Creator** GitHub Workflow creates a new tag in the repository.
 
 ## 📌 Inputs
 
-| Name       | Description                          | Required | Default |
-| ---------- | ------------------------------------ | -------- | ------- |
-| `tag-name` | The version of the tag to create.    | Yes      | None    |
+| Name       | Description                             | Required | Default |
+| ---------- | --------------------------------------- | -------- | ------- |
+| `tag-name` | The version of the tag to create.       | Yes      | None    |
 | `ref`      | The branch name to create the tag from. | No       | `main`  |
 
 ## Usage Example
@@ -36,3 +36,4 @@ jobs:
       ref: "main"
     secrets:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```

@@ -16,23 +16,23 @@ This GitHub Action automates the process of building and releasing a Maven artif
 
 ## 📌 Inputs
 
-| Name                        | Description                                                                                       | Required | Default                                                    |
-|-----------------------------|---------------------------------------------------------------------------------------------------|----------|------------------------------------------------------------|
-| `version-type`              | Type of version bump for the release. Can be one of: `major`, `minor`, `patch`.                  | Yes      | `patch`                                                    |
-| `module`                    | The module (repository name) to build.                                                            | Yes      |                                                            |
-| `ref`                       | Branch name to create the release from.                                                           | No       | `main`                                                     |
-| `maven-args`                | Additional Maven arguments to pass.                                                               | No       | `-DskipTests=true -Dmaven.javadoc.skip=true -B`            |
-| `server-id`                 | Maven server ID.                                                                                  | No       | `github`                                                   |
-| `java-version`              | Java version to use.                                                                              | No       | `21`                                                       |
-| `maven-version`             | Maven version to use.                                                                             | No       |                                                            |
-| `dry-run`                   | If set to `true`, performs a dry run without pushing changes.                                     | No       | `true`                                                     |
-| `token`                     | GitHub token for authentication.                                                                  | Yes      |                                                            |
-| `gpg-private-key`           | GPG private key for signing artifacts.                                                            | Yes      |                                                            |
-| `gpg-passphrase`            | Passphrase for the GPG private key.                                                               | Yes      |                                                            |
-| `profile`                   | Maven profile to use.                                                                             | No       |                                                            |
-| `maven-user`                | Username to login to Maven central or GitHub packages.                                            | No       |                                                            |
-| `maven-password`            | Password to login to Maven central or GitHub packages.                                            | No       |                                                            |
-| `bump-dependencies-after-release` | If set to `true`, bumps dependencies versions to the next snapshot after release.         | No       | `false`                                                    |
+| Name                              | Description                                                                       | Required | Default                                         |
+| --------------------------------- | --------------------------------------------------------------------------------- | -------- | ----------------------------------------------- |
+| `version-type`                    | Type of version bump for the release. Can be one of: `major`, `minor`, `patch`.   | Yes      | `patch`                                         |
+| `module`                          | The module (repository name) to build.                                            | Yes      |                                                 |
+| `ref`                             | Branch name to create the release from.                                           | No       | `main`                                          |
+| `maven-args`                      | Additional Maven arguments to pass.                                               | No       | `-DskipTests=true -Dmaven.javadoc.skip=true -B` |
+| `server-id`                       | Maven server ID.                                                                  | No       | `github`                                        |
+| `java-version`                    | Java version to use.                                                              | No       | `21`                                            |
+| `maven-version`                   | Maven version to use.                                                             | No       |                                                 |
+| `dry-run`                         | If set to `true`, performs a dry run without pushing changes.                     | No       | `true`                                          |
+| `token`                           | GitHub token for authentication.                                                  | Yes      |                                                 |
+| `gpg-private-key`                 | GPG private key for signing artifacts.                                            | Yes      |                                                 |
+| `gpg-passphrase`                  | Passphrase for the GPG private key.                                               | Yes      |                                                 |
+| `profile`                         | Maven profile to use.                                                             | No       |                                                 |
+| `maven-user`                      | Username to login to Maven central or GitHub packages.                            | No       |                                                 |
+| `maven-password`                  | Password to login to Maven central or GitHub packages.                            | No       |                                                 |
+| `bump-dependencies-after-release` | If set to `true`, bumps dependencies versions to the next snapshot after release. | No       | `false`                                         |
 
 ## 📌 Outputs
 
@@ -55,15 +55,15 @@ jobs:
       - name: Release Maven Artifact
         uses: netcracker/qubership-workflow-hub/actions/maven-release@main
         with:
-          version-type: 'minor'
-          module: 'my-module'
-          ref: 'main'
+          version-type: "minor"
+          module: "my-module"
+          ref: "main"
           token: ${{ secrets.GITHUB_TOKEN }}
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           maven-user: ${{ secrets.MAVEN_USER }}
           maven-password: ${{ secrets.MAVEN_PASSWORD }}
-          bump-dependencies-after-release: 'true'
+          bump-dependencies-after-release: "true"
 ```
 
 ## How It Works
