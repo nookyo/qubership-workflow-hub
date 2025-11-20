@@ -97,7 +97,7 @@ jobs:
           if [ "${TARGET}" = "docker" ]; then
             SHORT_NAME=$(echo "$IMAGE" | sed 's|.*/\(.*\)|\1|')
             SAFE_NAME=$(echo "$SHORT_NAME" | sed 's/[:\/-]/_/g')
-            echo "GRYPE_FILENAME=grype.sarif" >> $GITHUB_ENV
+            echo "GRYPE_FILENAME=grype-${SAFE_NAME}.sarif" >> $GITHUB_ENV
             echo "TRIVY_FILENAME=trivy-${SAFE_NAME}.sarif" >> $GITHUB_ENV
             echo "Prepared filenames for image scan: grype-${SAFE_NAME}.sarif, trivy-${SAFE_NAME}.sarif"
           else
@@ -106,7 +106,7 @@ jobs:
             echo "Prepared filenames for source scan: grype.sarif, trivy.sarif"
           fi
 
-#       echo "GRYPE_FILENAME=grype-${SAFE_NAME}.sarif" >> $GITHUB_ENV
+
 
       - name: "Grype scan (Docker: High+Critical)"
         if: ${{ inputs.target == 'docker' }}
