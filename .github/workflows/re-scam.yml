@@ -128,7 +128,6 @@ jobs:
         with:
             image: ${{ env.IMAGE }}
             output-file: ${{ env.GRYPE_FILENAME }}
-            # output-file: ${{ env.GRYPE_FILENAME }}
             fail-build: false
             severity-cutoff: critical
             only-fixed: ${{ inputs.only-fixed }}
