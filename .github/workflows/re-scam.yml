@@ -116,6 +116,7 @@ jobs:
             fail-build: false
             severity-cutoff: critical
             only-fixed: ${{ inputs.only-fixed }}
+            output-format: sarif
         continue-on-error: ${{ inputs.continue-on-error }}
 
       - name: "Grype scan (Source: High+Critical)"
@@ -128,6 +129,7 @@ jobs:
           fail-build: false
           severity-cutoff: critical
           only-fixed: ${{ inputs.only-fixed }}
+          output-format: sarif
         continue-on-error: ${{ inputs.continue-on-error }}
 
       - name: Check file
