@@ -193,25 +193,13 @@ jobs:
       #         )
       #     ) | @csv' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.csv"
       #     rm "${SARIF_FILE%.sarif}.ext.sarif"
-      - name: Inspect SARIF
-        run: |
-          echo "PWD: $(pwd)"
-          ls -la
-          echo "---- file ----"
-          cat "$GRYPE_FILENAME" | head -n 20 || true
-          echo "---- jq parse ----"
-          jq '.runs[0].tool.driver.name' "$GRYPE_FILENAME" || echo "jq failed"
-
-      - name: Move SARIF files to workspace
-        run: |
-            mv "$GRYPE_FILENAME" "$GITHUB_WORKSPACE" || true
 
       - name: Upload Grype SARIF
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: |
             ${{ env.GRYPE_FILENAME }}
-          category: grype-${{ env.GRYPE_FILENAME }}
+          category: ${{ env.GRYPE_FILENAME }}
 
       # - name: Upload all scan artifacts
       #   uses: actions/upload-artifact@v5
