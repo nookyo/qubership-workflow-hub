@@ -204,7 +204,7 @@ jobs:
       - name: Upload all scan artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: grype.sarif
+          name: ${{ env.GRYPE_FILENAME }}
           path: |
             ${{ env.GRYPE_FILENAME }}
       # grype.csv
