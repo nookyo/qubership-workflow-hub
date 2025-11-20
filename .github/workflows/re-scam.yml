@@ -50,6 +50,8 @@ env:
     ${{ inputs['only-high-critical'] && 'HIGH,CRITICAL' || 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL' }}
   IMAGE: >-
     ${{ inputs.target == 'docker' && (inputs.image != '' && inputs.image || format('ghcr.io/{0}:latest', github.repository)) || '' }}
+  GRYPE_FILENAME: "grype.sarif"
+  TRIVY_FILENAME: "trivy.sarif"
 
 jobs:
   init:
@@ -91,103 +93,108 @@ jobs:
           persist-credentials: false
 
       - name: Prepare filenames
-        if: ${{ inputs.target == 'docker' }}
         run: |
-            SHORT_NAME=$(echo "${{ env.IMAGE }}" | sed 's|.*/\(.*\)|\1|')
+          if [ "${TARGET}" = "docker" ]; then
+            SHORT_NAME=$(echo "$IMAGE" | sed 's|.*/\(.*\)|\1|')
             SAFE_NAME=$(echo "$SHORT_NAME" | sed 's/[:\/-]/_/g')
-            echo "grype_output=grype-${SAFE_NAME}.sarif" >> $GITHUB_ENV
-            echo "trivy_output=trivy-${SAFE_NAME}.sarif" >> $GITHUB_ENV
+            echo "GRYPE_FILENAME=grype-${SAFE_NAME}.sarif" >> $GITHUB_ENV
+            echo "TRIVY_FILENAME=trivy-${SAFE_NAME}.sarif" >> $GITHUB_ENV
             echo "Prepared filenames for image scan: grype-${SAFE_NAME}.sarif, trivy-${SAFE_NAME}.sarif"
+          else
+            echo "GRYPE_FILENAME=grype.sarif" >> $GITHUB_ENV
+            echo "TRIVY_FILENAME=trivy.sarif" >> $GITHUB_ENV
+            echo "Prepared filenames for source scan: grype.sarif, trivy.sarif"
+          fi
 
-  #     - name: "Grype scan (Docker: High+Critical)"
-  #       if: ${{ inputs.target == 'docker' }}
-  #       id: grype-docker
-  #       uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993
-  #       with:
-  #           image: "${{ env.IMAGE }}"
-  #           output-file: ${{ env.grype_output}}
-  #           fail-build: false
-  #           severity-cutoff: critical
-  #           only-fixed: ${{ inputs.only-fixed }}
-  #       continue-on-error: ${{ inputs.continue-on-error }}
+      - name: "Grype scan (Docker: High+Critical)"
+        if: ${{ inputs.target == 'docker' }}
+        id: grype-docker
+        uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993
+        with:
+            image: "$IMAGE"
+            output-file: "$GRYPE_FILENAME"
+            fail-build: false
+            severity-cutoff: critical
+            only-fixed: ${{ inputs.only-fixed }}
+        continue-on-error: ${{ inputs.continue-on-error }}
 
-  #     - name: "Grype scan (Source: High+Critical)"
-  #       if: ${{ inputs.target == 'source' }}
-  #       id: grype-source
-  #       uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 #v7.1.0
-  #       with:
-  #         path: .
-  #         output-file: ${{ env.grype_output}}
-  #         fail-build: false
-  #         severity-cutoff: critical
-  #         only-fixed: ${{ inputs.only-fixed }}
-  #       continue-on-error: ${{ inputs.continue-on-error }}
+      - name: "Grype scan (Source: High+Critical)"
+        if: ${{ inputs.target == 'source' }}
+        id: grype-source
+        uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 #v7.1.0
+        with:
+          path: .
+          output-file: "$GRYPE_FILENAME"
+          fail-build: false
+          severity-cutoff: critical
+          only-fixed: ${{ inputs.only-fixed }}
+        continue-on-error: ${{ inputs.continue-on-error }}
 
-  #     - name: "Convert Grype SARIF to CSV"
-  #       env:
-  #         ONLY_HIGH_CRITICAL: ${{ inputs['only-high-critical'] }}
-  #       run: |
-  #         SARIF_FILE=${{ env.grype_output}}
-  #         jq '. as $input
-  #         | .runs[].results
-  #         |= map(. + {
-  #         security_severity: (
-  #         $input.runs[0].tool.driver.rules[] as $rule
-  #         | select($rule.id == .ruleId)
-  #         | $rule.properties["security-severity"]
-  #         )
-  #         } +
-  #         { info: (
-  #         $input.runs[0].tool.driver.rules[] as $rule
-  #         | select($rule.id == .ruleId)
-  #         | $rule.help.text
-  #         )
-  #         }
-  #         )' "$SARIF_FILE"  > "${SARIF_FILE%.sarif}.ext.sarif"
-  #         # Filter only high and critical (>=7)
-  #         if [ "${ONLY_HIGH_CRITICAL}" = "true" ]; then
-  #         jq '.runs[].results |= map(
-  #             select(
-  #               (.security_severity | tonumber) >= 7
-  #             ) | del(.security_severity) | del(.info)
-  #             )' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.filtered.sarif"
-  #             mv "${SARIF_FILE%.sarif}.filtered.sarif" "$SARIF_FILE"
-  #         fi
-  #         # Convert to CSV for easier reading
-  #         SECURITY_SEVERITY_THRESHOLD='0'
-  #         if [ "${ONLY_HIGH_CRITICAL}" = "true" ]; then
-  #           SECURITY_SEVERITY_THRESHOLD='7'
-  #         fi
-  #         jq --raw-output --arg sst "$SECURITY_SEVERITY_THRESHOLD" '["CVE", "Severity", "Provider Severity", "Type", "Package", "Affected Version", "Fix Version", "Summary"] as $headers | (
-  #             $headers, (
-  #                 .runs[0].results[] as $result | if ($result.security_severity | tonumber) >= ($sst | tonumber) then
-  #                 [
-  #                     ($result.info | capture("Vulnerability (?<cve>.*)"; "n") | .cve),
-  #                     ($result.security_severity | tonumber | if . < 4 then "Low" elif . < 7 then "Medium" elif . < 9 then "High" else "Critical" end),
-  #                     ($result.info | capture("Severity: (?<severity>\\w+)"; "n") | .severity),
-  #                     ($result.info | capture("Type: (?<type>\\w+)"; "n") | .type),
-  #                     ($result.info | capture("Package: (?<package>.*)"; "n") | .package),
-  #                     ($result.info | capture("Version: (?<version>.*)"; "n") | .version),
-  #                     ($result.info | capture("Fix Version: (?<fix_version>.*)"; "n") | .fix_version),
-  #                     $result.message.text
+      - name: "Convert Grype SARIF to CSV"
+        env:
+          ONLY_HIGH_CRITICAL: ${{ inputs['only-high-critical'] }}
+        run: |
+          SARIF_FILE=$GRYPE_FILENAME
+          jq '. as $input
+          | .runs[].results
+          |= map(. + {
+          security_severity: (
+          $input.runs[0].tool.driver.rules[] as $rule
+          | select($rule.id == .ruleId)
+          | $rule.properties["security-severity"]
+          )
+          } +
+          { info: (
+          $input.runs[0].tool.driver.rules[] as $rule
+          | select($rule.id == .ruleId)
+          | $rule.help.text
+          )
+          }
+          )' "$SARIF_FILE"  > "${SARIF_FILE%.sarif}.ext.sarif"
+          # Filter only high and critical (>=7)
+          if [ "${ONLY_HIGH_CRITICAL}" = "true" ]; then
+          jq '.runs[].results |= map(
+              select(
+                (.security_severity | tonumber) >= 7
+              ) | del(.security_severity) | del(.info)
+              )' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.filtered.sarif"
+              mv "${SARIF_FILE%.sarif}.filtered.sarif" "$SARIF_FILE"
+          fi
+          # Convert to CSV for easier reading
+          SECURITY_SEVERITY_THRESHOLD='0'
+          if [ "${ONLY_HIGH_CRITICAL}" = "true" ]; then
+            SECURITY_SEVERITY_THRESHOLD='7'
+          fi
+          jq --raw-output --arg sst "$SECURITY_SEVERITY_THRESHOLD" '["CVE", "Severity", "Provider Severity", "Type", "Package", "Affected Version", "Fix Version", "Summary"] as $headers | (
+              $headers, (
+                  .runs[0].results[] as $result | if ($result.security_severity | tonumber) >= ($sst | tonumber) then
+                  [
+                      ($result.info | capture("Vulnerability (?<cve>.*)"; "n") | .cve),
+                      ($result.security_severity | tonumber | if . < 4 then "Low" elif . < 7 then "Medium" elif . < 9 then "High" else "Critical" end),
+                      ($result.info | capture("Severity: (?<severity>\\w+)"; "n") | .severity),
+                      ($result.info | capture("Type: (?<type>\\w+)"; "n") | .type),
+                      ($result.info | capture("Package: (?<package>.*)"; "n") | .package),
+                      ($result.info | capture("Version: (?<version>.*)"; "n") | .version),
+                      ($result.info | capture("Fix Version: (?<fix_version>.*)"; "n") | .fix_version),
+                      $result.message.text
 
-  #                 ] else empty end
-  #             )
-  #         ) | @csv' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.csv"
-  #         rm "${SARIF_FILE%.sarif}.ext.sarif"
+                  ] else empty end
+              )
+          ) | @csv' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.csv"
+          rm "${SARIF_FILE%.sarif}.ext.sarif"
 
-  #     - name: Upload Grype SARIF
-  #       uses: github/codeql-action/upload-sarif@v4
-  #       with:
-  #         sarif_file: grype.sarif
+      - name: Upload Grype SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: grype.sarif
 
-  #     - name: Upload all scan artifacts
-  #       uses: actions/upload-artifact@v5
-  #       with:
-  #         name: grype.sarif
-  #         path: |
-  #           grype.sarif
-  #           grype.csv
+      - name: Upload all scan artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: grype.sarif
+          path: |
+            grype.sarif
+            grype.csv
 
   # trivy-scan:
   #   runs-on: ubuntu-latest
