@@ -53,7 +53,7 @@ Or triggered on the `release/1.2.3` branch, resulting in `release-1.2.3-20250313
 | `minor`     | Minor version number extracted from semantic versioning.                                                                            | 2               |
 | `patch`     | Patch version number extracted from semantic versioning.                                                                            | 3               |
 | `short-sha` | Shortened SHA of the current commit.                                                                                                | abc1234         |
-| `runNumber` | The unique number for each run of a particular workflow in a repository.                                                           | 123             |
+| `runNumber` | The unique number for each run of a particular workflow in a repository.                                                            | 123             |
 | `commit`    | The full SHA of the current commit.                                                                                                 | abc123456789    |
 | `ref-type`  | The type of the reference (e.g., branch or tag).                                                                                    | branch          |
 
@@ -81,15 +81,15 @@ jobs:
       - name: Metadata
         uses: netcracker/qubership-workflow-hub/actions/metadata-action@main
         with:
-          configuration-path: './.github/metadata-action-config.yml'
-          default-template: '{{ref-name}}-{{timestamp}}-{{runNumber}}'
-          default-tag: 'latest'
-          short-sha: '7'
-          extra-tags: 'tag1,tag2'
-          merge-tags: 'true'
-          debug: 'true'
-          show-report: 'true'
-          replace-symbol: '_'  # Example: Replaces '/' in branch names like 'feature/my-branch' with 'feature_my-branch'
+          configuration-path: "./.github/metadata-action-config.yml"
+          default-template: "{{ref-name}}-{{timestamp}}-{{runNumber}}"
+          default-tag: "latest"
+          short-sha: "7"
+          extra-tags: "tag1,tag2"
+          merge-tags: "true"
+          debug: "true"
+          show-report: "true"
+          replace-symbol: "_" # Example: Replaces '/' in branch names like 'feature/my-branch' with 'feature_my-branch'
 ```
 
 ---
@@ -118,8 +118,8 @@ default-tag: "latest"
 In this example:
 
 - **Main branch template:** generates a version string in the format `vMAJOR.MINOR.PATCH-DATE` (e.g. `v1.2.3-20250313`).
-- **Feature/* branch template:** generates a version string in the format `feature-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `feature-my-feature.20250313235959.beta`).
-- **Release/* branch template:** generates a version string in the format `release-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `release-v1.2.3-20250313235959.next`).
+- **Feature/\* branch template:** generates a version string in the format `feature-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `feature-my-feature.20250313235959.beta`).
+- **Release/\* branch template:** generates a version string in the format `release-BRANCH_NAME-TIMESTAMP.DIST-TAG` (e.g. `release-v1.2.3-20250313235959.next`).
 - **Tag template:** generates a version string in the format `vMAJOR.MINOR.PATCH` (e.g. `v1.2.3`).
 
 ## Additional Information
@@ -143,48 +143,48 @@ The configuration file for this action must adhere to [the schema defined](https
 
 ```json
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Metadata configuration file schema",
-    "type": "object",
-    "properties": {
-        "branches-template": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "minProperties": 1,
-                "maxProperties": 1,
-                "patternProperties": {
-                    "^[-a-zA-Z0-9_*]+$": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
-        "distribution-tag": {
-            "type": "array",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "minProperties": 1,
-                "maxProperties": 1,
-                "patternProperties": {
-                    "^[-a-zA-Z0-9_*]+$": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            }
-        },
-        "default-template": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata configuration file schema",
+  "type": "object",
+  "properties": {
+    "branches-template": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "patternProperties": {
+          "^[-a-zA-Z0-9_*]+$": {
             "type": "string"
+          }
         },
-        "default-tag": {
-            "type": "string"
-        }
+        "additionalProperties": false
+      }
     },
-    "additionalProperties": false
+    "distribution-tag": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "patternProperties": {
+          "^[-a-zA-Z0-9_*]+$": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "default-template": {
+      "type": "string"
+    },
+    "default-tag": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
 }
 ```
 
