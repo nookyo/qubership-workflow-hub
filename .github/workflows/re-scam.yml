@@ -193,7 +193,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: |
-              **/*.sarif
+            ${{ env.GRYPE_FILENAME }}
+            ${{ env.TRIVY_FILENAME }}
 
       # - name: Upload all scan artifacts
       #   uses: actions/upload-artifact@v5
