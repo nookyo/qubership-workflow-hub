@@ -188,13 +188,15 @@ jobs:
       #         )
       #     ) | @csv' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.csv"
       #     rm "${SARIF_FILE%.sarif}.ext.sarif"
+      - name: Move SARIF files to workspace
+        run: |
+            mv "$GRYPE_FILENAME" "$GITHUB_WORKSPACE" || true
 
       - name: Upload Grype SARIF
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: |
             ${{ env.GRYPE_FILENAME }}
-            ${{ env.TRIVY_FILENAME }}
 
       # - name: Upload all scan artifacts
       #   uses: actions/upload-artifact@v5
