@@ -13,15 +13,13 @@ If new functionality needed please create the [issue](https://github.com/Netcrac
 
 ## 📌 Inputs
 
-| Name              | Description                                                                 | Required | Default |
-| ----------------- | --------------------------------------------------------------------------- | -------- | ------- |
-| `repo_name`       | The name of target repository to propagate.                                 | No       | None    |
-
+| Name        | Description                                 | Required | Default |
+| ----------- | ------------------------------------------- | -------- | ------- |
+| `repo_name` | The name of target repository to propagate. | No       | None    |
 
 ### Detailed Description of Variables
 
 - `repo_name`: The name of target repository to propagate. If not set files will be propagated to all repos in organization except the REPOS_TO_IGNORE list
-
 
 ## Usage Example
 
@@ -54,5 +52,5 @@ jobs:
   broadcast_files:
     uses: Netcracker/qubership-workflow-hub/.github/workflows/broadcast-files.yml@main
     secrets:
-      GH_ACCESS_TOKEN: '${{ secrets.GH_ACCESS_TOKEN }}'
+      GH_ACCESS_TOKEN: "${{ secrets.GH_ACCESS_TOKEN }}"
 ```
