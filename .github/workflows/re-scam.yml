@@ -192,16 +192,16 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: |
-            ${{ env.GRYPE_FILENAME }}
-          category: ${{ env.GRYPE_FILENAME }}
+            ${{ needs.init.outputs.GRYPE_FILENAME }}
+          category: ${{ needs.init.outputs.GRYPE_FILENAME }}
 
       - name: Upload all scan artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: ${{ env.GRYPE_FILENAME }}
+          name: ${{ needs.init.outputs.GRYPE_FILENAME }}
           path: |
-            ${{ env.GRYPE_FILENAME }}
-            ${{ env.GRYPE_FILENAME}}.csv
+            ${{ needs.init.outputs.GRYPE_FILENAME }}
+            ${{ needs.init.outputs.GRYPE_FILENAME }}.csv
 
   trivy-scan:
     runs-on: ubuntu-latest
