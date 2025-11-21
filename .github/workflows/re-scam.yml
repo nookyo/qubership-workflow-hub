@@ -50,12 +50,13 @@ env:
     ${{ inputs['only-high-critical'] && 'HIGH,CRITICAL' || 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL' }}
   IMAGE: >-
     ${{ inputs.target == 'docker' && (inputs.image != '' && inputs.image || format('ghcr.io/{0}:latest', github.repository)) || '' }}
-  GRYPE_FILENAME: "grype.sarif"
-  TRIVY_FILENAME: "trivy.sarif"
 
 jobs:
   init:
     runs-on: ubuntu-latest
+    outputs:
+      GRYPE_FILENAME: ${{ steps.prepare-outputs.outputs.GRYPE_FILENAME }}
+      TRIVY_FILENAME: ${{ steps.prepare-outputs.outputs.TRIVY_FILENAME }}
     steps:
       - name: Scan plan
         run: |
@@ -74,6 +75,7 @@ jobs:
           fi
 
       - name: Prepare filenames
+        id: prepare-outputs
         run: |
           if [ "${TARGET}" = "docker" ]; then
             SHORT_NAME=$(echo "$IMAGE" | sed 's|.*/\(.*\)|\1|')
@@ -106,28 +108,13 @@ jobs:
         with:
           persist-credentials: false
 
-      # - name: Prepare filenames
-      #   run: |
-      #     if [ "${TARGET}" = "docker" ]; then
-      #       SHORT_NAME=$(echo "$IMAGE" | sed 's|.*/\(.*\)|\1|')
-      #       SAFE_NAME=$(echo "$SHORT_NAME" | sed 's/[:\/-]/_/g')
-      #       echo "GRYPE_FILENAME=grype-${SAFE_NAME}.sarif" >> $GITHUB_ENV
-      #       echo "TRIVY_FILENAME=trivy-${SAFE_NAME}.sarif" >> $GITHUB_ENV
-      #       echo "Prepared filenames for image scan: grype-${SAFE_NAME}.sarif, trivy-${SAFE_NAME}.sarif"
-      #     else
-      #       echo "GRYPE_FILENAME=grype.sarif" >> $GITHUB_ENV
-      #       echo "TRIVY_FILENAME=trivy.sarif" >> $GITHUB_ENV
-      #       echo "Prepared filenames for source scan: grype.sarif, trivy.sarif"
-      #     fi
-
-
       - name: "Grype scan (Docker: High+Critical)"
         if: ${{ inputs.target == 'docker' }}
         id: grype-docker
         uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993
         with:
             image: ${{ env.IMAGE }}
-            output-file: ${{ env.GRYPE_FILENAME }}
+            output-file: ${{ needs.init.outputs.GRYPE_FILENAME }}
             fail-build: false
             severity-cutoff: critical
             only-fixed: ${{ inputs.only-fixed }}
@@ -140,17 +127,12 @@ jobs:
         uses: anchore/scan-action@568b89d27fc18c60e56937bff480c91c772cd993 #v7.1.0
         with:
           path: .
-          output-file: ${{ env.GRYPE_FILENAME }}
+          output-file: ${{ needs.init.outputs.GRYPE_FILENAME }}
           fail-build: false
           severity-cutoff: critical
           only-fixed: ${{ inputs.only-fixed }}
           output-format: sarif
         continue-on-error: ${{ inputs.continue-on-error }}
-
-      - name: Check file
-        run: |
-            ls -la .
-            ls -l "$GRYPE_FILENAME"
 
 
       - name: "Convert Grype SARIF to CSV"
