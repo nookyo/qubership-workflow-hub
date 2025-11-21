@@ -78,10 +78,8 @@
           id: prepare-outputs
           run: |
             if [ "${TARGET}" = "docker" ]; then
-              # Берём часть после последнего / без sed
               SHORT_NAME=${IMAGE##*/}
 
-              # Заменяем проблемные символы на _ без sed
               SAFE_NAME=${SHORT_NAME//:/_}
               SAFE_NAME=${SAFE_NAME//\//_}
               SAFE_NAME=${SAFE_NAME//-/_}
