@@ -79,6 +79,10 @@ inputs:
   docker-io-token:
     description: "Token to login to docker.io"
     required: false
+  skip-qemu-buildx:
+    description: "Skip the setup of Docker Buildx (for self-hosted runners with pre-configured Buildx)."
+    required: false
+    default: "false"
 outputs:
   image-name:
     description: "The name of the built Docker image."
@@ -89,6 +93,7 @@ outputs:
   metadata-filename:
     description: "Name of the generated metadata file."
     value: "${{ steps.output_result.outputs.metadata_filename }}"
+
 runs:
   using: "composite"
   steps:
@@ -119,9 +124,11 @@ runs:
         comp_name=$(echo "$component_parsed" | jq -r '.name')
         comp_file=$(echo "$component_parsed" | jq -r '.file')
         comp_ctx=$(echo "$component_parsed" | jq -r '.context')
+        comp_build_args=$(echo "$component_parsed" | jq -r '.arguments // empty')
         echo "name=$comp_name" >> "$GITHUB_OUTPUT"
         echo "file=$comp_file" >> "$GITHUB_OUTPUT"
         echo "ctx=$comp_ctx" >> "$GITHUB_OUTPUT"
+        echo "build_args=$comp_build_args" >> "$GITHUB_OUTPUT"
 
     - name: Prepare Image Name
       shell: bash
@@ -130,9 +137,9 @@ runs:
         if [ -n "${{ inputs.custom-image-name }}" ]; then
             CONTAINER_NAME="${{ inputs.custom-image-name }}"
         elif [ -n "${{ steps.parse_component.outputs.name }}" ] && [ "${{ steps.parse_component.outputs.name }}" != "default" ]; then
-           CONTAINER_NAME="${{ steps.parse_component.outputs.name }}"
+          CONTAINER_NAME="${{ steps.parse_component.outputs.name }}"
         else
-           CONTAINER_NAME="$repo"
+          CONTAINER_NAME="$repo"
         fi
         echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
         echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
@@ -182,6 +189,10 @@ runs:
           echo "ghcr.io URL: ${GHCR_URL}"
         fi
 
+        echo "::group::🐋 MANAGEMENT Dockerfile (alpine)"
+        cat ${{ steps.parse_component.outputs.file }}
+        echo "::endgroup::"
+
     - name: Download Artifact
       if: ${{ inputs.download-artifact == 'true' }}
       uses: actions/download-artifact@v5
@@ -203,9 +214,11 @@ runs:
         ls -R -la ${{ github.workspace }}
 
     - name: Set up QEMU
+      if: ${{ inputs.skip-qemu-buildx != 'true' }}
       uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
+      if: ${{ inputs.skip-qemu-buildx != 'true' }}
       uses: docker/setup-buildx-action@v3
 
     - name: Log in to GitHub Container Registry
@@ -269,7 +282,6 @@ runs:
         echo "Image refs: $IMAGE_REFS"
         echo "IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
-
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v6
       id: dockerbuild
@@ -282,7 +294,7 @@ runs:
         tags: ${{ inputs.tags != '' && env.IMAGE_REFS || steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ inputs.platforms }}
-        build-args: ${{ inputs.build-args }}
+        build-args: ${{ steps.parse_component.outputs.build_args != '' && steps.parse_component.outputs.build_args || inputs.build-args }}
 
     - name: Output result
       if: ${{ ! (inputs.dry-run == 'true') }}
