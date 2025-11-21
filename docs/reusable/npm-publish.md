@@ -12,22 +12,22 @@ This **npm Publish** GitHub Workflow automates building, testing, and publishing
 
 ## 📌 Inputs
 
-| Name                  | Description                              | Required | Default                  |
-| --------------------- | ---------------------------------------- | -------- | ------------------------ |
-| `version`             | Version to publish                       | Yes      | -                        |
-| `scope`               | npm package scope                        | No       | `@netcracker`            |
-| `node-version`        | Node.js version to use                   | No       | `22.x`                   |
-| `registry-url`        | npm registry URL                         | No       | `https://npm.pkg.github.com` |
-| `update-nc-dependency`| Update NetCracker dependencies           | No       | `false`                  |
-| `dry-run`             | Run in dry-run mode (no actual publishing)| No       | `false`                  |
-| `dist-tag`            | npm distribution tag                     | No       | `next`                   |
-| `branch_name`         | Branch name to commit changes to         | No       | `main`                   |
+| Name                   | Description                                | Required | Default                      |
+| ---------------------- | ------------------------------------------ | -------- | ---------------------------- |
+| `version`              | Version to publish                         | Yes      | -                            |
+| `scope`                | npm package scope                          | No       | `@netcracker`                |
+| `node-version`         | Node.js version to use                     | No       | `22.x`                       |
+| `registry-url`         | npm registry URL                           | No       | `https://npm.pkg.github.com` |
+| `update-nc-dependency` | Update NetCracker dependencies             | No       | `false`                      |
+| `dry-run`              | Run in dry-run mode (no actual publishing) | No       | `false`                      |
+| `dist-tag`             | npm distribution tag                       | No       | `next`                       |
+| `branch_name`          | Branch name to commit changes to           | No       | `main`                       |
 
 ## 📌 Secrets
 
-| Name             | Description                              | Required |
-| ---------------- | ---------------------------------------- | -------- |
-| `GITHUB_TOKEN`   | GitHub token for authentication          | Yes      |
+| Name           | Description                     | Required |
+| -------------- | ------------------------------- | -------- |
+| `GITHUB_TOKEN` | GitHub token for authentication | Yes      |
 
 ## Usage Example
 
@@ -39,18 +39,18 @@ name: Release NPM package
 on:
   push:
     branches:
-      - '**'
+      - "**"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version for NPM (e.g., 1.0.0)'
+        description: "Release version for NPM (e.g., 1.0.0)"
         required: false
         type: string
       scope:
-        description: 'NPM scope for the package'
+        description: "NPM scope for the package"
         required: false
         type: string
-        default: '@netcracker'
+        default: "@netcracker"
       node-version:
         required: false
         type: string
@@ -62,21 +62,21 @@ on:
       update-nc-dependency:
         required: false
         type: boolean
-        default: false  
+        default: false
       dry-run:
-        description: 'Run in dry-run mode (no actual publishing)'
+        description: "Run in dry-run mode (no actual publishing)"
         required: false
         type: boolean
         default: false
       npm-dist-tag:
-        description: 'NPM distribution tag'
+        description: "NPM distribution tag"
         required: false
         type: string
-        default: 'latest'
+        default: "latest"
       branch_name:
         required: false
         type: string
-        default: "main"  
+        default: "main"
 
 permissions:
   contents: write
@@ -86,21 +86,21 @@ jobs:
   npm-publish:
     uses: Netcracker/qubership-workflow-hub/.github/workflows/re-npm-publish.yml@main
     with:
-      version: ${{ github.event_name == 'workflow_dispatch' && 
+      version: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.version || '' }}
-      scope: ${{ github.event_name == 'workflow_dispatch' && 
+      scope: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.scope || '@netcracker' }}
-      node-version: ${{ github.event_name == 'workflow_dispatch' && 
+      node-version: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.node-version || '22.x' }}
-      registry-url: ${{ github.event_name == 'workflow_dispatch' && 
+      registry-url: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.registry-url || 'https://npm.pkg.github.com' }}
-      update-nc-dependency: ${{ github.event_name == 'workflow_dispatch' && 
+      update-nc-dependency: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.update-nc-dependency || false }}
-      dry-run: ${{ github.event_name == 'push' || 
+      dry-run: ${{ github.event_name == 'push' ||
         (github.event_name == 'workflow_dispatch' && inputs.dry-run) }}
-      dist-tag: ${{ github.event_name == 'workflow_dispatch' && 
+      dist-tag: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.npm-dist-tag || 'latest' }}
-      branch_name: ${{ github.event_name == 'workflow_dispatch' && 
+      branch_name: ${{ github.event_name == 'workflow_dispatch' &&
         inputs.branch_name || github.ref_name }}
     secrets: inherit
 ```
