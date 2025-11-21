@@ -269,7 +269,6 @@ runs:
         echo "Image refs: $IMAGE_REFS"
         echo "IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
-
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v6
       id: dockerbuild
