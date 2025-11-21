@@ -138,6 +138,7 @@ jobs:
       - name: "Convert Grype SARIF to CSV"
         env:
           ONLY_HIGH_CRITICAL: ${{ inputs['only-high-critical'] }}
+          GRYPE_FILENAME: ${{ needs.init.outputs.GRYPE_FILENAME }}
         run: |
           SARIF_FILE=$GRYPE_FILENAME
           jq '. as $input
@@ -249,8 +250,10 @@ jobs:
         continue-on-error: ${{ inputs.continue-on-error }}
 
       - name: "Convert Trivy SARIF to CSV"
+        env:
+          TRIVY_FILENAME: ${{ needs.init.outputs.TRIVY_FILENAME }}
         run: |
-          SARIF_FILE=${{ needs.init.outputs.TRIVY_FILENAME }}
+          SARIF_FILE=$TRIVY_FILENAME
           jq '. as $input
           | .runs[].results
           |= map(. + { security_severity: ($input.runs[0].tool.driver.rules[] as $rule
