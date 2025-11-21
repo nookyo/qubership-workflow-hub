@@ -187,6 +187,7 @@
                     ] else empty end
                 )
             ) | @csv' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.csv"
+            ls -la
             rm "${SARIF_FILE%.sarif}.ext.sarif"
 
         - name: Upload Grype SARIF
@@ -202,7 +203,7 @@
             name: ${{ needs.init.outputs.GRYPE_FILENAME }}
             path: |
               ${{ needs.init.outputs.GRYPE_FILENAME }}
-              ${{ needs.init.outputs.GRYPE_FILENAME }}.csv
+              ${{ needs.init.outputs.GRYPE_FILENAME }}sarif.csv
 
     trivy-scan:
       runs-on: ubuntu-latest
@@ -278,7 +279,10 @@
                     ]
                 )
             ) | @csv' "${SARIF_FILE%.sarif}.ext.sarif" > "${SARIF_FILE%.sarif}.csv"
+
+            ls -la
             rm "${SARIF_FILE%.sarif}.ext.sarif"
+
 
         - name: Upload Trivy SARIF
           uses: github/codeql-action/upload-sarif@v4
@@ -291,4 +295,4 @@
             name: ${{ needs.init.outputs.TRIVY_FILENAME }}
             path: |
               ${{ needs.init.outputs.TRIVY_FILENAME }}
-              ${{ needs.init.outputs.TRIVY_FILENAME }}.csv
+              ${{ needs.init.outputs.TRIVY_FILENAME }}.sarif.csv
