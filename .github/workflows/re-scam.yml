@@ -229,7 +229,7 @@ jobs:
         with:
           image-ref: "${{ env.IMAGE }}"
           severity: ${{ env.TRIVY_SEVERITY }}
-          output: ${{ env.TRIVY_FILENAME }}
+          output: ${{ needs.init.outputs.TRIVY_FILENAME }}
           format: "sarif"
           ignore-unfixed: ${{ inputs.only-fixed }}
           limit-severities-for-sarif: true
@@ -242,7 +242,7 @@ jobs:
         with:
           scan-type: "fs"
           severity: ${{ env.TRIVY_SEVERITY }}
-          output: ${{ env.TRIVY_FILENAME }}
+          output: ${{ needs.init.outputs.TRIVY_FILENAME }}
           format: "sarif"
           ignore-unfixed: ${{ inputs.only-fixed }}
           limit-severities-for-sarif: true
@@ -250,7 +250,7 @@ jobs:
 
       - name: "Convert Trivy SARIF to CSV"
         run: |
-          SARIF_FILE=${{ env.TRIVY_FILENAME }}
+          SARIF_FILE=${{ needs.init.outputs.TRIVY_FILENAME }}
           jq '. as $input
           | .runs[].results
           |= map(. + { security_severity: ($input.runs[0].tool.driver.rules[] as $rule
@@ -280,12 +280,12 @@ jobs:
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: ${{ env.TRIVY_FILENAME }}
+          sarif_file: ${{ needs.init.outputs.TRIVY_FILENAME }}
 
       - name: Upload all scan artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: ${{ env.TRIVY_FILENAME }}
+          name: ${{ needs.init.outputs.TRIVY_FILENAME }}
           path: |
-            ${{ env.TRIVY_FILENAME }}
-            ${{ env.TRIVY_FILENAME }}.csv
+            ${{ needs.init.outputs.TRIVY_FILENAME }}
+            ${{ needs.init.outputs.TRIVY_FILENAME }}.csv
