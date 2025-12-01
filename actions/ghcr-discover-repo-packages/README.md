@@ -45,7 +45,6 @@ For example, if a repository has published two container images, the output migh
 |--------------|----------------------------------------------------------------------------------|----------|--------------------------------------|
 | `owner`      | The owner of the repository. Defaults to the current repository owner.          | No       | `${{ github.repository_owner }}`     |
 | `repository` | The name of the repository. Defaults to the current repository name.            | No       | `${{ github.event.repository.name }}` |
-| `fetch-tags` | Fetch default/latest tag for each discovered package.                           | No       | `false`                              |
 
 **Environment Variables:**
 
@@ -72,18 +71,6 @@ Each package in the `packages` output array contains:
 | `repository`| The repository name                              | `my-repo`                  |
 | `full_name` | The full repository name (owner/repository)      | `owner/my-repo`            |
 | `path`      | The complete GHCR path to pull the image         | `ghcr.io/owner/my-app`     |
-
-**Example JSON structure (with `fetch-tags: true`):**
-
-```json
-{
-  "name": "my-app",
-  "repository": "my-repo",
-  "full_name": "owner/my-repo",
-  "path": "ghcr.io/owner/my-app",
-  "default_tag": "latest"
-}
-```
 
 ---
 
