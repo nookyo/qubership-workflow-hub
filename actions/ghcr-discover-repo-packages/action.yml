@@ -9,10 +9,6 @@ inputs:
   repository:
     description: "The name of the repository. Defaults to the current repository name."
     required: false
-  fetch-tags:
-    description: "Fetch default/latest tag for each package."
-    required: false
-    default: "false"
 outputs:
   packages:
     value: ${{ steps.discover.outputs.packages }}
@@ -31,7 +27,6 @@ runs:
         GH_TOKEN: ${{ env.GH_TOKEN || github.token }}
         OWNER: ${{ inputs.owner || github.repository_owner }}
         REPO: ${{ inputs.repository || github.event.repository.name }}
-        FETCH_TAGS: ${{ inputs.fetch-tags }}
       run: |
         set -euo pipefail
         per_page=100
@@ -88,37 +83,6 @@ runs:
 
         echo "Final filtered packages for repo $REPO:"
         echo "$filtered_packages" | jq '.'
-
-        # Fetch default tags if requested
-        if [ "$FETCH_TAGS" = "true" ]; then
-          echo "Fetching default tags for packages..."
-          packages_with_tags='[]'
-
-          package_count=$(echo "$filtered_packages" | jq 'length')
-
-          for i in $(seq 0 $((package_count - 1))); do
-            pkg_name=$(echo "$filtered_packages" | jq -r ".[$i].name")
-
-            echo "Fetching tags for package: $pkg_name"
-
-            versions_url="https://api.github.com/orgs/${OWNER}/packages/container/${pkg_name}/versions?per_page=100"
-            versions_response=$(curl -sS \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "$versions_url")
-
-            # Find the latest tagged version
-            default_tag=$(echo "$versions_response" | jq -r '[.[] | select(.metadata.container.tags | length > 0)] | sort_by(.created_at) | reverse | .[0].metadata.container.tags[0] // "unknown"')
-
-            # Add default_tag to the package object
-            pkg_with_tag=$(echo "$filtered_packages" | jq ".[$i] + {default_tag: \"$default_tag\"}")
-            packages_with_tags=$(echo "$packages_with_tags" | jq ". + [$pkg_with_tag]")
-          done
-
-          filtered_packages="$packages_with_tags"
-          echo "Packages with default tags:"
-          echo "$filtered_packages" | jq '.'
-        fi
 
         echo "Total packages collected (all pages):"
         echo "$all_packages" | jq 'length'
