@@ -61,7 +61,6 @@ For example, if a repository has published two container images, the output migh
 |----------------|-------------------------------------------------------------------------------------------|---------|
 | `packages`     | A JSON array of GHCR packages for the specified repository.                             | `[{"name":"my-app","repository":"my-repo","full_name":"owner/my-repo","path":"ghcr.io/owner/my-app"}]` |
 | `has-packages` | Boolean flag indicating if the repository has at least one GHCR package. | `true` |
-| `default_tag`  | The default/latest tag for the package (only if `fetch-tags: true`)                     | `latest` |
 
 ### Package Object Structure
 
@@ -73,7 +72,6 @@ Each package in the `packages` output array contains:
 | `repository`| The repository name                              | `my-repo`                  |
 | `full_name` | The full repository name (owner/repository)      | `owner/my-repo`            |
 | `path`      | The complete GHCR path to pull the image         | `ghcr.io/owner/my-app`     |
-| `default_tag` | The default/latest tag for the package (only if `fetch-tags: true`) | `latest` |
 
 **Example JSON structure (with `fetch-tags: true`):**
 

@@ -93,28 +93,28 @@ runs:
         if [ "$FETCH_TAGS" = "true" ]; then
           echo "Fetching default tags for packages..."
           packages_with_tags='[]'
-          
+
           package_count=$(echo "$filtered_packages" | jq 'length')
-          
+
           for i in $(seq 0 $((package_count - 1))); do
             pkg_name=$(echo "$filtered_packages" | jq -r ".[$i].name")
-            
+
             echo "Fetching tags for package: $pkg_name"
-            
+
             versions_url="https://api.github.com/orgs/${OWNER}/packages/container/${pkg_name}/versions?per_page=100"
             versions_response=$(curl -sS \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               "$versions_url")
-            
+
             # Find the latest tagged version
             default_tag=$(echo "$versions_response" | jq -r '[.[] | select(.metadata.container.tags | length > 0)] | sort_by(.created_at) | reverse | .[0].metadata.container.tags[0] // "unknown"')
-            
+
             # Add default_tag to the package object
             pkg_with_tag=$(echo "$filtered_packages" | jq ".[$i] + {default_tag: \"$default_tag\"}")
             packages_with_tags=$(echo "$packages_with_tags" | jq ". + [$pkg_with_tag]")
           done
-          
+
           filtered_packages="$packages_with_tags"
           echo "Packages with default tags:"
           echo "$filtered_packages" | jq '.'
