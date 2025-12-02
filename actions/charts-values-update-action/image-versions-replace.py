@@ -116,7 +116,7 @@ def set_image_versions(config_file, tag, chart_version,  method):
             # If ${owner} in image name, replace it with GITHUB_REPOSITORY_OWNER variable
             # for substitution, but for search replace it with "netcracker"
             if '${owner}' in search_str:
-                replace_str = search_str.replace('${owner}', os.environ['GITHUB_REPOSITORY_OWNER'])
+                replace_str = search_str.replace('${owner}', os.environ['GITHUB_REPOSITORY_OWNER'].lower())
                 search_str = search_str.replace('${owner}', 'netcracker')
             else:
                 replace_str = search_str
