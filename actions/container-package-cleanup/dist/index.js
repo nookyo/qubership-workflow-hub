@@ -30821,7 +30821,7 @@ class Logger {
   }
 
   debugJSON(label, obj) {
-    if (!this.dr) return;
+    if (!this.debugMode) return;
     const formatted = JSON.stringify(obj, null, 2);
     this.debug(`${label}:\n${formatted}`);
   }
@@ -60030,7 +60030,7 @@ module.exports = parseParams
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// With a motherfucking microphone, plug it in my soul
+// With a mfkg microphone, plug it in my soul
 // I'm a renegade riot getting out of control
 // I'm-a keeping it alive and continue to be
 // Flying like an eagle to my destiny
@@ -60079,7 +60079,6 @@ async function run() {
   const thresholdDate = new Date(now.getTime() - thresholdDays * 24 * 60 * 60 * 1000);
   const thresholdVersions = parseInt(core.getInput('threshold-versions'), 10);
 
-  // core.info(`Configuration Path: ${configurationPath}`);
   log.info(`Threshold Days: ${thresholdDays}`);
   log.info(`Threshold Date: ${thresholdDate}`);
 
@@ -60095,8 +60094,6 @@ async function run() {
 
   // strategy will start  here for different types of packages
   log.info(`Package type: ${package_type}, owner: ${owner}, repo: ${repo}`);
-
-  // let packages = await wrapper.listPackages(owner, 'container', isOrganization);
 
   const packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
@@ -60137,17 +60134,15 @@ async function run() {
 
 
   const strategy = getStrategy(package_type);
-  // // let strategy = package_type === 'container' ? new ContainerStrategy() : new MavenStrategy();
 
-  log.log(`Using strategy -> ${await strategy.toString()}`);
+  log.info(`Using strategy -> ${await strategy.toString()}`);
 
   const filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
-  // core.info(`Filtered Packages with Versions for Delete: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
   log.setDebug(isDebug);
   log.group('Delete versions Log')
   log.debugJSON('💡 Package with version for delete:', filteredPackagesWithVersionsForDelete);
-  log.groupEnd();
+  log.endGroup();
 
 
   const reportContext = {
