@@ -8,6 +8,6 @@
       "!**/dist"
     ],
     "ignoreUnknown": false,
-    "maxSize": 6291456
+    "maxSize": 10485760
   }
 }
