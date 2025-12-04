@@ -9,4 +9,4 @@ jobs:
   call-prettier-fix:
     permissions:
       contents: write
-    uses: Netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@main
+    uses: netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@v2.0.4
