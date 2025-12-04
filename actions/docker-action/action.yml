@@ -303,8 +303,6 @@ runs:
       run: |
         set -euo pipefail
 
-        # IMAGE_NAME_FULL=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
-
         IMAGE_NAME_FULL="${{ fromJson(steps.dockerbuild.outputs.metadata)['image.name'] }}"
 
         IMAGE_NAME_FULL="${IMAGE_NAME_FULL%%,*}"
