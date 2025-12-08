@@ -142,7 +142,7 @@ runs:
         IFS='/' read -r owner repo <<< "$GITHUB_REPOSITORY"
         if [ -n "$CUSTOM_IMAGE_NAME" ]; then
             CONTAINER_NAME="$CUSTOM_IMAGE_NAME"
-        elif [ -n "$COMPONENT_NAME" ] && [ "COMPONENT_NAME" != "default" ]; then
+        elif [ -n "$COMPONENT_NAME" ] && [ "$COMPONENT_NAME" != "default" ]; then
           CONTAINER_NAME="$COMPONENT_NAME"
         else
           CONTAINER_NAME="$repo"
@@ -151,6 +151,10 @@ runs:
         echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
         echo "GHCR_OWNER=$(echo "$owner" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
         echo "DOCKER_OWNER=$DOCKER_IO_LOGIN" >> "$GITHUB_ENV"
+
+        echo "CONTAINER_NAME=$CONTAINER_NAME"
+        echo "GHCR_OWNER=$GHCR_OWNER"
+        echo "DOCKER_OWNER=$DOCKER_OWNER"
 
     - name: Prepare Image ghcr.io URL
       if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
