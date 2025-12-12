@@ -1,14 +1,20 @@
 # 🐳 Docker Configuration Resolver
 
-Loads, validates, and normalizes Docker component configurations for CI/CD workflows. Reads a configuration file, applies defaults and security settings, and outputs a flat JSON structure ready for matrix builds.
+This **Docker Configuration Resolver** GitHub Action loads, validates, and normalizes Docker component configurations for CI/CD workflows. It reads a configuration file, applies defaults and security settings, and outputs a flat JSON structure ready for use in matrix build strategies.
+
+---
 
 ## Features
 
-- Validates and merges Docker component configurations (YAML/JSON support)
+- Validates and merges Docker component configurations (JSON/YAML support)
 - Applies global defaults and security settings to all components
-- Generates fully-qualified image paths (`{registry}/{owner}/{component-name}`)
+- Auto-generates fully-qualified image paths: `{registry}/{owner}/{component-name}`
 - Outputs structured JSON for matrix strategies
 - Supports per-component overrides for security and build settings
+
+### Action Result
+
+The primary output of this action is a normalized JSON array containing all Docker components with resolved configurations. Each component includes the auto-generated image path, registry, merged build settings, and security flags.
 
 For example, if your configuration file defines two components, the output might be:
 
@@ -51,21 +57,37 @@ For example, if your configuration file defines two components, the output might
 
 ---
 
-## Inputs & Outputs
+## 📌 Inputs
 
-**Input:**
-- `file-path` - Path to configuration file (default: `.qubership/docker.cfg`)
+| Name        | Description                                             | Required | Default                    |
+|-------------|---------------------------------------------------------|----------|----------------------------|
+| `file-path` | Path to the Docker components configuration file.      | No       | `.qubership/docker.cfg`    |
 
-**Output:**
-- `config` - JSON array of resolved component configurations
+---
 
-**Each component includes:**
-- `name` - Component name (user-defined, required)
-- `image` - Auto-generated image path: `{registry}/{owner}/{name}` (cannot be overridden)
-- `registry` - Container registry URL
-- `dockerfile`, `context`, `tags`, `platforms` - Build settings (from defaults or component-specific)
-- `security_*` - All security settings prefixed with `security_`
-- Any custom fields from configuration
+## 📤 Outputs
+
+| Name     | Description                                                                    | Example |
+|----------|--------------------------------------------------------------------------------|---------|
+| `config` | Resolved Docker components configuration in JSON format with all defaults applied. | `[{"name":"api","image":"ghcr.io/owner/api","registry":"ghcr.io"}]` |
+
+### Configuration Object Structure
+
+Each component in the `config` output array contains:
+
+| Field               | Description                                              | Example                          |
+|---------------------|----------------------------------------------------------|----------------------------------|
+| `name`              | Component name (user-defined, required)                 | `backend-api`                    |
+| `image`             | Auto-generated image path (cannot be overridden)        | `ghcr.io/my-org/backend-api`     |
+| `registry`          | Container registry URL                                   | `ghcr.io`                        |
+| `dockerfile`        | Path to Dockerfile (from defaults or component)         | `Dockerfile`                     |
+| `context`           | Build context path (from defaults or component)         | `.`                              |
+| `tags`              | Image tags (from defaults or component)                 | `latest` or `1.0.0`              |
+| `platforms`         | Target platforms (from defaults or component)           | `linux/amd64, linux/arm64`       |
+| `security_*`        | Security settings (prefixed with `security_`)           | `security_scan: true`            |
+| Other fields        | Any additional custom fields from configuration         | Custom build args, etc.          |
+
+---
 
 ## Configuration File Format
 
@@ -91,10 +113,10 @@ The action expects a JSON or YAML configuration file with the following structur
   },
   "components": [
     {
-      "name": "qubership-nifi"
+      "name": "backend-api"
     },
     {
-      "name": "qubership-nifi-registry",
+      "name": "frontend-app",
       "tags": "1.0.0",
       "security": {
         "scan": false
@@ -132,27 +154,38 @@ components:
       scan: false
 ```
 
-**Configuration structure:**
-- `registry` (optional) - Base registry URL (e.g., `ghcr.io`)
-- `defaults` (optional) - Default values for all components
-- `security` (optional) - Global security settings (prefixed with `security_` in output)
-- `components` (required) - Array of components, each must have `name` field
+### Configuration Fields
 
-Component-specific fields override defaults. Security settings merge (component overrides global).
+**Top-level fields:**
 
----
+- `registry` (optional): Base registry URL (e.g., `ghcr.io`). If omitted, images will use format `owner/component-name`.
+- `defaults` (optional): Default values applied to all components.
+- `security` (optional): Global security settings applied to all components.
+- `components` (required): Array of component configurations.
 
-## Usage Example
+**Component fields:**
+
+- `name` (required): Unique name for the component. Used to auto-generate the `image` path.
+Below is an example of how to use this action in a GitHub Actions workflow:
 
 ```yaml
+name: Build Docker Images
+
+on:
+  push:
+    branches: [main]
+
 jobs:
   resolve:
     runs-on: ubuntu-latest
     outputs:
       config: ${{ steps.resolver.outputs.config }}
     steps:
-      - uses: actions/checkout@v4
-      - id: resolver
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve Docker Configuration
+        id: resolver
         uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
 
   build:
@@ -162,6 +195,123 @@ jobs:
       matrix:
         component: ${{ fromJson(needs.resolve.outputs.config) }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.component.context }}
+          file: ${{ matrix.component.dockerfile }}
+   Troubleshooting
+
+### Configuration File Not Found
+
+If the action fails with "Config file not found":
+
+1. Verify the file exists at the specified path (default: `.qubership/docker.cfg`).
+2. Ensure the repository is checked out before running this action (`actions/checkout@v4`).
+3. Check the file path for typos or incorrect directory structure.
+4. Use a relative path from the repository root.
+
+### Component Name Validation Error
+
+If you receive "component.name is required":
+
+1. Ensure every component in the `components` array has a `name` field.
+2. Verify that `name` values are not empty strings or null.
+3. Check for YAML/JSON formatting errors in the configuration file.
+
+### Invalid JSON Output
+
+If the output cannot be parsed:
+
+1. Check the action logs for the "Resolved configuration (pretty)" output.
+2. Verify your configuration file syntax is valid JSON or YAML.
+3. Ensure there are no special characters in component names that could break JSON formatting.
+
+### Matrix Strategy Not Working
+
+If the matrix strategy doesn't expand correctly:
+
+1. Verify you're using `${{ fromJson(...) }}` to parse the config output.
+2. Check that the config output is a valid JSON array.
+3. Ensure the job dependency is correctly set with `needs:`.
+
+---
+      - name: Resolve Configuration
+        id: resolver
+        uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
+
+  scan:
+    needs: resolve
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: ${{ fromJson(needs.resolve.outputs.config) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Security Scan with Trivy
+        if: matrix.component.security_scan == true && matrix.component.security_trivy_scan == true
+        run: |
+          trivy image ${{ matrix.component.image }}:latest
+
+      - name: Security Scan with Grype
+        if: matrix.component.security_scan == true && matrix.component.security_grype_scan == true
+        run: |
+          grype ${{ matrix.component.image }}:latest
+```
+
+### Custom Configuration File Path
+
+```yaml
+- name: Resolve Docker Configuration
+  id: resolver
+  uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
+  with:
+    file-path: .config/docker-components.json
+```
+
+---
+
+## Additional Information
+
+### How It Works
+
+1. **File Loading**: Reads the configuration file from the specified path.
+2. **Validation**: Ensures all components have a `name` field (fails if missing or empty).
+3. **Image Generation**: Auto-generates `image` field based on:
+   - If `registry` is defined: `{registry}/{owner}/{component-name}`
+   - If `registry` is empty: `{owner}/{component-name}`
+4. **Defaults Merging**: Merges global `defaults` with component-specific settings.
+5. **Security Merging**: Merges global `security` with component-specific security settings.
+6. **Prefixing**: All security fields are prefixed with `security_` in the output.
+7. **Output**: Returns a flat JSON array with all resolved configurations.
+
+### Validation Rules
+
+- **Required**: Every component must have a `name` field.
+- **Non-empty**: Component names cannot be empty strings or null values.
+- **File Existence**: The configuration file must exist at the specified path.
+- **Valid JSON/YAML**: The configuration file must be valid JSON or YAML format.
+
+---
+
+## Notes
+
+- The action uses `jq` for JSON processing, which is available by default on GitHub-hosted runners.
+- The `image` field is always auto-generated and cannot be overridden in the configuration file.
+- Component names are used to generate image paths and should follow Docker naming conventions (lowercase, alphanumeric, `-`, `_`).
+- The `registry` field can be left empty to use default `owner/component-name` format (useful for Docker Hub).
+- All outputs are logged in pretty-printed format for debugging purposes.
+- The configuration file can be either JSON or YAML format (both are supported by `jq`).
+- Security settings are always prefixed with `security_` to avoid naming conflicts with other fields.
+- Any component has an empty or null `name` value.
+- The configuration file contains invalid JSON/YAML syntax.
+
+--- steps:
       - uses: actions/checkout@v4
       - name: Build and Push
         uses: docker/build-push-action@v5
