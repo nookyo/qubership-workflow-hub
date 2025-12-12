@@ -2,7 +2,7 @@ name: "Docker config resolver"
 description: "Loads docker components config, applies defaults and security, outputs flat config for CI"
 
 inputs:
-  config-path:
+  file-path:
     description: "Path to docker components config file"
     required: false
     default: ".qubership/docker.cfg"
@@ -19,7 +19,7 @@ runs:
       id: normalize
       shell: bash
       env:
-        FILE_PATH: ${{ inputs.config-path }}
+        FILE_PATH: ${{ inputs.file-path }}
       run: |
         set -euo pipefail
 
