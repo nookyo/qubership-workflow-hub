@@ -41,36 +41,36 @@ For example, if a repository has published two container images, the output migh
 
 ## 📌 Inputs
 
-| Name         | Description                                                                      | Required | Default                              |
-|--------------|----------------------------------------------------------------------------------|----------|--------------------------------------|
-| `owner`      | The owner of the repository. Defaults to the current repository owner.          | No       | `${{ github.repository_owner }}`     |
-| `repository` | The name of the repository. Defaults to the current repository name.            | No       | `${{ github.event.repository.name }}` |
+| Name         | Description                                                            | Required | Default                               |
+| ------------ | ---------------------------------------------------------------------- | -------- | ------------------------------------- |
+| `owner`      | The owner of the repository. Defaults to the current repository owner. | No       | `${{ github.repository_owner }}`      |
+| `repository` | The name of the repository. Defaults to the current repository name.   | No       | `${{ github.event.repository.name }}` |
 
 **Environment Variables:**
 
-| Name       | Description                                                                      | Required |
-|------------|----------------------------------------------------------------------------------|----------|
-| `GH_TOKEN` | GitHub token with `packages: read` permission. Falls back to `github.token` if not provided. | Yes |
+| Name       | Description                                                                                  | Required |
+| ---------- | -------------------------------------------------------------------------------------------- | -------- |
+| `GH_TOKEN` | GitHub token with `packages: read` permission. Falls back to `github.token` if not provided. | Yes      |
 
 ---
 
 ## 📤 Outputs
 
-| Name           | Description                                                                               | Example |
-|----------------|-------------------------------------------------------------------------------------------|---------|
-| `packages`     | A JSON array of GHCR packages for the specified repository.                             | `[{"name":"my-app","repository":"my-repo","full_name":"owner/my-repo","path":"ghcr.io/owner/my-app"}]` |
-| `has-packages` | Boolean flag indicating if the repository has at least one GHCR package. | `true` |
+| Name           | Description                                                              | Example                                                                                                |
+| -------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `packages`     | A JSON array of GHCR packages for the specified repository.              | `[{"name":"my-app","repository":"my-repo","full_name":"owner/my-repo","path":"ghcr.io/owner/my-app"}]` |
+| `has-packages` | Boolean flag indicating if the repository has at least one GHCR package. | `true`                                                                                                 |
 
 ### Package Object Structure
 
 Each package in the `packages` output array contains:
 
-| Field       | Description                                      | Example                    |
-|-------------|--------------------------------------------------|----------------------------|
-| `name`      | The name of the container package                | `my-app`                   |
-| `repository`| The repository name                              | `my-repo`                  |
-| `full_name` | The full repository name (owner/repository)      | `owner/my-repo`            |
-| `path`      | The complete GHCR path to pull the image         | `ghcr.io/owner/my-app`     |
+| Field        | Description                                 | Example                |
+| ------------ | ------------------------------------------- | ---------------------- |
+| `name`       | The name of the container package           | `my-app`               |
+| `repository` | The repository name                         | `my-repo`              |
+| `full_name`  | The full repository name (owner/repository) | `owner/my-repo`        |
+| `path`       | The complete GHCR path to pull the image    | `ghcr.io/owner/my-app` |
 
 ---
 
@@ -145,7 +145,7 @@ name: Cleanup Old GHCR Packages
 
 on:
   schedule:
-    - cron: '0 0 * * 0' # Weekly
+    - cron: "0 0 * * 0" # Weekly
   workflow_dispatch:
 
 permissions:

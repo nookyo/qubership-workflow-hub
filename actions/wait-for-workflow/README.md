@@ -12,20 +12,19 @@ This **Wait for Workflow** GitHub Action waits for a specific GitHub Actions wor
 
 ## 📌 Inputs
 
-| Name            | Description                                                                 | Required | Default                                           |
-| --------------- | --------------------------------------------------------------------------- | -------- | ------------------------------------------------- |
-| `workflow`      | Workflow filename (e.g., build.yml) or workflow run ID.                   | Yes      |                                                   |
-| `token`         | GitHub token for API authentication (usually secrets.GITHUB_TOKEN).        | Yes      |                                                   |
-| `sha`           | Commit SHA to match the workflow run (if PR number is not provided).       | No       | `${{ github.sha }}`                               |
-| `pr-number`     | Pull request number if the workflow was triggered by a PR.                 | No       | `${{ github.event.pull_request.number }}`  |
-| `timeout`       | Maximum time to wait for workflow completion (in minutes).                 | No       | `30`                                              |
-| `max-wait`      | Maximum time (in minutes) to wait for the workflow run to start.           | No       | `10`                                              |
-| `poll-interval` | Interval (in seconds) between status checks.                              | No       | `10`                                              |
+| Name            | Description                                                          | Required | Default                                   |
+| --------------- | -------------------------------------------------------------------- | -------- | ----------------------------------------- |
+| `workflow`      | Workflow filename (e.g., build.yml) or workflow run ID.              | Yes      |                                           |
+| `token`         | GitHub token for API authentication (usually secrets.GITHUB_TOKEN).  | Yes      |                                           |
+| `sha`           | Commit SHA to match the workflow run (if PR number is not provided). | No       | `${{ github.sha }}`                       |
+| `pr-number`     | Pull request number if the workflow was triggered by a PR.           | No       | `${{ github.event.pull_request.number }}` |
+| `timeout`       | Maximum time to wait for workflow completion (in minutes).           | No       | `30`                                      |
+| `max-wait`      | Maximum time (in minutes) to wait for the workflow run to start.     | No       | `10`                                      |
+| `poll-interval` | Interval (in seconds) between status checks.                         | No       | `10`                                      |
 
 ## Usage Example
 
 ```yaml
-
 # Example 1 — Wait for a workflow by file name on PR
 name: Wait for Build Workflow
 on:
@@ -49,7 +48,6 @@ jobs:
 ```
 
 ```yaml
-
 # Example 2 — Wait for a workflow by run ID with custom timeout
 name: Wait for Specific Run
 on:
@@ -79,8 +77,8 @@ jobs:
 ## Behavior and Precedence
 
 - Workflow specification:
-  1) If `workflow` is a numeric value — treated as workflow run ID.
-  2) If `workflow` ends with `.yml` or `.yaml` — treated as workflow filename.
+  1. If `workflow` is a numeric value — treated as workflow run ID.
+  2. If `workflow` ends with `.yml` or `.yaml` — treated as workflow filename.
 - Workflow run detection:
   - When `pr-number` is provided — looks for workflow runs triggered by that PR.
   - Otherwise uses `sha` to match workflow runs for specific commit.
@@ -95,14 +93,14 @@ Minimum recommended permissions for the job:
 
 ```yaml
 permissions:
-  contents: read   # to access repository information
-  actions: read    # required to query workflow runs
+  contents: read # to access repository information
+  actions: read # required to query workflow runs
 ```
 
 ## Outputs
 
-| Name         | Description                                                              |
-| ------------ | ------------------------------------------------------------------------ |
+| Name         | Description                                                             |
+| ------------ | ----------------------------------------------------------------------- |
 | `conclusion` | The conclusion of the workflow run (success, failure, cancelled, etc.). |
 | `run-id`     | The ID of the workflow run that was waited on.                          |
 
