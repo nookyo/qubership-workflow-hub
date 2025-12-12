@@ -27,8 +27,9 @@ runs:
           echo "Config file not found: $FILE_PATH" >&2
           exit 1
         fi
+        OWNER='${{ github.repository_owner }}'
 
-        CONFIG=$(jq -c '
+        CONFIG=$(jq -c --arg owner "$OWNER" '
           (.registry // "") as $reg
           | (.security // {}) as $globalSec
           | (.defaults // {}) as $def
@@ -45,7 +46,13 @@ runs:
               | ($def + $c) as $merged
               | {
                   name: $c.name,
-                  image: (if $reg == "" then $c.name else ($reg + "/" + $c.name) end),
+                  image: (
+                     if $reg == "" then
+                       $owner + "/" + $c.name
+                     else
+                       $reg + "/" + $owner + "/" + $c.name
+                     end
+                  ),
                   registry: $reg
                 }
                 + ($merged | del(.name, .security))
