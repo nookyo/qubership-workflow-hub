@@ -59,33 +59,33 @@ For example, if your configuration file defines two components, the output might
 
 ## 📌 Inputs
 
-| Name        | Description                                             | Required | Default                    |
-|-------------|---------------------------------------------------------|----------|----------------------------|
-| `file-path` | Path to the Docker components configuration file.      | No       | `.qubership/docker.cfg`    |
+| Name        | Description                                       | Required | Default                 |
+| ----------- | ------------------------------------------------- | -------- | ----------------------- |
+| `file-path` | Path to the Docker components configuration file. | No       | `.qubership/docker.cfg` |
 
 ---
 
 ## 📤 Outputs
 
-| Name     | Description                                                                    | Example |
-|----------|--------------------------------------------------------------------------------|---------|
+| Name     | Description                                                                        | Example                                                             |
+| -------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `config` | Resolved Docker components configuration in JSON format with all defaults applied. | `[{"name":"api","image":"ghcr.io/owner/api","registry":"ghcr.io"}]` |
 
 ### Configuration Object Structure
 
 Each component in the `config` output array contains:
 
-| Field               | Description                                              | Example                          |
-|---------------------|----------------------------------------------------------|----------------------------------|
-| `name`              | Component name (user-defined, required)                 | `backend-api`                    |
-| `image`             | Auto-generated image path (cannot be overridden)        | `ghcr.io/my-org/backend-api`     |
-| `registry`          | Container registry URL                                   | `ghcr.io`                        |
-| `dockerfile`        | Path to Dockerfile (from defaults or component)         | `Dockerfile`                     |
-| `context`           | Build context path (from defaults or component)         | `.`                              |
-| `tags`              | Image tags (from defaults or component)                 | `latest` or `1.0.0`              |
-| `platforms`         | Target platforms (from defaults or component)           | `linux/amd64, linux/arm64`       |
-| `security_*`        | Security settings (prefixed with `security_`)           | `security_scan: true`            |
-| Other fields        | Any additional custom fields from configuration         | Custom build args, etc.          |
+| Field        | Description                                      | Example                      |
+| ------------ | ------------------------------------------------ | ---------------------------- |
+| `name`       | Component name (user-defined, required)          | `backend-api`                |
+| `image`      | Auto-generated image path (cannot be overridden) | `ghcr.io/my-org/backend-api` |
+| `registry`   | Container registry URL                           | `ghcr.io`                    |
+| `dockerfile` | Path to Dockerfile (from defaults or component)  | `Dockerfile`                 |
+| `context`    | Build context path (from defaults or component)  | `.`                          |
+| `tags`       | Image tags (from defaults or component)          | `latest` or `1.0.0`          |
+| `platforms`  | Target platforms (from defaults or component)    | `linux/amd64, linux/arm64`   |
+| `security_*` | Security settings (prefixed with `security_`)    | `security_scan: true`        |
+| Other fields | Any additional custom fields from configuration  | Custom build args, etc.      |
 
 ---
 
@@ -166,7 +166,7 @@ components:
 **Component fields:**
 
 - `name` (required): Unique name for the component. Used to auto-generate the `image` path.
-Below is an example of how to use this action in a GitHub Actions workflow:
+  Below is an example of how to use this action in a GitHub Actions workflow:
 
 ```yaml
 name: Build Docker Images
@@ -311,16 +311,15 @@ If the matrix strategy doesn't expand correctly:
 - Any component has an empty or null `name` value.
 - The configuration file contains invalid JSON/YAML syntax.
 
---- steps:
-      - uses: actions/checkout@v4
-      - name: Build and Push
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.component.context }}
+--- steps: - uses: actions/checkout@v4 - name: Build and Push
+uses: docker/build-push-action@v5
+with:
+context: ${{ matrix.component.context }}
           file: ${{ matrix.component.dockerfile }}
           tags: ${{ matrix.component.image }}:${{ github.sha }}
-          platforms: ${{ matrix.component.platforms }}
-```
+platforms: ${{ matrix.component.platforms }}
+
+````
 
 **Conditional security scanning:**
 ```yaml
@@ -329,7 +328,7 @@ If the matrix strategy doesn't expand correctly:
   run: |
     # Use security_trivy_scan, security_grype_scan flags
     trivy image ${{ matrix.component.image }}
-```
+````
 
 ## How It Works
 
@@ -341,6 +340,7 @@ If the matrix strategy doesn't expand correctly:
 6. Outputs flat JSON array
 
 **Validation:**
+
 - Configuration file must exist
 - Each component must have non-empty `name`
 - File must be valid JSON/YAML
@@ -388,6 +388,7 @@ If the matrix strategy doesn't expand correctly:
 ```
 
 **Output:**
+
 ```json
 [
   {

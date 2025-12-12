@@ -76,13 +76,17 @@ async function run() {
 
     const inputs = {
       ref: core.getInput("ref"),
-      debug: ["true", "1", "yes", "on"].includes(core.getInput("debug")?.toLowerCase()),
+      debug: ["true", "1", "yes", "on"].includes(
+        core.getInput("debug")?.toLowerCase(),
+      ),
       dryRun: core.getInput("dry-run") === "true",
       showReport: core.getInput("show-report") === "true",
       replaceSymbol: core.getInput("replace-symbol") || "-",
       mergeTags: core.getInput("merge-tags") === "true",
       extraTags: core.getInput("extra-tags") || "",
-      configPath: core.getInput("configuration-path") || "./.github/metadata-action-config.yml",
+      configPath:
+        core.getInput("configuration-path") ||
+        "./.github/metadata-action-config.yml",
       defaultTemplate: core.getInput("default-template"),
       defaultTag: core.getInput("default-tag"),
     };
@@ -90,7 +94,11 @@ async function run() {
     log.setDebug(inputs.debug);
     log.debugJSON("Action Inputs", inputs);
 
-    const ref = inputs.ref || (github.context.eventName === "pull_request" ? github.context.payload.pull_request?.head?.ref : github.context.ref);
+    const ref =
+      inputs.ref ||
+      (github.context.eventName === "pull_request"
+        ? github.context.payload.pull_request?.head?.ref
+        : github.context.ref);
 
     log.info(`Ref: ${ref}`);
 
@@ -101,14 +109,22 @@ async function run() {
 
     // --- short-sha logic ---
     let shortShaLength = parseInt(core.getInput("short-sha"), 10);
-    if (Number.isNaN(shortShaLength) || shortShaLength < 1 || shortShaLength > 40) {
-      log.warn(`⚠️ Invalid short-sha value: ${core.getInput("short-sha")}, fallback to 7`);
+    if (
+      Number.isNaN(shortShaLength) ||
+      shortShaLength < 1 ||
+      shortShaLength > 40
+    ) {
+      log.warn(
+        `⚠️ Invalid short-sha value: ${core.getInput("short-sha")}, fallback to 7`,
+      );
       shortShaLength = 7;
     }
 
     const fullSha = github.context.sha;
     const shortSha = fullSha.slice(0, shortShaLength);
-    log.info(`Commit: ${shortSha} (full: ${fullSha}, length: ${shortShaLength})`);
+    log.info(
+      `Commit: ${shortSha} (full: ${fullSha}, length: ${shortShaLength})`,
+    );
 
     // --- Config load ---
     const loader = new ConfigLoader();
@@ -116,7 +132,10 @@ async function run() {
 
     log.debugJSON("Loaded Configuration", config);
 
-    const defaultTemplate = inputs.defaultTemplate || config?.["default-template"] || `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
+    const defaultTemplate =
+      inputs.defaultTemplate ||
+      config?.["default-template"] ||
+      `{{ref-name}}-{{timestamp}}-{{runNumber}}`;
     const defaultTag = inputs.defaultTag || config?.["default-tag"] || "latest";
 
     const extraTags = inputs.extraTags;
@@ -125,20 +144,36 @@ async function run() {
     log.dim(`defaultTemplate: ${defaultTemplate}`);
     log.dim(`defaultTag: ${defaultTag}`);
 
-    const selectedTemplateAndTag = { template: null, distTag: null, toString() { return `Template: ${this.template}, DistTag: ${this.distTag}`; }, };
+    const selectedTemplateAndTag = {
+      template: null,
+      distTag: null,
+      toString() {
+        return `Template: ${this.template}, DistTag: ${this.distTag}`;
+      },
+    };
 
     if (loader.fileExists) {
-      selectedTemplateAndTag.template = findTemplate(!refData.isTag ? refData.normalizedName : "tag", config["branches-template"]);
-      selectedTemplateAndTag.distTag = findTemplate(refData.normalizedName, config["distribution-tag"]);
+      selectedTemplateAndTag.template = findTemplate(
+        !refData.isTag ? refData.normalizedName : "tag",
+        config["branches-template"],
+      );
+      selectedTemplateAndTag.distTag = findTemplate(
+        refData.normalizedName,
+        config["distribution-tag"],
+      );
     }
 
     if (!selectedTemplateAndTag.template) {
-      log.warn(`No template found for ref: ${refData.normalizedName}, using default -> ${defaultTemplate}`);
+      log.warn(
+        `No template found for ref: ${refData.normalizedName}, using default -> ${defaultTemplate}`,
+      );
       selectedTemplateAndTag.template = defaultTemplate;
     }
 
     if (!selectedTemplateAndTag.distTag) {
-      log.warn(`No dist-tag found for ref: ${refData.normalizedName}, using default -> ${defaultTag}`);
+      log.warn(
+        `No dist-tag found for ref: ${refData.normalizedName}, using default -> ${defaultTag}`,
+      );
       selectedTemplateAndTag.distTag = defaultTag;
     }
 
@@ -152,7 +187,7 @@ async function run() {
       ...semverParts,
       ...parts,
       "dist-tag": selectedTemplateAndTag.distTag,
-      "runNumber": github.context.runNumber,
+      runNumber: github.context.runNumber,
       ...flattenObject({ github }, ""),
     };
 
@@ -196,7 +231,7 @@ async function run() {
         distTag: selectedTemplateAndTag.distTag,
         extraTags,
         renderResult: result,
-        github: github.context
+        github: github.context,
       };
       await new Report().writeSummary(reportItem, inputs.dryRun);
     }
