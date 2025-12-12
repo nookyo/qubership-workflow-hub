@@ -15,8 +15,8 @@ For example, if your configuration file defines two components, the output might
 ```json
 [
   {
-    "name": "qubership-nifi",
-    "image": "ghcr.io/my-org/qubership-nifi",
+    "name": "backend-api",
+    "image": "ghcr.io/my-org/backend-api",
     "registry": "ghcr.io",
     "dockerfile": "Dockerfile",
     "context": ".",
@@ -31,8 +31,8 @@ For example, if your configuration file defines two components, the output might
     "security_tag": "latest"
   },
   {
-    "name": "qubership-nifi-registry",
-    "image": "ghcr.io/my-org/qubership-nifi-registry",
+    "name": "frontend-app",
+    "image": "ghcr.io/my-org/frontend-app",
     "registry": "ghcr.io",
     "dockerfile": "Dockerfile",
     "context": ".",
@@ -60,7 +60,9 @@ For example, if your configuration file defines two components, the output might
 - `config` - JSON array of resolved component configurations
 
 **Each component includes:**
-- `name`, `image`, `registry` - Component identification and image path
+- `name` - Component name (user-defined, required)
+- `image` - Auto-generated image path: `{registry}/{owner}/{name}` (cannot be overridden)
+- `registry` - Container registry URL
 - `dockerfile`, `context`, `tags`, `platforms` - Build settings (from defaults or component-specific)
 - `security_*` - All security settings prefixed with `security_`
 - Any custom fields from configuration
@@ -123,8 +125,8 @@ defaults:
   platforms: "linux/amd64, linux/arm64"
 
 components:
-  - name: "qubership-nifi"
-  - name: "qubership-nifi-registry"
+  - name: "backend-api"
+  - name: "frontend-app"
     tags: "1.0.0"
     security:
       scan: false
@@ -183,8 +185,8 @@ jobs:
 
 1. Loads configuration file (JSON/YAML)
 2. Validates `name` field for each component (required)
-3. Generates image paths: `{registry}/{owner}/{component-name}` (or `{owner}/{component-name}` if no registry)
-4. Merges settings (priority: component-specific > defaults > auto-generated)
+3. Auto-generates `image` field: `{registry}/{owner}/{name}` (or `{owner}/{name}` if no registry)
+4. Merges settings (priority: component-specific > defaults)
 5. Prefixes all security fields with `security_`
 6. Outputs flat JSON array
 
@@ -195,7 +197,7 @@ jobs:
 
 ## Troubleshooting
 
-- **File not found**: Ensure `actions/checkout@v4` runs before this action
+- **File not found**: Ensure `actions/checkout@v6` runs before this action
 - **`component.name is required`**: Check all components have non-empty `name` field
 - **Invalid JSON**: Verify config file syntax and check action logs for "Resolved configuration (pretty)"
 - **Matrix not working**: Use `${{ fromJson(needs.job-name.outputs.config) }}`
@@ -222,10 +224,10 @@ jobs:
   },
   "components": [
     {
-      "name": "qubership-nifi"
+      "name": "backend-api"
     },
     {
-      "name": "qubership-nifi-registry",
+      "name": "frontend-app",
       "tags": "1.0.0",
       "security": {
         "scan": false
@@ -239,8 +241,8 @@ jobs:
 ```json
 [
   {
-    "name": "qubership-nifi",
-    "image": "ghcr.io/my-org/qubership-nifi",
+    "name": "backend-api",
+    "image": "ghcr.io/my-org/backend-api",
     "registry": "ghcr.io",
     "dockerfile": "Dockerfile",
     "context": ".",
@@ -255,8 +257,8 @@ jobs:
     "security_tag": "latest"
   },
   {
-    "name": "qubership-nifi-registry",
-    "image": "ghcr.io/my-org/qubership-nifi-registry",
+    "name": "frontend-app",
+    "image": "ghcr.io/my-org/frontend-app",
     "registry": "ghcr.io",
     "dockerfile": "Dockerfile",
     "context": ".",
@@ -276,7 +278,8 @@ jobs:
 ## Notes
 
 - Uses `jq` for JSON processing (pre-installed on GitHub runners)
-- Component names used for image paths (follow Docker naming conventions)
+- `image` field is auto-generated from `name` and cannot be overridden
+- Component names should follow Docker naming conventions (lowercase, alphanumeric, `-`, `_`)
 - Leave `registry` empty for Docker Hub format: `owner/component-name`
 - Configuration supports both JSON and YAML
 - Security fields always prefixed with `security_`
