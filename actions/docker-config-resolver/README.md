@@ -54,12 +54,15 @@ For example, if your configuration file defines two components, the output might
 ## Inputs & Outputs
 
 **Input:**
+
 - `file-path` - Path to configuration file (default: `.qubership/docker.cfg`)
 
 **Output:**
+
 - `config` - JSON array of resolved component configurations
 
 **Each component includes:**
+
 - `name`, `image`, `registry` - Component identification and image path
 - `dockerfile`, `context`, `tags`, `platforms` - Build settings (from defaults or component-specific)
 - `security_*` - All security settings prefixed with `security_`
@@ -131,6 +134,7 @@ components:
 ```
 
 **Configuration structure:**
+
 - `registry` (optional) - Base registry URL (e.g., `ghcr.io`)
 - `defaults` (optional) - Default values for all components
 - `security` (optional) - Global security settings (prefixed with `security_` in output)
@@ -171,6 +175,7 @@ jobs:
 ```
 
 **Conditional security scanning:**
+
 ```yaml
 - name: Security Scan
   if: matrix.component.security_scan == true
@@ -189,6 +194,7 @@ jobs:
 6. Outputs flat JSON array
 
 **Validation:**
+
 - Configuration file must exist
 - Each component must have non-empty `name`
 - File must be valid JSON/YAML
@@ -236,6 +242,7 @@ jobs:
 ```
 
 **Output:**
+
 ```json
 [
   {
