@@ -67,13 +67,13 @@ describe("index.js template rendering", () => {
   test("✅ should render default template with dynamic values", async () => {
     await run();
 
-    // Проверяем, что шаблон отрендерился с ref-name, short-sha и timestamp
+    // check that the template was rendered with ref-name, short-sha and timestamp
     const calls = core.setOutput.mock.calls;
     const resultCall = calls.find(([key]) => key === "result");
     const rendered = resultCall ? resultCall[1] : null;
 
     expect(rendered).toContain("main");
-    expect(rendered).toContain("8c3c6b6"); // short-sha (7 символов)
+    expect(rendered).toContain("8c3c6b6"); // short-sha (7 chars)
     expect(rendered).toMatch(/\d{8}\d{6}/); // timestamp YYYYMMDDhhmmss
   });
 

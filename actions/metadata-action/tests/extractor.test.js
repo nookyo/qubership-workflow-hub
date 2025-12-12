@@ -20,7 +20,7 @@ describe("RefNormalizer", () => {
         expect(result.isTag).toBe(false);
         expect(result.type).toBe("branch");
 
-        // Проверим, что нет ни одного '/'
+        // Check that there are no '/' characters
         expect(result.normalizedName.includes("/")).toBe(false);
     });
 
@@ -55,7 +55,7 @@ describe("RefNormalizer", () => {
         const ref = "refs/heads/feature/super/deep/nested/path";
         const result = normalizer.extract(ref, "_");
 
-        // Проверяем, что все '/' заменились на '_'
+        // Check that all '/' are replaced with '_'
         expect(result.normalizedName).toBe("feature_super_deep_nested_path");
         expect(result.normalizedName.split("_").length).toBe(5);
         expect(result.normalizedName).not.toContain("/");

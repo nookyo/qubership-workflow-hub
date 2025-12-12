@@ -3,8 +3,10 @@ name: Prettier-fix
 on: [pull_request, push, workflow_dispatch]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   call-prettier-fix:
+    permissions:
+      contents: write
     uses: Netcracker/qubership-workflow-hub/.github/workflows/prettierFix.yaml@main

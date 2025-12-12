@@ -92,7 +92,16 @@ def create_summary(images_versions):
         f.write(summary)
     print("Summary created in summary.md")
 
-def set_image_versions(config_file, release, chart_version,  method):
+def find_image_by_name_tag(image_str, tag, default_tag="main") -> str:
+    # os.system("skopeo login -u $GITHUB_ACTOR -p $GITHUB_TOKEN ghcr.io")
+    tag_count = subprocess.run(f"skopeo list-tags docker://{image_str} | jq -r '.Tags[] | select(. == \"{tag}\")' | wc -l", shell=True, text=True, check=True, capture_output=True).stdout.split()
+    if int(tag_count[0]) > 0:
+        return tag
+    else:
+        print(f"::warning::Tag {tag} not found for image {image_str}")
+        return default_tag
+
+def set_image_versions(config_file, tag, chart_version,  method, default_tag):
     with open(config_file, 'r') as f:
         data = yaml.safe_load(f)
     # Define dict for images versions {"image_name1": "version", "image_name2": "version"}
@@ -109,24 +118,41 @@ def set_image_versions(config_file, release, chart_version,  method):
         print(f"Values file: {values_file}")
         os.system(f"sed -i 's|^version:.*|version: {chart_version}|' {chart_file}")
         # Update image version in values.yaml
-        # If method is 'replace', replace the image version with the release version as is
-        image_ver = release # Image version for method 'replace'
+        # If method is 'replace', replace the image version with the tag version as is
+        image_ver = tag # Image version for method 'replace'
         for image in chart['image']:
-            search_str = image.split(':')[0]
+            search_str = image.split(':')[0] # Full image name, e.g. ghcr.io/myorg/myimage
+            # If ${owner} in image name, replace it with GITHUB_REPOSITORY_OWNER variable
+            # for substitution, but for search replace it with "netcracker"
+            if '${owner}' in search_str:
+                replace_str = search_str.replace('${owner}', os.environ['GITHUB_REPOSITORY_OWNER'].lower())
+                search_str = search_str.replace('${owner}', 'netcracker')
+            else:
+                replace_str = search_str
+            # If method is 'parse', parse the version string from config file.
+            # - Replacing ${tag} with tag variable value
+            # - Replace environment variables in version string
+            # - Replace regex pattern in version string
             if method == 'parse':
-                image_ver = replace_env_variables(image.split(':')[1].replace('${release}', release))
+                image_ver = replace_env_variables(image.split(':')[1].replace('${tag}', tag).replace('${release}', tag))
                 image_ver = replace_tag_regexp(search_str, image_ver)
+                # If default_tag is provided, check if the image with requested tag exists
+                # if not found, use the default_tag
+                # Search for image by replace_str and image_ver
+                if default_tag:
+                    image_ver = find_image_by_name_tag(replace_str, image_ver, default_tag)
+            # Update image version in values.yaml
             print(f"{values_file}: Updating {search_str} version to {image_ver}")
-            os.system(f"sed -i 's|{search_str}:[a-zA-Z0-9._-]*|{search_str}:{image_ver}|' {values_file}")
+            os.system(f"sed -i 's|{search_str}:[a-zA-Z0-9._-]*|{replace_str}:{image_ver}|' {values_file}")
             # Check if image key exists in values.yaml
-            replacements = subprocess.run(f"grep -o '{search_str}' {values_file} | wc -l", shell=True, check=True, capture_output=True).stdout.split()[0]
+            replacements = subprocess.run(f"grep -o '{replace_str}' {values_file} | wc -l", shell=True, check=True, capture_output=True).stdout.split()[0]
             if int(replacements) == 0:
                 print(f"::warning::Image {search_str} not found in {values_file}")
             else:
                 print(f"Replaced {str(replacements)} occurrence(s) of {search_str} in {values_file}")
-                print(f"{values_file}: {search_str} version set to {image_ver}")
+                print(f"{values_file}: {search_str} version set to {replace_str}:{image_ver}")
             # Add to dictionary for action output
-            images_versions[search_str.split('/')[-1]] = image_ver
+            images_versions[replace_str.split('/')[-1]] = image_ver
     # Write the updated images versions to GITHUB_OUTPUT as a JSON string
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
         f.write(f"images-versions={json.dumps(images_versions)}\n")
@@ -135,12 +161,13 @@ def set_image_versions(config_file, release, chart_version,  method):
 def main():
     parser = argparse.ArgumentParser(description="Update Helm chart and image versions.")
     parser.add_argument("--config-file", required=True, help="Path to the configuration file.")
-    parser.add_argument("--release-version", required=True, help="Release version to set.")
+    parser.add_argument("--tag", required=True, help="Tag to set.")
     parser.add_argument("--chart-version", required=True, help="Chart version to set.")
     parser.add_argument("--version-replace-method", required=False, choices=["replace", "parse"], default="parse", help="Method to update image versions.")
+    parser.add_argument("--default-tag", required=False, default="main", help="Default image tag if tag is not found.")
     args = parser.parse_args()
 
-    set_image_versions(args.config_file, args.release_version, args.chart_version, args.version_replace_method)
+    set_image_versions(args.config_file, args.tag, args.chart_version, args.version_replace_method, args.default_tag)
 
 if __name__ == "__main__":
     main()

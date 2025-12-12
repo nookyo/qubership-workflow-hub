@@ -72,19 +72,22 @@ describe("index.js (main action)", () => {
     test("should complete successfully and set expected outputs", async () => {
         await run();
 
-        // Проверяем, что извлечение ссылки вызвано
+        // check that ref extraction was called
         expect(mockRefNormalizer.extract).toHaveBeenCalledWith("refs/heads/main","-");
 
-        // Проверяем, что записались основные outputs
+        // check that main outputs were set
         expect(core.setOutput).toHaveBeenCalledWith("ref-name", "main");
         expect(core.setOutput).toHaveBeenCalledWith("short-sha", "8c3c6b6");
 
-        // Проверяем успешный лог
+        // check for successful log
         expect(core.info).toHaveBeenCalledWith(
             expect.stringContaining("✅ Action completed successfully")
         );
 
-        // Проверяем, что не было ошибок
+        // check that report summary was written
+        expect(mockReport.writeSummary).toHaveBeenCalled();
+
+        // check that setFailed was not called
         expect(core.setFailed).not.toHaveBeenCalled();
     });
 
@@ -112,7 +115,7 @@ describe("index.js (main action)", () => {
 
         await run();
 
-        // Даже без конфигурации должны быть выведены шаблоны по умолчанию
+        // Even without configuration, default templates should be applied
         expect(core.warning).toHaveBeenCalledWith(
             expect.stringContaining("using default")
         );

@@ -79,6 +79,10 @@ inputs:
   docker-io-token:
     description: "Token to login to docker.io"
     required: false
+  skip-qemu-buildx:
+    description: "Skip the setup of Docker Buildx (for self-hosted runners with pre-configured Buildx)."
+    required: false
+    default: "false"
 outputs:
   image-name:
     description: "The name of the built Docker image."
@@ -89,6 +93,7 @@ outputs:
   metadata-filename:
     description: "Name of the generated metadata file."
     value: "${{ steps.output_result.outputs.metadata_filename }}"
+
 runs:
   using: "composite"
   steps:
@@ -100,7 +105,7 @@ runs:
         if [ -z "${REG+x}" ] || [ -z "${REG}" ]; then
           echo "REGISTRY='ghcr.io'" >> $GITHUB_ENV
         else
-          echo "REGISTRY=${{ inputs.registry }}" >> $GITHUB_ENV
+          echo "REGISTRY=$REG" >> $GITHUB_ENV
         fi
     - name: Validate docker.io login params
       if: ${{ contains(env.REGISTRY, 'docker.io') && (! inputs.docker-io-login || ! inputs.docker-io-token) && (inputs.dry-run != 'true') }}
@@ -112,32 +117,44 @@ runs:
     - name: Parse Component JSON
       id: parse_component
       shell: bash
+      env:
+        COMPONENT: ${{ inputs.component }}
       run: |
         # Parse the input JSON object directly
-        component='${{ inputs.component }}'
+        component="$COMPONENT"
         component_parsed=$(echo "$component" | jq 'if type=="array" then .[0] else . end')
         comp_name=$(echo "$component_parsed" | jq -r '.name')
         comp_file=$(echo "$component_parsed" | jq -r '.file')
         comp_ctx=$(echo "$component_parsed" | jq -r '.context')
+        comp_build_args=$(echo "$component_parsed" | jq -r '.arguments // empty')
         echo "name=$comp_name" >> "$GITHUB_OUTPUT"
         echo "file=$comp_file" >> "$GITHUB_OUTPUT"
         echo "ctx=$comp_ctx" >> "$GITHUB_OUTPUT"
+        echo "build_args=$comp_build_args" >> "$GITHUB_OUTPUT"
 
     - name: Prepare Image Name
       shell: bash
+      env:
+        CUSTOM_IMAGE_NAME: ${{ inputs.custom-image-name }}
+        COMPONENT_NAME: ${{ steps.parse_component.outputs.name }}
+        DOCKER_IO_LOGIN: ${{ inputs.docker-io-login }}
       run: |
         IFS='/' read -r owner repo <<< "$GITHUB_REPOSITORY"
-        if [ -n "${{ inputs.custom-image-name }}" ]; then
-            CONTAINER_NAME="${{ inputs.custom-image-name }}"
-        elif [ -n "${{ steps.parse_component.outputs.name }}" ] && [ "${{ steps.parse_component.outputs.name }}" != "default" ]; then
-           CONTAINER_NAME="${{ steps.parse_component.outputs.name }}"
+        if [ -n "$CUSTOM_IMAGE_NAME" ]; then
+            CONTAINER_NAME="$CUSTOM_IMAGE_NAME"
+        elif [ -n "$COMPONENT_NAME" ] && [ "$COMPONENT_NAME" != "default" ]; then
+          CONTAINER_NAME="$COMPONENT_NAME"
         else
-           CONTAINER_NAME="$repo"
+          CONTAINER_NAME="$repo"
         fi
         echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
         echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
         echo "GHCR_OWNER=$(echo "$owner" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-        echo "DOCKER_OWNER=${{ inputs.docker-io-login }}" >> "$GITHUB_ENV"
+        echo "DOCKER_OWNER=$DOCKER_IO_LOGIN" >> "$GITHUB_ENV"
+
+        echo "CONTAINER_NAME=$CONTAINER_NAME"
+        echo "GHCR_OWNER=$GHCR_OWNER"
+        echo "DOCKER_OWNER=$DOCKER_OWNER"
 
     - name: Prepare Image ghcr.io URL
       if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
@@ -155,9 +172,10 @@ runs:
 
     - name: Checkout Repository
       if: ${{ inputs.checkout == 'true' }}
-      uses: actions/checkout@v5
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
       with:
         ref: ${{ inputs.ref }}
+        persist-credentials: false
 
     - name: Display Debug Information
       shell: bash
@@ -182,9 +200,13 @@ runs:
           echo "ghcr.io URL: ${GHCR_URL}"
         fi
 
+        echo "::group::🐋 MANAGEMENT Dockerfile (alpine)"
+        cat ${{ steps.parse_component.outputs.file }}
+        echo "::endgroup::"
+
     - name: Download Artifact
       if: ${{ inputs.download-artifact == 'true' }}
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 #v6.0.0
       with:
         name: ${{ inputs.download-artifact-name }}
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '.' }}
@@ -203,9 +225,11 @@ runs:
         ls -R -la ${{ github.workspace }}
 
     - name: Set up QEMU
+      if: ${{ inputs.skip-qemu-buildx != 'true' }}
       uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
+      if: ${{ inputs.skip-qemu-buildx != 'true' }}
       uses: docker/setup-buildx-action@v3
 
     - name: Log in to GitHub Container Registry
@@ -269,7 +293,6 @@ runs:
         echo "Image refs: $IMAGE_REFS"
         echo "IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
-
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v6
       id: dockerbuild
@@ -282,7 +305,7 @@ runs:
         tags: ${{ inputs.tags != '' && env.IMAGE_REFS || steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ inputs.platforms }}
-        build-args: ${{ inputs.build-args }}
+        build-args: ${{ steps.parse_component.outputs.build_args != '' && steps.parse_component.outputs.build_args || inputs.build-args }}
 
     - name: Output result
       if: ${{ ! (inputs.dry-run == 'true') }}
@@ -291,27 +314,49 @@ runs:
       run: |
         set -euo pipefail
 
-        IMAGE_NAME_FULL=$(echo '${{ steps.dockerbuild.outputs.metadata }}' | jq -r '.["image.name"]' | cut -d',' -f1)
+        IMAGE_NAME_FULL="${{ fromJson(steps.dockerbuild.outputs.metadata)['image.name'] }}"
+        IMAGE_NAME_FULL="${IMAGE_NAME_FULL%%,*}"
+
+        if [ -z "$IMAGE_NAME_FULL" ]; then
+          echo "ERROR: IMAGE_NAME_FULL is empty. Check dockerbuild.outputs.metadata / image.name"
+          exit 1
+        fi
+
+        echo "IMAGE_NAME_FULL=$IMAGE_NAME_FULL"
+
         IMAGE_NAME="${IMAGE_NAME_FULL%%:*}"
         TAG="${IMAGE_NAME_FULL##*:}"
 
+        if [ -z "$IMAGE_NAME" ] || [ -z "$TAG" ]; then
+          echo "ERROR: IMAGE_NAME or TAG is empty. Got: IMAGE_NAME='$IMAGE_NAME', TAG='$TAG'"
+          exit 1
+        fi
+
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
+        if [ -z "$DIGEST" ]; then
+          echo "ERROR: DIGEST is empty. Check dockerbuild.outputs.digest"
+          exit 1
+        fi
+
         ALG="${DIGEST%%:*}"
         DIGEST_NO_PREFIX="${DIGEST##*:}"
         DIGEST_SHORT="${DIGEST_NO_PREFIX:0:12}"
 
-        GROUP="${{ inputs.app-manifest-group }}"
+        GROUP="${{ inputs.app-manifest-group || '' }}"
 
         VERSION="$TAG"
 
-        BASENAME=$(basename "$IMAGE_NAME")
+        BASENAME="$(basename "$IMAGE_NAME")"
         FILENAME="${BASENAME}-${TAG}-${DIGEST_SHORT}.json"
 
         echo ">>> IMAGE_NAME        = $IMAGE_NAME"
+        echo ">>> TAG               = $TAG"
         echo ">>> DIGEST            = $DIGEST"
         echo ">>> DIGEST_SHORT(12)  = $DIGEST_SHORT"
         echo ">>> FILENAME          = $FILENAME"
-        REFERENCE=${IMAGE_NAME}:${VERSION}
+
+        REFERENCE="${IMAGE_NAME}:${VERSION}"
+
         cat <<EOF > "$FILENAME"
         {
           "type": "container",
@@ -319,15 +364,17 @@ runs:
           "name": "${CONTAINER_NAME}",
           "group": "${GROUP}",
           "version": "${VERSION}",
-          "hashes":[
+          "hashes": [
             {
               "alg": "${ALG}",
               "content": "${DIGEST_NO_PREFIX}"
-            }],
+            }
+          ],
           "reference": "${REFERENCE}"
         }
         EOF
 
+        echo "image_name=$IMAGE_NAME_FULL" >> "$GITHUB_OUTPUT"
         echo "metadata_path=$PWD/$FILENAME" >> "$GITHUB_OUTPUT"
         echo "metadata_filename=$FILENAME" >> "$GITHUB_OUTPUT"
 

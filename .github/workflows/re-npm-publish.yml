@@ -37,22 +37,22 @@ on:
         type: string
         default: "main"
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
 env:
   VERSION: ${{ inputs.version }}
   DIST_TAG: ${{ inputs.dist-tag }}
 jobs:
   npm-build-publish:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
     runs-on: ubuntu-latest
     env:
       NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref}}
           fetch-depth: 0
