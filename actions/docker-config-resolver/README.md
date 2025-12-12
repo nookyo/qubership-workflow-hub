@@ -61,33 +61,33 @@ For example, if your configuration file defines two components, the output might
 
 ## 📌 Inputs
 
-| Name        | Description                                             | Required | Default                    |
-|-------------|---------------------------------------------------------|----------|----------------------------|
-| `file-path` | Path to the Docker components configuration file.      | No       | `.qubership/docker.cfg`    |
+| Name        | Description                                       | Required | Default                 |
+| ----------- | ------------------------------------------------- | -------- | ----------------------- |
+| `file-path` | Path to the Docker components configuration file. | No       | `.qubership/docker.cfg` |
 
 ---
 
 ## 📤 Outputs
 
-| Name     | Description                                                                    | Example |
-|----------|--------------------------------------------------------------------------------|---------|
+| Name     | Description                                                                        | Example                                                             |
+| -------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `config` | Resolved Docker components configuration in JSON format with all defaults applied. | `[{"name":"app","image":"ghcr.io/owner/app","registry":"ghcr.io"}]` |
 
 ### Configuration Object Structure
 
 Each component in the `config` output array contains:
 
-| Field               | Description                                              | Example                          |
-|---------------------|----------------------------------------------------------|----------------------------------|
-| `name`              | The name of the Docker component                        | `qubership-nifi`                 |
-| `image`             | The fully-qualified image path                          | `ghcr.io/my-org/qubership-nifi`  |
-| `registry`          | The container registry                                   | `ghcr.io`                        |
-| `dockerfile`        | Path to Dockerfile (from defaults or component)         | `Dockerfile`                     |
-| `context`           | Build context path (from defaults or component)         | `.`                              |
-| `tags`              | Image tags (from defaults or component)                 | `latest` or `1.0.0`              |
-| `platforms`         | Target platforms (from defaults or component)           | `linux/amd64, linux/arm64`       |
-| `security_*`        | Security settings (prefixed with `security_`)           | `security_scan: true`            |
-| Other fields        | Any additional custom fields from configuration         | Custom build args, etc.          |
+| Field        | Description                                     | Example                         |
+| ------------ | ----------------------------------------------- | ------------------------------- |
+| `name`       | The name of the Docker component                | `qubership-nifi`                |
+| `image`      | The fully-qualified image path                  | `ghcr.io/my-org/qubership-nifi` |
+| `registry`   | The container registry                          | `ghcr.io`                       |
+| `dockerfile` | Path to Dockerfile (from defaults or component) | `Dockerfile`                    |
+| `context`    | Build context path (from defaults or component) | `.`                             |
+| `tags`       | Image tags (from defaults or component)         | `latest` or `1.0.0`             |
+| `platforms`  | Target platforms (from defaults or component)   | `linux/amd64, linux/arm64`      |
+| `security_*` | Security settings (prefixed with `security_`)   | `security_scan: true`           |
+| Other fields | Any additional custom fields from configuration | Custom build args, etc.         |
 
 ---
 
@@ -470,11 +470,12 @@ components:
 ```
 
 **Output:**
+
 ```json
 [
-  {"name": "api", "image": "my-org/api", "registry": ""},
-  {"name": "web", "image": "my-org/web", "registry": ""},
-  {"name": "worker", "image": "my-org/worker", "registry": ""}
+  { "name": "api", "image": "my-org/api", "registry": "" },
+  { "name": "web", "image": "my-org/web", "registry": "" },
+  { "name": "worker", "image": "my-org/worker", "registry": "" }
 ]
 ```
 
@@ -497,6 +498,7 @@ components:
 ```
 
 **Output:**
+
 ```json
 [
   {
@@ -552,6 +554,7 @@ components:
 ```
 
 **Output:**
+
 ```json
 [
   {
