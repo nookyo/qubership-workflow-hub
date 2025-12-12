@@ -5,7 +5,7 @@ inputs:
   config-path:
     description: "Path to docker components config file"
     required: false
-    default: ".qubership/dev-docker.cfg"
+    default: ".qubership/docker.cfg"
 
 outputs:
   config:
