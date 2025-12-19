@@ -20,7 +20,7 @@ async function processBatches(items, batchSize, processFn) {
  * @param {Array<{package:{id,name,type}, versions:Array<{id,name,metadata}>}>} filtered
  * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean, concurrency?:number }} ctx
  */
-async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false, debug = false, concurrency = 10 } = {}) {
+async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false, debug = false, concurrency = 15 } = {}) {
   log.setDebug(debug);
   log.setDryRun(dryRun);
 
