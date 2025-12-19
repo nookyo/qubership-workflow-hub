@@ -3,11 +3,24 @@ const log = require("@netcracker/action-logger");
 const _MODULE = 'deleteAction.js';
 
 /**
+ * Process items in parallel batches
+ * @param {Array} items - Items to process
+ * @param {number} batchSize - Number of items to process in parallel
+ * @param {Function} processFn - Async function to process each item
+ */
+async function processBatches(items, batchSize, processFn) {
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    await Promise.allSettled(batch.map(item => processFn(item)));
+  }
+}
+
+/**
  *
  * @param {Array<{package:{id,name,type}, versions:Array<{id,name,metadata}>}>} filtered
- * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean }} ctx
+ * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean, concurrency?:number }} ctx
  */
-async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false, debug = false } = {}) {
+async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false, debug = false, concurrency = 10 } = {}) {
   log.setDebug(debug);
   log.setDryRun(dryRun);
 
@@ -28,7 +41,8 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
     const imageLC = (pkg.name || "").toLowerCase();
     const type = pkg.type; // "container" | "maven" ...
 
-    for (const v of versions) {
+    // Process versions in parallel batches
+    await processBatches(versions, concurrency, async (v) => {
       const tags = v.metadata?.container?.tags ?? [];
       const detail = type === "maven" ? v.name : (tags.length ? tags.join(", ") : v.name);
 
@@ -43,12 +57,12 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
 
         if (/more than 5000 downloads/i.test(msg)) {
           log.warn(`Skipping ${imageLC} v:${v.id} (${detail}) - too many downloads.`);
-          continue;
+          return;
         }
 
         if (/404|not found/i.test(msg)) {
           log.warn(`Version not found: ${imageLC} v:${v.id} - probably already deleted.`);
-          continue;
+          return;
         }
 
         if (/403|rate.?limit|insufficient permissions/i.test(msg)) {
@@ -58,7 +72,7 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
 
         log.error(`Failed to delete ${imageLC} v:${v.id} (${detail}) — ${msg}`);
       }
-    }
+    });
   }
 }
 
