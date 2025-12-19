@@ -28,6 +28,9 @@ async function run() {
   log.info(`Is debug? -> ${isDebug}`);
   log.info(`Dry run? -> ${dryRun}`);
 
+  log.setDebug(isDebug);
+  log.setDryRun(dryRun);
+
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10);
 
   let excludedTags = [];
@@ -55,7 +58,7 @@ async function run() {
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-  const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
+  const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN, isDebug);
 
   const isOrganization = await wrapper.isOrganization(owner);
   log.info(`Is Organization? -> ${isOrganization}`);
@@ -66,7 +69,9 @@ async function run() {
   const packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   const filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  log.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+  log.startDebugGroup('Filtered Packages')
+  log.debugJSON('💡 Filtered packages:', filteredPackages);
+  log.endGroup();
 
 
   log.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
@@ -108,11 +113,12 @@ async function run() {
   const filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 
   log.setDebug(isDebug);
-  log.group('Delete versions Log')
+  log.startDebugGroup('Packages with versions for delete');
   log.debugJSON('💡 Package with version for delete:', filteredPackagesWithVersionsForDelete);
   log.endGroup();
 
 
+  log.startGroup("🚀 Starting package version deletion process");
   const reportContext = {
     filteredPackagesWithVersionsForDelete,
     thresholdDays,
@@ -130,12 +136,13 @@ async function run() {
 
   try {
     if (!dryRun && filteredPackagesWithVersionsForDelete.length > 0) {
-      await deletePackageVersion(filteredPackagesWithVersionsForDelete, { wrapper, owner, isOrganization });
+      await deletePackageVersion(filteredPackagesWithVersionsForDelete, { wrapper, owner, isOrganization, dryRun, debug: isDebug });
     }
 
   } catch (error) {
     core.setFailed(error.message || String(error));
   }
+  log.endGroup();
 
   await showReport(reportContext, package_type);
   log.success("✅ Action completed.");

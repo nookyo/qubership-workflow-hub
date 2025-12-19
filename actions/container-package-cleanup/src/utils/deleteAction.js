@@ -1,11 +1,16 @@
 const log = require("@netcracker/action-logger");
 
+const _MODULE = 'deleteAction.js';
+
 /**
  *
  * @param {Array<{package:{id,name,type}, versions:Array<{id,name,metadata}>}>} filtered
  * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean }} ctx
  */
-async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false } = {}) {
+async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false, debug = false } = {}) {
+  log.setDebug(debug);
+  log.setDryRun(dryRun);
+
   if (!Array.isArray(filtered) || filtered.length === 0) {
     log.warn("Nothing to delete.");
     return;
@@ -27,22 +32,22 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
       const tags = v.metadata?.container?.tags ?? [];
       const detail = type === "maven" ? v.name : (tags.length ? tags.join(", ") : v.name);
 
-      log.setDryRun(dryRun);
-      log.dryrun(`${ownerLC}/${imageLC} (${type}) — would delete version ${v.id} (${detail})`);
+      log.dryrun(`${ownerLC}/${imageLC} (${type}) - would delete version ${v.id} (${detail})`);
 
       try {
-        log.info(`Deleting ${ownerLC}/${imageLC} (${type}) — version ${v.id} (${detail})`);
+        log.dim(`Deleting ${ownerLC}/${imageLC} (${type}) - version ${v.id} (${detail})`);
         await wrapper.deletePackageVersion(ownerLC, type, imageLC, v.id, isOrganization);
+        log.lightSuccess(`✓ Deleted ${ownerLC}/${imageLC} (${type}) - version ${v.id} (${detail})`);
       } catch (error) {
         const msg = String(error?.message || error);
 
         if (/more than 5000 downloads/i.test(msg)) {
-          log.warn(`Skipping ${imageLC} v:${v.id} (${detail}) — too many downloads.`);
+          log.warn(`Skipping ${imageLC} v:${v.id} (${detail}) - too many downloads.`);
           continue;
         }
 
         if (/404|not found/i.test(msg)) {
-          log.warn(`Version not found: ${imageLC} v:${v.id} — probably already deleted.`);
+          log.warn(`Version not found: ${imageLC} v:${v.id} - probably already deleted.`);
           continue;
         }
 

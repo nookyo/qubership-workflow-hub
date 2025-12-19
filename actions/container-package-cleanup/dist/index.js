@@ -30134,6 +30134,9 @@ module.exports = AbstractPackageStrategy;
 const core = __nccwpck_require__(8335);
 const AbstractPackageStrategy = __nccwpck_require__(7817);
 const WildcardMatcher = __nccwpck_require__(6540);
+const log = __nccwpck_require__(2938);
+
+const MODULE = 'container.js';
 
 class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
@@ -30183,16 +30186,18 @@ class ContainerStrategy extends AbstractPackageStrategy {
       * @returns {Promise<Array<{ package: Object, versions: Array }>>}
       */
     async execute({ packagesWithVersions, excludedPatterns = [], includedPatterns = [], thresholdDate, wrapper, owner, debug = false }) {
-        core.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+        log.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+        log.setDebug(debug);
 
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
         const packages = await this.parse(packagesWithVersions);
-        const result = [];
 
         const ownerLC = typeof owner === 'string' ? owner.toLowerCase() : owner;
 
-        for (const pkg of packages) {
+        const packagePromises = packages.map(async (pkg) => {
+            log.debug(`[${pkg.name}] Total versions: ${pkg.versions.length}`, MODULE);
+
             // Protected tags: latest + those that match excludedPatterns
             const protectedTags = new Set();
             for (const v of pkg.versions) {
@@ -30203,17 +30208,28 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     }
                 }
             }
+            if (protectedTags.size > 0) {
+                log.debug(` [${pkg.name}] Protected tags: ${Array.from(protectedTags).join(', ')}`, MODULE);
+            }
 
             const imageLC = pkg.name.toLowerCase();
             // Gathering digests of protected tags
             const protectedDigests = new Set();
-            for (const tag of protectedTags) {
+            const protectedDigestPromises = Array.from(protectedTags).map(async (tag) => {
                 try {
                     const ds = await wrapper.getManifestDigests(ownerLC, imageLC, tag);
+                    return { success: true, digests: ds };
+                } catch (e) {
+                    log.warn(`Failed to fetch manifest for ${pkg.name}:${tag} — ${e.message}`);
+                    return { success: false };
+                }
+            });
+            const protectedResults = await Promise.all(protectedDigestPromises);
+            for (const result of protectedResults) {
+                if (result.success) {
+                    const ds = result.digests;
                     if (Array.isArray(ds)) ds.forEach(d => { protectedDigests.add(d) });
                     else if (ds) protectedDigests.add(ds);
-                } catch (e) {
-                    if (debug) core.warning(`Failed to fetch manifest for ${pkg.name}:${tag} — ${e.message}`);
                 }
             }
 
@@ -30227,6 +30243,17 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
                 return true;
             });
+            log.debug(` [${pkg.name}] After date & exclude filter: ${withoutExclude.length} versions`, MODULE);
+
+            // Show versions with their tags for debugging
+            if (withoutExclude.length > 0 && withoutExclude.length <= 10) {
+                withoutExclude.forEach(v => {
+                    const tagsStr = v.metadata.container.tags.length > 0
+                        ? v.metadata.container.tags.join(', ')
+                        : '<no tags>';
+                    log.debug(`   - ${v.name.substring(0, 20)}... tags: [${tagsStr}]`, MODULE);
+                });
+            }
 
             // 2) Selecting tagged versions by includePatterns
             const taggedToDelete = included.length > 0
@@ -30237,22 +30264,43 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 )
                 : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-            if (debug) core.info(` [${pkg.name}] taggedToDelete: ${taggedToDelete.map(v => v.name).join(', ')}`);
+            if (included.length > 0) {
+                log.debug(` [${pkg.name}] Include patterns: ${included.join(', ')}`, MODULE);
+            }
+
+            if (taggedToDelete.length > 0) {
+                const preview = taggedToDelete.map(v => v.name).join(', ');
+                log.debug(` [${pkg.name}] taggedToDelete (${taggedToDelete.length}): ${preview}`, MODULE);
+            } else {
+                log.debug(` [${pkg.name}] taggedToDelete: none`, MODULE);
+            }
 
             // 3) Gathering manifest digests for each tagged
             const digestMap = new Map();
-            for (const v of taggedToDelete) {
-                const digs = new Set();
-                for (const tag of v.metadata.container.tags) {
+            const digestPromises = taggedToDelete.map(async (v) => {
+                const tagPromises = v.metadata.container.tags.map(async (tag) => {
                     try {
                         const ds = await wrapper.getManifestDigests(ownerLC, pkg.name, tag);
+                        return { success: true, digests: ds };
+                    } catch (e) {
+                        log.warn(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
+                        return { success: false };
+                    }
+                });
+                const results = await Promise.all(tagPromises);
+                const digs = new Set();
+                for (const result of results) {
+                    if (result.success) {
+                        const ds = result.digests;
                         if (Array.isArray(ds)) ds.forEach(d => { digs.add(d) });
                         else if (ds) digs.add(ds);
-                    } catch (e) {
-                        if (debug) core.warning(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
                     }
                 }
-                digestMap.set(v.name, digs);
+                return { versionName: v.name, digests: digs };
+            });
+            const digestResults = await Promise.all(digestPromises);
+            for (const result of digestResults) {
+                digestMap.set(result.versionName, result.digests);
             }
 
             // 4) Arch layers: from withoutExclude
@@ -30260,7 +30308,12 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 v.metadata.container.tags.length === 0 &&
                 Array.from(digestMap.values()).some(digs => digs.has(v.name))
             );
-            if (debug) core.info(` [${pkg.name}] archLayers: ${archLayers.map(v => v.name).join(', ')}`);
+            if (archLayers.length > 0) {
+                const preview = archLayers.map(v => v.name).join(', ');
+                log.debug(` [${pkg.name}] archLayers (${archLayers.length}): ${preview}`, MODULE);
+            } else {
+                log.debug(` [${pkg.name}] archLayers: none`, MODULE);
+            }
 
             // 5) Sorting tagged + their archLayers
             const ordered = [];
@@ -30284,18 +30337,27 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 !protectedDigests.has(v.name) &&
                 !ordered.some(o => o.name === v.name)
             );
-            if (debug && danglingLayers.length) {
-                core.info(` [${pkg.name}] danglingLayers: ${danglingLayers.map(v => v.name).join(', ')}`);
+            if (debug) {
+                if (danglingLayers.length > 0) {
+                    const preview = danglingLayers.map(v => v.name).join(', ');
+                    log.debug(`[${pkg.name}] danglingLayers (${danglingLayers.length}): ${preview}`, MODULE);
+                } else {
+                    log.debug(`[${pkg.name}] danglingLayers: none`, MODULE);
+                }
             }
 
             const toDelete = [...ordered, ...danglingLayers];
             if (toDelete.length > 0) {
-                result.push({
+                return {
                     package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
                     versions: toDelete
-                });
+                };
             }
-        }
+            return null;
+        });
+
+        const packageResults = await Promise.all(packagePromises);
+        const result = packageResults.filter(r => r !== null);
 
         return result;
     }
@@ -30319,6 +30381,9 @@ module.exports = ContainerStrategy;
 const core = __nccwpck_require__(8335);
 const WildcardMatcher = __nccwpck_require__(6540);
 const AbstractPackageStrategy = __nccwpck_require__(7817);
+const log = __nccwpck_require__(2938);
+
+const MODULE = 'maven.js';
 
 class MavenStrategy extends AbstractPackageStrategy {
     constructor() {
@@ -30327,7 +30392,7 @@ class MavenStrategy extends AbstractPackageStrategy {
     }
 
     async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, thresholdVersions, debug = false }) {
-
+        log.setDebug(debug);
         // includedTags = ['*SNAPSHOT*', ...includedTags];
         const wildcardMatcher = new WildcardMatcher();
 
@@ -30336,7 +30401,7 @@ class MavenStrategy extends AbstractPackageStrategy {
 
             // if (versions.length === 1) return core.info(`Skipping package: ${pkg.name} because it has only 1 version.`), null;
             if (versions.length === 1) {
-                core.info(`Skipping package: ${pkg.name} because it has only 1 version.`);
+                log.info(`Skipping package: ${pkg.name} because it has only 1 version.`);
                 return null;
             }
 
@@ -30344,7 +30409,7 @@ class MavenStrategy extends AbstractPackageStrategy {
                 const createdAt = new Date(version.created_at);
                 const isOldEnough = createdAt <= thresholdDate;
 
-                debug && core.info(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`);
+               log.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`, MODULE);
 
                 if (!isOldEnough) return false;
 
@@ -30360,7 +30425,7 @@ class MavenStrategy extends AbstractPackageStrategy {
                 return null;
             }
             if (versionForDelete.length <= thresholdVersions) {
-                debug && core.info(`Skipping package: ${pkg.name} because it has less than ${thresholdVersions} versions to delete.`);
+                log.debug(`Skipping package: ${pkg.name} because it has less than ${thresholdVersions} versions to delete.`, MODULE);
                 return null;
             }
 
@@ -30432,12 +30497,17 @@ module.exports = { getStrategy };
 
 const log = __nccwpck_require__(2938);
 
+const _MODULE = 'deleteAction.js';
+
 /**
  *
  * @param {Array<{package:{id,name,type}, versions:Array<{id,name,metadata}>}>} filtered
  * @param {{ wrapper:any, owner:string, isOrganization?:boolean, dryRun?:boolean }} ctx
  */
-async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false } = {}) {
+async function deletePackageVersion(filtered, { wrapper, owner, isOrganization = true, dryRun = false, debug = false } = {}) {
+  log.setDebug(debug);
+  log.setDryRun(dryRun);
+
   if (!Array.isArray(filtered) || filtered.length === 0) {
     log.warn("Nothing to delete.");
     return;
@@ -30459,22 +30529,22 @@ async function deletePackageVersion(filtered, { wrapper, owner, isOrganization =
       const tags = v.metadata?.container?.tags ?? [];
       const detail = type === "maven" ? v.name : (tags.length ? tags.join(", ") : v.name);
 
-      log.setDryRun(dryRun);
-      log.dryrun(`${ownerLC}/${imageLC} (${type}) — would delete version ${v.id} (${detail})`);
+      log.dryrun(`${ownerLC}/${imageLC} (${type}) - would delete version ${v.id} (${detail})`);
 
       try {
-        log.info(`Deleting ${ownerLC}/${imageLC} (${type}) — version ${v.id} (${detail})`);
+        log.dim(`Deleting ${ownerLC}/${imageLC} (${type}) - version ${v.id} (${detail})`);
         await wrapper.deletePackageVersion(ownerLC, type, imageLC, v.id, isOrganization);
+        log.lightSuccess(`✓ Deleted ${ownerLC}/${imageLC} (${type}) - version ${v.id} (${detail})`);
       } catch (error) {
         const msg = String(error?.message || error);
 
         if (/more than 5000 downloads/i.test(msg)) {
-          log.warn(`Skipping ${imageLC} v:${v.id} (${detail}) — too many downloads.`);
+          log.warn(`Skipping ${imageLC} v:${v.id} (${detail}) - too many downloads.`);
           continue;
         }
 
         if (/404|not found/i.test(msg)) {
-          log.warn(`Version not found: ${imageLC} v:${v.id} — probably already deleted.`);
+          log.warn(`Version not found: ${imageLC} v:${v.id} - probably already deleted.`);
           continue;
         }
 
@@ -30498,10 +30568,15 @@ module.exports = { deletePackageVersion };
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const escapeStringRegexp = __nccwpck_require__(1736);
+const log = __nccwpck_require__(2938);
+
+const MODULE = 'wildcardMatcher.js';
 
 class WildcardMatcher {
-  constructor() {
+  constructor(debug = false, dryRun = false) {
     this.name = 'WildcardMatcher';
+    log.setDebug(debug);
+    log.setDryRun(dryRun);
   }
 
   match(tag, pattern) {
@@ -30527,13 +30602,13 @@ class WildcardMatcher {
     }
 
     // General case: build RegExp, escape special characters, then *→.* and ?→.
-    console.log(`Matching tag "${t}" against pattern "${p}"`);
+    log.debug(`Matching tag "${t}" against pattern "${p}"`, MODULE);
     // First replace * and ? with unique markers, then escape, then return them as .*
     const wildcardPattern = p.replace(/\*/g, '__WILDCARD_STAR__').replace(/\?/g, '__WILDCARD_QM__');
     const escaped = escapeStringRegexp(wildcardPattern)
       .replace(/__WILDCARD_STAR__/g, '.*')
       .replace(/__WILDCARD_QM__/g, '.');
-    console.log(`Transformed pattern: ${escaped}`);
+    log.debug(`Transformed pattern: ${escaped}`, MODULE);
 
     const re = new RegExp(`^${escaped}$`, 'i');
     return re.test(t);
@@ -30552,6 +30627,9 @@ const github = __nccwpck_require__(5355);
 const { exec } = __nccwpck_require__(1421);
 const util = __nccwpck_require__(7975);
 const execPromise = util.promisify(exec);
+const log = __nccwpck_require__(2938);
+
+const MODULE = 'wrapper.js';
 
 class OctokitWrapper {
 
@@ -30559,8 +30637,9 @@ class OctokitWrapper {
    * Initializes the OctokitWrapper with an authentication token.
    * @param {string} authToken - The GitHub authentication token.
    */
-  constructor(authToken) {
+  constructor(authToken, debug = false) {
     this.octokit = github.getOctokit(authToken);
+    log.setDebug(debug);
   }
 
   /**
@@ -30570,11 +30649,11 @@ class OctokitWrapper {
    */
   async isOrganization(username) {
     try {
-      console.log(`Checking if ${username} is an organization...`);
+      log.info(`Checking if ${username} is an organization...`);
       const response = await this.octokit.rest.users.getByUsername({ username });
       return response.data.type !== 'User';
     } catch (error) {
-      console.error(`Error fetching user ${username}:`, error);
+      log.error(`Error fetching user ${username}:`, error);
       throw error;
     }
   }
@@ -30618,7 +30697,7 @@ class OctokitWrapper {
         }
       );
     } catch (error) {
-      console.error(`Error fetching packages for organization ${org}:`, error);
+      log.error(`Error fetching packages for organization ${org}:`, error);
       throw error;
     }
   }
@@ -30640,7 +30719,7 @@ class OctokitWrapper {
       );
 
     } catch (error) {
-      console.error(`Error fetching packages for user ${username}:`, error);
+      log.error(`Error fetching packages for user ${username}:`, error);
       throw error;
     }
   }
@@ -30654,7 +30733,7 @@ class OctokitWrapper {
    */
   async getPackageVersionsForUser(owner, package_type, package_name) {
     try {
-      console.log(`Owner: ${owner}, Package Type: ${package_type}, Package Name: ${package_name}`);
+      log.debug(`Owner: ${owner}, Package Type: ${package_type}, Package Name: ${package_name}`, MODULE);
       return await this.octokit.paginate(this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
         {
           package_type,
@@ -30663,7 +30742,7 @@ class OctokitWrapper {
           per_page: 100,
         });
     } catch (error) {
-      console.error(`Error fetching package versions for ${owner}/${package_name}:`, error);
+      log.error(`Error fetching package versions for ${owner}/${package_name}:`, error);
       throw error;
     }
   }
@@ -30677,7 +30756,7 @@ class OctokitWrapper {
    */
   async getPackageVersionsForOrganization(org, package_type, package_name) {
     try {
-       console.log(`Owner: ${org}, Package Type: ${package_type}, Package Name: ${package_name}`);
+       log.debug(`Owner: ${org}, Package Type: ${package_type}, Package Name: ${package_name}`, MODULE);
       return await this.octokit.paginate(this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
         {
           package_type,
@@ -30687,7 +30766,7 @@ class OctokitWrapper {
         });
 
     } catch (error) {
-      console.error(`Error fetching package versions for ${org}/${package_name}:`, error);
+      log.error(`Error fetching package versions for ${org}/${package_name}:`, error);
       throw error;
     }
   }
@@ -30719,7 +30798,7 @@ class OctokitWrapper {
         });
       }
     } catch (error) {
-      console.error(`Error deleting package version ${package_version_id} for ${owner}/${package_name}:`, error);
+      log.error(`Error deleting package version ${package_version_id} for ${owner}/${package_name}:`, error);
       throw error;
     }
   }
@@ -30756,6 +30835,7 @@ const COLORS = {
   reset: "\x1b[0m",
   blue: "\x1b[34m",
   green: "\x1b[32m",
+  lightGreen: "\x1b[92m",
   yellow: "\x1b[33m",
   red: "\x1b[31m",
   gray: "\x1b[90m",
@@ -30767,10 +30847,29 @@ class Logger {
     this.dryRunMode = false;
   }
 
+  // Get caller info from stack trace
+  _getCallerInfo() {
+    const stack = new Error().stack;
+    const lines = stack.split('\n');
+    // Skip first 3 lines: Error, _getCallerInfo, calling logger method
+    for (let i = 3; i < lines.length; i++) {
+      const line = lines[i];
+      // Match file path in stack trace
+      const match = line.match(/at\s+(?:.*\s+)?\(?([^:]+):(\d+):\d+\)?/);
+      if (match && !match[1].includes('node_modules')) {
+        const filePath = match[1].replace(/\\/g, '/');
+        const fileName = filePath.split('/').pop();
+        return `${fileName}:${match[2]}`;
+      }
+    }
+    return 'unknown';
+  }
+
   /** Enable or disable debug logging */
   setDebug(enabled) {
     this.debugMode = Boolean(enabled);
-    this.debug(`Debug mode ${this.debugMode ? "enabled" : "disabled"}`);
+    const caller = this._getCallerInfo();
+    this.debug(`Debug mode ${this.debugMode ? "enabled" : "disabled"} (called from ${caller})`);
   }
 
   setDryRun(enabled) {
@@ -30785,6 +30884,10 @@ class Logger {
 
   success(message) {
     core.info(`${COLORS.green}${message}${COLORS.reset}`);
+  }
+
+  lightSuccess(message) {
+    core.info(`${COLORS.lightGreen}${message}${COLORS.reset}`);
   }
 
   warn(message) {
@@ -30808,27 +30911,41 @@ class Logger {
     core.startGroup(`${COLORS.blue}${title}${COLORS.reset}`);
   }
 
+  startGroup(title) {
+    core.startGroup(`${COLORS.blue}${title}${COLORS.reset}`);
+  }
+
   endGroup() {
     core.endGroup();
   }
 
-  // --- Debug section ---
-  debug(message) {
+  startDebugGroup(title) {
     if (!this.debugMode) return;
-    const formatted = `${COLORS.gray}[debug] ${message}${COLORS.reset}`;
+    core.startGroup(`${COLORS.gray}[debug] ${title}${COLORS.reset}`);
+  }
+
+  // --- Debug section ---
+  debug(message, caller = null) {
+    if (!this.debugMode) return;
+    const callerInfo = caller || this._getCallerInfo();
+    const formatted = `${COLORS.gray}[debug][${callerInfo}] ${message}${COLORS.reset}`;
     core.info(formatted);
     if (typeof core.debug === "function") core.debug(message); // for GitHub’s ACTIONS_STEP_DEBUG
   }
 
-  debugJSON(label, obj) {
+  debugJSON(label, obj, caller = null) {
     if (!this.debugMode) return;
+    const callerInfo = caller || this._getCallerInfo();
     const formatted = JSON.stringify(obj, null, 2);
-    this.debug(`${label}:\n${formatted}`);
+    const message = `${COLORS.gray}[debug][${callerInfo}] ${label}:\n${formatted}${COLORS.reset}`;
+    core.info(message);
+    if (typeof core.debug === "function") core.debug(`${label}: ${formatted}`);
   }
 
-  dryrun(message) {
+  dryrun(message, caller = null) {
     if (!this.dryRunMode) return;
-    const formatted = `${COLORS.gray}[dry-run] ${message}${COLORS.reset}`;
+    const callerInfo = caller || this._getCallerInfo();
+    const formatted = `${COLORS.gray}[dry-run][${callerInfo}] ${message}${COLORS.reset}`;
     core.info(formatted);
   }
 
@@ -60060,6 +60177,9 @@ async function run() {
   log.info(`Is debug? -> ${isDebug}`);
   log.info(`Dry run? -> ${dryRun}`);
 
+  log.setDebug(isDebug);
+  log.setDryRun(dryRun);
+
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10);
 
   let excludedTags = [];
@@ -60087,7 +60207,7 @@ async function run() {
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-  const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
+  const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN, isDebug);
 
   const isOrganization = await wrapper.isOrganization(owner);
   log.info(`Is Organization? -> ${isOrganization}`);
@@ -60098,7 +60218,9 @@ async function run() {
   const packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   const filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  log.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+  log.startDebugGroup('Filtered Packages')
+  log.debugJSON('💡 Filtered packages:', filteredPackages);
+  log.endGroup();
 
 
   log.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
@@ -60140,11 +60262,12 @@ async function run() {
   const filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 
   log.setDebug(isDebug);
-  log.group('Delete versions Log')
+  log.startDebugGroup('Packages with versions for delete');
   log.debugJSON('💡 Package with version for delete:', filteredPackagesWithVersionsForDelete);
   log.endGroup();
 
 
+  log.startGroup("🚀 Starting package version deletion process");
   const reportContext = {
     filteredPackagesWithVersionsForDelete,
     thresholdDays,
@@ -60162,12 +60285,13 @@ async function run() {
 
   try {
     if (!dryRun && filteredPackagesWithVersionsForDelete.length > 0) {
-      await deletePackageVersion(filteredPackagesWithVersionsForDelete, { wrapper, owner, isOrganization });
+      await deletePackageVersion(filteredPackagesWithVersionsForDelete, { wrapper, owner, isOrganization, dryRun, debug: isDebug });
     }
 
   } catch (error) {
     core.setFailed(error.message || String(error));
   }
+  log.endGroup();
 
   await showReport(reportContext, package_type);
   log.success("✅ Action completed.");

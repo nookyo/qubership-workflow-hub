@@ -1,6 +1,9 @@
 const core = require('@actions/core');
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
+const log = require("@netcracker/action-logger");
+
+const MODULE = 'container.js';
 
 class ContainerStrategy extends AbstractPackageStrategy {
     constructor() {
@@ -50,16 +53,18 @@ class ContainerStrategy extends AbstractPackageStrategy {
       * @returns {Promise<Array<{ package: Object, versions: Array }>>}
       */
     async execute({ packagesWithVersions, excludedPatterns = [], includedPatterns = [], thresholdDate, wrapper, owner, debug = false }) {
-        core.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+        log.info(`Executing ContainerStrategy on ${Array.isArray(packagesWithVersions) ? packagesWithVersions.length : 'unknown'} packages.`);
+        log.setDebug(debug);
 
         const excluded = excludedPatterns.map(p => p.toLowerCase());
         const included = includedPatterns.map(p => p.toLowerCase());
         const packages = await this.parse(packagesWithVersions);
-        const result = [];
 
         const ownerLC = typeof owner === 'string' ? owner.toLowerCase() : owner;
 
-        for (const pkg of packages) {
+        const packagePromises = packages.map(async (pkg) => {
+            log.debug(`[${pkg.name}] Total versions: ${pkg.versions.length}`, MODULE);
+
             // Protected tags: latest + those that match excludedPatterns
             const protectedTags = new Set();
             for (const v of pkg.versions) {
@@ -70,17 +75,28 @@ class ContainerStrategy extends AbstractPackageStrategy {
                     }
                 }
             }
+            if (protectedTags.size > 0) {
+                log.debug(` [${pkg.name}] Protected tags: ${Array.from(protectedTags).join(', ')}`, MODULE);
+            }
 
             const imageLC = pkg.name.toLowerCase();
             // Gathering digests of protected tags
             const protectedDigests = new Set();
-            for (const tag of protectedTags) {
+            const protectedDigestPromises = Array.from(protectedTags).map(async (tag) => {
                 try {
                     const ds = await wrapper.getManifestDigests(ownerLC, imageLC, tag);
+                    return { success: true, digests: ds };
+                } catch (e) {
+                    log.warn(`Failed to fetch manifest for ${pkg.name}:${tag} — ${e.message}`);
+                    return { success: false };
+                }
+            });
+            const protectedResults = await Promise.all(protectedDigestPromises);
+            for (const result of protectedResults) {
+                if (result.success) {
+                    const ds = result.digests;
                     if (Array.isArray(ds)) ds.forEach(d => { protectedDigests.add(d) });
                     else if (ds) protectedDigests.add(ds);
-                } catch (e) {
-                    if (debug) core.warning(`Failed to fetch manifest for ${pkg.name}:${tag} — ${e.message}`);
                 }
             }
 
@@ -94,6 +110,17 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 }
                 return true;
             });
+            log.debug(` [${pkg.name}] After date & exclude filter: ${withoutExclude.length} versions`, MODULE);
+
+            // Show versions with their tags for debugging
+            if (withoutExclude.length > 0 && withoutExclude.length <= 10) {
+                withoutExclude.forEach(v => {
+                    const tagsStr = v.metadata.container.tags.length > 0
+                        ? v.metadata.container.tags.join(', ')
+                        : '<no tags>';
+                    log.debug(`   - ${v.name.substring(0, 20)}... tags: [${tagsStr}]`, MODULE);
+                });
+            }
 
             // 2) Selecting tagged versions by includePatterns
             const taggedToDelete = included.length > 0
@@ -104,22 +131,43 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 )
                 : withoutExclude.filter(v => v.metadata.container.tags.length > 0);
 
-            if (debug) core.info(` [${pkg.name}] taggedToDelete: ${taggedToDelete.map(v => v.name).join(', ')}`);
+            if (included.length > 0) {
+                log.debug(` [${pkg.name}] Include patterns: ${included.join(', ')}`, MODULE);
+            }
+
+            if (taggedToDelete.length > 0) {
+                const preview = taggedToDelete.map(v => v.name).join(', ');
+                log.debug(` [${pkg.name}] taggedToDelete (${taggedToDelete.length}): ${preview}`, MODULE);
+            } else {
+                log.debug(` [${pkg.name}] taggedToDelete: none`, MODULE);
+            }
 
             // 3) Gathering manifest digests for each tagged
             const digestMap = new Map();
-            for (const v of taggedToDelete) {
-                const digs = new Set();
-                for (const tag of v.metadata.container.tags) {
+            const digestPromises = taggedToDelete.map(async (v) => {
+                const tagPromises = v.metadata.container.tags.map(async (tag) => {
                     try {
                         const ds = await wrapper.getManifestDigests(ownerLC, pkg.name, tag);
+                        return { success: true, digests: ds };
+                    } catch (e) {
+                        log.warn(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
+                        return { success: false };
+                    }
+                });
+                const results = await Promise.all(tagPromises);
+                const digs = new Set();
+                for (const result of results) {
+                    if (result.success) {
+                        const ds = result.digests;
                         if (Array.isArray(ds)) ds.forEach(d => { digs.add(d) });
                         else if (ds) digs.add(ds);
-                    } catch (e) {
-                        if (debug) core.warning(`Failed to fetch manifest ${pkg.name}:${tag} — ${e.message}`);
                     }
                 }
-                digestMap.set(v.name, digs);
+                return { versionName: v.name, digests: digs };
+            });
+            const digestResults = await Promise.all(digestPromises);
+            for (const result of digestResults) {
+                digestMap.set(result.versionName, result.digests);
             }
 
             // 4) Arch layers: from withoutExclude
@@ -127,7 +175,12 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 v.metadata.container.tags.length === 0 &&
                 Array.from(digestMap.values()).some(digs => digs.has(v.name))
             );
-            if (debug) core.info(` [${pkg.name}] archLayers: ${archLayers.map(v => v.name).join(', ')}`);
+            if (archLayers.length > 0) {
+                const preview = archLayers.map(v => v.name).join(', ');
+                log.debug(` [${pkg.name}] archLayers (${archLayers.length}): ${preview}`, MODULE);
+            } else {
+                log.debug(` [${pkg.name}] archLayers: none`, MODULE);
+            }
 
             // 5) Sorting tagged + their archLayers
             const ordered = [];
@@ -151,18 +204,27 @@ class ContainerStrategy extends AbstractPackageStrategy {
                 !protectedDigests.has(v.name) &&
                 !ordered.some(o => o.name === v.name)
             );
-            if (debug && danglingLayers.length) {
-                core.info(` [${pkg.name}] danglingLayers: ${danglingLayers.map(v => v.name).join(', ')}`);
+            if (debug) {
+                if (danglingLayers.length > 0) {
+                    const preview = danglingLayers.map(v => v.name).join(', ');
+                    log.debug(`[${pkg.name}] danglingLayers (${danglingLayers.length}): ${preview}`, MODULE);
+                } else {
+                    log.debug(`[${pkg.name}] danglingLayers: none`, MODULE);
+                }
             }
 
             const toDelete = [...ordered, ...danglingLayers];
             if (toDelete.length > 0) {
-                result.push({
+                return {
                     package: { id: pkg.id, name: pkg.name, type: pkg.packageType },
                     versions: toDelete
-                });
+                };
             }
-        }
+            return null;
+        });
+
+        const packageResults = await Promise.all(packagePromises);
+        const result = packageResults.filter(r => r !== null);
 
         return result;
     }
