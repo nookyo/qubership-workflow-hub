@@ -12,6 +12,7 @@ inputs:
     description: "Default image tag if tag is not found."
     required: false
     type: string
+    default: "main"
   chart-version:
     description: "Chart version. If not provided, the chart version will be set to the release version."
     required: false
