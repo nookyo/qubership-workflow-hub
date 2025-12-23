@@ -186,7 +186,7 @@ jobs:
 
       - name: Resolve Docker Configuration
         id: resolver
-        uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
+        uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@v2.0.6
 
   build:
     needs: resolve
@@ -241,7 +241,7 @@ If the matrix strategy doesn't expand correctly:
 ---
       - name: Resolve Configuration
         id: resolver
-        uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
+        uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@v2.0.6
 
   scan:
     needs: resolve
@@ -269,7 +269,7 @@ If the matrix strategy doesn't expand correctly:
 ```yaml
 - name: Resolve Docker Configuration
   id: resolver
-  uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
+  uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@v2.0.6
   with:
     file-path: .config/docker-components.json
 ```
