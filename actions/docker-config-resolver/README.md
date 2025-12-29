@@ -114,12 +114,14 @@ components:
 ### Configuration fields
 
 **Top-level:**
+
 - `registry` (optional): Base registry URL (e.g., `ghcr.io`). If omitted, images will use format `owner/component-name`.
 - `defaults` (optional): Default values applied to all components.
 - `security` (optional): Global security settings applied to all components.
 - `components` (required): Array of component configurations.
 
 **Component:**
+
 - `name` (required): Unique name for the component. Used to auto-generate the `image` path.
 
 ---
