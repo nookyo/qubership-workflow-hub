@@ -311,7 +311,10 @@ If the matrix strategy doesn't expand correctly:
 - Any component has an empty or null `name` value.
 - The configuration file contains invalid JSON/YAML syntax.
 
---- steps:
+---
+
+```yaml
+steps:
       - uses: actions/checkout@v4
       - name: Build and Push
         uses: docker/build-push-action@v5
