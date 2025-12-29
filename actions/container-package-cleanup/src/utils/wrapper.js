@@ -2,6 +2,9 @@ const github = require("@actions/github");
 const { exec } = require("node:child_process");
 const util = require("node:util");
 const execPromise = util.promisify(exec);
+const log = require("@netcracker/action-logger");
+
+const MODULE = 'wrapper.js';
 
 class OctokitWrapper {
 
@@ -9,8 +12,9 @@ class OctokitWrapper {
    * Initializes the OctokitWrapper with an authentication token.
    * @param {string} authToken - The GitHub authentication token.
    */
-  constructor(authToken) {
+  constructor(authToken, debug = false) {
     this.octokit = github.getOctokit(authToken);
+    log.setDebug(debug);
   }
 
   /**
@@ -20,11 +24,11 @@ class OctokitWrapper {
    */
   async isOrganization(username) {
     try {
-      console.log(`Checking if ${username} is an organization...`);
+      log.info(`Checking if ${username} is an organization...`);
       const response = await this.octokit.rest.users.getByUsername({ username });
       return response.data.type !== 'User';
     } catch (error) {
-      console.error(`Error fetching user ${username}:`, error);
+      log.error(`Error fetching user ${username}:`, error);
       throw error;
     }
   }
@@ -68,7 +72,7 @@ class OctokitWrapper {
         }
       );
     } catch (error) {
-      console.error(`Error fetching packages for organization ${org}:`, error);
+      log.error(`Error fetching packages for organization ${org}:`, error);
       throw error;
     }
   }
@@ -90,7 +94,7 @@ class OctokitWrapper {
       );
 
     } catch (error) {
-      console.error(`Error fetching packages for user ${username}:`, error);
+      log.error(`Error fetching packages for user ${username}:`, error);
       throw error;
     }
   }
@@ -104,7 +108,7 @@ class OctokitWrapper {
    */
   async getPackageVersionsForUser(owner, package_type, package_name) {
     try {
-      console.log(`Owner: ${owner}, Package Type: ${package_type}, Package Name: ${package_name}`);
+      log.debug(`Owner: ${owner}, Package Type: ${package_type}, Package Name: ${package_name}`, MODULE);
       return await this.octokit.paginate(this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
         {
           package_type,
@@ -113,7 +117,7 @@ class OctokitWrapper {
           per_page: 100,
         });
     } catch (error) {
-      console.error(`Error fetching package versions for ${owner}/${package_name}:`, error);
+      log.error(`Error fetching package versions for ${owner}/${package_name}:`, error);
       throw error;
     }
   }
@@ -127,7 +131,7 @@ class OctokitWrapper {
    */
   async getPackageVersionsForOrganization(org, package_type, package_name) {
     try {
-       console.log(`Owner: ${org}, Package Type: ${package_type}, Package Name: ${package_name}`);
+       log.debug(`Owner: ${org}, Package Type: ${package_type}, Package Name: ${package_name}`, MODULE);
       return await this.octokit.paginate(this.octokit.rest.packages.getAllPackageVersionsForPackageOwnedByOrg,
         {
           package_type,
@@ -137,7 +141,7 @@ class OctokitWrapper {
         });
 
     } catch (error) {
-      console.error(`Error fetching package versions for ${org}/${package_name}:`, error);
+      log.error(`Error fetching package versions for ${org}/${package_name}:`, error);
       throw error;
     }
   }
@@ -169,7 +173,7 @@ class OctokitWrapper {
         });
       }
     } catch (error) {
-      console.error(`Error deleting package version ${package_version_id} for ${owner}/${package_name}:`, error);
+      log.error(`Error deleting package version ${package_version_id} for ${owner}/${package_name}:`, error);
       throw error;
     }
   }

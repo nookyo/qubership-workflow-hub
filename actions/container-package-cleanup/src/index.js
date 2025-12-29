@@ -13,22 +13,22 @@ const log = require("@netcracker/action-logger");
 
 async function run() {
 
-  // const configurationPath = core.getInput('config-file-path');
-
-  // if (configurationPath === "") {
-  //   core.info("❗️ Configuration file path is empty. Try to using default path: ./.github/package-cleanup-config.yml");
-  //   configurationPath = "./.github/package-cleanup-config.yml";
-  // }
-
   const isDebug = core.getInput("debug").toLowerCase() === "true";
   const dryRun = core.getInput("dry-run").toLowerCase() === "true";
 
   const package_type = core.getInput("package-type").toLowerCase();
 
+  dryRun && log.warn("Dry run mode is enabled, no version will be deleted.");
   log.info(`Is debug? -> ${isDebug}`);
   log.info(`Dry run? -> ${dryRun}`);
 
+  log.setDebug(isDebug);
+  log.setDryRun(dryRun);
+
   const thresholdDays = parseInt(core.getInput('threshold-days'), 10);
+
+  const batchSize = parseInt(core.getInput('batch-size'), 10) || 15;
+  const maxErrors = parseInt(core.getInput('max-errors'), 10) || 5;
 
   let excludedTags = [];
   let includedTags = [];
@@ -55,35 +55,44 @@ async function run() {
 
   const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-  const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN);
+  const wrapper = new OctokitWrapper(process.env.PACKAGE_TOKEN, isDebug);
 
   const isOrganization = await wrapper.isOrganization(owner);
   log.info(`Is Organization? -> ${isOrganization}`);
 
   // strategy will start  here for different types of packages
-  log.info(`Package type: ${package_type}, owner: ${owner}, repo: ${repo}`);
+  log.info(`Run for type: ${package_type}, owner: ${owner}, repo: ${repo}`);
+  log.info
 
   const packages = await wrapper.listPackages(owner, package_type, isOrganization);
 
   const filteredPackages = packages.filter((pkg) => pkg.repository?.name === repo);
-  log.info(`Filtered Packages: ${JSON.stringify(filteredPackages, null, 2)}`);
+  log.startDebugGroup('Filtered Packages')
+  log.debugJSON('💡 Filtered packages:', filteredPackages);
+  log.endGroup();
 
-
-  log.info(`Found ${packages.length} packages of type '${package_type}' for owner '${owner}'`);
+  log.notice(`Total packages found: ${packages.length}, packages filtered by repo '${repo}': ${filteredPackages.length}`);
+  log.endGroup();
 
   if (packages.length === 0) {
     log.warn("No packages found.");
     return;
   }
 
+  let totalPackagesVersions = 0;
   const packagesWithVersions = await Promise.all(
     filteredPackages.map(async (pkg) => {
       const versionsForPkg = await wrapper.listVersionsForPackage(owner, pkg.package_type, pkg.name, isOrganization);
+      totalPackagesVersions += versionsForPkg.length;
       log.info(`Found ${versionsForPkg.length} versions for package: ${pkg.name}`);
       // core.info(JSON.stringify(versionsForPkg, null, 2));
       return { package: pkg, versions: versionsForPkg };
     })
   );
+
+  log.endGroup();
+  log.notice(`Total packages to process: ${filteredPackages.length}, total versions found: ${totalPackagesVersions}`);
+  log.endGroup();
 
 
   // core.info(JSON.stringify(packagesWithVersions, null, 2));
@@ -108,7 +117,7 @@ async function run() {
   const filteredPackagesWithVersionsForDelete = await strategy.execute(strategyContext);
 
   log.setDebug(isDebug);
-  log.group('Delete versions Log')
+  log.startDebugGroup('Packages with versions for delete');
   log.debugJSON('💡 Package with version for delete:', filteredPackagesWithVersionsForDelete);
   log.endGroup();
 
@@ -122,23 +131,23 @@ async function run() {
     excludedTags
   };
 
-  if (dryRun) {
-    log.warn("Dry run mode enabled. No versions will be deleted.");
-    await showReport(reportContext, package_type);
-    return;
-  }
-
+  // dryRun && await showReport(reportContext, package_type);
+  let deleteStatus = [];
   try {
-    if (!dryRun && filteredPackagesWithVersionsForDelete.length > 0) {
-      await deletePackageVersion(filteredPackagesWithVersionsForDelete, { wrapper, owner, isOrganization });
+    if (filteredPackagesWithVersionsForDelete.length > 0) {
+      deleteStatus = await deletePackageVersion(filteredPackagesWithVersionsForDelete,
+        { wrapper, owner, isOrganization, batchSize, maxErrors, dryRun, debug: isDebug });
     }
 
   } catch (error) {
     core.setFailed(error.message || String(error));
   }
 
-  await showReport(reportContext, package_type);
-  log.success("✅ Action completed.");
+  await showReport({ ...reportContext, deleteStatus }, package_type);
+
+  deleteStatus.some(r => r.success === false) ?
+    core.setFailed("❗️ Action completed with errors. Please check the logs and the report above.") :
+    log.success("✅ Action completed.");
 }
 
 async function showReport(context, type = 'container') {
