@@ -219,6 +219,5 @@ scan:
 
 - **Required**: Every component must have a `name` field.
 - **Non-empty**: Component names cannot be empty strings or null values.
-- **File Existence**: The configuration file must exist at the specified path.
 - **Valid JSON/YAML**: The configuration file must be valid JSON or YAML format.
 
