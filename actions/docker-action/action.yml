@@ -79,14 +79,18 @@ inputs:
   docker-io-token:
     description: "Token to login to docker.io"
     required: false
-  skip-qemu:
-    description: "Skip the setup of QEMU (for self-hosted runners with pre-configured QEMU)."
+  skip-qemu-buildx:
+    description: "DEPRECATED: Use setup-qemu and setup-buildx instead. Skip the setup of both QEMU and Buildx."
     required: false
     default: "false"
-  skip-buildx:
-    description: "Skip the setup of Docker Buildx (for self-hosted runners with pre-configured Buildx)."
+  setup-qemu:
+    description: "Setup QEMU for multi-platform builds."
     required: false
-    default: "false"
+    default: "true"
+  setup-buildx:
+    description: "Setup Docker Buildx."
+    required: false
+    default: "true"
 outputs:
   image-name:
     description: "The name of the built Docker image."
@@ -229,11 +233,11 @@ runs:
         ls -R -la ${{ github.workspace }}
 
     - name: Set up QEMU
-      if: ${{ inputs.skip-qemu != 'true' }}
+      if: ${{ inputs.setup-qemu == 'true' && inputs.skip-qemu-buildx != 'true' }}
       uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
-      if: ${{ inputs.skip-buildx != 'true' }}
+      if: ${{ inputs.setup-buildx == 'true' && inputs.skip-qemu-buildx != 'true' }}
       uses: docker/setup-buildx-action@v3
 
     - name: Log in to GitHub Container Registry
