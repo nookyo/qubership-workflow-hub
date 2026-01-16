@@ -80,9 +80,18 @@ inputs:
     description: "Token to login to docker.io"
     required: false
   skip-qemu-buildx:
-    description: "Skip the setup of Docker Buildx (for self-hosted runners with pre-configured Buildx)."
+    description: "DEPRECATED: Use setup-qemu and setup-buildx instead. Skip the setup of both QEMU and Buildx."
     required: false
     default: "false"
+  setup-qemu:
+    description: "Setup QEMU for multi-platform builds."
+    required: false
+    default: "true"
+  setup-buildx:
+    description: "Setup Docker Buildx."
+    required: false
+    default: "true"
+
 outputs:
   image-name:
     description: "The name of the built Docker image."
@@ -225,16 +234,16 @@ runs:
         ls -R -la ${{ github.workspace }}
 
     - name: Set up QEMU
-      if: ${{ inputs.skip-qemu-buildx != 'true' }}
-      uses: docker/setup-qemu-action@v3
+      if: ${{ inputs.setup-qemu == 'true' && inputs.skip-qemu-buildx != 'true' }}
+      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
 
     - name: Set up Docker Buildx
-      if: ${{ inputs.skip-qemu-buildx != 'true' }}
-      uses: docker/setup-buildx-action@v3
+      if: ${{ inputs.setup-buildx == 'true' && inputs.skip-qemu-buildx != 'true' }}
+      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
     - name: Log in to GitHub Container Registry
       if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
-      uses: docker/login-action@v3
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -242,7 +251,7 @@ runs:
 
     - name: Login to Docker Hub
       if: ${{ contains(env.REGISTRY, 'docker.io') }}
-      uses: docker/login-action@v3
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         username: ${{ inputs.docker-io-login }}
         password: ${{ inputs.docker-io-token }}

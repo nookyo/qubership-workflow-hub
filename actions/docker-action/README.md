@@ -19,29 +19,31 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 
 ## 📌 Inputs
 
-| Name                                | Description                                                                                                                        | Required | Default                                                      |
-|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|----------|--------------------------------------------------------------|
-| `ref`                              | Branch to create a release from.                                                                                                   | No       | `""`                                                         |
-| `custom-image-name`                | Custom name for the Docker image. If not provided, it will be auto-generated.                                                      | No       | `""`                                                         |
-| `context`                          | Pipeline context.                                                                                                                  | No       | `git`                                                        |
-| `dry-run`                          | Run without pushing (dry run).                                                                                                     | No       | `false`                                                      |
-| `download-artifact`                | Flag to download the artifact.                                                                                                     | No       | `false`                                                      |
-| `component`                        | Component configuration in JSON format (an array with a single object).                                                            | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
-| `platforms`                        | Platforms for which the Docker image will be built.                                                                                | No       | `linux/amd64`                                                |
-| `tags`                             | Docker image tags. If empty, tags will be generated automatically.                                                                 | No       | `""`                                                         |
-| `download-artifact-name`           | Name of the artifact to download. Either `name` or `ids` can be used, but not both.                                               | No       | `""`                                                         |
-| `download-artifact-ids`            | IDs of the artifacts to download, comma-separated. Either `ids` or `name` can be used, but not both.                              | No       | `""`                                                         |
-| `download-artifact-path`           | Destination path. Supports basic tilde expansion. Default is `$GITHUB_WORKSPACE`                                                   | No       | `""`                                                         |
-| `download-artifact-pattern`        | A glob pattern to the artifacts that should be downloaded. Ignored if name is specified.                                          | No       | `""`                                                         |
-| `download-artifact-merge-multiple` | When download multiple artifacts unpack them as is or into separate directories.                                                   | No       | `false`                                                      |
-| `sbom`                             | Flag to enable SBOM (Software Bill of Materials) generation.                                                                      | No       | `false`                                                      |
-| `build-args`                       | Build arguments for the Docker image, newline-delimited string.                                                                   | No       | `""`                                                         |
-| `checkout`                         | Flag to enable repository checkout.                                                                                                | No       | `true`                                                       |
-| `debug`                            | Flag to enable debug mode.                                                                                                        | No       | `false`                                                      |
-| `registry`                         | Registry name to publish images to. Can be set to `ghcr.io`, `docker.io` or `ghcr.io,docker.io`                                 | No       | `ghcr.io`                                                    |
-| `docker-io-login`                  | Account name to login to docker.io                                                                                                | Yes*     | -                                                            |
-| `docker-io-token`                  | Token with `Read,Write` permissions to login to docker.io                                                                         | Yes*     | -                                                            |
-| `skip-qemu-buildx-setup`           | Skip the setup of Docker Buildx (for self-hosted runners with pre-configured Buildx).                                            | No       | `false`                                                      |
+| Name                               | Description                                                                                          | Required | Default                                                         |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------- |
+| `ref`                              | Branch to create a release from.                                                                     | No       | `""`                                                            |
+| `custom-image-name`                | Custom name for the Docker image. If not provided, it will be auto-generated.                        | No       | `""`                                                            |
+| `context`                          | Pipeline context.                                                                                    | No       | `git`                                                           |
+| `dry-run`                          | Run without pushing (dry run).                                                                       | No       | `false`                                                         |
+| `download-artifact`                | Flag to download the artifact.                                                                       | No       | `false`                                                         |
+| `component`                        | Component configuration in JSON format (an array with a single object).                              | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
+| `platforms`                        | Platforms for which the Docker image will be built.                                                  | No       | `linux/amd64`                                                   |
+| `tags`                             | Docker image tags. If empty, tags will be generated automatically.                                   | No       | `""`                                                            |
+| `download-artifact-name`           | Name of the artifact to download. Either `name` or `ids` can be used, but not both.                  | No       | `""`                                                            |
+| `download-artifact-ids`            | IDs of the artifacts to download, comma-separated. Either `ids` or `name` can be used, but not both. | No       | `""`                                                            |
+| `download-artifact-path`           | Destination path. Supports basic tilde expansion. Default is `$GITHUB_WORKSPACE`                     | No       | `""`                                                            |
+| `download-artifact-pattern`        | A glob pattern to the artifacts that should be downloaded. Ignored if name is specified.             | No       | `""`                                                            |
+| `download-artifact-merge-multiple` | When download multiple artifacts unpack them as is or into separate directories.                     | No       | `false`                                                         |
+| `sbom`                             | Flag to enable SBOM (Software Bill of Materials) generation.                                         | No       | `false`                                                         |
+| `build-args`                       | Build arguments for the Docker image, newline-delimited string.                                      | No       | `""`                                                            |
+| `checkout`                         | Flag to enable repository checkout.                                                                  | No       | `true`                                                          |
+| `debug`                            | Flag to enable debug mode.                                                                           | No       | `false`                                                         |
+| `registry`                         | Registry name to publish images to. Can be set to `ghcr.io`, `docker.io` or `ghcr.io,docker.io`      | No       | `ghcr.io`                                                       |
+| `docker-io-login`                  | Account name to login to docker.io                                                                   | Yes*     | -                                                               |
+| `docker-io-token`                  | Token with `Read,Write` permissions to login to docker.io                                            | Yes*     | -                                                               |
+| `skip-qemu-buildx`                 | DEPRECATED: Use setup-qemu and setup-buildx instead. Skip the setup of both QEMU and Buildx.         | No       | `false`                                                         |
+| `setup-qemu`                       | Setup QEMU for multi-platform builds.                                                                | No       | `true`                                                          |
+| `setup-buildx`                     | Setup Docker Buildx.                                                                                 | No       | `true`                                                          |
 
 **\* Required only if `registry` contains `docker.io` and `dry-run` is `false`**
 
@@ -49,11 +51,11 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 
 ## 📤 Outputs
 
-| Name              | Description                              |
-|-------------------|------------------------------------------|
-| `image-name`      | The name of the built Docker image.     |
-| `metadata-json`   | Path to the generated metadata file.    |
-| `metadata-filename` | Name of the generated metadata file.   |
+| Name                | Description                          |
+| ------------------- | ------------------------------------ |
+| `image-name`        | The name of the built Docker image.  |
+| `metadata-json`     | Path to the generated metadata file. |
+| `metadata-filename` | Name of the generated metadata file. |
 
 ---
 
@@ -109,6 +111,8 @@ jobs:
           build-args: |
             NODE_VERSION=18
             BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          setup-qemu: false
+          setup-buildx: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -128,6 +132,7 @@ The `platforms` input allows you to specify multiple platforms (e.g., `linux/amd
 ### Registry Support
 
 The action supports publishing to multiple registries:
+
 - **GitHub Container Registry** (`ghcr.io`) - Uses `GITHUB_TOKEN` for authentication
 - **Docker Hub** (`docker.io`) - Requires `docker-io-login` and `docker-io-token` inputs
 - **Both registries** - Set `registry: ghcr.io,docker.io`
@@ -135,6 +140,7 @@ The action supports publishing to multiple registries:
 ### Automatic Tagging
 
 If the `tags` input is empty, the action will automatically generate tags based on:
+
 - Branch name (for branch pushes)
 - Semantic versioning (for tagged releases)
 - PR number (for pull requests)
@@ -199,11 +205,12 @@ with:
 
 ### Self-Hosted Runners
 
-For self-hosted runners with pre-configured Docker Buildx:
+For self-hosted runners with pre-configured QEMU and Docker Buildx:
 
 ```yaml
 with:
-  skip-qemu-buildx-setup: true
+  setup-qemu: false
+  setup-buildx: false
 ```
 
 ---
@@ -213,6 +220,7 @@ with:
 ### Docker Hub Authentication
 
 If using Docker Hub (`docker.io`), ensure you have:
+
 1. Created a Docker Hub access token with Read/Write permissions
 2. Added `docker-io-login` and `docker-io-token` as repository secrets
 3. Set `registry` to include `docker.io`
