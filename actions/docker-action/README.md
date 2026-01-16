@@ -41,7 +41,9 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `registry`                         | Registry name to publish images to. Can be set to `ghcr.io`, `docker.io` or `ghcr.io,docker.io`                                 | No       | `ghcr.io`                                                    |
 | `docker-io-login`                  | Account name to login to docker.io                                                                                                | Yes*     | -                                                            |
 | `docker-io-token`                  | Token with `Read,Write` permissions to login to docker.io                                                                         | Yes*     | -                                                            |
-| `skip-qemu-buildx-setup`           | Skip the setup of Docker Buildx (for self-hosted runners with pre-configured Buildx).                                            | No       | `false`                                                      |
+| `skip-qemu-buildx`                | DEPRECATED: Use setup-qemu and setup-buildx instead. Skip the setup of both QEMU and Buildx.                    | No       | `false`                                                      |
+| `setup-qemu`                      | Setup QEMU for multi-platform builds.                                                                             | No       | `true`                                                       |
+| `setup-buildx`                    | Setup Docker Buildx.                                                                                              | No       | `true`                                                       |
 
 **\* Required only if `registry` contains `docker.io` and `dry-run` is `false`**
 
@@ -109,6 +111,8 @@ jobs:
           build-args: |
             NODE_VERSION=18
             BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          setup-qemu: false
+          setup-buildx: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -199,11 +203,12 @@ with:
 
 ### Self-Hosted Runners
 
-For self-hosted runners with pre-configured Docker Buildx:
+For self-hosted runners with pre-configured QEMU and Docker Buildx:
 
 ```yaml
 with:
-  skip-qemu-buildx-setup: true
+  setup-qemu: false
+  setup-buildx: false
 ```
 
 ---
