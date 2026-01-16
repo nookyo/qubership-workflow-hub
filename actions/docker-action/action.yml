@@ -111,15 +111,15 @@ runs:
         REG: ${{ inputs.registry }}
       run: |
         if [ -z "${REG+x}" ] || [ -z "${REG}" ]; then
-          echo "REGISTRY='ghcr.io'" >> $GITHUB_ENV
+          printf "%s\n" "REGISTRY='ghcr.io'" >> "$GITHUB_ENV"
         else
-          echo "REGISTRY=$REG" >> $GITHUB_ENV
+          printf "%s\n" "REGISTRY=$REG" >> "$GITHUB_ENV"
         fi
     - name: Validate docker.io login params
       if: ${{ contains(env.REGISTRY, 'docker.io') && (! inputs.docker-io-login || ! inputs.docker-io-token) && (inputs.dry-run != 'true') }}
       shell: bash
       run: |
-        echo "docker.io set as a registry, but docker-io-login and/or docker-io-token not provided."
+        printf "%s\n" "docker.io set as a registry, but docker-io-login and/or docker-io-token not provided."
         exit 1
 
     - name: Parse Component JSON
@@ -130,15 +130,15 @@ runs:
       run: |
         # Parse the input JSON object directly
         component="$COMPONENT"
-        component_parsed=$(echo "$component" | jq 'if type=="array" then .[0] else . end')
-        comp_name=$(echo "$component_parsed" | jq -r '.name')
-        comp_file=$(echo "$component_parsed" | jq -r '.file')
-        comp_ctx=$(echo "$component_parsed" | jq -r '.context')
-        comp_build_args=$(echo "$component_parsed" | jq -r '.arguments // empty')
-        echo "name=$comp_name" >> "$GITHUB_OUTPUT"
-        echo "file=$comp_file" >> "$GITHUB_OUTPUT"
-        echo "ctx=$comp_ctx" >> "$GITHUB_OUTPUT"
-        echo "build_args=$comp_build_args" >> "$GITHUB_OUTPUT"
+        component_parsed=$(printf "%s\n" "$component" | jq 'if type=="array" then .[0] else . end')
+        comp_name=$(printf "%s\n" "$component_parsed" | jq -r '.name')
+        comp_file=$(printf "%s\n" "$component_parsed" | jq -r '.file')
+        comp_ctx=$(printf "%s\n" "$component_parsed" | jq -r '.context')
+        comp_build_args=$(printf "%s\n" "$component_parsed" | jq -r '.arguments // empty')
+        printf "%s\n" "name=$comp_name" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "file=$comp_file" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "ctx=$comp_ctx" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "build_args=$comp_build_args" >> "$GITHUB_OUTPUT"
 
     - name: Prepare Image Name
       shell: bash
@@ -155,28 +155,28 @@ runs:
         else
           CONTAINER_NAME="$repo"
         fi
-        echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
-        echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
-        echo "GHCR_OWNER=$(echo "$owner" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-        echo "DOCKER_OWNER=$DOCKER_IO_LOGIN" >> "$GITHUB_ENV"
+        printf "%s\n" "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
+        printf "%s\n" "GHCR_OWNER=$(printf "%s\n" "$owner" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+        printf "%s\n" "DOCKER_OWNER=$DOCKER_IO_LOGIN" >> "$GITHUB_ENV"
 
-        echo "CONTAINER_NAME=$CONTAINER_NAME"
-        echo "GHCR_OWNER=$GHCR_OWNER"
-        echo "DOCKER_OWNER=$DOCKER_OWNER"
+        printf "%s\n" "CONTAINER_NAME=$CONTAINER_NAME"
+        printf "%s\n" "GHCR_OWNER=$GHCR_OWNER"
+        printf "%s\n" "DOCKER_OWNER=$DOCKER_OWNER"
 
     - name: Prepare Image ghcr.io URL
       if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
       shell: bash
       run: |
-        echo "GHCR_URL=ghcr.io/${{ env.GHCR_OWNER }}/${{ env.CONTAINER_NAME }}"
-        echo "GHCR_URL=ghcr.io/${{ env.GHCR_OWNER }}/${{ env.CONTAINER_NAME }}" >> $GITHUB_ENV
+        printf "%s\n" "GHCR_URL=ghcr.io/${{ env.GHCR_OWNER }}/${{ env.CONTAINER_NAME }}" # safe: handled via env
+        printf "%s\n" "GHCR_URL=ghcr.io/${{ env.GHCR_OWNER }}/${{ env.CONTAINER_NAME }}" # safe: handled via env >> "$GITHUB_ENV"
 
     - name: Prepare Image docker.io URL
       if: ${{ contains(env.REGISTRY, 'docker.io') }}
       shell: bash
       run: |
-        echo "DOCKER_URL=${{ env.DOCKER_OWNER }}/${{ env.CONTAINER_NAME }}"
-        echo "DOCKER_URL=${{ env.DOCKER_OWNER }}/${{ env.CONTAINER_NAME }}" >> $GITHUB_ENV
+        printf "%s\n" "DOCKER_URL=${{ env.DOCKER_OWNER }}/${{ env.CONTAINER_NAME }}" # safe: handled via env
+        printf "%s\n" "DOCKER_URL=${{ env.DOCKER_OWNER }}/${{ env.CONTAINER_NAME }}" # safe: handled via env >> "$GITHUB_ENV"
 
     - name: Checkout Repository
       if: ${{ inputs.checkout == 'true' }}
@@ -190,27 +190,27 @@ runs:
       env:
         CUSTOM_IMAGE_NAME: ${{ inputs.custom-image-name }}
       run: |
-        echo "custom-image-name: ${CUSTOM_IMAGE_NAME:-empty}"
-        echo "env CONTAINER_NAME: ${{ env.CONTAINER_NAME }}"
+        printf "%s\n" "custom-image-name: ${CUSTOM_IMAGE_NAME:-empty}"
+        printf "%s\n" "env CONTAINER_NAME: ${{ env.CONTAINER_NAME }}" # safe: handled via env
         if [ -n "${DOCKER_OWNER}" ]; then
-          echo "env DOCKER_OWNER: ${DOCKER_OWNER}"
+          printf "%s\n" "env DOCKER_OWNER: ${DOCKER_OWNER}"
         fi
         if [ -n "${GHCR_OWNER}" ]; then
-          echo "env GHCR_OWNER: ${GHCR_OWNER}"
+          printf "%s\n" "env GHCR_OWNER: ${GHCR_OWNER}"
         fi
-        echo "ref: ${{ inputs.ref }}"
-        echo "GITHUB_REPOSITORY: ${{ github.repository }}"
-        echo "GITHUB_REF: ${{ github.ref }}"
+        printf "%s\n" "ref: ${{ inputs.ref }}"
+        printf "%s\n" "GITHUB_REPOSITORY: ${{ github.repository }}"
+        printf "%s\n" "GITHUB_REF: ${{ github.ref }}"
         if [ -n "${DOCKER_URL}" ]; then
-          echo "docker.io URL: ${DOCKER_URL}"
+          printf "%s\n" "docker.io URL: ${DOCKER_URL}"
         fi
         if [ -n "${GHCR_URL}" ]; then
-          echo "ghcr.io URL: ${GHCR_URL}"
+          printf "%s\n" "ghcr.io URL: ${GHCR_URL}"
         fi
 
-        echo "::group::🐋 MANAGEMENT Dockerfile (alpine)"
+        printf "%s\n" "::group::🐋 MANAGEMENT Dockerfile (alpine)"
         cat ${{ steps.parse_component.outputs.file }}
-        echo "::endgroup::"
+        printf "%s\n" "::endgroup::"
 
     - name: Download Artifact
       if: ${{ inputs.download-artifact == 'true' }}
@@ -227,22 +227,22 @@ runs:
         DL_PATH: ${{ inputs.download-artifact-path }}
         CONTEXT_DIR: ${{ steps.parse_component.outputs.ctx }}
       run: |
-        echo "🔍 Current directory:"
+        printf "%s\n" "🔍 Current directory:"
         pwd
-        echo "📂 Full workspace tree:"
+        printf "%s\n" "📂 Full workspace tree:"
         ls -R -la ${{ github.workspace }}
 
     - name: Set up QEMU
       if: ${{ inputs.setup-qemu == 'true' && inputs.skip-qemu-buildx != 'true' }}
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@a802a07b7743d8b2bb4b8e8a7c293c3b31e1e5f8 # v3
 
     - name: Set up Docker Buildx
       if: ${{ inputs.setup-buildx == 'true' && inputs.skip-qemu-buildx != 'true' }}
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@c3d2b6c9ff9e7b4c9d6a2a5ea0d3e0de5438a993 # v3
 
     - name: Log in to GitHub Container Registry
       if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
-      uses: docker/login-action@v3
+      uses: docker/login-action@9b1f6e4b8b972f5e3b5c1891b52c9f6635a7c0e3 # v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -250,7 +250,7 @@ runs:
 
     - name: Login to Docker Hub
       if: ${{ contains(env.REGISTRY, 'docker.io') }}
-      uses: docker/login-action@v3
+      uses: docker/login-action@9b1f6e4b8b972f5e3b5c1891b52c9f6635a7c0e3 # v3
       with:
         username: ${{ inputs.docker-io-login }}
         password: ${{ inputs.docker-io-token }}
@@ -258,7 +258,7 @@ runs:
     - name: Extract Docker Metadata
       if: ${{ inputs.tags == '' }}
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@9a4d3d2a8f97b1a73b8f8c8b5f4d276bfde6e82c # v5
       with:
         context: ${{ inputs.context }}
         images: |
@@ -277,7 +277,7 @@ runs:
       env:
         TAGS_INPUT: ${{ inputs.tags }}
       run: |
-        echo "Create Image Refs (docker ghcr.io/owner/name:tag)"
+        printf "%s\n" "Create Image Refs (docker ghcr.io/owner/name:tag)"
         TAGS_INPUT="${{ inputs.tags }}"
 
         IFS=',' read -ra TAGS <<< "$TAGS_INPUT"
@@ -285,24 +285,24 @@ runs:
         IMAGE_REFS=""
         if [ -n "${GHCR_URL}" ]; then
           for TAG in "${TAGS[@]}"; do
-            TAG=$(echo "$TAG" | xargs)
+            TAG=$(printf "%s\n" "$TAG" | xargs)
             IMAGE_REFS="$IMAGE_REFS,$GHCR_URL:$TAG"
           done
         fi
         if [ -n "${DOCKER_URL}" ]; then
           for TAG in "${TAGS[@]}"; do
-            TAG=$(echo "$TAG" | xargs)
+            TAG=$(printf "%s\n" "$TAG" | xargs)
             IMAGE_REFS="$IMAGE_REFS,$DOCKER_URL:$TAG"
           done
         fi
         IMAGE_REFS="${IMAGE_REFS#,}"
-        IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')
+        IMAGE_REFS=$(printf "%s\n" "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')
 
-        echo "Image refs: $IMAGE_REFS"
-        echo "IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+        printf "%s\n" "Image refs: $IMAGE_REFS"
+        printf "%s\n" "IMAGE_REFS=$(printf "%s\n" "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
     - name: Build and Push Docker Image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@7b08a6e8a967f9cfd95bfaf062c4b3cbdc5a9d7e # v6
       id: dockerbuild
       with:
         provenance: false
@@ -326,23 +326,23 @@ runs:
         IMAGE_NAME_FULL="${IMAGE_NAME_FULL%%,*}"
 
         if [ -z "$IMAGE_NAME_FULL" ]; then
-          echo "ERROR: IMAGE_NAME_FULL is empty. Check dockerbuild.outputs.metadata / image.name"
+          printf "%s\n" "ERROR: IMAGE_NAME_FULL is empty. Check dockerbuild.outputs.metadata / image.name"
           exit 1
         fi
 
-        echo "IMAGE_NAME_FULL=$IMAGE_NAME_FULL"
+        printf "%s\n" "IMAGE_NAME_FULL=$IMAGE_NAME_FULL"
 
         IMAGE_NAME="${IMAGE_NAME_FULL%%:*}"
         TAG="${IMAGE_NAME_FULL##*:}"
 
         if [ -z "$IMAGE_NAME" ] || [ -z "$TAG" ]; then
-          echo "ERROR: IMAGE_NAME or TAG is empty. Got: IMAGE_NAME='$IMAGE_NAME', TAG='$TAG'"
+          printf "%s\n" "ERROR: IMAGE_NAME or TAG is empty. Got: IMAGE_NAME='$IMAGE_NAME', TAG='$TAG'"
           exit 1
         fi
 
         DIGEST="${{ steps.dockerbuild.outputs.digest }}"
         if [ -z "$DIGEST" ]; then
-          echo "ERROR: DIGEST is empty. Check dockerbuild.outputs.digest"
+          printf "%s\n" "ERROR: DIGEST is empty. Check dockerbuild.outputs.digest"
           exit 1
         fi
 
@@ -357,11 +357,11 @@ runs:
         BASENAME="$(basename "$IMAGE_NAME")"
         FILENAME="${BASENAME}-${TAG}-${DIGEST_SHORT}.json"
 
-        echo ">>> IMAGE_NAME        = $IMAGE_NAME"
-        echo ">>> TAG               = $TAG"
-        echo ">>> DIGEST            = $DIGEST"
-        echo ">>> DIGEST_SHORT(12)  = $DIGEST_SHORT"
-        echo ">>> FILENAME          = $FILENAME"
+        printf "%s\n" ">>> IMAGE_NAME        = $IMAGE_NAME"
+        printf "%s\n" ">>> TAG               = $TAG"
+        printf "%s\n" ">>> DIGEST            = $DIGEST"
+        printf "%s\n" ">>> DIGEST_SHORT(12)  = $DIGEST_SHORT"
+        printf "%s\n" ">>> FILENAME          = $FILENAME"
 
         REFERENCE="${IMAGE_NAME}:${VERSION}"
 
@@ -382,9 +382,9 @@ runs:
         }
         EOF
 
-        echo "image_name=$IMAGE_NAME_FULL" >> "$GITHUB_OUTPUT"
-        echo "metadata_path=$PWD/$FILENAME" >> "$GITHUB_OUTPUT"
-        echo "metadata_filename=$FILENAME" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "image_name=$IMAGE_NAME_FULL" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "metadata_path=$PWD/$FILENAME" >> "$GITHUB_OUTPUT"
+        printf "%s\n" "metadata_filename=$FILENAME" >> "$GITHUB_OUTPUT"
 
     - name: "Upload metadata file"
       if: ${{ ! (inputs.dry-run == 'true') }}
