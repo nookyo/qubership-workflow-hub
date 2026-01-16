@@ -132,6 +132,7 @@ The `platforms` input allows you to specify multiple platforms (e.g., `linux/amd
 ### Registry Support
 
 The action supports publishing to multiple registries:
+
 - **GitHub Container Registry** (`ghcr.io`) - Uses `GITHUB_TOKEN` for authentication
 - **Docker Hub** (`docker.io`) - Requires `docker-io-login` and `docker-io-token` inputs
 - **Both registries** - Set `registry: ghcr.io,docker.io`
@@ -139,6 +140,7 @@ The action supports publishing to multiple registries:
 ### Automatic Tagging
 
 If the `tags` input is empty, the action will automatically generate tags based on:
+
 - Branch name (for branch pushes)
 - Semantic versioning (for tagged releases)
 - PR number (for pull requests)
@@ -218,6 +220,7 @@ with:
 ### Docker Hub Authentication
 
 If using Docker Hub (`docker.io`), ensure you have:
+
 1. Created a Docker Hub access token with Read/Write permissions
 2. Added `docker-io-login` and `docker-io-token` as repository secrets
 3. Set `registry` to include `docker.io`
