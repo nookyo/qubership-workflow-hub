@@ -1,80 +1,105 @@
-const core = require('@actions/core');
+const core = require("@actions/core");
 const WildcardMatcher = require("../utils/wildcardMatcher");
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const log = require("@netcracker/action-logger");
 
-const MODULE = 'maven.js';
+const MODULE = "maven.js";
 
 class MavenStrategy extends AbstractPackageStrategy {
-    constructor() {
-        super();
-        this.name = 'Maven Strategy';
-    }
+  constructor() {
+    super();
+    this.name = "Maven Strategy";
+  }
 
-    async execute({ packagesWithVersions, excludedPatterns, includedPatterns, thresholdDate, thresholdVersions, debug = false }) {
-        log.setDebug(debug);
-        // includedTags = ['*SNAPSHOT*', ...includedTags];
-        const wildcardMatcher = new WildcardMatcher();
+  async execute({
+    packagesWithVersions,
+    excludedPatterns,
+    includedPatterns,
+    thresholdDate,
+    thresholdVersions,
+    debug = false,
+  }) {
+    log.setDebug(debug);
+    // includedTags = ['*SNAPSHOT*', ...includedTags];
+    const wildcardMatcher = new WildcardMatcher();
 
-        // Filter packages with versions based on the threshold date and patterns
-        const filteredPackagesWithVersionsForDelete = packagesWithVersions.map(({ package: pkg, versions }) => {
+    // Filter packages with versions based on the threshold date and patterns
+    const filteredPackagesWithVersionsForDelete = packagesWithVersions
+      .map(({ package: pkg, versions }) => {
+        // if (versions.length === 1) return core.info(`Skipping package: ${pkg.name} because it has only 1 version.`), null;
+        if (versions.length === 1) {
+          log.info(
+            `Skipping package: ${pkg.name} because it has only 1 version.`,
+          );
+          return null;
+        }
 
-            // if (versions.length === 1) return core.info(`Skipping package: ${pkg.name} because it has only 1 version.`), null;
-            if (versions.length === 1) {
-                log.info(`Skipping package: ${pkg.name} because it has only 1 version.`);
-                return null;
-            }
+        let versionForDelete = versions.filter((version) => {
+          const createdAt = new Date(version.created_at);
+          const isOldEnough = createdAt <= thresholdDate;
 
-            let versionForDelete = versions.filter((version) => {
-                const createdAt = new Date(version.created_at);
-                const isOldEnough = createdAt <= thresholdDate;
+          log.debug(
+            `Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`,
+            MODULE,
+          );
 
-               log.debug(`Checking package: ${pkg.name} version: ${version.name}, created at: ${createdAt}, Threshold date: ${thresholdDate}, Is old enough: ${isOldEnough}`, MODULE);
+          if (!isOldEnough) return false;
 
-                if (!isOldEnough) return false;
+          if (
+            excludedPatterns.some((pattern) =>
+              wildcardMatcher.match(version.name, pattern),
+            )
+          )
+            return false;
 
-                if (excludedPatterns.some(pattern => wildcardMatcher.match(version.name, pattern))) return false;
+          return includedPatterns.some((pattern) =>
+            wildcardMatcher.match(version.name, pattern),
+          );
+        });
 
-                return includedPatterns.some(pattern => wildcardMatcher.match(version.name, pattern));
+        if (versionForDelete.length === 0) {
+          debug &&
+            core.info(
+              `No versions found for package: ${pkg.name} that match the criteria.`,
+            );
+          return null;
+        }
+        if (versionForDelete.length <= thresholdVersions) {
+          log.debug(
+            `Skipping package: ${pkg.name} because it has less than ${thresholdVersions} versions to delete.`,
+            MODULE,
+          );
+          return null;
+        }
 
-            });
+        // Sort versions by creation date in descending order
+        versionForDelete.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        );
 
-            if (versionForDelete.length === 0) {
+        // Remove the most recent version (the first one after sorting)
+        if (versionForDelete.length > thresholdVersions) {
+          versionForDelete = versionForDelete.slice(thresholdVersions);
+        }
 
-                debug && core.info(`No versions found for package: ${pkg.name} that match the criteria.`);
-                return null;
-            }
-            if (versionForDelete.length <= thresholdVersions) {
-                log.debug(`Skipping package: ${pkg.name} because it has less than ${thresholdVersions} versions to delete.`, MODULE);
-                return null;
-            }
+        const customPackage = {
+          id: pkg.id,
+          name: pkg.name,
+          type: pkg.package_type,
+        };
 
-            // Sort versions by creation date in descending order
-            versionForDelete.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        return { package: customPackage, versions: versionForDelete };
+      })
+      .filter(Boolean);
 
-            // Remove the most recent version (the first one after sorting)
-            if (versionForDelete.length > thresholdVersions) {
-                versionForDelete = versionForDelete.slice(thresholdVersions);
-            }
+    // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
 
-            const customPackage = {
-                id: pkg.id,
-                name: pkg.name,
-                type: pkg.package_type
-            };
+    return filteredPackagesWithVersionsForDelete;
+  }
 
-            return { package: customPackage, versions: versionForDelete };
-
-        }).filter(Boolean);
-
-        // debug && core.info(`Filtered packages with Maven type: ${JSON.stringify(filteredPackagesWithVersionsForDelete, null, 2)}`);
-
-        return filteredPackagesWithVersionsForDelete;
-    }
-
-    async toString() {
-        return this.name;
-    }
+  async toString() {
+    return this.name;
+  }
 }
 
 module.exports = MavenStrategy;
