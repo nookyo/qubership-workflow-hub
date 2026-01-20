@@ -81,7 +81,7 @@ jobs:
       # ============================================
       - name: "Test 1: Default name, single registry (ghcr.io)"
         id: test1
-        uses: Netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -115,7 +115,7 @@ jobs:
       # ============================================
       # - name: "Test 2: Custom image name with dual registry (ghcr.io + docker.io)"
       #   id: test2
-      #   uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+      #   uses: ./actions/docker-action
       #   with:
       #     registry: ghcr.io,docker.io
       #     dry-run: "true"
@@ -152,7 +152,7 @@ jobs:
       # ============================================
       - name: "Test 3: Artifact download with debug mode"
         id: test3
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -191,7 +191,7 @@ jobs:
       # ============================================
       - name: "Test 4: Multiple explicit tags"
         id: test4
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -226,7 +226,7 @@ jobs:
       # ============================================
       - name: "Test 5: Build arguments"
         id: test5
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -262,7 +262,7 @@ jobs:
       # ============================================
       - name: "Test 6: Multi-platform build (amd64 + arm64)"
         id: test6
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -296,7 +296,7 @@ jobs:
       # ============================================
       - name: "Test 7: SBOM generation enabled"
         id: test7
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -331,7 +331,7 @@ jobs:
       # ============================================
       - name: "Test 8: Component with inline build arguments"
         id: test8
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -370,7 +370,7 @@ jobs:
       # ============================================
       - name: "Test 9: Custom Buildx configuration"
         id: test9
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -406,7 +406,7 @@ jobs:
       # ============================================
       - name: "Test 10: Default component name"
         id: test10
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
@@ -440,7 +440,7 @@ jobs:
       # ============================================
       - name: "Test 11: Verify complete build process without push"
         id: test11
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+        uses: ./actions/docker-action
         with:
           registry: ghcr.io
           dry-run: "true"
