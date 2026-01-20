@@ -51,7 +51,7 @@ inputs:
     type: string
     description: "Upload the built artifact to GitHub Actions artifacts"
     required: false
-    default: 'false'
+    default: "false"
   artifact-id:
     type: string
     description: "Artifact ID to use when uploading the artifact"
@@ -252,4 +252,4 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.artifact-id }}
-        path: '**/target'
+        path: "**/target"
