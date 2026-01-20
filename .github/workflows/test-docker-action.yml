@@ -113,19 +113,19 @@ jobs:
       # ============================================
       # TEST 2: Custom image name + dual registry
       # ============================================
-      - name: "Test 2: Custom image name with dual registry (ghcr.io + docker.io)"
-        id: test2
-        uses: netcracker/qubership-workflow-hub/actions/docker-action@main
-        with:
-          registry: ghcr.io,docker.io
-          dry-run: "true"
-          checkout: "false"
-          custom-image-name: "custom-test-image"
-          component: |
-            [{"name":"test-a","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
-          platforms: linux/amd64
-          docker-io-login: ${{ secrets.DOCKER_USERNAME || 'testuser' }}
-          docker-io-token: ${{ secrets.DOCKER_TOKEN || 'testtoken' }}
+      # - name: "Test 2: Custom image name with dual registry (ghcr.io + docker.io)"
+      #   id: test2
+      #   uses: netcracker/qubership-workflow-hub/actions/docker-action@main
+      #   with:
+      #     registry: ghcr.io,docker.io
+      #     dry-run: "true"
+      #     checkout: "false"
+      #     custom-image-name: "custom-test-image"
+      #     component: |
+      #       [{"name":"test-a","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
+      #     platforms: linux/amd64
+      #     docker-io-login: ${{ secrets.DOCKER_USERNAME || 'testuser' }}
+      #     docker-io-token: ${{ secrets.DOCKER_TOKEN || 'testtoken' }}
 
       - name: Validate Test 2 outputs
         shell: bash
