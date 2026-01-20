@@ -1,7 +1,7 @@
 name: Test Docker Build and Publish Action
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   test-docker-action:
