@@ -127,25 +127,25 @@ jobs:
       #     docker-io-login: ${{ secrets.DOCKER_USERNAME || 'testuser' }}
       #     docker-io-token: ${{ secrets.DOCKER_TOKEN || 'testtoken' }}
 
-      - name: Validate Test 2 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test2.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test2.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test2.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 2 outputs..."
+      # - name: Validate Test 2 outputs
+      #   shell: bash
+      #   env:
+      #     IMAGE_NAME: ${{ steps.test2.outputs.image-name }}
+      #     METADATA_JSON: ${{ steps.test2.outputs.metadata-json }}
+      #     METADATA_FILENAME: ${{ steps.test2.outputs.metadata-filename }}
+      #   run: |
+      #     echo "Validating Test 2 outputs..."
 
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
-            exit 1
-          fi
+      #     # In dry-run mode, outputs should be empty
+      #     if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
+      #       echo "ERROR: Expected empty outputs in dry-run mode"
+      #       echo "  IMAGE_NAME: '$IMAGE_NAME'"
+      #       echo "  METADATA_JSON: '$METADATA_JSON'"
+      #       echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+      #       exit 1
+      #     fi
 
-          echo "✓ Test 2 completed - Custom image name (dry-run verified)"
+      #     echo "✓ Test 2 completed - Custom image name (dry-run verified)"
 
       # ============================================
       # TEST 3: Download artifact + debug mode
