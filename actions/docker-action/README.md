@@ -35,7 +35,7 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `download-artifact-pattern`        | A glob pattern to the artifacts that should be downloaded. Ignored if name is specified.             | No       | `""`                                                            |
 | `download-artifact-merge-multiple` | When download multiple artifacts unpack them as is or into separate directories.                     | No       | `false`                                                         |
 | `sbom`                             | Flag to enable SBOM (Software Bill of Materials) generation.                                         | No       | `false`                                                         |
-| `build-args`                       | Build arguments for the Docker image, newline-delimited string.                                      | No       | `""`                                                            |
+| `build-args`                       | Build arguments for the Docker image. Supports comma-separated or newline-delimited format.          | No       | `""`                                                            |
 | `checkout`                         | Flag to enable repository checkout.                                                                  | No       | `true`                                                          |
 | `registry`                         | Registry name to publish images to. Can be set to `ghcr.io`, `docker.io` or `ghcr.io,docker.io`      | No       | `ghcr.io`                                                       |
 | `docker-io-login`                  | Account name to login to docker.io                                                                   | Yes*     | -                                                               |
@@ -50,15 +50,18 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 
 ## 📤 Outputs
 
-| Name                | Description                          |
-| ------------------- | ------------------------------------ |
-| `image-name`        | The name of the built Docker image.  |
-| `metadata_path`     | Path to the generated metadata file. |
-| `metadata-filename` | Name of the generated metadata file. |
-| `component-name`    | The name of the component being built. |
-| `component-file`    | The Dockerfile used for the build.   |
-| `component-context` | The build context used for the build. |
-| `component-build-args` | The build arguments used for the build. |
+| Name                   | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| `image-name`           | The name of the built Docker image.                    |
+| `metadata_path`        | Path to the generated metadata file.                   |
+| `metadata-filename`    | Name of the generated metadata file.                   |
+| `component-name`       | The name of the component being built.                 |
+| `component-file`       | The Dockerfile used for the build.                     |
+| `component-context`    | The build context used for the build.                  |
+| `component-build-args` | The build arguments from component metadata.           |
+| `final-tags`           | The final tags applied to the Docker image.            |
+| `final-build-args`     | The final build arguments applied to the Docker image. |
+| `final-platforms`      | The final platforms for which the image was built.     |
 
 ---
 
@@ -189,19 +192,33 @@ with:
         "name": "my-service",
         "dockerfile": "./docker/Dockerfile.prod",
         "build_context": "./src",
-        "arguments": "NODE_ENV=production"
+        "arguments": "NODE_ENV=production,DEBUG=false"
       }
     ]
 ```
 
-Deprecated keys: `file` and `context` are still supported for compatibility, but prefer `dockerfile` and `build_context`.
+**Component Fields**:
+- `name` - Component name (used for image naming)
+- `dockerfile` - Path to Dockerfile
+- `build_context` - Docker build context path
+- `arguments` - Build arguments (comma-separated format)
 
-Note: `component.build_context` is the Docker build context. It is different from the top-level `context` input, which controls the metadata-action context (e.g., `git`).
+**Notes**:
+- Deprecated keys: `file` and `context` are still supported for compatibility, but prefer `dockerfile` and `build_context`.
+- `component.build_context` is the Docker build context. It is different from the top-level `context` input, which controls the metadata-action context (e.g., `git`).
+- Component build arguments take precedence over the `build-args` input.
 
 ### Build Arguments
 
-Pass build-time variables to Docker:
+Pass build-time variables to Docker. The action supports two formats:
 
+**1. Comma-separated format** (simple, one-line):
+```yaml
+with:
+  build-args: NODE_VERSION=18,BUILD_DATE=2024-01-01,COMMIT_SHA=${{ github.sha }}
+```
+
+**2. Newline-delimited format** (multi-line):
 ```yaml
 with:
   build-args: |
@@ -209,6 +226,8 @@ with:
     BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
     COMMIT_SHA=${{ github.sha }}
 ```
+
+**Priority**: Build arguments from component metadata (`component.arguments`) take precedence over the `build-args` input.
 
 ### Self-Hosted Runners
 

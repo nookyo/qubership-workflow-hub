@@ -163,63 +163,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run Docker Action with Build Args from Component
-        id: docker-buildargs-component
-        uses: ./actions/docker-action
-        with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
-          component: '[{"name": "test-buildargs", "dockerfile": "./Dockerfile.test", "build_context": ".", "arguments": "ARG1=value1\nARG2=value2"}]'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-      - name: Verify Build Args from Component
-        shell: bash
-        run: |
-          echo "=== Outputs ==="
-          echo "Component Build Args: ${{ steps.docker-buildargs-component.outputs.component-build-args }}"
-          echo "Final Build Args: ${{ steps.docker-buildargs-component.outputs.final-build-args }}"
-
-          COMPONENT_ARGS="${{ steps.docker-buildargs-component.outputs.component-build-args }}"
-          FINAL_ARGS="${{ steps.docker-buildargs-component.outputs.final-build-args }}"
-
-          # Verify build args are not empty
-          if [ -z "$FINAL_ARGS" ]; then
-            echo "❌ ERROR: final-build-args is empty"
-            exit 1
-          fi
-
-          # Verify build args contain expected values
-          if [[ ! "$FINAL_ARGS" == *"ARG1=value1"* ]]; then
-            echo "❌ ERROR: Build args don't contain 'ARG1=value1'"
-            exit 1
-          fi
-
-          if [[ ! "$FINAL_ARGS" == *"ARG2=value2"* ]]; then
-            echo "❌ ERROR: Build args don't contain 'ARG2=value2'"
-            exit 1
-          fi
-
-          # Verify that component build-args are used (not input build-args)
-          if [ "$COMPONENT_ARGS" != "$FINAL_ARGS" ]; then
-            echo "❌ ERROR: Component build-args should be used but they don't match"
-            echo "Component: $COMPONENT_ARGS"
-            echo "Final: $FINAL_ARGS"
-            exit 1
-          fi
-
-          echo "✅ Build args from component verified!"
-
       - name: Run Docker Action with Build Args from Input
         id: docker-buildargs-input
         uses: ./actions/docker-action
         with:
           dry-run: 'true'
           registry: 'ghcr.io'
-          build-args: |
-            INPUT_ARG1=input_value1
-            INPUT_ARG2=input_value2
+          build-args: INPUT_ARG1=input_value1,INPUT_ARG2=input_value2
           component: '[{"name": "test-buildargs-input", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

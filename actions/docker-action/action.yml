@@ -113,9 +113,9 @@ outputs:
   final-tags:
     description: "The final tags applied to the Docker image."
     value: "${{ steps.prepare-final-params.outputs.tags }}"
-  final-labels:
-    description: "The final labels applied to the Docker image."
-    value: "${{ steps.prepare-final-params.outputs.labels }}"
+  # final-labels:
+  #   description: "The final labels applied to the Docker image."
+  #   value: "${{ steps.prepare-final-params.outputs.labels }}"
   final-build-args:
     description: "The final build arguments applied to the Docker image."
     value: "${{ steps.prepare-final-params.outputs.build_args }}"
@@ -157,6 +157,11 @@ runs:
         component_file=$(echo "$component_from_json" | jq -r '.dockerfile // .file')
         component_context=$(echo "$component_from_json" | jq -r '.build_context // .context')
         component_build_args=$(echo "$component_from_json" | jq -r '.arguments // empty')
+
+        # Convert comma-separated build args to newline-separated
+        if [ -n "$component_build_args" ] && [[ "$component_build_args" == *","* ]]; then
+          component_build_args=$(echo "$component_build_args" | tr ',' '\n')
+        fi
 
         {
           echo "name=$component_name"
@@ -329,6 +334,13 @@ runs:
 
         # Prepare build-args
         FINAL_BUILD_ARGS="${BUILD_ARGS_META:-$BUILD_ARGS_INPUT}"
+
+        # Convert comma-separated build args to newline-separated
+        if [[ "$FINAL_BUILD_ARGS" == *","* ]] && [[ "$FINAL_BUILD_ARGS" != *$'\n'* ]]; then
+          echo "Converting comma-separated build-args to newline-separated"
+          FINAL_BUILD_ARGS=$(echo "$FINAL_BUILD_ARGS" | tr ',' '\n')
+        fi
+
         echo "Using build-args: ${BUILD_ARGS_META:+from component metadata}${BUILD_ARGS_META:-from inputs}"
 
         # Prepare platforms
