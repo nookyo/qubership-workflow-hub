@@ -92,7 +92,7 @@ outputs:
   image-name:
     description: "The name of the built Docker image."
     value: "${{ steps.output_result.outputs.image_name }}"
-  metadata-json:
+  metadata_path:
     description: "Path to the generated metadata file."
     value: "${{ steps.output_result.outputs.metadata_path }}"
   metadata-filename:
