@@ -58,7 +58,7 @@ inputs:
     required: false
     default: "false"
   build-args:
-    description: "Build arguments for the Docker image, in JSON format."
+    description: "Build arguments for the Docker image. Supports comma-separated or newline-delimited format."
     required: false
     default: ""
   checkout:
