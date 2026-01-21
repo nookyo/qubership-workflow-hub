@@ -9,14 +9,13 @@ This **PR Assigner** GitHub Action automatically assigns a pull request to users
 
 ## 📌 Inputs
 
-| Name                  | Description                                      | Required | Default                          |
-| --------------------- | ------------------------------------------------ | -------- | -------------------------------- |
-| `shuffle`             | Number of assignees to assign (overrides config `count`). | No       | `1`                              |
-| `configuration-path`  | Path to the configuration file.                  | No       | `.github/pr-assigner-config.yml` |
+| Name                 | Description                                                                  | Required | Default                          |
+| -------------------- | ---------------------------------------------------------------------------- | -------- | -------------------------------- |
+| `shuffle`            | Number of assignees to assign (overrides config `count`).                    | No       | `1`                              |
+| `configuration-path` | Path to the configuration file.                                              | No       | `.github/pr-assigner-config.yml` |
 | `env.GITHUB_TOKEN`   | GitHub token used to call API and assign PRs; must be provided via step env. | Yes      | `${{ secrets.GITHUB_TOKEN }}`    |
 
 ## Usage Example
-
 
 ```yaml
 # Example 1 — No config file, fallback to CODEOWNERS and use input for count
@@ -87,8 +86,8 @@ count: 2
 ## Behavior and Precedence
 
 - Source of assignees:
-  1) If `configuration-path` file exists and is valid — use its `assignees`.
-  2) Else — fallback to owners from `.github/CODEOWNERS` (pattern `*` line).
+  1. If `configuration-path` file exists and is valid — use its `assignees`.
+  2. Else — fallback to owners from `.github/CODEOWNERS` (pattern `*` line).
 - How many assignees:
   - `shuffle` input takes precedence when provided.
   - Otherwise use `count` from config file.
@@ -98,10 +97,11 @@ count: 2
 ## Permissions
 
 Minimum recommended permissions for the job:
+
 ```yaml
 permissions:
-  pull-requests: write   # required to assign users
-  contents: read         # to read config/CODEOWNERS
+  pull-requests: write # required to assign users
+  contents: read # to read config/CODEOWNERS
 ```
 
 ## Outputs
@@ -121,26 +121,23 @@ The configuration file for this action must adhere to the schema defined [here](
 
 ```json
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-        "assignees": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "minItems": 1,
-            "uniqueItems": true
-        },
-        "count": {
-            "type": "integer",
-            "minimum": 1
-        }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "assignees": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
     },
-    "required": [
-        "assignees",
-        "count"
-    ],
-    "additionalProperties": false
+    "count": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": ["assignees", "count"],
+  "additionalProperties": false
 }
 ```
