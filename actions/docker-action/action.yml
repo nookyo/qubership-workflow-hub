@@ -297,6 +297,8 @@ runs:
         BUILD_ARGS_INPUT: ${{ inputs.build-args }}
         BUILD_ARGS_META: ${{ steps.extract_component.outputs.build_args }}
         PLATFORMS_INPUT: ${{ inputs.platforms }}
+        GHCR_URL: ${{ env.GHCR_URL }}
+        DOCKER_URL: ${{ env.DOCKER_URL }}
       run: |
         set -euo pipefail
 
@@ -309,13 +311,13 @@ runs:
           IFS=',' read -ra TAGS <<< "$TAGS_INPUT"
 
           FINAL_TAGS=""
-          if [ -n "${GHCR_URL}" ]; then
+          if [ -n "${GHCR_URL:-}" ]; then
             for TAG in "${TAGS[@]}"; do
               TAG=$(echo "$TAG" | xargs)
               FINAL_TAGS="$FINAL_TAGS,$GHCR_URL:$TAG"
             done
           fi
-          if [ -n "${DOCKER_URL}" ]; then
+          if [ -n "${DOCKER_URL:-}" ]; then
             for TAG in "${TAGS[@]}"; do
               TAG=$(echo "$TAG" | xargs)
               FINAL_TAGS="$FINAL_TAGS,$DOCKER_URL:$TAG"
