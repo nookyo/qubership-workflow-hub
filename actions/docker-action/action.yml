@@ -1,4 +1,4 @@
-name: "Docker Build and Publish Composite Action"
+name: "Docker Build and Publish Composite Action using Buildx"
 description: "Composite action for building and publishing Docker images using Docker Buildx."
 inputs:
   ref:
@@ -108,19 +108,17 @@ runs:
   steps:
     - name: Validate inputs.registry
       shell: bash
-      id: validate_registry
       env:
         REG: ${{ inputs.registry }}
       run: |
         if [ -z "${REG+x}" ] || [ -z "${REG}" ]; then
-          REGISTRY='ghcr.io'
+          echo "REGISTRY='ghcr.io'" >> $GITHUB_ENV
         else
-          REGISTRY="$REG"
+          echo "REGISTRY=$REG" >> $GITHUB_ENV
         fi
-        echo "registry=$REGISTRY" >> "$GITHUB_OUTPUT"
 
     - name: Validate docker.io login params
-      if: ${{ contains(steps.validate_registry.outputs.registry, 'docker.io') && (! inputs.docker-io-login || ! inputs.docker-io-token) && (inputs.dry-run != 'true') }}
+      if: ${{ contains(env.REGISTRY, 'docker.io') && (! inputs.docker-io-login || ! inputs.docker-io-token) && (inputs.dry-run != 'true') }}
       shell: bash
       run: |
         echo "docker.io set as a registry, but docker-io-login and/or docker-io-token not provided."
@@ -132,8 +130,6 @@ runs:
       env:
         COMPONENT: ${{ inputs.component }}
       run: |
-        set -euo pipefail
-
         # Parse the input JSON object directly
         component="$COMPONENT"
         component_parsed=$(echo "$component" | jq 'if type=="array" then .[0] else . end')
@@ -142,27 +138,6 @@ runs:
         comp_ctx=$(echo "$component_parsed" | jq -r '.context')
         comp_build_args=$(echo "$component_parsed" | jq -r '.arguments // empty')
 
-        # Validate context path to prevent injection
-        # Allow: alphanumeric, dots, slashes, hyphens, underscores
-        if [[ "$comp_ctx" =~ [^a-zA-Z0-9./_-] ]]; then
-          echo "ERROR: Invalid characters in context path: $comp_ctx"
-          exit 1
-        fi
-
-        # Prevent absolute paths
-        if [[ "$comp_ctx" == /* ]]; then
-          echo "ERROR: Absolute paths are not allowed: $comp_ctx"
-          exit 1
-        fi
-
-        # Prevent path traversal outside workspace
-        # Normalize the path and check for .. components
-        normalized_path=$(echo "$comp_ctx" | sed 's|/\./|/|g' | sed 's|^./||')
-        if [[ "$normalized_path" == ../* ]] || [[ "$normalized_path" == */../* ]] || [[ "$normalized_path" == */.. ]]; then
-          echo "ERROR: Path traversal not allowed: $comp_ctx"
-          exit 1
-        fi
-
         echo "name=$comp_name" >> "$GITHUB_OUTPUT"
         echo "file=$comp_file" >> "$GITHUB_OUTPUT"
         echo "ctx=$comp_ctx" >> "$GITHUB_OUTPUT"
@@ -170,14 +145,11 @@ runs:
 
     - name: Prepare Image Name
       shell: bash
-      id: prepare_image_name
       env:
         CUSTOM_IMAGE_NAME: ${{ inputs.custom-image-name }}
         COMPONENT_NAME: ${{ steps.parse_component.outputs.name }}
         DOCKER_IO_LOGIN: ${{ inputs.docker-io-login }}
       run: |
-        set -euo pipefail
-
         IFS='/' read -r owner repo <<< "$GITHUB_REPOSITORY"
 
         if [ -n "$CUSTOM_IMAGE_NAME" ]; then
@@ -188,44 +160,33 @@ runs:
           CONTAINER_NAME="$repo"
         fi
 
-        GHCR_OWNER=$(echo "$owner" | tr '[:upper:]' '[:lower:]')
-        DOCKER_OWNER="$DOCKER_IO_LOGIN"
+        echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
 
-        echo "container_name=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
-        echo "ghcr_owner=$GHCR_OWNER" >> "$GITHUB_OUTPUT"
-        echo "docker_owner=$DOCKER_OWNER" >> "$GITHUB_OUTPUT"
+        echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
+        echo "GHCR_OWNER=$(echo "$owner" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+        echo "DOCKER_OWNER=$DOCKER_IO_LOGIN" >> "$GITHUB_ENV"
 
         echo "CONTAINER_NAME=$CONTAINER_NAME"
         echo "GHCR_OWNER=$GHCR_OWNER"
         echo "DOCKER_OWNER=$DOCKER_OWNER"
 
     - name: Prepare Image ghcr.io URL
-      if: ${{ contains(steps.validate_registry.outputs.registry, 'ghcr.io') }}
+      if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
       shell: bash
-      id: prepare_ghcr_url
-      env:
-        GHCR_OWNER: ${{ steps.prepare_image_name.outputs.ghcr_owner }}
-        CONTAINER_NAME: ${{ steps.prepare_image_name.outputs.container_name }}
       run: |
-        GHCR_URL="ghcr.io/${GHCR_OWNER}/${CONTAINER_NAME}"
-        echo "GHCR_URL=${GHCR_URL}"
-        echo "url=${GHCR_URL}" >> "$GITHUB_OUTPUT"
+        echo "GHCR_URL=ghcr.io/${{ env.GHCR_OWNER }}/${{ env.CONTAINER_NAME }}"
+        echo "GHCR_URL=ghcr.io/${{ env.GHCR_OWNER }}/${{ env.CONTAINER_NAME }}" >> $GITHUB_ENV
 
     - name: Prepare Image docker.io URL
-      if: ${{ contains(steps.validate_registry.outputs.registry, 'docker.io') }}
+      if: ${{ contains(env.REGISTRY, 'docker.io') }}
       shell: bash
-      id: prepare_docker_url
-      env:
-        DOCKER_OWNER: ${{ steps.prepare_image_name.outputs.docker_owner }}
-        CONTAINER_NAME: ${{ steps.prepare_image_name.outputs.container_name }}
       run: |
-        DOCKER_URL="${DOCKER_OWNER}/${CONTAINER_NAME}"
-        echo "DOCKER_URL=${DOCKER_URL}"
-        echo "url=${DOCKER_URL}" >> "$GITHUB_OUTPUT"
+        echo "DOCKER_URL=${{ env.DOCKER_OWNER }}/${{ env.CONTAINER_NAME }}"
+        echo "DOCKER_URL=${{ env.DOCKER_OWNER }}/${{ env.CONTAINER_NAME }}" >> $GITHUB_ENV
 
     - name: Checkout Repository
       if: ${{ inputs.checkout == 'true' }}
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
       with:
         ref: ${{ inputs.ref }}
         persist-credentials: false
@@ -234,27 +195,19 @@ runs:
       shell: bash
       env:
         CUSTOM_IMAGE_NAME: ${{ inputs.custom-image-name }}
-        CONTAINER_NAME: ${{ steps.prepare_image_name.outputs.container_name }}
-        DOCKER_OWNER: ${{ steps.prepare_image_name.outputs.docker_owner }}
-        GHCR_OWNER: ${{ steps.prepare_image_name.outputs.ghcr_owner }}
-        INPUT_REF: ${{ inputs.ref }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_REF: ${{ github.ref }}
-        DOCKER_URL: ${{ steps.prepare_docker_url.outputs.url }}
-        GHCR_URL: ${{ steps.prepare_ghcr_url.outputs.url }}
-        COMPONENT_FILE: ${{ steps.parse_component.outputs.file }}
       run: |
         echo "custom-image-name: ${CUSTOM_IMAGE_NAME:-empty}"
-        echo "container name: ${CONTAINER_NAME}"
+        echo "env CONTAINER_NAME: ${{ env.CONTAINER_NAME }}"
+
         if [ -n "${DOCKER_OWNER}" ]; then
-          echo "docker owner: ${DOCKER_OWNER}"
+          echo "env DOCKER_OWNER: ${DOCKER_OWNER}"
         fi
         if [ -n "${GHCR_OWNER}" ]; then
-          echo "ghcr owner: ${GHCR_OWNER}"
+          echo "env GHCR_OWNER: ${GHCR_OWNER}"
         fi
-        echo "ref: ${INPUT_REF}"
-        echo "GITHUB_REPOSITORY: ${GITHUB_REPOSITORY}"
-        echo "GITHUB_REF: ${GITHUB_REF}"
+        echo "ref: ${{ inputs.ref }}"
+        echo "GITHUB_REPOSITORY: ${{ github.repository }}"
+        echo "GITHUB_REF: ${{ github.ref }}"
         if [ -n "${DOCKER_URL}" ]; then
           echo "docker.io URL: ${DOCKER_URL}"
         fi
@@ -262,13 +215,13 @@ runs:
           echo "ghcr.io URL: ${GHCR_URL}"
         fi
 
-        echo "::group::🐋 Dockerfile"
-        cat "${COMPONENT_FILE}"
+        echo "::group::🐋 MANAGEMENT Dockerfile (alpine)"
+        cat ${{ steps.parse_component.outputs.file }}
         echo "::endgroup::"
 
     - name: Download Artifact
       if: ${{ inputs.download-artifact == 'true' }}
-      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 #v6.0.0
       with:
         name: ${{ inputs.download-artifact-name }}
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '.' }}
@@ -295,7 +248,7 @@ runs:
       uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
     - name: Log in to GitHub Container Registry
-      if: ${{ contains(steps.validate_registry.outputs.registry, 'ghcr.io') }}
+      if: ${{ contains(env.REGISTRY, 'ghcr.io') }}
       uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         registry: ghcr.io
@@ -303,7 +256,7 @@ runs:
         password: ${{ env.GITHUB_TOKEN }}
 
     - name: Login to Docker Hub
-      if: ${{ contains(steps.validate_registry.outputs.registry, 'docker.io') }}
+      if: ${{ contains(env.REGISTRY, 'docker.io') }}
       uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         username: ${{ inputs.docker-io-login }}
@@ -316,8 +269,8 @@ runs:
       with:
         context: ${{ inputs.context }}
         images: |
-          ${{ steps.prepare_ghcr_url.outputs.url }}
-          ${{ steps.prepare_docker_url.outputs.url }}
+          ${{ env.GHCR_URL }}
+          ${{ env.DOCKER_URL }}
         tags: |
           type=ref,event=branch
           type=semver,pattern={{version}}
@@ -326,16 +279,13 @@ runs:
 
     - name: Create Image Refs (docker ghcr.io/owner/name:tag)
       if: ${{ inputs.tags != '' }}
-      id: create_image_refs
+      id: create-image-refs
       shell: bash
       env:
         TAGS_INPUT: ${{ inputs.tags }}
-        GHCR_URL: ${{ steps.prepare_ghcr_url.outputs.url }}
-        DOCKER_URL: ${{ steps.prepare_docker_url.outputs.url }}
       run: |
-        set -euo pipefail
-
         echo "Create Image Refs (docker ghcr.io/owner/name:tag)"
+        TAGS_INPUT="${{ inputs.tags }}"
 
         IFS=',' read -ra TAGS <<< "$TAGS_INPUT"
 
@@ -356,7 +306,7 @@ runs:
         IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')
 
         echo "Image refs: $IMAGE_REFS"
-        echo "refs=$IMAGE_REFS" >> "$GITHUB_OUTPUT"
+        echo "IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -367,7 +317,7 @@ runs:
         context: ${{ steps.parse_component.outputs.ctx }}
         file: ${{ steps.parse_component.outputs.file }}
         push: ${{ inputs.dry-run == 'true' && 'false' || 'true' }}
-        tags: ${{ inputs.tags != '' && steps.create_image_refs.outputs.refs || steps.meta.outputs.tags }}
+        tags: ${{ inputs.tags != '' && env.IMAGE_REFS || steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ steps.parse_component.outputs.build_args != '' && steps.parse_component.outputs.build_args || inputs.build-args }}
@@ -376,15 +326,10 @@ runs:
       if: ${{ ! (inputs.dry-run == 'true') }}
       id: output_result
       shell: bash
-      env:
-        DOCKERBUILD_METADATA: ${{ steps.dockerbuild.outputs.metadata }}
-        DOCKERBUILD_DIGEST: ${{ steps.dockerbuild.outputs.digest }}
-        CONTAINER_NAME: ${{ steps.prepare_image_name.outputs.container_name }}
-        APP_MANIFEST_GROUP: ${{ inputs.app-manifest-group }}
       run: |
         set -euo pipefail
 
-        IMAGE_NAME_FULL="$(echo "$DOCKERBUILD_METADATA" | jq -r '.["image.name"]')"
+        IMAGE_NAME_FULL="${{ fromJson(steps.dockerbuild.outputs.metadata)['image.name'] }}"
         IMAGE_NAME_FULL="${IMAGE_NAME_FULL%%,*}"
 
         if [ -z "$IMAGE_NAME_FULL" ]; then
@@ -402,7 +347,7 @@ runs:
           exit 1
         fi
 
-        DIGEST="$DOCKERBUILD_DIGEST"
+        DIGEST="${{ steps.dockerbuild.outputs.digest }}"
         if [ -z "$DIGEST" ]; then
           echo "ERROR: DIGEST is empty. Check dockerbuild.outputs.digest"
           exit 1
@@ -412,7 +357,7 @@ runs:
         DIGEST_NO_PREFIX="${DIGEST##*:}"
         DIGEST_SHORT="${DIGEST_NO_PREFIX:0:12}"
 
-        GROUP="${APP_MANIFEST_GROUP:-}"
+        GROUP="${{ inputs.app-manifest-group || '' }}"
 
         VERSION="$TAG"
 
@@ -450,7 +395,7 @@ runs:
 
     - name: "Upload metadata file"
       if: ${{ ! (inputs.dry-run == 'true') }}
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.output_result.outputs.metadata_filename }}
         path: ${{ steps.output_result.outputs.metadata_path }}
