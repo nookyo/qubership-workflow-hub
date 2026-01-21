@@ -284,6 +284,8 @@ runs:
       env:
         TAGS_INPUT: ${{ inputs.tags }}
       run: |
+        set -euo pipefail
+
         echo "Create Image Refs (docker ghcr.io/owner/name:tag)"
         TAGS_INPUT="${{ inputs.tags }}"
 
