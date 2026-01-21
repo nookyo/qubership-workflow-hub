@@ -44,3 +44,4 @@ jobs:
           event-type: "my-custom-event"
           client-payload: '{"key": "value"}'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+```

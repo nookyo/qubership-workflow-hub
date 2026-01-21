@@ -5,7 +5,6 @@ const Ajv = require("ajv");
 const path = require("node:path");
 const log = require("@netcracker/action-logger");
 
-
 class ConfigLoader {
   constructor() {
     this.fileExist = true;
@@ -17,7 +16,7 @@ class ConfigLoader {
 
   load(filePath) {
     const configPath = path.resolve(filePath);
-    log.dim(`💡 Try to reading configuration ${configPath}`)
+    log.dim(`💡 Try to reading configuration ${configPath}`);
 
     if (!fs.existsSync(configPath)) {
       log.warn(`❗️ Configuration file not found: ${configPath}`);
@@ -25,30 +24,28 @@ class ConfigLoader {
       return;
     }
 
-    const fileContent = fs.readFileSync(configPath, 'utf8');
+    const fileContent = fs.readFileSync(configPath, "utf8");
 
     let config;
     try {
       config = yaml.load(fileContent);
-    }
-    catch (error) {
+    } catch (error) {
       log.fail(`❗️ Error parsing YAML file: ${error.message}`);
       return;
     }
 
-    const schemaPath = path.resolve(__dirname, '..', 'config.schema.json');
+    const schemaPath = path.resolve(__dirname, "..", "config.schema.json");
     if (!fs.existsSync(schemaPath)) {
       log.fail(`❗️ Schema file not found: ${schemaPath}`);
       return;
     }
 
-    const schemaContent = fs.readFileSync(schemaPath, 'utf8');
+    const schemaContent = fs.readFileSync(schemaPath, "utf8");
 
     let schema;
     try {
       schema = JSON.parse(schemaContent);
-    }
-    catch (error) {
+    } catch (error) {
       log.fail(`❗️ Error parsing JSON schema: ${error.message}`);
       return;
     }
