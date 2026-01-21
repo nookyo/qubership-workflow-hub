@@ -22,6 +22,8 @@ jobs:
           registry: 'ghcr.io'
           platforms: 'linux/amd64'
           component: '[{"name": "test-auto", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify Auto Tags Output
         shell: bash
@@ -98,6 +100,9 @@ jobs:
           platforms: 'linux/amd64,linux/arm64'
           tags: 'v1.0.0,latest,custom-tag'
           component: '[{"name": "test-custom", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Verify Custom Tags Output
         shell: bash
@@ -165,6 +170,9 @@ jobs:
           dry-run: 'true'
           registry: 'ghcr.io'
           component: '[{"name": "test-buildargs", "dockerfile": "./Dockerfile.test", "build_context": ".", "arguments": "ARG1=value1\nARG2=value2"}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Verify Build Args from Component
         shell: bash
@@ -213,6 +221,9 @@ jobs:
             INPUT_ARG1=input_value1
             INPUT_ARG2=input_value2
           component: '[{"name": "test-buildargs-input", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Verify Build Args from Input
         shell: bash
@@ -259,6 +270,9 @@ jobs:
           registry: 'ghcr.io'
           platforms: 'linux/amd64,linux/arm64,linux/arm/v7'
           component: '[{"name": "test-multiplatform", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Verify Platforms Output
         shell: bash
