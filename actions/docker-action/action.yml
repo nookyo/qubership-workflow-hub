@@ -24,7 +24,7 @@ inputs:
   component:
     description: "Component configuration in JSON format (an array with a single object)."
     required: false
-    default: '[{"name": "default", "file": "./Dockerfile", "context": "."}]'
+    default: '[{"name": "default", "dockerfile": "./Dockerfile", "build_context": "."}]'
   platforms:
     description: "Platforms for which the Docker image will be built."
     required: false
@@ -98,6 +98,18 @@ outputs:
   metadata-filename:
     description: "Name of the generated metadata file."
     value: "${{ steps.output_result.outputs.metadata_filename }}"
+  component-name:
+    description: "The name of the component being built."
+    value: "${{ steps.extract_component.outputs.name }}"
+  component-file:
+    description: "The Dockerfile used for the build."
+    value: "${{ steps.extract_component.outputs.file }}"
+  component-context:
+    description: "The build context used for the build."
+    value: "${{ steps.extract_component.outputs.ctx }}"
+  component-build-args:
+    description: "The build arguments used for the build."
+    value: "${{ steps.extract_component.outputs.build_args }}"
 
 runs:
   using: "composite"
@@ -121,29 +133,31 @@ runs:
         exit 1
 
     - name: Parse Component JSON
-      id: parse_component
+      id: extract_component
       shell: bash
       env:
         COMPONENT: ${{ inputs.component }}
       run: |
         # Parse the input JSON object directly
-        component="$COMPONENT"
-        component_parsed=$(echo "$component" | jq 'if type=="array" then .[0] else . end')
-        comp_name=$(echo "$component_parsed" | jq -r '.name')
-        comp_file=$(echo "$component_parsed" | jq -r '.file')
-        comp_ctx=$(echo "$component_parsed" | jq -r '.context')
-        comp_build_args=$(echo "$component_parsed" | jq -r '.arguments // empty')
+        component_from_json=$(echo "$COMPONENT" | jq 'if type=="array" then .[0] else . end')
 
-        echo "name=$comp_name" >> "$GITHUB_OUTPUT"
-        echo "file=$comp_file" >> "$GITHUB_OUTPUT"
-        echo "ctx=$comp_ctx" >> "$GITHUB_OUTPUT"
-        echo "build_args=$comp_build_args" >> "$GITHUB_OUTPUT"
+        component_name=$(echo "$component_from_json" | jq -r '.name')
+        component_file=$(echo "$component_from_json" | jq -r '.dockerfile // .file')
+        component_context=$(echo "$component_from_json" | jq -r '.build_context // .context')
+        component_build_args=$(echo "$component_from_json" | jq -r '.arguments // empty')
+
+        {
+          echo "name=$component_name"
+          echo "file=$component_file"
+          echo "ctx=$component_context"
+          echo "build_args=$component_build_args"
+        } >> "$GITHUB_OUTPUT"
 
     - name: Prepare Image Name
       shell: bash
       env:
         CUSTOM_IMAGE_NAME: ${{ inputs.custom-image-name }}
-        COMPONENT_NAME: ${{ steps.parse_component.outputs.name }}
+        COMPONENT_NAME: ${{ steps.extract_component.outputs.name }}
         DOCKER_IO_LOGIN: ${{ inputs.docker-io-login }}
       run: |
         IFS='/' read -r owner repo <<< "$GITHUB_REPOSITORY"
@@ -213,7 +227,7 @@ runs:
         fi
 
         echo "::group::🐋 MANAGEMENT Dockerfile (alpine)"
-        cat ${{ steps.parse_component.outputs.file }}
+        cat ${{ steps.extract_component.outputs.file }}
         echo "::endgroup::"
 
     - name: Download Artifact
@@ -301,13 +315,13 @@ runs:
       with:
         provenance: false
         sbom: ${{ inputs.sbom == 'true' && 'true' || 'false' }}
-        context: ${{ steps.parse_component.outputs.ctx }}
-        file: ${{ steps.parse_component.outputs.file }}
+        context: ${{ steps.extract_component.outputs.ctx }}
+        file: ${{ steps.extract_component.outputs.file }}
         push: ${{ inputs.dry-run == 'true' && 'false' || 'true' }}
         tags: ${{ inputs.tags != '' && env.IMAGE_REFS || steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: ${{ inputs.platforms }}
-        build-args: ${{ steps.parse_component.outputs.build_args != '' && steps.parse_component.outputs.build_args || inputs.build-args }}
+        build-args: ${{ steps.extract_component.outputs.build_args != '' && steps.extract_component.outputs.build_args || inputs.build-args }}
 
     - name: Output result
       if: ${{ ! (inputs.dry-run == 'true') }}
@@ -344,7 +358,7 @@ runs:
         DIGEST_NO_PREFIX="${DIGEST##*:}"
         DIGEST_SHORT="${DIGEST_NO_PREFIX:0:12}"
 
-        GROUP="${{ inputs.app-manifest-group || '' }}"
+        # GROUP="${{ inputs.app-manifest-group || '' }}"
 
         VERSION="$TAG"
 

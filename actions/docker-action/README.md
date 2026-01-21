@@ -26,7 +26,7 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `context`                          | Pipeline context.                                                                                    | No       | `git`                                                           |
 | `dry-run`                          | Run without pushing (dry run).                                                                       | No       | `false`                                                         |
 | `download-artifact`                | Flag to download the artifact.                                                                       | No       | `false`                                                         |
-| `component`                        | Component configuration in JSON format (an array with a single object).                              | No       | `[{"name": "default", "file": "./Dockerfile", "context": "."}]` |
+| `component`                        | Component configuration in JSON format (an array with a single object).                              | No       | `[{"name": "default", "dockerfile": "./Dockerfile", "build_context": "."}]` |
 | `platforms`                        | Platforms for which the Docker image will be built.                                                  | No       | `linux/amd64`                                                   |
 | `tags`                             | Docker image tags. If empty, tags will be generated automatically.                                   | No       | `""`                                                            |
 | `download-artifact-name`           | Name of the artifact to download. Either `name` or `ids` can be used, but not both.                  | No       | `""`                                                            |
@@ -37,7 +37,6 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `sbom`                             | Flag to enable SBOM (Software Bill of Materials) generation.                                         | No       | `false`                                                         |
 | `build-args`                       | Build arguments for the Docker image, newline-delimited string.                                      | No       | `""`                                                            |
 | `checkout`                         | Flag to enable repository checkout.                                                                  | No       | `true`                                                          |
-| `debug`                            | Flag to enable debug mode.                                                                           | No       | `false`                                                         |
 | `registry`                         | Registry name to publish images to. Can be set to `ghcr.io`, `docker.io` or `ghcr.io,docker.io`      | No       | `ghcr.io`                                                       |
 | `docker-io-login`                  | Account name to login to docker.io                                                                   | Yes*     | -                                                               |
 | `docker-io-token`                  | Token with `Read,Write` permissions to login to docker.io                                            | Yes*     | -                                                               |
@@ -54,8 +53,12 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | Name                | Description                          |
 | ------------------- | ------------------------------------ |
 | `image-name`        | The name of the built Docker image.  |
-| `metadata-json`     | Path to the generated metadata file. |
+| `metadata_path`     | Path to the generated metadata file. |
 | `metadata-filename` | Name of the generated metadata file. |
+| `component-name`    | The name of the component being built. |
+| `component-file`    | The Dockerfile used for the build.   |
+| `component-context` | The build context used for the build. |
+| `component-build-args` | The build arguments used for the build. |
 
 ---
 
@@ -184,12 +187,16 @@ with:
     [
       {
         "name": "my-service",
-        "file": "./docker/Dockerfile.prod",
-        "context": "./src",
+        "dockerfile": "./docker/Dockerfile.prod",
+        "build_context": "./src",
         "arguments": "NODE_ENV=production"
       }
     ]
 ```
+
+Deprecated keys: `file` and `context` are still supported for compatibility, but prefer `dockerfile` and `build_context`.
+
+Note: `component.build_context` is the Docker build context. It is different from the top-level `context` input, which controls the metadata-action context (e.g., `git`).
 
 ### Build Arguments
 
@@ -229,11 +236,3 @@ If using Docker Hub (`docker.io`), ensure you have:
 
 Ensure your workflow has the required permissions, especially `packages: write` for registry operations.
 
-### Debug Mode
-
-Enable debug mode for verbose output:
-
-```yaml
-with:
-  debug: true
-```
