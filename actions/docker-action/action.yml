@@ -65,10 +65,6 @@ inputs:
     description: "Flag to enable repository checkout."
     required: false
     default: "true"
-  debug:
-    description: "Flag to enable debug mode."
-    required: false
-    default: "false"
   registry:
     description: "Registry name docker.io or ghcr.io or both"
     required: false
@@ -152,12 +148,13 @@ runs:
       run: |
         IFS='/' read -r owner repo <<< "$GITHUB_REPOSITORY"
 
-        if [ -n "$CUSTOM_IMAGE_NAME" ]; then
-            CONTAINER_NAME="$CUSTOM_IMAGE_NAME"
-        elif [ -n "$COMPONENT_NAME" ] && [ "$COMPONENT_NAME" != "default" ]; then
+        CONTAINER_NAME="$repo"
+
+        if [ -n "$COMPONENT_NAME" ] && [ "$COMPONENT_NAME" != "default" ]; then
           CONTAINER_NAME="$COMPONENT_NAME"
-        else
-          CONTAINER_NAME="$repo"
+        fi
+        if [ -n "$CUSTOM_IMAGE_NAME" ]; then
+          CONTAINER_NAME="$CUSTOM_IMAGE_NAME"
         fi
 
         echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_OUTPUT"
@@ -226,18 +223,6 @@ runs:
         name: ${{ inputs.download-artifact-name }}
         path: ${{ inputs.download-artifact-path != '' && inputs.download-artifact-path || '.' }}
         merge-multiple: ${{ inputs.download-artifact-merge-multiple == 'true' }}
-
-    - name: Debug ls
-      if: ${{ inputs.debug == 'true' }}
-      shell: bash
-      env:
-        DL_PATH: ${{ inputs.download-artifact-path }}
-        CONTEXT_DIR: ${{ steps.parse_component.outputs.ctx }}
-      run: |
-        echo "🔍 Current directory:"
-        pwd
-        echo "📂 Full workspace tree:"
-        ls -R -la ${{ github.workspace }}
 
     - name: Set up QEMU
       if: ${{ inputs.setup-qemu == 'true' && inputs.skip-qemu-buildx != 'true' }}
