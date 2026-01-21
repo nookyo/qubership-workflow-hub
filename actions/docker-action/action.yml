@@ -110,6 +110,18 @@ outputs:
   component-build-args:
     description: "The build arguments used for the build."
     value: "${{ steps.extract_component.outputs.build_args }}"
+  final-tags:
+    description: "The final tags applied to the Docker image."
+    value: "${{ env.FINAL_TAGS }}"
+  final-labels:
+    description: "The final labels applied to the Docker image."
+    value: "${{ env.FINAL_LABELS }}"
+  final-build-args:
+    description: "The final build arguments applied to the Docker image."
+    value: "${{ env.FINAL_BUILD_ARGS }}"
+  final-platforms:
+    description: "The final platforms for which the Docker image was built."
+    value: "${{ env.FINAL_PLATFORMS }}"
 
 runs:
   using: "composite"
@@ -262,7 +274,6 @@ runs:
         password: ${{ inputs.docker-io-token }}
 
     - name: Extract Docker Metadata
-      if: ${{ inputs.tags == '' }}
       id: meta
       uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
       with:
@@ -276,38 +287,60 @@ runs:
           type=semver,pattern={{major}}.{{minor}}
           type=semver,pattern={{major}}
 
-    - name: Create Image Refs (docker ghcr.io/owner/name:tag)
-      if: ${{ inputs.tags != '' }}
-      id: create-image-refs
+    - name: Prepare Final Build Parameters
+      id: prepare-final-params
       shell: bash
       env:
         TAGS_INPUT: ${{ inputs.tags }}
+        META_TAGS: ${{ steps.meta.outputs.tags }}
+        META_LABELS: ${{ steps.meta.outputs.labels }}
+        BUILD_ARGS_INPUT: ${{ inputs.build-args }}
+        BUILD_ARGS_META: ${{ steps.extract_component.outputs.build_args }}
+        PLATFORMS_INPUT: ${{ inputs.platforms }}
       run: |
         set -euo pipefail
 
-        echo "Create Image Refs (docker ghcr.io/owner/name:tag)"
-        TAGS_INPUT="${{ inputs.tags }}"
+        # Prepare tags
+        if [ -z "$TAGS_INPUT" ]; then
+          echo "Using auto-generated tags from metadata-action"
+          FINAL_TAGS="$META_TAGS"
+        else
+          echo "Using custom tags from inputs"
+          IFS=',' read -ra TAGS <<< "$TAGS_INPUT"
 
-        IFS=',' read -ra TAGS <<< "$TAGS_INPUT"
-
-        IMAGE_REFS=""
-        if [ -n "${GHCR_URL}" ]; then
-          for TAG in "${TAGS[@]}"; do
-            TAG=$(echo "$TAG" | xargs)
-            IMAGE_REFS="$IMAGE_REFS,$GHCR_URL:$TAG"
-          done
+          FINAL_TAGS=""
+          if [ -n "${GHCR_URL}" ]; then
+            for TAG in "${TAGS[@]}"; do
+              TAG=$(echo "$TAG" | xargs)
+              FINAL_TAGS="$FINAL_TAGS,$GHCR_URL:$TAG"
+            done
+          fi
+          if [ -n "${DOCKER_URL}" ]; then
+            for TAG in "${TAGS[@]}"; do
+              TAG=$(echo "$TAG" | xargs)
+              FINAL_TAGS="$FINAL_TAGS,$DOCKER_URL:$TAG"
+            done
+          fi
+          FINAL_TAGS="${FINAL_TAGS#,}"
+          FINAL_TAGS=$(echo "$FINAL_TAGS" | tr '[:upper:]' '[:lower:]')
         fi
-        if [ -n "${DOCKER_URL}" ]; then
-          for TAG in "${TAGS[@]}"; do
-            TAG=$(echo "$TAG" | xargs)
-            IMAGE_REFS="$IMAGE_REFS,$DOCKER_URL:$TAG"
-          done
-        fi
-        IMAGE_REFS="${IMAGE_REFS#,}"
-        IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')
 
-        echo "Image refs: $IMAGE_REFS"
-        echo "IMAGE_REFS=$(echo "$IMAGE_REFS" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+        # Prepare build-args
+        FINAL_BUILD_ARGS="${BUILD_ARGS_META:-$BUILD_ARGS_INPUT}"
+        echo "Using build-args: ${BUILD_ARGS_META:+from component metadata}${BUILD_ARGS_META:-from inputs}"
+
+        # Prepare platforms
+        FINAL_PLATFORMS="$PLATFORMS_INPUT"
+
+        echo "Final tags: $FINAL_TAGS"
+        echo "Final labels: $META_LABELS"
+        echo "Final build-args: $FINAL_BUILD_ARGS"
+        echo "Final platforms: $FINAL_PLATFORMS"
+
+        echo "FINAL_TAGS=$FINAL_TAGS" >> "$GITHUB_ENV"
+        echo "FINAL_LABELS=$META_LABELS" >> "$GITHUB_ENV"
+        echo "FINAL_BUILD_ARGS=$FINAL_BUILD_ARGS" >> "$GITHUB_ENV"
+        echo "FINAL_PLATFORMS=$FINAL_PLATFORMS" >> "$GITHUB_ENV"
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -318,10 +351,10 @@ runs:
         context: ${{ steps.extract_component.outputs.ctx }}
         file: ${{ steps.extract_component.outputs.file }}
         push: ${{ inputs.dry-run == 'true' && 'false' || 'true' }}
-        tags: ${{ inputs.tags != '' && env.IMAGE_REFS || steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        platforms: ${{ inputs.platforms }}
-        build-args: ${{ steps.extract_component.outputs.build_args != '' && steps.extract_component.outputs.build_args || inputs.build-args }}
+        tags: ${{ env.FINAL_TAGS }}
+        labels: ${{ env.FINAL_LABELS }}
+        platforms: ${{ env.FINAL_PLATFORMS }}
+        build-args: ${{ env.FINAL_BUILD_ARGS }}
 
     - name: Output result
       if: ${{ ! (inputs.dry-run == 'true') }}
@@ -358,7 +391,7 @@ runs:
         DIGEST_NO_PREFIX="${DIGEST##*:}"
         DIGEST_SHORT="${DIGEST_NO_PREFIX:0:12}"
 
-        # GROUP="${{ inputs.app-manifest-group || '' }}"
+        GROUP=""
 
         VERSION="$TAG"
 

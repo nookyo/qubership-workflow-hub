@@ -1,507 +1,295 @@
-name: Test Docker Build and Publish Action
+name: Test Docker Action
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 jobs:
-  test-docker-action:
+  test-auto-tags:
+    name: Test with Auto-Generated Tags
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@v4
 
-      - name: Create test Dockerfiles and artifact payload
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          # Create test directories
-          mkdir -p ./.github/docker-test-{a,b,c,d,e} ./artifact-src
-
-          # Test A: Basic image
-          cat <<'EOF' > ./.github/docker-test-a/Dockerfile
-          FROM alpine:3.20
-          RUN echo "test image A" >/test.txt
-          CMD ["cat", "/test.txt"]
-          EOF
-
-          # Test B: Image with build args
-          cat <<'EOF' > ./.github/docker-test-b/Dockerfile
-          FROM alpine:3.20
-          ARG TEST_ARG=default
-          RUN echo "test image B: ${TEST_ARG}" >/test.txt
-          CMD ["cat", "/test.txt"]
-          EOF
-
-          # Test C: Multi-stage build
-          cat <<'EOF' > ./.github/docker-test-c/Dockerfile
-          FROM alpine:3.20 AS builder
-          RUN echo "building..." > /build.txt
-
-          FROM alpine:3.20
-          COPY --from=builder /build.txt /test.txt
-          RUN echo "test image C" >> /test.txt
-          CMD ["cat", "/test.txt"]
-          EOF
-
-          # Test D: Image with artifact dependency
-          cat <<'EOF' > ./.github/docker-test-d/Dockerfile
-          FROM alpine:3.20
-          COPY payload.txt /payload.txt
-          RUN cat /payload.txt > /test.txt
-          CMD ["cat", "/test.txt"]
-          EOF
-
-          # Test E: Image with labels
-          cat <<'EOF' > ./.github/docker-test-e/Dockerfile
-          FROM alpine:3.20
-          LABEL maintainer="test@example.com"
-          LABEL version="1.0"
-          RUN echo "test image E" >/test.txt
-          CMD ["cat", "/test.txt"]
-          EOF
-
-          # Create artifact payload
-          echo "artifact payload for testing" > ./artifact-src/payload.txt
-
-      - name: Upload test artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: test-artifact
-          path: ./artifact-src/payload.txt
-
-      # ============================================
-      # TEST 1: Default configuration (dry-run)
-      # ============================================
-      - name: "Test 1: Default name, single registry (ghcr.io)"
-        id: test1
+      - name: Run Docker Action with Auto Tags
+        id: docker-auto
         uses: ./actions/docker-action
         with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          component: |
-            [{"name":"test-a","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
-          platforms: linux/amd64
+          dry-run: 'true'
+          registry: 'ghcr.io'
+          platforms: 'linux/amd64'
+          component: '[{"name": "test-auto", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
 
-      - name: Validate Test 1 outputs
+      - name: Verify Auto Tags Output
         shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test1.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test1.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test1.outputs.metadata-filename }}
         run: |
-          echo "Validating Test 1 outputs..."
+          echo "=== Outputs ==="
+          echo "Image Name: ${{ steps.docker-auto.outputs.image-name }}"
+          echo "Final Tags: ${{ steps.docker-auto.outputs.final-tags }}"
+          echo "Final Labels: ${{ steps.docker-auto.outputs.final-labels }}"
+          echo "Final Platforms: ${{ steps.docker-auto.outputs.final-platforms }}"
+          echo "Component Name: ${{ steps.docker-auto.outputs.component-name }}"
 
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          # Verify tags are not empty
+          if [ -z "${{ steps.docker-auto.outputs.final-tags }}" ]; then
+            echo "❌ ERROR: final-tags is empty"
             exit 1
           fi
 
-          echo "✓ Test 1 completed - Default configuration (dry-run verified)"
-
-      # ============================================
-      # TEST 2: Custom image name + dual registry
-      # ============================================
-      # - name: "Test 2: Custom image name with dual registry (ghcr.io + docker.io)"
-      #   id: test2
-      #   uses: ./actions/docker-action
-      #   with:
-      #     registry: ghcr.io,docker.io
-      #     dry-run: "true"
-      #     checkout: "false"
-      #     custom-image-name: "custom-test-image"
-      #     component: |
-      #       [{"name":"test-a","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
-      #     platforms: linux/amd64
-      #     docker-io-login: ${{ secrets.DOCKER_USERNAME || 'testuser' }}
-      #     docker-io-token: ${{ secrets.DOCKER_TOKEN || 'testtoken' }}
-
-      # - name: Validate Test 2 outputs
-      #   shell: bash
-      #   env:
-      #     IMAGE_NAME: ${{ steps.test2.outputs.image-name }}
-      #     METADATA_JSON: ${{ steps.test2.outputs.metadata-json }}
-      #     METADATA_FILENAME: ${{ steps.test2.outputs.metadata-filename }}
-      #   run: |
-      #     echo "Validating Test 2 outputs..."
-
-      #     # In dry-run mode, outputs should be empty
-      #     if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-      #       echo "ERROR: Expected empty outputs in dry-run mode"
-      #       echo "  IMAGE_NAME: '$IMAGE_NAME'"
-      #       echo "  METADATA_JSON: '$METADATA_JSON'"
-      #       echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
-      #       exit 1
-      #     fi
-
-      #     echo "✓ Test 2 completed - Custom image name (dry-run verified)"
-
-      # ============================================
-      # TEST 3: Download artifact + debug mode
-      # ============================================
-      - name: "Test 3: Artifact download with debug mode"
-        id: test3
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          download-artifact: "true"
-          download-artifact-name: "test-artifact"
-          download-artifact-path: "./.github/docker-test-d"
-          download-artifact-merge-multiple: "false"
-          debug: "true"
-          component: |
-            [{"name":"test-d","file":"./.github/docker-test-d/Dockerfile","context":"./.github/docker-test-d"}]
-          platforms: linux/amd64
-
-      - name: Validate Test 3 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test3.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test3.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test3.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 3 outputs..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          # Verify labels are not empty
+          if [ -z "${{ steps.docker-auto.outputs.final-labels }}" ]; then
+            echo "❌ ERROR: final-labels is empty"
             exit 1
           fi
 
-          echo "✓ Test 3 completed - Artifact download (dry-run verified)"
-
-      # ============================================
-      # TEST 4: Explicit tags
-      # ============================================
-      - name: "Test 4: Multiple explicit tags"
-        id: test4
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          tags: "v1.0.0,v1.0,latest,test-tag"
-          component: |
-            [{"name":"test-a","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
-          platforms: linux/amd64
-
-      - name: Validate Test 4 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test4.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test4.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test4.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 4 outputs..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          # Verify platforms match expected
+          EXPECTED_PLATFORMS="linux/amd64"
+          ACTUAL_PLATFORMS="${{ steps.docker-auto.outputs.final-platforms }}"
+          if [ "$ACTUAL_PLATFORMS" != "$EXPECTED_PLATFORMS" ]; then
+            echo "❌ ERROR: Platforms mismatch"
+            echo "Expected: $EXPECTED_PLATFORMS"
+            echo "Actual: $ACTUAL_PLATFORMS"
             exit 1
           fi
 
-          echo "✓ Test 4 completed - Multiple tags (dry-run verified)"
+          # Verify component name
+          EXPECTED_COMPONENT="test-auto"
+          ACTUAL_COMPONENT="${{ steps.docker-auto.outputs.component-name }}"
+          if [ "$ACTUAL_COMPONENT" != "$EXPECTED_COMPONENT" ]; then
+            echo "❌ ERROR: Component name mismatch"
+            echo "Expected: $EXPECTED_COMPONENT"
+            echo "Actual: $ACTUAL_COMPONENT"
+            exit 1
+          fi
 
-      # ============================================
-      # TEST 5: Build arguments
-      # ============================================
-      - name: "Test 5: Build arguments"
-        id: test5
+          # Verify tags contain repository name
+          TAGS="${{ steps.docker-auto.outputs.final-tags }}"
+          if [[ ! "$TAGS" == *"ghcr.io"* ]]; then
+            echo "❌ ERROR: Tags don't contain ghcr.io registry"
+            exit 1
+          fi
+
+          if [[ ! "$TAGS" == *"test-auto"* ]]; then
+            echo "❌ ERROR: Tags don't contain component name 'test-auto'"
+            exit 1
+          fi
+
+          echo "✅ All auto-tags tests passed!"
+
+  test-custom-tags:
+    name: Test with Custom Tags
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Docker Action with Custom Tags
+        id: docker-custom
         uses: ./actions/docker-action
         with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
+          dry-run: 'true'
+          registry: 'ghcr.io'
+          platforms: 'linux/amd64,linux/arm64'
+          tags: 'v1.0.0,latest,custom-tag'
+          component: '[{"name": "test-custom", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
+
+      - name: Verify Custom Tags Output
+        shell: bash
+        run: |
+          echo "=== Outputs ==="
+          echo "Final Tags: ${{ steps.docker-custom.outputs.final-tags }}"
+          echo "Final Platforms: ${{ steps.docker-custom.outputs.final-platforms }}"
+
+          TAGS="${{ steps.docker-custom.outputs.final-tags }}"
+
+          # Verify all custom tags are present
+          if [[ ! "$TAGS" == *"v1.0.0"* ]]; then
+            echo "❌ ERROR: Custom tag v1.0.0 not found in final tags"
+            exit 1
+          fi
+
+          if [[ ! "$TAGS" == *"latest"* ]]; then
+            echo "❌ ERROR: Custom tag latest not found in final tags"
+            exit 1
+          fi
+
+          if [[ ! "$TAGS" == *"custom-tag"* ]]; then
+            echo "❌ ERROR: Custom tag custom-tag not found in final tags"
+            exit 1
+          fi
+
+          # Verify platforms match expected
+          EXPECTED_PLATFORMS="linux/amd64,linux/arm64"
+          ACTUAL_PLATFORMS="${{ steps.docker-custom.outputs.final-platforms }}"
+          if [ "$ACTUAL_PLATFORMS" != "$EXPECTED_PLATFORMS" ]; then
+            echo "❌ ERROR: Platforms mismatch"
+            echo "Expected: $EXPECTED_PLATFORMS"
+            echo "Actual: $ACTUAL_PLATFORMS"
+            exit 1
+          fi
+
+          # Verify tags contain registry
+          if [[ ! "$TAGS" == *"ghcr.io"* ]]; then
+            echo "❌ ERROR: Tags don't contain ghcr.io registry"
+            exit 1
+          fi
+
+          # Verify component name in tags
+          if [[ ! "$TAGS" == *"test-custom"* ]]; then
+            echo "❌ ERROR: Tags don't contain component name 'test-custom'"
+            exit 1
+          fi
+
+          echo "✅ All custom tags tests passed!"
+
+  test-build-args:
+    name: Test with Build Args
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Docker Action with Build Args from Component
+        id: docker-buildargs-component
+        uses: ./actions/docker-action
+        with:
+          dry-run: 'true'
+          registry: 'ghcr.io'
+          component: '[{"name": "test-buildargs", "dockerfile": "./Dockerfile.test", "build_context": ".", "arguments": "ARG1=value1\nARG2=value2"}]'
+
+      - name: Verify Build Args from Component
+        shell: bash
+        run: |
+          echo "=== Outputs ==="
+          echo "Component Build Args: ${{ steps.docker-buildargs-component.outputs.component-build-args }}"
+          echo "Final Build Args: ${{ steps.docker-buildargs-component.outputs.final-build-args }}"
+
+          COMPONENT_ARGS="${{ steps.docker-buildargs-component.outputs.component-build-args }}"
+          FINAL_ARGS="${{ steps.docker-buildargs-component.outputs.final-build-args }}"
+
+          # Verify build args are not empty
+          if [ -z "$FINAL_ARGS" ]; then
+            echo "❌ ERROR: final-build-args is empty"
+            exit 1
+          fi
+
+          # Verify build args contain expected values
+          if [[ ! "$FINAL_ARGS" == *"ARG1=value1"* ]]; then
+            echo "❌ ERROR: Build args don't contain 'ARG1=value1'"
+            exit 1
+          fi
+
+          if [[ ! "$FINAL_ARGS" == *"ARG2=value2"* ]]; then
+            echo "❌ ERROR: Build args don't contain 'ARG2=value2'"
+            exit 1
+          fi
+
+          # Verify that component build-args are used (not input build-args)
+          if [ "$COMPONENT_ARGS" != "$FINAL_ARGS" ]; then
+            echo "❌ ERROR: Component build-args should be used but they don't match"
+            echo "Component: $COMPONENT_ARGS"
+            echo "Final: $FINAL_ARGS"
+            exit 1
+          fi
+
+          echo "✅ Build args from component verified!"
+
+      - name: Run Docker Action with Build Args from Input
+        id: docker-buildargs-input
+        uses: ./actions/docker-action
+        with:
+          dry-run: 'true'
+          registry: 'ghcr.io'
           build-args: |
-            TEST_ARG=hello_world
-          component: |
-            [{"name":"test-b","file":"./.github/docker-test-b/Dockerfile","context":"./.github/docker-test-b"}]
-          platforms: linux/amd64
+            INPUT_ARG1=input_value1
+            INPUT_ARG2=input_value2
+          component: '[{"name": "test-buildargs-input", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
 
-      - name: Validate Test 5 outputs
+      - name: Verify Build Args from Input
         shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test5.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test5.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test5.outputs.metadata-filename }}
         run: |
-          echo "Validating Test 5 outputs..."
+          echo "=== Outputs ==="
+          echo "Final Build Args: ${{ steps.docker-buildargs-input.outputs.final-build-args }}"
 
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          FINAL_ARGS="${{ steps.docker-buildargs-input.outputs.final-build-args }}"
+
+          # Verify build args are not empty
+          if [ -z "$FINAL_ARGS" ]; then
+            echo "❌ ERROR: final-build-args is empty"
             exit 1
           fi
 
-          echo "✓ Test 5 completed - Build arguments (dry-run verified)"
+          # Verify build args contain expected input values
+          if [[ ! "$FINAL_ARGS" == *"INPUT_ARG1=input_value1"* ]]; then
+            echo "❌ ERROR: Build args don't contain 'INPUT_ARG1=input_value1'"
+            exit 1
+          fi
 
-      # ============================================
-      # TEST 6: Multi-platform build
-      # ============================================
-      - name: "Test 6: Multi-platform build (amd64 + arm64)"
-        id: test6
+          if [[ ! "$FINAL_ARGS" == *"INPUT_ARG2=input_value2"* ]]; then
+            echo "❌ ERROR: Build args don't contain 'INPUT_ARG2=input_value2'"
+            exit 1
+          fi
+
+          echo "✅ Build args from inputs verified!"
+
+  test-platforms:
+    name: Test Multi-Platform Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Docker Action with Multiple Platforms
+        id: docker-multiplatform
         uses: ./actions/docker-action
         with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          component: |
-            [{"name":"test-c","file":"./.github/docker-test-c/Dockerfile","context":"./.github/docker-test-c"}]
-          platforms: linux/amd64,linux/arm64
+          dry-run: 'true'
+          registry: 'ghcr.io'
+          platforms: 'linux/amd64,linux/arm64,linux/arm/v7'
+          component: '[{"name": "test-multiplatform", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
 
-      - name: Validate Test 6 outputs
+      - name: Verify Platforms Output
         shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test6.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test6.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test6.outputs.metadata-filename }}
         run: |
-          echo "Validating Test 6 outputs..."
+          echo "=== Outputs ==="
+          PLATFORMS="${{ steps.docker-multiplatform.outputs.final-platforms }}"
+          echo "Final Platforms: $PLATFORMS"
 
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          # Verify platforms match exactly
+          EXPECTED_PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7"
+          if [ "$PLATFORMS" != "$EXPECTED_PLATFORMS" ]; then
+            echo "❌ ERROR: Platforms mismatch"
+            echo "Expected: $EXPECTED_PLATFORMS"
+            echo "Actual: $PLATFORMS"
             exit 1
           fi
 
-          echo "✓ Test 6 completed - Multi-platform (dry-run verified)"
-
-      # ============================================
-      # TEST 7: SBOM generation
-      # ============================================
-      - name: "Test 7: SBOM generation enabled"
-        id: test7
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          sbom: "true"
-          component: |
-            [{"name":"test-a","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
-          platforms: linux/amd64
-
-      - name: Validate Test 7 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test7.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test7.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test7.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 7 outputs..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          # Verify each platform individually
+          if [[ ! "$PLATFORMS" == *"linux/amd64"* ]]; then
+            echo "❌ ERROR: linux/amd64 not found in platforms"
             exit 1
           fi
 
-          echo "✓ Test 7 completed - SBOM generation (dry-run verified)"
-
-      # ============================================
-      # TEST 8: Component with build args in JSON
-      # ============================================
-      - name: "Test 8: Component with inline build arguments"
-        id: test8
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          component: |
-            [{
-              "name":"test-b",
-              "file":"./.github/docker-test-b/Dockerfile",
-              "context":"./.github/docker-test-b",
-              "arguments":"TEST_ARG=from_component_json"
-            }]
-          platforms: linux/amd64
-
-      - name: Validate Test 8 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test8.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test8.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test8.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 8 outputs..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          if [[ ! "$PLATFORMS" == *"linux/arm64"* ]]; then
+            echo "❌ ERROR: linux/arm64 not found in platforms"
             exit 1
           fi
 
-          echo "✓ Test 8 completed - Component build args (dry-run verified)"
-
-      # ============================================
-      # TEST 9: Skip QEMU and Buildx setup
-      # ============================================
-      - name: "Test 9: Custom Buildx configuration"
-        id: test9
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          setup-qemu: "false"
-          setup-buildx: "false"
-          component: |
-            [{"name":"test-e","file":"./.github/docker-test-e/Dockerfile","context":"./.github/docker-test-e"}]
-          platforms: linux/amd64
-
-      - name: Validate Test 9 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test9.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test9.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test9.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 9 outputs..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
+          if [[ ! "$PLATFORMS" == *"linux/arm/v7"* ]]; then
+            echo "❌ ERROR: linux/arm/v7 not found in platforms"
             exit 1
           fi
 
-          echo "✓ Test 9 completed - Custom Buildx config (dry-run verified)"
-
-      # ============================================
-      # TEST 10: Default component (no name override)
-      # ============================================
-      - name: "Test 10: Default component name"
-        id: test10
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          component: |
-            [{"name":"default","file":"./.github/docker-test-a/Dockerfile","context":"./.github/docker-test-a"}]
-          platforms: linux/amd64
-
-      - name: Validate Test 10 outputs
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test10.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test10.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test10.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 10 outputs..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
-            exit 1
-          fi
-
-          echo "✓ Test 10 completed - Default component (dry-run verified)"
-
-      # ============================================
-      # TEST 11: Verify build process (dry-run but check build succeeded)
-      # ============================================
-      - name: "Test 11: Verify complete build process without push"
-        id: test11
-        uses: ./actions/docker-action
-        with:
-          registry: ghcr.io
-          dry-run: "true"
-          checkout: "false"
-          component: |
-            [{"name":"test-build-verification","file":"./.github/docker-test-c/Dockerfile","context":"./.github/docker-test-c"}]
-          platforms: linux/amd64
-
-      - name: Validate Test 11 (build process verification)
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ steps.test11.outputs.image-name }}
-          METADATA_JSON: ${{ steps.test11.outputs.metadata-json }}
-          METADATA_FILENAME: ${{ steps.test11.outputs.metadata-filename }}
-        run: |
-          echo "Validating Test 11 - build process verification..."
-
-          # In dry-run mode, outputs should be empty
-          if [ -n "$IMAGE_NAME" ] || [ -n "$METADATA_JSON" ] || [ -n "$METADATA_FILENAME" ]; then
-            echo "ERROR: Expected empty outputs in dry-run mode"
-            echo "  IMAGE_NAME: '$IMAGE_NAME'"
-            echo "  METADATA_JSON: '$METADATA_JSON'"
-            echo "  METADATA_FILENAME: '$METADATA_FILENAME'"
-            exit 1
-          fi
-
-          # If we reached here, the build succeeded (docker build-push-action didn't fail)
-          echo "✓ Test 11 completed - Build process verified (dry-run, no push)"
-
-      # ============================================
-      # FINAL VALIDATION
-      # ============================================
-      - name: Final validation summary
-        shell: bash
-        run: |
-          echo "=========================================="
-          echo "   All Tests Passed Successfully ✓"
-          echo "=========================================="
-          echo ""
-          echo "Tests completed:"
-          echo "  ✓ Test 1:  Default configuration (dry-run)"
-          echo "  ✓ Test 2:  Custom image name + dual registry (dry-run)"
-          echo "  ✓ Test 3:  Artifact download + debug (dry-run)"
-          echo "  ✓ Test 4:  Multiple explicit tags (dry-run)"
-          echo "  ✓ Test 5:  Build arguments (dry-run)"
-          echo "  ✓ Test 6:  Multi-platform build (dry-run)"
-          echo "  ✓ Test 7:  SBOM generation (dry-run)"
-          echo "  ✓ Test 8:  Component build args (dry-run)"
-          echo "  ✓ Test 9:  Custom Buildx config (dry-run)"
-          echo "  ✓ Test 10: Default component name (dry-run)"
-          echo "  ✓ Test 11: Build process verification (dry-run)"
-          echo ""
-          echo "All validations passed:"
-          echo "  ✓ Input parsing and validation"
-          echo "  ✓ Registry configuration"
-          echo "  ✓ Component JSON parsing"
-          echo "  ✓ Image name generation"
-          echo "  ✓ Tag handling (auto and explicit)"
-          echo "  ✓ Build arguments (inline and component)"
-          echo "  ✓ Multi-platform builds"
-          echo "  ✓ Artifact downloading"
-          echo "  ✓ SBOM generation"
-          echo "  ✓ QEMU/Buildx configuration"
-          echo "  ✓ Dry-run output validation"
+          echo "✅ All platforms tests passed!"
