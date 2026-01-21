@@ -12,14 +12,14 @@ This **On-Demand Security Scan** GitHub Workflow performs security scans using G
 
 ## 📌 Inputs
 
-| Name                | Description                                                                 | Required | Default |
-|---------------------|-----------------------------------------------------------------------------|----------|---------|
-| `target`            | Scan target: "docker" or "source"                                           | Yes      | `docker` |
-| `image`             | Docker image to scan (for docker target). Defaults to ghcr.io/<owner>/<repo>:latest | No       | `""`    |
-| `only-high-critical`| Filter results to only HIGH and CRITICAL severity                          | No       | `true`  |
-| `trivy-scan`        | Enable Trivy scan                                                          | No       | `true`  |
-| `grype-scan`        | Enable Grype scan                                                          | No       | `true`  |
-| `continue-on-error` | Continue workflow on scan errors                                           | No       | `true`  |
+| Name                 | Description                                                                         | Required | Default  |
+| -------------------- | ----------------------------------------------------------------------------------- | -------- | -------- |
+| `target`             | Scan target: "docker" or "source"                                                   | Yes      | `docker` |
+| `image`              | Docker image to scan (for docker target). Defaults to ghcr.io/<owner>/<repo>:latest | No       | `""`     |
+| `only-high-critical` | Filter results to only HIGH and CRITICAL severity                                   | No       | `true`   |
+| `trivy-scan`         | Enable Trivy scan                                                                   | No       | `true`   |
+| `grype-scan`         | Enable Grype scan                                                                   | No       | `true`   |
+| `continue-on-error`  | Continue workflow on scan errors                                                    | No       | `true`   |
 
 ## Permissions
 

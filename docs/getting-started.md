@@ -3,7 +3,9 @@
 General instructions for using the actions and reusable workflows from this repository and for creating your own.
 
 ## 1. Basic project structure
+
 Minimal directories in your repository:
+
 ```
 your-repo/
   .github/
@@ -15,7 +17,9 @@ your-repo/
 If you create a local reusable workflow, it also lives in `.github/workflows/*.yml` and is marked with `on: workflow_call`.
 
 ## 2. Using an action from this hub
+
 Example: using tag-action (pin by major version or exact SHA is recommended):
+
 ```yaml
 name: Tag Release
 on:
@@ -35,6 +39,7 @@ jobs:
 ```
 
 ## 3. Composition: metadata-action + tag-action
+
 ```yaml
 jobs:
   release:
@@ -55,7 +60,9 @@ jobs:
 ```
 
 ## 4. Using a reusable workflow from the hub
+
 A reusable workflow is a file in `.github/workflows/` in the source repository with `on: workflow_call`.
+
 ```yaml
 name: Draft Release
 on:
@@ -69,7 +76,9 @@ jobs:
 ```
 
 ## 5. Creating your own reusable workflow
+
 Example local file `.github/workflows/build-and-test.yml`:
+
 ```yaml
 name: build-and-test
 on:
@@ -78,7 +87,7 @@ on:
       node-version:
         required: false
         type: string
-        default: '20'
+        default: "20"
     secrets:
       NPM_TOKEN:
         required: false
@@ -102,19 +111,23 @@ jobs:
       - id: result
         run: echo "summary=All tests passed" >> $GITHUB_OUTPUT
 ```
+
 Call this workflow from another repository:
+
 ```yaml
 jobs:
   ci:
     uses: your-org/your-repo/.github/workflows/build-and-test.yml@v1
     with:
-      node-version: '22'
+      node-version: "22"
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
 ## 6. Local composite action (optional)
+
 `your-repo/.github/actions/setup-env/action.yml`:
+
 ```yaml
 name: setup-env
 runs:
@@ -123,29 +136,38 @@ runs:
     - run: echo "Node $(node -v)" >> $GITHUB_STEP_SUMMARY
       shell: bash
 ```
+
 Usage:
+
 ```yaml
-      - uses: ./.github/actions/setup-env
+- uses: ./.github/actions/setup-env
 ```
 
 ## 7. Permissions / tokens
+
 Minimize permissions:
+
 ```yaml
 permissions:
   contents: read
   packages: write
-  id-token: write   # if you need OIDC federation
+  id-token: write # if you need OIDC federation
 ```
+
 Elevate `contents: write` only for operations that need to create tags, releases, or commits.
 
 ## 8. Dry‑run and debug
+
 Many actions accept `dry-run: true` and `debug: true` — run in dry‑run first before production.
 
 ## 9. Version strategy
+
 Use a `@v1` major tag or an exact SHA; update when necessary.
 
 ## 10. Structuring a monorepo
+
 If you have many internal workflows and actions:
+
 ```
 repo/
   actions/                 # Published actions (like in this hub)
@@ -156,6 +178,7 @@ repo/
 ```
 
 ## 11. Helpful GitHub Docs links
+
 - Actions Overview: https://docs.github.com/actions
 - Creating Actions: https://docs.github.com/actions/creating-actions
 - Composite Actions: https://docs.github.com/actions/creating-actions/creating-a-composite-action
