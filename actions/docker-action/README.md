@@ -21,9 +21,9 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 
 | Name                               | Description                                                                                          | Required | Default                                                         |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------- |
-| `ref`                              | Branch to create a release from.                                                                     | No       | `""`                                                            |
+| `ref`                              | Git reference (branch/tag/SHA) to checkout.                                                          | No       | `""`                                                            |
 | `custom-image-name`                | Custom name for the Docker image. If not provided, it will be auto-generated.                        | No       | `""`                                                            |
-| `context`                          | Pipeline context.                                                                                    | No       | `git`                                                           |
+| `context`                          | Context for docker/metadata-action (e.g., `git`, `workflow`).                                        | No       | `git`                                                           |
 | `dry-run`                          | Run without pushing (dry run).                                                                       | No       | `false`                                                         |
 | `download-artifact`                | Flag to download the artifact.                                                                       | No       | `false`                                                         |
 | `component`                        | Component configuration in JSON format (an array with a single object).                              | No       | `[{"name": "default", "dockerfile": "./Dockerfile", "build_context": "."}]` |
@@ -34,12 +34,12 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `download-artifact-path`           | Destination path. Supports basic tilde expansion. Default is `$GITHUB_WORKSPACE`                     | No       | `""`                                                            |
 | `download-artifact-pattern`        | A glob pattern to the artifacts that should be downloaded. Ignored if name is specified.             | No       | `""`                                                            |
 | `download-artifact-merge-multiple` | When download multiple artifacts unpack them as is or into separate directories.                     | No       | `false`                                                         |
-| `sbom`                             | Flag to enable SBOM (Software Bill of Materials) generation.                                         | No       | `false`                                                         |
+| `sbom`                             | Flag to enable SBoM (Software Bill of Materials) generation.                                         | No       | `false`                                                         |
 | `build-args`                       | Build arguments for the Docker image. Supports comma-separated or newline-delimited format.          | No       | `""`                                                            |
 | `checkout`                         | Flag to enable repository checkout.                                                                  | No       | `true`                                                          |
 | `registry`                         | Registry name to publish images to. Can be set to `ghcr.io`, `docker.io` or `ghcr.io,docker.io`      | No       | `ghcr.io`                                                       |
-| `docker-io-login`                  | Account name to login to docker.io                                                                   | Yes*     | -                                                               |
-| `docker-io-token`                  | Token with `Read,Write` permissions to login to docker.io                                            | Yes*     | -                                                               |
+| `docker-io-login`                  | User name to login to docker.io                                                                      | Yes*     | -                                                               |
+| `docker-io-token`                  | Token to login to docker.io                                                                          | Yes*     | -                                                               |
 | `skip-qemu-buildx`                 | DEPRECATED: Use setup-qemu and setup-buildx instead. Skip the setup of both QEMU and Buildx.         | No       | `false`                                                         |
 | `setup-qemu`                       | Setup QEMU for multi-platform builds.                                                                | No       | `true`                                                          |
 | `setup-buildx`                     | Setup Docker Buildx.                                                                                 | No       | `true`                                                          |
@@ -58,7 +58,7 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `component-name`       | The name of the component being built.                 |
 | `component-file`       | The Dockerfile used for the build.                     |
 | `component-context`    | The build context used for the build.                  |
-| `component-build-args` | The build arguments from component metadata.           |
+| `component-build-args` | The build arguments used for the build.                |
 | `final-tags`           | The final tags applied to the Docker image.            |
 | `final-build-args`     | The final build arguments applied to the Docker image. |
 | `final-platforms`      | The final platforms for which the image was built.     |
@@ -163,7 +163,7 @@ with:
   download-artifact-merge-multiple: true
 ```
 
-### SBOM Generation
+### SBoM Generation
 
 Enable Software Bill of Materials generation for security scanning:
 
