@@ -353,8 +353,15 @@ runs:
 
         echo "FINAL_TAGS=$FINAL_TAGS" >> "$GITHUB_ENV"
         echo "FINAL_LABELS=$META_LABELS" >> "$GITHUB_ENV"
-        echo "FINAL_BUILD_ARGS=$FINAL_BUILD_ARGS" >> "$GITHUB_ENV"
+        # echo "FINAL_BUILD_ARGS=$FINAL_BUILD_ARGS" >> "$GITHUB_ENV"
         echo "FINAL_PLATFORMS=$FINAL_PLATFORMS" >> "$GITHUB_ENV"
+
+        {
+          echo "labels<<EOF"
+          echo "$FINAL_BUILD_ARGS"
+          echo "EOF"
+        } >> "$GITHUB_ENV"
+
 
         echo "tags=$FINAL_TAGS" >> "$GITHUB_OUTPUT"
         {
