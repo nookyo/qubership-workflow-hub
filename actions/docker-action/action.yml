@@ -112,16 +112,16 @@ outputs:
     value: "${{ steps.extract_component.outputs.build_args }}"
   final-tags:
     description: "The final tags applied to the Docker image."
-    value: "${{ env.FINAL_TAGS }}"
+    value: "${{ steps.prepare-final-params.outputs.tags }}"
   final-labels:
     description: "The final labels applied to the Docker image."
-    value: "${{ env.FINAL_LABELS }}"
+    value: "${{ steps.prepare-final-params.outputs.labels }}"
   final-build-args:
     description: "The final build arguments applied to the Docker image."
-    value: "${{ env.FINAL_BUILD_ARGS }}"
+    value: "${{ steps.prepare-final-params.outputs.build_args }}"
   final-platforms:
     description: "The final platforms for which the Docker image was built."
-    value: "${{ env.FINAL_PLATFORMS }}"
+    value: "${{ steps.prepare-final-params.outputs.platforms }}"
 
 runs:
   using: "composite"
@@ -341,6 +341,15 @@ runs:
         echo "FINAL_LABELS=$META_LABELS" >> "$GITHUB_ENV"
         echo "FINAL_BUILD_ARGS=$FINAL_BUILD_ARGS" >> "$GITHUB_ENV"
         echo "FINAL_PLATFORMS=$FINAL_PLATFORMS" >> "$GITHUB_ENV"
+
+        echo "tags=$FINAL_TAGS" >> "$GITHUB_OUTPUT"
+        {
+          echo "labels<<EOF"
+          echo "$META_LABELS"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+        echo "build_args=$FINAL_BUILD_ARGS" >> "$GITHUB_OUTPUT"
+        echo "platforms=$FINAL_PLATFORMS" >> "$GITHUB_OUTPUT"
 
     - name: Build and Push Docker Image
       uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
