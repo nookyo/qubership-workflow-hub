@@ -9,17 +9,17 @@ This **Update Version on `pom.xml`** GitHub Action automates the process of upda
 
 ## 📌 Inputs
 
-| Name       | Description                                 | Required | Default                  |
-| ---------- | ------------------------------------------- | -------- | ------------------------ |
-| `file_path`| The path to the XML file to update.         | No       | `{"default": "pom.xml"}` |
-| `path`     | The XPath expression to locate the node to update. Defaults to `//p:project/p:properties/p:revision`. | No       | `//p:project/p:properties/p:revision` |
-| `new_value`| The new value to set for the selected XML node. | Yes      |                          |
+| Name        | Description                                                                                           | Required | Default                               |
+| ----------- | ----------------------------------------------------------------------------------------------------- | -------- | ------------------------------------- |
+| `file_path` | The path to the XML file to update.                                                                   | No       | `{"default": "pom.xml"}`              |
+| `path`      | The XPath expression to locate the node to update. Defaults to `//p:project/p:properties/p:revision`. | No       | `//p:project/p:properties/p:revision` |
+| `new_value` | The new value to set for the selected XML node.                                                       | Yes      |                                       |
 
 ## 📌 Outputs
 
-| Name         | Description                              |
-| ------------ | ---------------------------------------- |
-| `artifact_id`| The artifact ID of the updated XML file. |
+| Name          | Description                              |
+| ------------- | ---------------------------------------- |
+| `artifact_id` | The artifact ID of the updated XML file. |
 
 ## Usage Example
 
@@ -40,3 +40,4 @@ jobs:
       file_path: '{"default": "path/to/pom.xml", "consul": "path/to/pom.xml"}'
       path: "//p:project/p:properties/p:revision"
       new_value: "1.0.1"
+```
