@@ -362,7 +362,11 @@ runs:
           echo "$META_LABELS"
           echo "EOF"
         } >> "$GITHUB_OUTPUT"
-        echo "build_args=$FINAL_BUILD_ARGS" >> "$GITHUB_OUTPUT"
+        {
+          echo "build_args<<EOF"
+          echo "$FINAL_BUILD_ARGS"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
         echo "platforms=$FINAL_PLATFORMS" >> "$GITHUB_OUTPUT"
 
     - name: Build and Push Docker Image
