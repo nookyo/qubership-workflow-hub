@@ -54,7 +54,7 @@ The action expects a JSON or YAML configuration file with the following structur
 
 ### JSON example
 
-~~~json
+```json
 {
   "registry": "ghcr.io",
   "security": {
@@ -81,11 +81,11 @@ The action expects a JSON or YAML configuration file with the following structur
     }
   ]
 }
-~~~
+```
 
 ### YAML example
 
-~~~yaml
+```yaml
 registry: "ghcr.io"
 
 security:
@@ -109,7 +109,7 @@ components:
     tags: "1.0.0"
     security:
       scan: false
-~~~
+```
 
 ### Configuration fields
 
@@ -128,7 +128,7 @@ components:
 
 ## Usage in a workflow
 
-~~~yaml
+```yaml
 name: Build Docker Images
 
 on:
@@ -165,11 +165,11 @@ jobs:
           file: ${{ matrix.component.dockerfile }}
           tags: ${{ matrix.component.image }}:${{ github.sha }}
           platforms: ${{ matrix.component.platforms }}
-~~~
+```
 
 ### Conditional security scanning (example)
 
-~~~yaml
+```yaml
 scan:
   needs: resolve
   runs-on: ubuntu-latest
@@ -189,17 +189,17 @@ scan:
       if: matrix.component.security_scan == true && matrix.component.security_grype_scan == true
       run: |
         grype ${{ matrix.component.image }}:latest
-~~~
+```
 
 ### Custom configuration file path
 
-~~~yaml
+```yaml
 - name: Resolve Docker Configuration
   id: resolver
   uses: netcracker/qubership-workflow-hub/actions/docker-config-resolver@main
   with:
     file-path: .config/docker-components.json
-~~~
+```
 
 ---
 

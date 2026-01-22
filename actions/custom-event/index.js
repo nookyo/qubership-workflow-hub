@@ -19,13 +19,15 @@ async function run() {
     log.info(`Event name: ${eventType}`);
     log.info(`Client Payload: ${JSON.stringify(clientPayload)}`);
 
-    const token = core.getInput("github-token", { required: true }) || process.env.GITHUB_TOKEN;
+    const token =
+      core.getInput("github-token", { required: true }) ||
+      process.env.GITHUB_TOKEN;
     if (!token) log.fail("❗ GitHub token is required");
 
     const octokit = github.getOctokit(token);
     const { owner: defaultOwner, repo: defaultRepo } = github.context.repo;
-    const owner = core.getInput('owner') || defaultOwner;
-    const repo = core.getInput('repo') || defaultRepo;
+    const owner = core.getInput("owner") || defaultOwner;
+    const repo = core.getInput("repo") || defaultRepo;
 
     const { status } = await octokit.rest.repos.createDispatchEvent({
       owner,
@@ -34,7 +36,9 @@ async function run() {
       client_payload: clientPayload,
     });
 
-    log.success(`✅ Custom event "${eventType}" triggered on ${owner}/${repo} with status: ${status}`);
+    log.success(
+      `✅ Custom event "${eventType}" triggered on ${owner}/${repo} with status: ${status}`,
+    );
     core.setOutput("status", status);
   } catch (error) {
     log.fail(`❗ Action failed with error: ${error.message}`);
