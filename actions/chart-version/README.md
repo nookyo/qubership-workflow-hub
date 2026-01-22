@@ -10,10 +10,10 @@ This Action automatically updates the `Chart.yaml` file of a Helm chart.
 
 ## 📌 Inputs
 
-| Name              | Description                            | Required | Default |
-| ----------------- | -------------------------------------- | -------- | ------- |
-| `chart-version`   | The version of the Helm chart.         | Yes      | N/A     |
-| `chart-yaml-path` | The path to the `Chart.yaml` file.     | Yes      | N/A     |
+| Name              | Description                        | Required | Default |
+| ----------------- | ---------------------------------- | -------- | ------- |
+| `chart-version`   | The version of the Helm chart.     | Yes      | N/A     |
+| `chart-yaml-path` | The path to the `Chart.yaml` file. | Yes      | N/A     |
 
 ## Usage Example
 
@@ -38,3 +38,4 @@ jobs:
         with:
           chart-version: "1.2.3"
           chart-yaml-path: "./path/to/Chart.yaml"
+```
