@@ -102,7 +102,7 @@ jobs:
         id: metadata
         uses: ./actions/metadata-action
         with:
-          default-template: "v{{major}}.{{minor}}.{{patch}}-{{ref-name}}-{{date}}-{{short-sha}}"
+          default-template: "custom-{{ref-name}}-{{date}}-{{time}}-{{short-sha}}"
           default-tag: "custom-tag"
           short-sha: "10"
           replace-symbol: "_"
@@ -115,6 +115,7 @@ jobs:
           RESULT="${{ steps.metadata.outputs.result }}"
           REF_NAME="${{ steps.metadata.outputs.ref-name }}"
           DATE="${{ steps.metadata.outputs.date }}"
+          TIME="${{ steps.metadata.outputs.time }}"
           DIST_TAG="${{ steps.metadata.outputs.dist-tag }}"
           SHORT_SHA="${{ steps.metadata.outputs.short-sha }}"
           MAJOR="${{ steps.metadata.outputs.major }}"
@@ -124,14 +125,15 @@ jobs:
           echo "result: $RESULT"
           echo "ref-name: $REF_NAME"
           echo "date: $DATE"
+          echo "time: $TIME"
           echo "dist-tag: $DIST_TAG"
           echo "short-sha: $SHORT_SHA"
-          echo "major: $MAJOR"
-          echo "minor: $MINOR"
-          echo "patch: $PATCH"
+          echo "major: $MAJOR (empty for non-semver branches)"
+          echo "minor: $MINOR (empty for non-semver branches)"
+          echo "patch: $PATCH (empty for non-semver branches)"
 
-          # Verify result matches custom template: v{{major}}.{{minor}}.{{patch}}-{{ref-name}}-{{date}}-{{short-sha}}
-          EXPECTED_RESULT="v${MAJOR}.${MINOR}.${PATCH}-${REF_NAME}-${DATE}-${SHORT_SHA}"
+          # Verify result matches custom template: custom-{{ref-name}}-{{date}}-{{time}}-{{short-sha}}
+          EXPECTED_RESULT="custom-${REF_NAME}-${DATE}-${TIME}-${SHORT_SHA}"
           if [ "$RESULT" != "$EXPECTED_RESULT" ]; then
             echo "❌ ERROR: result doesn't match custom template"
             echo "   Expected: $EXPECTED_RESULT"
@@ -157,6 +159,11 @@ jobs:
             exit 1
           fi
 
+          # Verify semver parts are empty for non-semver branch "main"
+          if [ -n "$MAJOR" ] || [ -n "$MINOR" ] || [ -n "$PATCH" ]; then
+            echo "⚠️  WARNING: semver parts should be empty for non-semver branch, got: major=$MAJOR, minor=$MINOR, patch=$PATCH"
+          fi
+
           echo "✅ Custom template test passed!"
 
   test-github-context:
@@ -172,7 +179,7 @@ jobs:
         id: metadata
         uses: ./actions/metadata-action
         with:
-          default-template: "build-{{github.context.workflow}}-run{{github.context.runNumber}}-by-{{github.context.actor}}"
+          default-template: "build-{{github.context.workflow}}-{{github.context.sha}}-run{{github.context.runNumber}}"
           default-tag: "context-tag"
           show-report: "true"
 
@@ -195,8 +202,12 @@ jobs:
         run: |
           echo "=== Action Output ==="
           RESULT="${{ steps.metadata.outputs.result }}"
+          GITHUB_SHA="${{ github.sha }}"
+          SHORT_SHA="${{ steps.metadata.outputs.short-sha }}"
 
           echo "result: $RESULT"
+          echo "github.sha: $GITHUB_SHA"
+          echo "short-sha output: $SHORT_SHA"
 
           # Verify that placeholders were replaced (should NOT contain {{}})
           if [[ "$RESULT" == *"{{"* ]] || [[ "$RESULT" == *"}}"* ]]; then
@@ -212,20 +223,29 @@ jobs:
             exit 1
           fi
 
-          # Verify result contains expected patterns
-          if [[ ! "$RESULT" =~ -run[0-9]+-by- ]]; then
-            echo "❌ ERROR: result should match pattern 'build-{workflow}-run{number}-by-{actor}'"
+          # Verify result contains the full SHA from GitHub context
+          if [[ ! "$RESULT" == *"$GITHUB_SHA"* ]]; then
+            echo "❌ ERROR: result should contain full GitHub SHA from context"
+            echo "   Expected SHA: $GITHUB_SHA"
             echo "   Got: $RESULT"
             exit 1
           fi
 
-          # Verify result contains the workflow name (with spaces replaced by dashes or underscores)
-          WORKFLOW_NORMALIZED="${{ github.workflow }}"
-          WORKFLOW_NORMALIZED="${WORKFLOW_NORMALIZED// /-}"  # Replace spaces with dashes
-
-          if [[ ! "$RESULT" == *"$WORKFLOW_NORMALIZED"* ]] && [[ ! "$RESULT" == *"Test metadata-action"* ]]; then
-            echo "⚠️  WARNING: result might not contain workflow name, got: $RESULT"
+          # Verify short-sha is the first 7 characters of the full SHA
+          EXPECTED_SHORT_SHA="${GITHUB_SHA:0:7}"
+          if [ "$SHORT_SHA" != "$EXPECTED_SHORT_SHA" ]; then
+            echo "❌ ERROR: short-sha should be first 7 chars of full SHA"
+            echo "   Expected: $EXPECTED_SHORT_SHA"
+            echo "   Got: $SHORT_SHA"
+            exit 1
           fi
 
-          echo "✅ GitHub context variables successfully interpolated into template"
+          # Verify result format: build-{workflow}-{sha}-run{number}
+          if [[ ! "$RESULT" =~ -run[0-9]+$ ]]; then
+            echo "❌ ERROR: result should end with '-run{number}'"
+            echo "   Got: $RESULT"
+            exit 1
+          fi
+
+          echo "✅ GitHub context SHA successfully interpolated into template"
           echo "✅ GitHub context test passed!"
