@@ -113,9 +113,9 @@ outputs:
   final-tags:
     description: "The final tags applied to the Docker image."
     value: "${{ steps.prepare-final-params.outputs.tags }}"
-  # final-labels:
-  #   description: "The final labels applied to the Docker image."
-  #   value: "${{ steps.prepare-final-params.outputs.labels }}"
+  final-labels:
+    description: "The final labels applied to the Docker image."
+    value: "${{ steps.prepare-final-params.outputs.labels }}"
   final-build-args:
     description: "The final build arguments applied to the Docker image."
     value: "${{ steps.prepare-final-params.outputs.build_args }}"
