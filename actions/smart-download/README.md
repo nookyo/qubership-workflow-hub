@@ -15,12 +15,12 @@ This **Smart Download Artifact** GitHub Action automates the process of download
 
 ## 📌 Inputs
 
-| Name          | Description                                                                 | Required | Default     |
-|---------------|-----------------------------------------------------------------------------|----------|-------------|
-| `name`        | Artifact name to download.                                                  | No       | `""`        |
-| `artifact-ids`| IDs of artifacts to download, comma-separated.                             | No       | `""`        |
-| `pattern`     | Glob pattern to match artifact names for download.                         | No       | `""`        |
-| `path`        | Folder to download artifacts to. Supports basic tilde expansion.           | No       | `artifacts` |
+| Name           | Description                                                      | Required | Default     |
+| -------------- | ---------------------------------------------------------------- | -------- | ----------- |
+| `name`         | Artifact name to download.                                       | No       | `""`        |
+| `artifact-ids` | IDs of artifacts to download, comma-separated.                   | No       | `""`        |
+| `pattern`      | Glob pattern to match artifact names for download.               | No       | `""`        |
+| `path`         | Folder to download artifacts to. Supports basic tilde expansion. | No       | `artifacts` |
 
 **Note:** Use only one of `name`, `artifact-ids`, or `pattern` at a time, as the action checks conditions sequentially.
 
