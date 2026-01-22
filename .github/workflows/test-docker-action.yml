@@ -323,3 +323,49 @@ jobs:
 
           echo "✅ All сomponent alias tests passed!"
 
+  test-default-component-name:
+    name: Test Default Component Name
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run Docker Action without Component Name
+        id: docker-default-name
+        uses: ./actions/docker-action
+        with:
+          dry-run: 'true'
+          registry: 'ghcr.io'
+          component: '[{"dockerfile": "./Dockerfile.test", "build_context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Default Component Name
+        shell: bash
+        run: |
+          echo "=== Outputs ==="
+          echo "Component Name: ${{ steps.docker-default-name.outputs.component-name }}"
+          echo "Final Tags: ${{ steps.docker-default-name.outputs.final-tags }}"
+
+          # Verify component name defaults to "default"
+          EXPECTED_NAME="default"
+          ACTUAL_NAME="${{ steps.docker-default-name.outputs.component-name }}"
+          if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ]; then
+            echo "❌ ERROR: Component name should default to 'default'"
+            echo "Expected: $EXPECTED_NAME"
+            echo "Actual: $ACTUAL_NAME"
+            exit 1
+          fi
+
+          # Verify tags contain "default" component name
+          TAGS="${{ steps.docker-default-name.outputs.final-tags }}"
+          if [[ ! "$TAGS" == *"default"* ]]; then
+            echo "❌ ERROR: Tags don't contain default component name"
+            exit 1
+          fi
+
+          echo "✅ Default component name test passed!"
+
