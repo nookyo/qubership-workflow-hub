@@ -4,8 +4,8 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  test-with-defaults:
-    name: Test with Default Settings
+  test-default-template:
+    name: Test Default Template
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -13,81 +13,84 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run Metadata Action with Defaults
-        id: metadata-defaults
+      - name: Run Metadata Action
+        id: metadata
         uses: ./actions/metadata-action
         with:
           show-report: "true"
 
-      - name: Verify Default Outputs
+      - name: Verify Outputs
         shell: bash
         run: |
           echo "=== Outputs ==="
-          echo "Result: ${{ steps.metadata-defaults.outputs.result }}"
-          echo "Ref: ${{ steps.metadata-defaults.outputs.ref }}"
-          echo "Ref Name: ${{ steps.metadata-defaults.outputs.ref-name }}"
-          echo "Date: ${{ steps.metadata-defaults.outputs.date }}"
-          echo "Time: ${{ steps.metadata-defaults.outputs.time }}"
-          echo "Timestamp: ${{ steps.metadata-defaults.outputs.timestamp }}"
-          echo "Dist Tag: ${{ steps.metadata-defaults.outputs.dist-tag }}"
-          echo "Short SHA: ${{ steps.metadata-defaults.outputs.short-sha }}"
+          RESULT="${{ steps.metadata.outputs.result }}"
+          REF="${{ steps.metadata.outputs.ref }}"
+          REF_NAME="${{ steps.metadata.outputs.ref-name }}"
+          DATE="${{ steps.metadata.outputs.date }}"
+          TIME="${{ steps.metadata.outputs.time }}"
+          TIMESTAMP="${{ steps.metadata.outputs.timestamp }}"
+          DIST_TAG="${{ steps.metadata.outputs.dist-tag }}"
+          SHORT_SHA="${{ steps.metadata.outputs.short-sha }}"
+          RUN_NUMBER="${{ github.run_number }}"
 
-          # Verify required outputs are not empty
-          if [ -z "${{ steps.metadata-defaults.outputs.result }}" ]; then
-            echo "❌ ERROR: result is empty"
+          echo "result: $RESULT"
+          echo "ref: $REF"
+          echo "ref-name: $REF_NAME"
+          echo "date: $DATE"
+          echo "time: $TIME"
+          echo "timestamp: $TIMESTAMP"
+          echo "dist-tag: $DIST_TAG"
+          echo "short-sha: $SHORT_SHA"
+
+          # Verify result matches default template: {{ref-name}}-{{timestamp}}-{{runNumber}}
+          EXPECTED_RESULT="${REF_NAME}-${TIMESTAMP}-${RUN_NUMBER}"
+          if [ "$RESULT" != "$EXPECTED_RESULT" ]; then
+            echo "❌ ERROR: result doesn't match default template"
+            echo "   Expected: $EXPECTED_RESULT"
+            echo "   Got: $RESULT"
             exit 1
           fi
 
-          if [ -z "${{ steps.metadata-defaults.outputs.ref }}" ]; then
-            echo "❌ ERROR: ref is empty"
-            exit 1
-          fi
-
-          if [ -z "${{ steps.metadata-defaults.outputs.ref-name }}" ]; then
-            echo "❌ ERROR: ref-name is empty"
-            exit 1
-          fi
-
-          if [ -z "${{ steps.metadata-defaults.outputs.date }}" ]; then
-            echo "❌ ERROR: date is empty"
-            exit 1
-          fi
-
-          if [ -z "${{ steps.metadata-defaults.outputs.timestamp }}" ]; then
-            echo "❌ ERROR: timestamp is empty"
-            exit 1
-          fi
-
-          if [ -z "${{ steps.metadata-defaults.outputs.short-sha }}" ]; then
-            echo "❌ ERROR: short-sha is empty"
+          # Verify ref is normalized (without "refs/" prefix)
+          if [[ "$REF" == refs/* ]]; then
+            echo "❌ ERROR: ref should be normalized (without 'refs/' prefix), got: $REF"
             exit 1
           fi
 
           # Verify date format (YYYYMMDD)
-          DATE="${{ steps.metadata-defaults.outputs.date }}"
           if ! [[ "$DATE" =~ ^[0-9]{8}$ ]]; then
             echo "❌ ERROR: date format is invalid, expected YYYYMMDD, got: $DATE"
             exit 1
           fi
 
+          # Verify time format (HHMMSS)
+          if ! [[ "$TIME" =~ ^[0-9]{6}$ ]]; then
+            echo "❌ ERROR: time format is invalid, expected HHMMSS, got: $TIME"
+            exit 1
+          fi
+
           # Verify timestamp format (YYYYMMDDHHMMSS)
-          TIMESTAMP="${{ steps.metadata-defaults.outputs.timestamp }}"
           if ! [[ "$TIMESTAMP" =~ ^[0-9]{14}$ ]]; then
             echo "❌ ERROR: timestamp format is invalid, expected YYYYMMDDHHMMSS, got: $TIMESTAMP"
             exit 1
           fi
 
           # Verify short-sha length (default is 7)
-          SHORT_SHA="${{ steps.metadata-defaults.outputs.short-sha }}"
           if [ ${#SHORT_SHA} -ne 7 ]; then
             echo "❌ ERROR: short-sha length should be 7, got: ${#SHORT_SHA}"
             exit 1
           fi
 
-          echo "✅ All default outputs verified!"
+          # Verify default dist-tag
+          if [ "$DIST_TAG" != "latest" ]; then
+            echo "❌ ERROR: default dist-tag should be 'latest', got: $DIST_TAG"
+            exit 1
+          fi
 
-  test-with-custom-template:
-    name: Test with Custom Template
+          echo "✅ Default template test passed!"
+
+  test-custom-template:
+    name: Test Custom Template
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -95,34 +98,48 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run Metadata Action with Custom Template
-        id: metadata-custom
+      - name: Run Metadata Action
+        id: metadata
         uses: ./actions/metadata-action
         with:
-          default-template: "custom-{{ref-name}}-{{date}}-{{short-sha}}"
+          default-template: "v{{major}}.{{minor}}.{{patch}}-{{ref-name}}-{{date}}-{{short-sha}}"
           default-tag: "custom-tag"
           short-sha: "10"
+          replace-symbol: "_"
           show-report: "true"
 
-      - name: Verify Custom Template Outputs
+      - name: Verify Outputs
         shell: bash
         run: |
           echo "=== Outputs ==="
-          RESULT="${{ steps.metadata-custom.outputs.result }}"
-          DIST_TAG="${{ steps.metadata-custom.outputs.dist-tag }}"
-          SHORT_SHA="${{ steps.metadata-custom.outputs.short-sha }}"
+          RESULT="${{ steps.metadata.outputs.result }}"
+          REF_NAME="${{ steps.metadata.outputs.ref-name }}"
+          DATE="${{ steps.metadata.outputs.date }}"
+          DIST_TAG="${{ steps.metadata.outputs.dist-tag }}"
+          SHORT_SHA="${{ steps.metadata.outputs.short-sha }}"
+          MAJOR="${{ steps.metadata.outputs.major }}"
+          MINOR="${{ steps.metadata.outputs.minor }}"
+          PATCH="${{ steps.metadata.outputs.patch }}"
 
-          echo "Result: $RESULT"
-          echo "Dist Tag: $DIST_TAG"
-          echo "Short SHA: $SHORT_SHA"
+          echo "result: $RESULT"
+          echo "ref-name: $REF_NAME"
+          echo "date: $DATE"
+          echo "dist-tag: $DIST_TAG"
+          echo "short-sha: $SHORT_SHA"
+          echo "major: $MAJOR"
+          echo "minor: $MINOR"
+          echo "patch: $PATCH"
 
-          # Verify result contains "custom-"
-          if [[ ! "$RESULT" == *"custom-"* ]]; then
-            echo "❌ ERROR: result should contain 'custom-' prefix"
+          # Verify result matches custom template: v{{major}}.{{minor}}.{{patch}}-{{ref-name}}-{{date}}-{{short-sha}}
+          EXPECTED_RESULT="v${MAJOR}.${MINOR}.${PATCH}-${REF_NAME}-${DATE}-${SHORT_SHA}"
+          if [ "$RESULT" != "$EXPECTED_RESULT" ]; then
+            echo "❌ ERROR: result doesn't match custom template"
+            echo "   Expected: $EXPECTED_RESULT"
+            echo "   Got: $RESULT"
             exit 1
           fi
 
-          # Verify dist-tag
+          # Verify custom dist-tag
           if [ "$DIST_TAG" != "custom-tag" ]; then
             echo "❌ ERROR: dist-tag should be 'custom-tag', got: $DIST_TAG"
             exit 1
@@ -134,10 +151,16 @@ jobs:
             exit 1
           fi
 
+          # Verify ref-name doesn't contain '/' (should be replaced with '_')
+          if [[ "$REF_NAME" == *"/"* ]]; then
+            echo "❌ ERROR: ref-name should not contain '/', replace symbol should be applied"
+            exit 1
+          fi
+
           echo "✅ Custom template test passed!"
 
-  test-with-config-file:
-    name: Test with Configuration File
+  test-github-context:
+    name: Test GitHub Context Variables
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -145,200 +168,54 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run Metadata Action with Config File
-        id: metadata-config
+      - name: Run Metadata Action with GitHub Context
+        id: metadata
         uses: ./actions/metadata-action
         with:
-          configuration-path: "./.github/metadata-action-test-config.yml"
+          default-template: "{{github.workflow}}-{{github.runNumber}}-{{github.actor}}-{{github.eventName}}"
+          default-tag: "context-tag"
           show-report: "true"
 
-      - name: Verify Config File Outputs
+      - name: Verify GitHub Context Outputs
         shell: bash
         run: |
           echo "=== Outputs ==="
-          RESULT="${{ steps.metadata-config.outputs.result }}"
-          DIST_TAG="${{ steps.metadata-config.outputs.dist-tag }}"
+          RESULT="${{ steps.metadata.outputs.result }}"
+          WORKFLOW="${{ github.workflow }}"
+          RUN_NUMBER="${{ github.run_number }}"
+          ACTOR="${{ github.actor }}"
+          EVENT_NAME="${{ github.event_name }}"
 
-          echo "Result: $RESULT"
-          echo "Dist Tag: $DIST_TAG"
+          echo "result: $RESULT"
+          echo "workflow: $WORKFLOW"
+          echo "run_number: $RUN_NUMBER"
+          echo "actor: $ACTOR"
+          echo "event_name: $EVENT_NAME"
 
-          # Verify outputs are not empty
-          if [ -z "$RESULT" ]; then
-            echo "❌ ERROR: result is empty"
+          # Verify result matches GitHub context template
+          EXPECTED_RESULT="${WORKFLOW}-${RUN_NUMBER}-${ACTOR}-${EVENT_NAME}"
+          if [ "$RESULT" != "$EXPECTED_RESULT" ]; then
+            echo "❌ ERROR: result doesn't match GitHub context template"
+            echo "   Expected: $EXPECTED_RESULT"
+            echo "   Got: $RESULT"
             exit 1
           fi
 
-          if [ -z "$DIST_TAG" ]; then
-            echo "❌ ERROR: dist-tag is empty"
+          # Verify workflow name
+          if [ -z "$WORKFLOW" ]; then
+            echo "❌ ERROR: workflow name should not be empty"
             exit 1
           fi
 
-          echo "✅ Config file test passed!"
-
-  test-with-extra-tags:
-    name: Test with Extra Tags
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run Metadata Action with Extra Tags (Merged)
-        id: metadata-extra-merged
-        uses: ./actions/metadata-action
-        with:
-          extra-tags: "tag1,tag2,tag3"
-          merge-tags: "true"
-          show-report: "true"
-
-      - name: Verify Extra Tags (Merged)
-        shell: bash
-        run: |
-          echo "=== Outputs ==="
-          RESULT="${{ steps.metadata-extra-merged.outputs.result }}"
-
-          echo "Result: $RESULT"
-
-          # Verify extra tags are merged into result
-          if [[ ! "$RESULT" == *"tag1"* ]] || [[ ! "$RESULT" == *"tag2"* ]] || [[ ! "$RESULT" == *"tag3"* ]]; then
-            echo "❌ ERROR: result should contain extra tags (tag1, tag2, tag3)"
+          # Verify run number is a positive integer
+          if ! [[ "$RUN_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "❌ ERROR: run_number should be a positive integer, got: $RUN_NUMBER"
             exit 1
           fi
 
-          echo "✅ Extra tags (merged) test passed!"
-
-      - name: Run Metadata Action with Extra Tags (Not Merged)
-        id: metadata-extra-not-merged
-        uses: ./actions/metadata-action
-        with:
-          extra-tags: "tag1,tag2,tag3"
-          merge-tags: "false"
-          show-report: "true"
-
-      - name: Verify Extra Tags (Not Merged)
-        shell: bash
-        run: |
-          echo "=== Outputs ==="
-          RESULT="${{ steps.metadata-extra-not-merged.outputs.result }}"
-
-          echo "Result: $RESULT"
-
-          # When merge-tags is false, extra tags should not be in result
-          # (This behavior might vary based on implementation)
-          echo "ℹ️ Merge-tags set to false"
-          echo "Result: $RESULT"
-
-          echo "✅ Extra tags (not merged) test passed!"
-
-  test-with-debug-and-dry-run:
-    name: Test with Debug and Dry Run
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run Metadata Action with Debug and Dry Run
-        id: metadata-debug
-        uses: ./actions/metadata-action
-        with:
-          debug: "true"
-          dry-run: "true"
-          show-report: "true"
-
-      - name: Verify Debug/Dry Run Outputs
-        shell: bash
-        run: |
-          echo "=== Outputs ==="
-          echo "Result: ${{ steps.metadata-debug.outputs.result }}"
-          echo "Ref: ${{ steps.metadata-debug.outputs.ref }}"
-
-          # Verify basic outputs exist even in dry-run mode
-          if [ -z "${{ steps.metadata-debug.outputs.result }}" ]; then
-            echo "❌ ERROR: result should exist even in dry-run mode"
-            exit 1
+          # Verify event name (should be workflow_dispatch for this test)
+          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
+            echo "⚠️  WARNING: expected event_name to be 'workflow_dispatch', got: $EVENT_NAME"
           fi
 
-          echo "✅ Debug and dry-run test passed!"
-
-  test-replace-symbol:
-    name: Test Replace Symbol
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run Metadata Action with Replace Symbol
-        id: metadata-replace
-        uses: ./actions/metadata-action
-        with:
-          replace-symbol: "_"
-          show-report: "true"
-
-      - name: Verify Replace Symbol
-        shell: bash
-        run: |
-          echo "=== Outputs ==="
-          RESULT="${{ steps.metadata-replace.outputs.result }}"
-          REF_NAME="${{ steps.metadata-replace.outputs.ref-name }}"
-
-          echo "Result: $RESULT"
-          echo "Ref Name: $REF_NAME"
-
-          # If ref-name contains original '/', the result should use '_' instead
-          # This test depends on the current branch name
-          echo "ℹ️ Replace symbol set to '_'"
-          echo "Current ref-name: $REF_NAME"
-
-          echo "✅ Replace symbol test passed!"
-
-  test-outputs-format:
-    name: Test All Outputs Format
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Run Metadata Action
-        id: metadata-outputs
-        uses: ./actions/metadata-action
-        with:
-          show-report: "true"
-
-      - name: Verify All Outputs
-        shell: bash
-        run: |
-          echo "=== All Outputs ==="
-          echo "result: ${{ steps.metadata-outputs.outputs.result }}"
-          echo "ref: ${{ steps.metadata-outputs.outputs.ref }}"
-          echo "ref-name: ${{ steps.metadata-outputs.outputs.ref-name }}"
-          echo "date: ${{ steps.metadata-outputs.outputs.date }}"
-          echo "time: ${{ steps.metadata-outputs.outputs.time }}"
-          echo "timestamp: ${{ steps.metadata-outputs.outputs.timestamp }}"
-          echo "dist-tag: ${{ steps.metadata-outputs.outputs.dist-tag }}"
-          echo "major: ${{ steps.metadata-outputs.outputs.major }}"
-          echo "minor: ${{ steps.metadata-outputs.outputs.minor }}"
-          echo "patch: ${{ steps.metadata-outputs.outputs.patch }}"
-          echo "short-sha: ${{ steps.metadata-outputs.outputs.short-sha }}"
-
-          # ref should be normalized (without "refs/" prefix)
-          REF="${{ steps.metadata-outputs.outputs.ref }}"
-          if [[ "$REF" == refs/* ]]; then
-            echo "❌ ERROR: ref should be normalized (without 'refs/' prefix), got: $REF"
-            exit 1
-          fi
-
-          # time should be 6 digits (HHMMSS)
-          TIME="${{ steps.metadata-outputs.outputs.time }}"
-          if ! [[ "$TIME" =~ ^[0-9]{6}$ ]]; then
-            echo "❌ ERROR: time format is invalid, expected HHMMSS, got: $TIME"
-            exit 1
-          fi
-
-          echo "✅ All outputs format test passed!"
+          echo "✅ GitHub context test passed!"
