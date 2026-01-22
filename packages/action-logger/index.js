@@ -19,26 +19,28 @@ class Logger {
   // Get caller info from stack trace
   _getCallerInfo() {
     const stack = new Error().stack;
-    const lines = stack.split('\n');
+    const lines = stack.split("\n");
     // Skip first 3 lines: Error, _getCallerInfo, calling logger method
     for (let i = 3; i < lines.length; i++) {
       const line = lines[i];
       // Match file path in stack trace
       const match = line.match(/at\s+(?:.*\s+)?\(?([^:]+):(\d+):\d+\)?/);
-      if (match && !match[1].includes('node_modules')) {
-        const filePath = match[1].replace(/\\/g, '/');
-        const fileName = filePath.split('/').pop();
+      if (match && !match[1].includes("node_modules")) {
+        const filePath = match[1].replace(/\\/g, "/");
+        const fileName = filePath.split("/").pop();
         return `${fileName}:${match[2]}`;
       }
     }
-    return 'unknown';
+    return "unknown";
   }
 
   /** Enable or disable debug logging */
   setDebug(enabled) {
     this.debugMode = Boolean(enabled);
     const caller = this._getCallerInfo();
-    this.debug(`[DEBUG] mode ${this.debugMode ? "enabled" : "disabled"} (called from ${caller})`);
+    this.debug(
+      `[DEBUG] mode ${this.debugMode ? "enabled" : "disabled"} (called from ${caller})`,
+    );
   }
 
   setDryRun(enabled) {
