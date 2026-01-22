@@ -4,6 +4,62 @@ on:
   workflow_dispatch:
 
 jobs:
+  test-with-default-action:
+    name: Test Default Component Name
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run Docker Action without Component Name
+        id: docker-default-name
+        uses: ./actions/docker-action
+        with:
+          dry-run: "true"
+          registry: "ghcr.io"
+          component: '[{"dockerfile": "./Dockerfile.test", "build_context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Default Component Name
+        shell: bash
+        run: |
+          echo "=== Outputs ==="
+          echo "Component Name: ${{ steps.docker-default-name.outputs.component-name }}"
+          echo "Final Tags: ${{ steps.docker-default-name.outputs.final-tags }}"
+          echo "Image Name: ${{ steps.docker-default-name.outputs.image-name }}"
+
+          # Verify component name defaults to "default" (from JSON parsing)
+          EXPECTED_NAME="default"
+          ACTUAL_NAME="${{ steps.docker-default-name.outputs.component-name }}"
+          if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ]; then
+            echo "❌ ERROR: Component name should default to 'default'"
+            echo "Expected: $EXPECTED_NAME"
+            echo "Actual: $ACTUAL_NAME"
+            exit 1
+          fi
+
+          # When component name is "default", the image should use repository name instead
+          # Extract repo name from GITHUB_REPOSITORY (owner/repo -> repo)
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          TAGS="${{ steps.docker-default-name.outputs.final-tags }}"
+
+          if [[ ! "$TAGS" == *"$REPO_NAME"* ]]; then
+            echo "❌ ERROR: Tags should contain repository name '$REPO_NAME' when component is 'default'"
+            echo "Actual tags: $TAGS"
+            exit 1
+          fi
+
+          # Verify tags don't literally contain "/default:" as image name
+          if [[ "$TAGS" == *"/default:"* ]]; then
+            echo "❌ ERROR: Tags should NOT use 'default' as image name, should use repo name instead"
+            exit 1
+          fi
+
+          echo "✅ Default component name test passed!"
   test-auto-tags:
     name: Test with Auto-Generated Tags
     runs-on: ubuntu-latest
@@ -18,9 +74,9 @@ jobs:
         id: docker-auto
         uses: ./actions/docker-action
         with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
-          platforms: 'linux/amd64'
+          dry-run: "true"
+          registry: "ghcr.io"
+          platforms: "linux/amd64"
           component: '[{"name": "test-auto", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,14 +161,13 @@ jobs:
         id: docker-custom
         uses: ./actions/docker-action
         with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
-          platforms: 'linux/amd64,linux/arm64'
-          tags: 'v1.0.0,latest,custom-tag'
+          dry-run: "true"
+          registry: "ghcr.io"
+          platforms: "linux/amd64,linux/arm64"
+          tags: "v1.0.0,latest,custom-tag"
           component: '[{"name": "test-custom", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Verify Custom Tags Output
         shell: bash
@@ -186,13 +241,12 @@ jobs:
         id: docker-buildargs-input
         uses: ./actions/docker-action
         with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
+          dry-run: "true"
+          registry: "ghcr.io"
           build-args: INPUT_ARG1=input_value1,INPUT_ARG2=input_value2
           component: '[{"name": "test-buildargs-input", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Verify Build Args from Input
         shell: bash
@@ -235,13 +289,12 @@ jobs:
         id: docker-multiplatform
         uses: ./actions/docker-action
         with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
-          platforms: 'linux/amd64,linux/arm64,linux/arm/v7'
+          dry-run: "true"
+          registry: "ghcr.io"
+          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
           component: '[{"name": "test-multiplatform", "dockerfile": "./Dockerfile.test", "build_context": "."}]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Verify Platforms Output
         shell: bash
@@ -277,7 +330,6 @@ jobs:
 
           echo "✅ All platforms tests passed!"
 
-
   test-component-aliases:
     name: Test Component Aliases (file/context)
     runs-on: ubuntu-latest
@@ -292,8 +344,8 @@ jobs:
         id: docker-aliases
         uses: ./actions/docker-action
         with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
+          dry-run: "true"
+          registry: "ghcr.io"
           component: '[{"name": "test-aliases", "file": "./Dockerfile.test", "context": "."}]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -322,61 +374,3 @@ jobs:
           fi
 
           echo "✅ All сomponent alias tests passed!"
-
-  test-default-component-name:
-    name: Test Default Component Name
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Run Docker Action without Component Name
-        id: docker-default-name
-        uses: ./actions/docker-action
-        with:
-          dry-run: 'true'
-          registry: 'ghcr.io'
-          component: '[{"dockerfile": "./Dockerfile.test", "build_context": "."}]'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify Default Component Name
-        shell: bash
-        run: |
-          echo "=== Outputs ==="
-          echo "Component Name: ${{ steps.docker-default-name.outputs.component-name }}"
-          echo "Final Tags: ${{ steps.docker-default-name.outputs.final-tags }}"
-          echo "Image Name: ${{ steps.docker-default-name.outputs.image-name }}"
-
-          # Verify component name defaults to "default" (from JSON parsing)
-          EXPECTED_NAME="default"
-          ACTUAL_NAME="${{ steps.docker-default-name.outputs.component-name }}"
-          if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ]; then
-            echo "❌ ERROR: Component name should default to 'default'"
-            echo "Expected: $EXPECTED_NAME"
-            echo "Actual: $ACTUAL_NAME"
-            exit 1
-          fi
-
-          # When component name is "default", the image should use repository name instead
-          # Extract repo name from GITHUB_REPOSITORY (owner/repo -> repo)
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          TAGS="${{ steps.docker-default-name.outputs.final-tags }}"
-
-          if [[ ! "$TAGS" == *"$REPO_NAME"* ]]; then
-            echo "❌ ERROR: Tags should contain repository name '$REPO_NAME' when component is 'default'"
-            echo "Actual tags: $TAGS"
-            exit 1
-          fi
-
-          # Verify tags don't literally contain "/default:" as image name
-          if [[ "$TAGS" == *"/default:"* ]]; then
-            echo "❌ ERROR: Tags should NOT use 'default' as image name, should use repo name instead"
-            exit 1
-          fi
-
-          echo "✅ Default component name test passed!"
-
