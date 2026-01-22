@@ -3,6 +3,9 @@ name: Test metadata-action
 on:
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 jobs:
   test-default-template:
     name: Test Default Template
