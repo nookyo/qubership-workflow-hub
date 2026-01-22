@@ -21,11 +21,11 @@ on:
   workflow_dispatch:
     inputs:
       PIPELINE_DATA:
-        default: ''
+        default: ""
         required: true
         type: string
       PIPELINE_VARS:
-        default: ''
+        default: ""
         required: false
         type: string
 
