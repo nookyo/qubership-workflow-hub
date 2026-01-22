@@ -68,14 +68,18 @@ jobs:
             echo "❌ ERROR: Tags contain spaces"
             exit 1
           fi
+
           if [[ "$TAGS" != *":"* ]]; then
             echo "❌ ERROR: Tags missing image tag separator ':'"
             exit 1
           fi
+
           if [[ "$TAGS" != "$(echo "$TAGS" | tr '[:upper:]' '[:lower:]')" ]]; then
             echo "❌ ERROR: Tags are not lowercase"
             exit 1
-          fi          if [[ ! "$TAGS" == *"ghcr.io"* ]]; then
+          fi
+
+          if [[ ! "$TAGS" == *"ghcr.io"* ]]; then
             echo "❌ ERROR: Tags don't contain ghcr.io registry"
             exit 1
           fi
@@ -123,6 +127,7 @@ jobs:
             echo "❌ ERROR: Tags contain spaces"
             exit 1
           fi
+
           if [[ "$TAGS" != *":"* ]]; then
             echo "❌ ERROR: Tags missing image tag separator ':'"
             exit 1
@@ -317,3 +322,4 @@ jobs:
           fi
 
           echo "✅ All сomponent alias tests passed!"
+
