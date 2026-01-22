@@ -23,15 +23,15 @@ describe("index.js template rendering", () => {
       ref: "refs/heads/main",
       sha: "8c3c6b66a6af28f66b17eb5190458d04a2a62e34",
       runNumber: 101,
-      payload: {}
+      payload: {},
     };
 
     mockConfigLoader = {
       load: jest.fn().mockReturnValue({
         "default-template": "{{ref-name}}-{{short-sha}}-{{timestamp}}",
-        "default-tag": "latest"
+        "default-tag": "latest",
       }),
-      fileExists: true
+      fileExists: true,
     };
     ConfigLoader.mockImplementation(() => mockConfigLoader);
 
@@ -40,8 +40,8 @@ describe("index.js template rendering", () => {
         rawName: "refs/heads/main",
         normalizedName: "main",
         isTag: false,
-        type: "branch"
-      })
+        type: "branch",
+      }),
     };
     RefNormalizer.mockImplementation(() => mockRefNormalizer);
 
@@ -51,9 +51,9 @@ describe("index.js template rendering", () => {
         "short-sha": "7",
         "dry-run": "false",
         "show-report": "false",
-        "debug": "false",
+        debug: "false",
         "extra-tags": "",
-        "merge-tags": "false"
+        "merge-tags": "false",
       };
       return map[name];
     });
@@ -84,16 +84,18 @@ describe("index.js template rendering", () => {
         "short-sha": "7",
         "dry-run": "false",
         "show-report": "false",
-        "debug": "false",
+        debug: "false",
         "extra-tags": "beta, rc",
-        "merge-tags": "true"
+        "merge-tags": "true",
       };
       return map[name];
     });
 
     await run();
 
-    const resultCall = core.setOutput.mock.calls.find(([key]) => key === "result");
+    const resultCall = core.setOutput.mock.calls.find(
+      ([key]) => key === "result",
+    );
     const rendered = resultCall ? resultCall[1] : null;
 
     expect(rendered).toContain("beta");
@@ -106,10 +108,14 @@ describe("index.js template rendering", () => {
 
     await run();
 
-    const resultCall = core.setOutput.mock.calls.find(([key]) => key === "result");
+    const resultCall = core.setOutput.mock.calls.find(
+      ([key]) => key === "result",
+    );
     const rendered = resultCall ? resultCall[1] : null;
 
     expect(rendered).toContain("main"); // fallback works
-    expect(core.warning).not.toHaveBeenCalledWith(expect.stringMatching(/fallback to/));
+    expect(core.warning).not.toHaveBeenCalledWith(
+      expect.stringMatching(/fallback to/),
+    );
   });
 });
