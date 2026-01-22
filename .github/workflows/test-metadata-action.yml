@@ -115,6 +115,14 @@ jobs:
       - name: Verify Outputs
         shell: bash
         run: |
+          echo "=== Input Transformation ==="
+          INPUT_REF="refs/heads/feature/test-branch"
+          REPLACE_SYMBOL="_"
+          echo "1. Input ref: $INPUT_REF"
+          echo "2. After removing 'refs/heads/': feature/test-branch"
+          echo "3. After applying replace-symbol '$REPLACE_SYMBOL': feature_test-branch"
+
+          echo ""
           echo "=== Outputs ==="
           RESULT="${{ steps.metadata.outputs.result }}"
           REF="${{ steps.metadata.outputs.ref }}"
