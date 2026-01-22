@@ -76,11 +76,11 @@ The updated image versions in JSON format.
 
 ```json
 {
-"qubership-zookeeper-operator": "1.1.8",
-"qubership-docker-zookeeper": "1.1.8",
-"qubership-zookeeper-monitoring": "1.1.8",
-"qubership-zookeeper-backup-daemon": "1.1.8",
-"qubership-zookeeper-integration-tests": "1.1.8-3.8.4"
+  "qubership-zookeeper-operator": "1.1.8",
+  "qubership-docker-zookeeper": "1.1.8",
+  "qubership-zookeeper-monitoring": "1.1.8",
+  "qubership-zookeeper-backup-daemon": "1.1.8",
+  "qubership-zookeeper-integration-tests": "1.1.8-3.8.4"
 }
 ```
 
@@ -90,12 +90,12 @@ Charts metadata in JSON format.
 
 ```json
 {
-    "appVersion": "2.10.0",
-    "mime-type": "application/vnd.qubership.helm.chart",
-    "name": "qubership-jaeger",
-    "reference": "oci://ghcr.io/netcracker/qubership-jaeger/qubership-jaeger:0.0.8",
-    "type": "application",
-    "version": "0.0.8"
+  "appVersion": "2.10.0",
+  "mime-type": "application/vnd.qubership.helm.chart",
+  "name": "qubership-jaeger",
+  "reference": "oci://ghcr.io/netcracker/qubership-jaeger/qubership-jaeger:0.0.8",
+  "type": "application",
+  "version": "0.0.8"
 }
 ```
 
@@ -114,12 +114,12 @@ jobs:
       - name: Release Helm Charts
         uses: netcracker/qubership-workflow-hub/actions/charts-values-update-action@main
         with:
-          release-version: '1.0.0'
-          chart-version: '1.0.0'
-          config-file: './config/charts-config.yaml'
-          create-release-branch: 'true'
-          version-replace-method: 'parse'
-          working-directory: './charts'
+          release-version: "1.0.0"
+          chart-version: "1.0.0"
+          config-file: "./config/charts-config.yaml"
+          create-release-branch: "true"
+          version-replace-method: "parse"
+          working-directory: "./charts"
         env:
           ${{ insert }}: ${{ vars }} # This will insert all repository variables into env context
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
