@@ -327,10 +327,10 @@ jobs:
           echo "patch: ${{ steps.metadata-outputs.outputs.patch }}"
           echo "short-sha: ${{ steps.metadata-outputs.outputs.short-sha }}"
 
-          # ref should start with "refs/"
+          # ref should be normalized (without "refs/" prefix)
           REF="${{ steps.metadata-outputs.outputs.ref }}"
-          if [[ ! "$REF" == refs/* ]]; then
-            echo "❌ ERROR: ref should start with 'refs/', got: $REF"
+          if [[ "$REF" == refs/* ]]; then
+            echo "❌ ERROR: ref should be normalized (without 'refs/' prefix), got: $REF"
             exit 1
           fi
 
