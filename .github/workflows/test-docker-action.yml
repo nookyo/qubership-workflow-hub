@@ -349,8 +349,9 @@ jobs:
           echo "=== Outputs ==="
           echo "Component Name: ${{ steps.docker-default-name.outputs.component-name }}"
           echo "Final Tags: ${{ steps.docker-default-name.outputs.final-tags }}"
+          echo "Image Name: ${{ steps.docker-default-name.outputs.image-name }}"
 
-          # Verify component name defaults to "default"
+          # Verify component name defaults to "default" (from JSON parsing)
           EXPECTED_NAME="default"
           ACTUAL_NAME="${{ steps.docker-default-name.outputs.component-name }}"
           if [ "$ACTUAL_NAME" != "$EXPECTED_NAME" ]; then
@@ -360,10 +361,20 @@ jobs:
             exit 1
           fi
 
-          # Verify tags contain "default" component name
+          # When component name is "default", the image should use repository name instead
+          # Extract repo name from GITHUB_REPOSITORY (owner/repo -> repo)
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
           TAGS="${{ steps.docker-default-name.outputs.final-tags }}"
-          if [[ ! "$TAGS" == *"default"* ]]; then
-            echo "❌ ERROR: Tags don't contain default component name"
+
+          if [[ ! "$TAGS" == *"$REPO_NAME"* ]]; then
+            echo "❌ ERROR: Tags should contain repository name '$REPO_NAME' when component is 'default'"
+            echo "Actual tags: $TAGS"
+            exit 1
+          fi
+
+          # Verify tags don't literally contain "/default:" as image name
+          if [[ "$TAGS" == *"/default:"* ]]; then
+            echo "❌ ERROR: Tags should NOT use 'default' as image name, should use repo name instead"
             exit 1
           fi
 
