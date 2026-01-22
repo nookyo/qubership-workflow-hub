@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-with-default-action:
-    name: Test Default Component Name
+    name: Test with Defaults (component fields omitted)
     runs-on: ubuntu-latest
     permissions:
       contents: read
