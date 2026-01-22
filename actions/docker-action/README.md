@@ -60,6 +60,7 @@ This **Docker Build and Publish** GitHub Action automates the process of buildin
 | `component-context`    | The build context used for the build.                  |
 | `component-build-args` | The build arguments used for the build.                |
 | `final-tags`           | The final tags applied to the Docker image.            |
+| `final-labels`         | The final labels applied to the Docker image.          |
 | `final-build-args`     | The final build arguments applied to the Docker image. |
 | `final-platforms`      | The final platforms for which the image was built.     |
 
@@ -198,10 +199,12 @@ with:
 ```
 
 **Component Fields**:
-- `name` - Component name (used for image naming)
-- `dockerfile` - Path to Dockerfile
-- `build_context` - Docker build context path
-- `arguments` - Build arguments (comma-separated format)
+| Field           | Description                              | Default          |
+| --------------- | ---------------------------------------- | ---------------- |
+| `name`          | Component name (used for image naming)   | `"default"`      |
+| `dockerfile`    | Path to Dockerfile                       | `"./Dockerfile"` |
+| `build_context` | Docker build context path                | `"."`            |
+| `arguments`     | Build arguments (comma-separated format) | `""`             |
 
 **Notes**:
 - Deprecated keys: `file` and `context` are still supported for compatibility, but prefer `dockerfile` and `build_context`.
