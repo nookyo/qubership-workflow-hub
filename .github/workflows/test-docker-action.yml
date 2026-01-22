@@ -63,7 +63,19 @@ jobs:
 
           # Verify tags contain repository name
           TAGS="${{ steps.docker-auto.outputs.final-tags }}"
-          if [[ ! "$TAGS" == *"ghcr.io"* ]]; then
+          # Basic format checks for auto tags
+          if [[ "$TAGS" == *" "* ]]; then
+            echo "❌ ERROR: Tags contain spaces"
+            exit 1
+          fi
+          if [[ "$TAGS" != *":"* ]]; then
+            echo "❌ ERROR: Tags missing image tag separator ':'"
+            exit 1
+          fi
+          if [[ "$TAGS" != "$(echo "$TAGS" | tr '[:upper:]' '[:lower:]')" ]]; then
+            echo "❌ ERROR: Tags are not lowercase"
+            exit 1
+          fi          if [[ ! "$TAGS" == *"ghcr.io"* ]]; then
             echo "❌ ERROR: Tags don't contain ghcr.io registry"
             exit 1
           fi
@@ -106,7 +118,15 @@ jobs:
           echo "Final Platforms: ${{ steps.docker-custom.outputs.final-platforms }}"
 
           TAGS="${{ steps.docker-custom.outputs.final-tags }}"
-
+          # Basic format checks for custom tags
+          if [[ "$TAGS" == *" "* ]]; then
+            echo "❌ ERROR: Tags contain spaces"
+            exit 1
+          fi
+          if [[ "$TAGS" != *":"* ]]; then
+            echo "❌ ERROR: Tags missing image tag separator ':'"
+            exit 1
+          fi
           # Verify all custom tags are present
           if [[ ! "$TAGS" == *"v1.0.0"* ]]; then
             echo "❌ ERROR: Custom tag v1.0.0 not found in final tags"
@@ -251,3 +271,49 @@ jobs:
           fi
 
           echo "✅ All platforms tests passed!"
+
+
+  test-component-aliases:
+    name: Test Component Aliases (file/context)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Docker Action with Deprecated Component Keys
+        id: docker-aliases
+        uses: ./actions/docker-action
+        with:
+          dry-run: 'true'
+          registry: 'ghcr.io'
+          component: '[{"name": "test-aliases", "file": "./Dockerfile.test", "context": "."}]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Component Aliases Output
+        shell: bash
+        run: |
+          echo "=== Outputs ==="
+          echo "Component Name: ${{ steps.docker-aliases.outputs.component-name }}"
+          echo "Component File: ${{ steps.docker-aliases.outputs.component-file }}"
+          echo "Component Context: ${{ steps.docker-aliases.outputs.component-context }}"
+
+          if [ "${{ steps.docker-aliases.outputs.component-name }}" != "test-aliases" ]; then
+            echo "❌ ERROR: Component name mismatch for aliases"
+            exit 1
+          fi
+
+          if [ "${{ steps.docker-aliases.outputs.component-file }}" != "./Dockerfile.test" ]; then
+            echo "❌ ERROR: Component file mismatch for aliases"
+            exit 1
+          fi
+
+          if [ "${{ steps.docker-aliases.outputs.component-context }}" != "." ]; then
+            echo "❌ ERROR: Component context mismatch for aliases"
+            exit 1
+          fi
+
+          echo "✅ All сomponent alias tests passed!"
