@@ -153,9 +153,9 @@ runs:
         # Parse the input JSON object directly
         component_from_json=$(echo "$COMPONENT" | jq 'if type=="array" then .[0] else . end')
 
-        component_name=$(echo "$component_from_json" | jq -r '.name')
-        component_file=$(echo "$component_from_json" | jq -r '.dockerfile // .file')
-        component_context=$(echo "$component_from_json" | jq -r '.build_context // .context')
+        component_name=$(echo "$component_from_json" | jq -r '.name // "default"')
+        component_file=$(echo "$component_from_json" | jq -r '.dockerfile // .file // "./Dockerfile"')
+        component_context=$(echo "$component_from_json" | jq -r '.build_context // .context // "."')
         component_build_args=$(echo "$component_from_json" | jq -r '.arguments // empty')
 
         # Convert comma-separated build args to newline-separated
