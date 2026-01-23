@@ -145,6 +145,20 @@ describe("index.js template rendering", () => {
     expect(rendered).toBe("main-8c3c-latest");
   });
 
+  test("should render length modifiers in template", async () => {
+    mockConfigLoader.load.mockReturnValue({
+      "default-template": "{{short-sha:4}}",
+      "default-tag": "latest"
+    });
+
+    await run();
+
+    const resultCall = core.setOutput.mock.calls.find(([key]) => key === "result");
+    const rendered = resultCall ? resultCall[1] : null;
+
+    expect(rendered).toBe("8c3c");
+  });
+
   test("should warn and fallback when branches-template is not an array", async () => {
     mockConfigLoader.load.mockReturnValue({
       "default-template": "{{ref-name}}",

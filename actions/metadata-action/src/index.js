@@ -299,5 +299,16 @@ if (require.main === module) {
 }
 
 module.exports = run;
+// Expose internals for unit tests without changing the default export behavior.
+module.exports.__testables = {
+  generateSnapshotVersionParts,
+  extractSemverParts,
+  matchesPattern,
+  findTemplate,
+  fillTemplate,
+  normalizeExtraTags,
+  _patternCache: patternCache,
+  _PATTERN_CACHE_MAX: PATTERN_CACHE_MAX,
+};
 
 
