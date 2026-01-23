@@ -55,6 +55,7 @@ describe("index.js template rendering", () => {
         rawName: "refs/heads/main",
         normalizedName: "main",
         isTag: false,
+        isBranch: true,
         type: "branch"
       })
     };

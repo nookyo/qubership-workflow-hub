@@ -60,6 +60,7 @@ describe("index.js (main action)", () => {
                 rawName: "refs/heads/main",
                 normalizedName: "main",
                 isTag: false,
+                isBranch: true,
                 type: "branch"
             })
         };

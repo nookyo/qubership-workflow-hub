@@ -40765,32 +40765,36 @@ function wrappy (fn, cb) {
 const core = __nccwpck_require__(8335);
 const log = __nccwpck_require__(2938);
 
+const REF_PATTERN = /^refs\/(heads|tags)\/(.+)$/;
 
 class RefNormalizer {
-    extract(ref, replaceSymbol = "-") {
-        if (!ref) {
-            core.setFailed("❌ No ref provided to RefNormalizer.extract()");
-            return { normalizedName: "", isTag: false, type: "unknown" };
-        }
-
-        const isBranch = ref.startsWith("refs/heads/");
-        const isTag = ref.startsWith("refs/tags/");
-        let rawName;
-
-        if (isBranch) {
-            rawName = ref.slice("refs/heads/".length);
-        } else if (isTag) {
-            rawName = ref.slice("refs/tags/".length);
-        } else {
-            rawName = ref;
-            log.warn(`Cant detect type ref: ${ref}`);
-        }
-
-        const normalizedName = rawName.replace(/\//g, replaceSymbol);
-        const type = isBranch ? "branch" : isTag ? "tag" : "unknown";
-
-        return { rawName, normalizedName, isTag, type };
+  extract(ref, replaceSymbol = "-") {
+    if (!ref) {
+      core.setFailed("❌ No ref provided to RefNormalizer.extract()");
+      return { rawName: "", normalizedName: "", isTag: false, isBranch: false, type: "unknown" };
     }
+
+    const match = ref.match(REF_PATTERN);
+
+    let rawName;
+    let isBranch = false;
+    let isTag = false;
+
+    if (match) {
+      const [, refType, name] = match;
+      rawName = name;
+      isBranch = refType === "heads";
+      isTag = refType === "tags";
+    } else {
+      rawName = ref;
+      log.warn(`Cant detect type ref: ${ref}`);
+    }
+
+    const normalizedName = rawName.replace(/\//g, replaceSymbol);
+    const type = isBranch ? "branch" : isTag ? "tag" : "unknown";
+
+    return { rawName, normalizedName, isTag, isBranch, type };
+  }
 }
 
 module.exports = RefNormalizer;
@@ -41045,23 +41049,52 @@ const path = __nccwpck_require__(6928);
 
 const log = __nccwpck_require__(2938);
 
+// Cache schema and validator for performance
+let cachedValidator = null;
+
+function getValidator() {
+  if (cachedValidator) {
+    return cachedValidator;
+  }
+
+  const schemaPath = __nccwpck_require__.ab + "config.schema.json";
+  if (!fs.existsSync(__nccwpck_require__.ab + "config.schema.json")) {
+    core.setFailed(`❗️ Schema file not found: ${schemaPath}`);
+    return null;
+  }
+
+  const schemaContent = fs.readFileSync(__nccwpck_require__.ab + "config.schema.json", 'utf8');
+
+  let schema;
+  try {
+    schema = JSON.parse(schemaContent);
+  } catch (error) {
+    core.setFailed(`❗️ Error parsing JSON schema: ${error.message}`);
+    return null;
+  }
+
+  const ajv = new Ajv();
+  cachedValidator = ajv.compile(schema);
+  return cachedValidator;
+}
+
 class ConfigLoader {
   constructor() {
-    this.fileExist = true;
+    this._configExists = true;
   }
 
   get fileExists() {
-    return this.fileExist;
+    return this._configExists;
   }
 
   load(filePath, debug = false) {
     const configPath = path.resolve(filePath);
-    log.dim(`Try to reading configuration ${configPath}`)
+    log.dim(`Try to reading configuration ${configPath}`);
 
     if (!fs.existsSync(configPath)) {
       log.warn(`Configuration file not found: ${configPath}`);
-      this.fileExist = false;
-      return;
+      this._configExists = false;
+      return null;
     }
 
     const fileContent = fs.readFileSync(configPath, 'utf8');
@@ -41073,43 +41106,30 @@ class ConfigLoader {
         log.dim("🔍 Loaded configuration YAML:", JSON.stringify(config, null, 2));
         log.dim("🔑 Object Keys:", Object.keys(config));
       }
-    }
-    catch (error) {
+    } catch (error) {
       core.setFailed(`❗️ Error parsing YAML file: ${error.message}`);
-      return;
+      return null;
     }
 
-    const schemaPath = __nccwpck_require__.ab + "config.schema.json";
-    if (!fs.existsSync(__nccwpck_require__.ab + "config.schema.json")) {
-      core.setFailed(`❗️ Schema file not found: ${schemaPath}`);
-      return;
+    const validate = getValidator();
+    if (!validate) {
+      return null;
     }
 
-    const schemaContent = fs.readFileSync(__nccwpck_require__.ab + "config.schema.json", 'utf8');
-
-    let schema;
-    try {
-      schema = JSON.parse(schemaContent);
-    }
-    catch (error) {
-      core.setFailed(`❗️ Error parsing JSON schema: ${error.message}`);
-      return;
-    }
-
-    const ajv = new Ajv();
-    const validate = ajv.compile(schema);
     const valid = validate(config);
     if (!valid) {
-      const errors = ajv.errorsText(validate.errors);
+      const errors = new Ajv().errorsText(validate.errors);
       core.setFailed(`❗️ Configuration file is invalid: ${errors}`);
-      return;
+      return null;
     }
+
     core.info(`💡 Configuration file is valid: ${valid}`);
     return config;
   }
 }
 
 module.exports = ConfigLoader;
+
 
 /***/ }),
 
