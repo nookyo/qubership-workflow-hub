@@ -98,7 +98,7 @@ describe("index.js (main action)", () => {
 
         // check for successful log
         expect(log.success).toHaveBeenCalledWith(
-            expect.stringContaining("✅ Action completed successfully")
+            expect.stringContaining("Action completed successfully")
         );
 
         // check that report summary was written
