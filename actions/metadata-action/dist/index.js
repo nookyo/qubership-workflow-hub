@@ -40884,14 +40884,22 @@ function findTemplate(refName, templates) {
 }
 
 // Regex for template placeholder matching (cached for performance)
-const TEMPLATE_PLACEHOLDER_REGEX = /{{\s*([\w.-]+)\s*}}/g;
+// Supports optional length modifier: {{key:8}}
+const TEMPLATE_PLACEHOLDER_REGEX = /{{\s*([\w.-]+)(?::(\d+))?\s*}}/g;
 
 function fillTemplate(template, values, warnOnMissing = false) {
   const missing = warnOnMissing ? new Set() : null;
-  const result = template.replace(TEMPLATE_PLACEHOLDER_REGEX, (match, key) => {
-    if (key in values) return values[key];
-    if (missing) missing.add(key);
-    return match;
+  const result = template.replace(TEMPLATE_PLACEHOLDER_REGEX, (match, key, maxLen) => {
+    if (!(key in values) || values[key] === null || values[key] === undefined) {
+      if (missing) missing.add(maxLen ? `${key}:${maxLen}` : key);
+      return match;
+    }
+    const value = values[key];
+    if (maxLen) {
+      const limit = parseInt(maxLen, 10);
+      return String(value).slice(0, limit);
+    }
+    return value;
   });
   if (missing && missing.size > 0) {
     log.warn(`Unknown template placeholders (kept as-is): ${Array.from(missing).join(", ")}`);
@@ -41010,6 +41018,20 @@ async function run() {
       "runNumber": github.context.runNumber,
     };
 
+    const aliasMap = {
+      "ref-name": ["ref_name", "refName"],
+      "short-sha": ["short_sha", "shortSha"],
+      "dist-tag": ["dist_tag", "distTag"],
+      "runNumber": ["run_number"],
+    };
+    for (const [sourceKey, aliases] of Object.entries(aliasMap)) {
+      if (sourceKey in values) {
+        for (const alias of aliases) {
+          if (!(alias in values)) values[alias] = values[sourceKey];
+        }
+      }
+    }
+
     log.debugJSON("Template Values", values);
 
     let result = fillTemplate(selectedTemplateAndTag.template, values, true);
@@ -41084,6 +41106,17 @@ if (require.main === require.cache[eval('__filename')]) {
 }
 
 module.exports = run;
+// Expose internals for unit tests without changing the default export behavior.
+module.exports.__testables = {
+  generateSnapshotVersionParts,
+  extractSemverParts,
+  matchesPattern,
+  findTemplate,
+  fillTemplate,
+  normalizeExtraTags,
+  _patternCache: patternCache,
+  _PATTERN_CACHE_MAX: PATTERN_CACHE_MAX,
+};
 
 
 
