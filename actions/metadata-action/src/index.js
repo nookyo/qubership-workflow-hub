@@ -12,6 +12,7 @@ const DEFAULT_TEMPLATE = "{{ref-name}}-{{timestamp}}-{{runNumber}}";
 const DEFAULT_DIST_TAG = "latest";
 const DEFAULT_REPLACE_SYMBOL = "-";
 const DEFAULT_CONFIG_PATH = "./.github/metadata-action-config.yml";
+const TAG_TEMPLATE_KEY = "tag";
 
 // --- utility functions ---
 function generateSnapshotVersionParts() {
@@ -122,8 +123,8 @@ async function run() {
       distTag: null,
     };
 
-    if (loader.fileExists) {
-      selectedTemplateAndTag.template = findTemplate(!refData.isTag ? refData.normalizedName : "tag", config["branches-template"]);
+    if (config) {
+      selectedTemplateAndTag.template = findTemplate(!refData.isTag ? refData.normalizedName : TAG_TEMPLATE_KEY, config["branches-template"]);
       selectedTemplateAndTag.distTag = findTemplate(refData.normalizedName, config["distribution-tag"]);
     }
 
@@ -154,13 +155,14 @@ async function run() {
 
     const values = {
       ...refData,
-      "ref-name": refData.normalizedName,
       "short-sha": shortSha,
       "sha": fullSha,
       ...semverParts,
       ...parts,
       "dist-tag": selectedTemplateAndTag.distTag,
       ...githubValues,
+      // Aliases for template compatibility
+      "ref-name": refData.normalizedName,
       "runNumber": github.context.runNumber,
     };
 
@@ -179,6 +181,7 @@ async function run() {
 
     // --- Outputs ---
     core.setOutput("result", result);
+    // "ref" kept for backward compatibility, prefer "ref-name"
     core.setOutput("ref", refData.normalizedName);
     core.setOutput("ref-name", refData.normalizedName);
     core.setOutput("commit", fullSha);
@@ -198,7 +201,7 @@ async function run() {
         ref: refData.normalizedName,
         sha: fullSha,
         shortSha,
-        semver: `${semverParts.major}.${semverParts.minor}.${semverParts.patch}`,
+        semver: semverParts.major ? `${semverParts.major}.${semverParts.minor}.${semverParts.patch}` : null,
         timestamp: parts.timestamp,
         template: selectedTemplateAndTag.template,
         distTag: selectedTemplateAndTag.distTag,
