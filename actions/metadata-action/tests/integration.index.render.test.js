@@ -5,6 +5,17 @@ const RefNormalizer = require("../src/extractor");
 
 jest.mock("@actions/core");
 jest.mock("@actions/github");
+jest.mock("@netcracker/action-logger", () => ({
+    group: jest.fn(),
+    endGroup: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    success: jest.fn(),
+    dim: jest.fn(),
+    setDebug: jest.fn(),
+    debugJSON: jest.fn()
+}));
 jest.mock("../src/loader");
 jest.mock("../src/extractor");
 jest.mock("../src/report");
@@ -23,7 +34,11 @@ describe("index.js template rendering", () => {
       ref: "refs/heads/main",
       sha: "8c3c6b66a6af28f66b17eb5190458d04a2a62e34",
       runNumber: 101,
-      payload: {}
+      runId: 12345,
+      actor: "test-actor",
+      workflow: "test-workflow",
+      payload: {},
+      repo: { owner: "test-owner", repo: "test-repo" }
     };
 
     mockConfigLoader = {
