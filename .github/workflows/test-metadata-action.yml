@@ -213,23 +213,22 @@ jobs:
         id: metadata
         uses: ./actions/metadata-action
         with:
-          default-template: "build-{{github.context.workflow}}-{{github.context.sha}}-run{{github.context.runNumber}}"
+          default-template: "build-{{github.workflow}}-{{github.sha}}-run{{github.run_number}}"
           default-tag: "context-tag"
           show-report: "true"
 
       - name: Display GitHub Context Values
         shell: bash
         run: |
-          echo "=== Available GitHub Context Values ==="
-          echo "workflow: ${{ github.workflow }}"
-          echo "actor: ${{ github.actor }}"
-          echo "event_name: ${{ github.event_name }}"
-          echo "repository: ${{ github.repository }}"
-          echo "ref: ${{ github.ref }}"
-          echo "sha: ${{ github.sha }}"
-          echo "run_number: ${{ github.run_number }}"
-          echo "run_id: ${{ github.run_id }}"
-          echo "job: ${{ github.job }}"
+          echo "=== Available GitHub Context Variables in Templates ==="
+          echo "{{github.repository}}: ${{ github.repository }}"
+          echo "{{github.ref}}: ${{ github.ref }}"
+          echo "{{github.sha}}: ${{ github.sha }}"
+          echo "{{github.actor}}: ${{ github.actor }}"
+          echo "{{github.workflow}}: ${{ github.workflow }}"
+          echo "{{github.run_id}}: ${{ github.run_id }}"
+          echo "{{github.run_number}}: ${{ github.run_number }}"
+          echo "{{github.event_name}}: ${{ github.event_name }}"
 
       - name: Verify GitHub Context Outputs
         shell: bash
