@@ -40832,16 +40832,18 @@ function generateSnapshotVersionParts() {
 
 function extractSemverParts(versionString) {
   const normalized = versionString.replace(/^v/i, "");
-  if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
+  const match = normalized.match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);
+  if (!match) {
     log.dim(`Not a valid semver string (skip): ${versionString}`);
     return { major: "", minor: "", patch: "" };
   }
-  const [major, minor, patch] = normalized.split(".");
+  const [, major, minor, patch] = match;
   return { major, minor, patch };
 }
 
-// Cache for compiled regex patterns to improve performance
+// Cache for compiled regex patterns to improve performance (bounded to avoid unbounded growth)
 const patternCache = new Map();
+const PATTERN_CACHE_MAX = 100;
 
 function matchesPattern(refName, pattern) {
   if (!patternCache.has(pattern)) {
@@ -40850,6 +40852,12 @@ function matchesPattern(refName, pattern) {
       .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
       .replace(/\//g, "-")
       .replace(/\*/g, ".*");
+    if (patternCache.size >= PATTERN_CACHE_MAX) {
+      const firstKey = patternCache.keys().next().value;
+      if (firstKey !== undefined) {
+        patternCache.delete(firstKey);
+      }
+    }
     patternCache.set(pattern, new RegExp(`^${escapedPattern}$`));
   }
   return patternCache.get(pattern).test(refName);
@@ -40858,7 +40866,16 @@ function matchesPattern(refName, pattern) {
 function findTemplate(refName, templates) {
   if (!Array.isArray(templates) || templates.length === 0) return null;
   for (const item of templates) {
-    const pattern = Object.keys(item)[0];
+    if (!item || typeof item !== "object") {
+      log.dim("Invalid template entry (skip): not an object");
+      continue;
+    }
+    const keys = Object.keys(item);
+    const pattern = keys[0];
+    if (!pattern || typeof pattern !== "string") {
+      log.dim("Invalid template entry (skip): missing pattern key");
+      continue;
+    }
     if (matchesPattern(refName, pattern)) {
       return item[pattern];
     }
@@ -40869,15 +40886,30 @@ function findTemplate(refName, templates) {
 // Regex for template placeholder matching (cached for performance)
 const TEMPLATE_PLACEHOLDER_REGEX = /{{\s*([\w.-]+)\s*}}/g;
 
-function fillTemplate(template, values) {
-  return template.replace(TEMPLATE_PLACEHOLDER_REGEX, (match, key) => {
-    return key in values ? values[key] : match;
+function fillTemplate(template, values, warnOnMissing = false) {
+  const missing = warnOnMissing ? new Set() : null;
+  const result = template.replace(TEMPLATE_PLACEHOLDER_REGEX, (match, key) => {
+    if (key in values) return values[key];
+    if (missing) missing.add(key);
+    return match;
   });
+  if (missing && missing.size > 0) {
+    log.warn(`Unknown template placeholders (kept as-is): ${Array.from(missing).join(", ")}`);
+  }
+  return result;
+}
+
+function normalizeExtraTags(extraTags) {
+  if (!extraTags) return [];
+  return extraTags
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 async function run() {
   try {
-    log.group("🚀 Metadata Action Initialization");
+    log.group("[meta] Metadata Action Initialization");
 
     const inputs = {
       ref: core.getInput("ref"),
@@ -40896,6 +40928,11 @@ async function run() {
     log.debugJSON("Action Inputs", inputs);
 
     const ref = inputs.ref || (github.context.eventName === "pull_request" ? github.context.payload.pull_request?.head?.ref : github.context.ref);
+    if (!ref) {
+      const payloadKeys = Object.keys(github.context.payload || {}).join(", ");
+      log.warn(`Ref is undefined (event: ${github.context.eventName || "unknown"}, payload keys: ${payloadKeys || "none"})`);
+      throw new Error("Ref is undefined; set input 'ref' or ensure github.context.ref is available.");
+    }
 
     log.info(`Ref: ${ref}`);
 
@@ -40905,7 +40942,7 @@ async function run() {
     let shortShaLength = parseInt(core.getInput("short-sha"), 10);
 
     if (Number.isNaN(shortShaLength) || shortShaLength < 1 || shortShaLength > 40) {
-      log.warn(`⚠️ Invalid short-sha value: ${shortShaLength}, fallback to ${DEFAULT_SHORT_SHA_LENGTH}`);
+      log.warn(`Invalid short-sha value: ${shortShaLength}, fallback to ${DEFAULT_SHORT_SHA_LENGTH}`);
       shortShaLength = DEFAULT_SHORT_SHA_LENGTH;
     }
 
@@ -40975,14 +41012,17 @@ async function run() {
 
     log.debugJSON("Template Values", values);
 
-    let result = fillTemplate(selectedTemplateAndTag.template, values);
+    let result = fillTemplate(selectedTemplateAndTag.template, values, true);
 
     if (inputs.mergeTags && inputs.extraTags) {
+      const normalizedExtraTags = normalizeExtraTags(inputs.extraTags);
       log.info(`Merging extra tags: ${inputs.extraTags}`);
-      result = [result, inputs.extraTags].join(", ");
+      if (normalizedExtraTags.length > 0) {
+        result = [result, ...normalizedExtraTags].join(", ");
+      }
     }
 
-    log.success(`💡 Rendered Metadata: ${result}`);
+    log.success(`Rendered Metadata: ${result}`);
 
     log.endGroup();
 
@@ -41014,17 +41054,27 @@ async function run() {
         distTag: selectedTemplateAndTag.distTag,
         extraTags: inputs.extraTags,
         renderResult: result,
-        github: github.context
+        // Keep report compact and stable
+        github: {
+          repository: githubValues["github.repository"],
+          ref: githubValues["github.ref"],
+          sha: githubValues["github.sha"],
+          actor: githubValues["github.actor"],
+          workflow: githubValues["github.workflow"],
+          run_id: githubValues["github.run_id"],
+          run_number: githubValues["github.run_number"],
+          event_name: githubValues["github.event_name"],
+        }
       };
       await new Report().writeSummary(reportItem, inputs.dryRun);
     }
 
-    log.success("✅ Action completed successfully!");
+    log.success("Action completed successfully.");
 
     // For testing purpose
     return { result, refData, shortSha, parts, semverParts };
   } catch (error) {
-    log.error(`❌ Action failed: ${error.message}`);
+    log.error(`Action failed: ${error.message}`);
     core.setFailed(error.message);
   }
 }
@@ -41034,6 +41084,8 @@ if (require.main === require.cache[eval('__filename')]) {
 }
 
 module.exports = run;
+
+
 
 
 /***/ }),
