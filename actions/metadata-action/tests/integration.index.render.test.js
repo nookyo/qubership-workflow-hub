@@ -1,5 +1,6 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
+const log = require("@netcracker/action-logger");
 const ConfigLoader = require("../src/loader");
 const RefNormalizer = require("../src/extractor");
 
@@ -128,6 +129,35 @@ describe("index.js template rendering", () => {
 
     expect(rendered).toContain("main"); // fallback works
     expect(core.warning).not.toHaveBeenCalledWith(expect.stringMatching(/fallback to/));
+  });
+
+  test("should render aliases and length modifiers", async () => {
+    mockConfigLoader.load.mockReturnValue({
+      "default-template": "{{ref_name}}-{{short_sha:4}}-{{dist_tag}}",
+      "default-tag": "latest"
+    });
+
+    await run();
+
+    const resultCall = core.setOutput.mock.calls.find(([key]) => key === "result");
+    const rendered = resultCall ? resultCall[1] : null;
+
+    expect(rendered).toBe("main-8c3c-latest");
+  });
+
+  test("should warn and fallback when branches-template is not an array", async () => {
+    mockConfigLoader.load.mockReturnValue({
+      "default-template": "{{ref-name}}",
+      "default-tag": "latest",
+      "branches-template": "oops",
+      "distribution-tag": "oops"
+    });
+
+    await run();
+
+    expect(log.warn).toHaveBeenCalledWith(
+      expect.stringContaining("No template found for ref")
+    );
   });
 
   test("should skip invalid template entries", async () => {
