@@ -80,7 +80,7 @@ describe("index.js template rendering", () => {
     core.setFailed = jest.fn();
   });
 
-  test("✅ should render default template with dynamic values", async () => {
+  test("should render default template with dynamic values", async () => {
     await run();
 
     // check that the template was rendered with ref-name, short-sha and timestamp
@@ -93,7 +93,7 @@ describe("index.js template rendering", () => {
     expect(rendered).toMatch(/\d{8}\d{6}/); // timestamp YYYYMMDDhhmmss
   });
 
-  test("🧩 should merge extra tags if merge-tags=true", async () => {
+  test("should merge extra tags if merge-tags=true", async () => {
     core.getInput.mockImplementation((name) => {
       const map = {
         ref: "refs/heads/main",
@@ -101,7 +101,7 @@ describe("index.js template rendering", () => {
         "dry-run": "false",
         "show-report": "false",
         "debug": "false",
-        "extra-tags": "beta, rc",
+        "extra-tags": " beta , , rc , ",
         "merge-tags": "true"
       };
       return map[name];
@@ -115,6 +115,7 @@ describe("index.js template rendering", () => {
     expect(rendered).toContain("beta");
     expect(rendered).toContain("rc");
     expect(rendered).toContain(","); // merged output
+    expect(rendered).not.toMatch(/,\s*,/);
   });
 
   test("should fallback to default-template if not found in config", async () => {
@@ -127,5 +128,21 @@ describe("index.js template rendering", () => {
 
     expect(rendered).toContain("main"); // fallback works
     expect(core.warning).not.toHaveBeenCalledWith(expect.stringMatching(/fallback to/));
+  });
+
+  test("should skip invalid template entries", async () => {
+    mockConfigLoader.load.mockReturnValue({
+      "default-template": "fallback-template",
+      "default-tag": "latest",
+      "branches-template": [null, {}, { "main": "main-template" }],
+      "distribution-tag": []
+    });
+
+    await run();
+
+    const resultCall = core.setOutput.mock.calls.find(([key]) => key === "result");
+    const rendered = resultCall ? resultCall[1] : null;
+
+    expect(rendered).toBe("main-template");
   });
 });

@@ -103,6 +103,17 @@ describe("index.js (main action)", () => {
 
         // check that report summary was written
         expect(mockReport.writeSummary).toHaveBeenCalled();
+        const reportArg = mockReport.writeSummary.mock.calls[0][0];
+        expect(reportArg.github).toEqual({
+            repository: "test-owner/test-repo",
+            ref: "refs/heads/main",
+            sha: "8c3c6b66a6af28f66b17eb5190458d04a2a62e34",
+            actor: "test-actor",
+            workflow: "test-workflow",
+            run_id: 12345,
+            run_number: 42,
+            event_name: "push"
+        });
 
         // check that setFailed was not called
         expect(core.setFailed).not.toHaveBeenCalled();
@@ -135,6 +146,35 @@ describe("index.js (main action)", () => {
         // Even without configuration, default templates should be applied
         expect(log.warn).toHaveBeenCalledWith(
             expect.stringContaining("using default")
+        );
+    });
+
+    test("should extract semver parts from prerelease tag", async () => {
+        mockRefNormalizer.extract.mockReturnValue({
+            rawName: "refs/tags/v1.2.3-rc.1",
+            normalizedName: "v1.2.3-rc.1",
+            isTag: true,
+            isBranch: false,
+            type: "tag"
+        });
+
+        await run();
+
+        expect(core.setOutput).toHaveBeenCalledWith("major", "1");
+        expect(core.setOutput).toHaveBeenCalledWith("minor", "2");
+        expect(core.setOutput).toHaveBeenCalledWith("patch", "3");
+    });
+
+    test("should warn on unknown template placeholders", async () => {
+        mockConfigLoader.load.mockReturnValue({
+            "default-template": "{{ref-name}}-{{unknown-placeholder}}",
+            "default-tag": "latest"
+        });
+
+        await run();
+
+        expect(log.warn).toHaveBeenCalledWith(
+            expect.stringContaining("Unknown template placeholders")
         );
     });
 });

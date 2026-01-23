@@ -59,7 +59,16 @@ function matchesPattern(refName, pattern) {
 function findTemplate(refName, templates) {
   if (!Array.isArray(templates) || templates.length === 0) return null;
   for (const item of templates) {
-    const pattern = Object.keys(item)[0];
+    if (!item || typeof item !== "object") {
+      log.dim("Invalid template entry (skip): not an object");
+      continue;
+    }
+    const keys = Object.keys(item);
+    const pattern = keys[0];
+    if (!pattern || typeof pattern !== "string") {
+      log.dim("Invalid template entry (skip): missing pattern key");
+      continue;
+    }
     if (matchesPattern(refName, pattern)) {
       return item[pattern];
     }
@@ -70,10 +79,25 @@ function findTemplate(refName, templates) {
 // Regex for template placeholder matching (cached for performance)
 const TEMPLATE_PLACEHOLDER_REGEX = /{{\s*([\w.-]+)\s*}}/g;
 
-function fillTemplate(template, values) {
-  return template.replace(TEMPLATE_PLACEHOLDER_REGEX, (match, key) => {
-    return key in values ? values[key] : match;
+function fillTemplate(template, values, warnOnMissing = false) {
+  const missing = warnOnMissing ? new Set() : null;
+  const result = template.replace(TEMPLATE_PLACEHOLDER_REGEX, (match, key) => {
+    if (key in values) return values[key];
+    if (missing) missing.add(key);
+    return match;
   });
+  if (missing && missing.size > 0) {
+    log.warn(`Unknown template placeholders (kept as-is): ${Array.from(missing).join(", ")}`);
+  }
+  return result;
+}
+
+function normalizeExtraTags(extraTags) {
+  if (!extraTags) return [];
+  return extraTags
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 async function run() {
@@ -98,6 +122,8 @@ async function run() {
 
     const ref = inputs.ref || (github.context.eventName === "pull_request" ? github.context.payload.pull_request?.head?.ref : github.context.ref);
     if (!ref) {
+      const payloadKeys = Object.keys(github.context.payload || {}).join(", ");
+      log.warn(`Ref is undefined (event: ${github.context.eventName || "unknown"}, payload keys: ${payloadKeys || "none"})`);
       throw new Error("Ref is undefined; set input 'ref' or ensure github.context.ref is available.");
     }
 
@@ -179,11 +205,14 @@ async function run() {
 
     log.debugJSON("Template Values", values);
 
-    let result = fillTemplate(selectedTemplateAndTag.template, values);
+    let result = fillTemplate(selectedTemplateAndTag.template, values, true);
 
     if (inputs.mergeTags && inputs.extraTags) {
+      const normalizedExtraTags = normalizeExtraTags(inputs.extraTags);
       log.info(`Merging extra tags: ${inputs.extraTags}`);
-      result = [result, inputs.extraTags].join(", ");
+      if (normalizedExtraTags.length > 0) {
+        result = [result, ...normalizedExtraTags].join(", ");
+      }
     }
 
     log.success(`Rendered Metadata: ${result}`);
