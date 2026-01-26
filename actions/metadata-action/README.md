@@ -145,6 +145,9 @@ Aliases for template compatibility:
 - `run_number`
 
 Length modifiers are supported for any placeholder, e.g. `{{short-sha:4}}`.
+Example:
+- Template: `{{ref-name}}-{{short-sha:4}}`
+- Result: `main-8c3c`
 
 Unknown placeholders are kept as-is and a warning is logged.
 
