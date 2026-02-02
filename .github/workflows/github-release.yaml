@@ -1,101 +1,90 @@
+name: Create branch from ref
+
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: ""
-        type: string
+      source_ref:
+        description: "Source ref: branch/tag name (main, v1.0.0) or full ref (refs/heads/main, refs/tags/v1.0.0)"
         required: true
+        type: string
+      branch_name:
+        description: "Optional explicit branch name. If empty -> auto generated."
+        required: false
+        type: string
+        default: ""
+      auto_name_strategy:
+        description: "Auto-name strategy: auto | release | timestamp | short-sha | source-only"
+        required: false
+        type: choice
+        default: auto
+        options:
+          - auto
+          - release
+          - timestamp
+          - short-sha
+          - source-only
+      branch_prefix:
+        description: "Optional custom prefix (e.g. hotfix, feature, release). Leave empty to use defaults."
+        required: false
+        type: string
+        default: ""
+      branch_separator:
+        description: "Separator between prefix and name: / or -"
+        required: false
+        type: choice
+        default: /
+        options:
+          - /
+          - "-"
+      check_branch:
+        description: "Fail if branch exists on remote"
+        required: false
+        type: boolean
+        default: true
+      force_create:
+        description: "Delete and recreate branch if exists"
+        required: false
+        type: boolean
+        default: false
+      push_branch:
+        description: "Push the branch to origin"
+        required: false
+        type: boolean
+        default: true
+      dry_run:
+        description: "Do not create/push anything, just print what would happen"
+        required: false
+        type: boolean
+        default: false
 
-name: Create Workflow-Hub GitHub release
-run-name: "Workflow-Hub GitHub release v${{ inputs.version }}"
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  check-tag:
-    permissions:
-      contents: read
+  create-branch:
     runs-on: ubuntu-latest
-    steps:
-      - name: Input parameters
-        env:
-          VERSION: ${{ inputs.version }}
-        run: |
-          echo "Version: $VERSION" >> $GITHUB_STEP_SUMMARY
 
-      - name: Checkout code
-        uses: actions/checkout@v6
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          persist-credentials: false
           fetch-depth: 0
 
-      - name: Check if tag exists
-        id: check_tag
-        uses: netcracker/qubership-workflow-hub/actions/tag-action@b575bad3a0959c4e883bc34f9d055ff07fde2dbd #v2.0.1
+      - name: Create branch
+        id: cb
+        uses: ./.github/actions/create-branch
         with:
-          tag-name: "v${{ github.event.inputs.version }}"
-          ref: ${{ github.ref }}
-          create-tag: false
-          check-tag: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          source-ref: ${{ inputs.source_ref }}
+          branch-name: ${{ inputs.branch_name }}
+          auto-name-strategy: ${{ inputs.auto_name_strategy }}
+          branch-prefix: ${{ inputs.branch_prefix }}
+          branch-separator: ${{ inputs.branch_separator }}
+          check-branch: ${{ inputs.check_branch }}
+          force-create: ${{ inputs.force_create }}
+          push-branch: ${{ inputs.push_branch }}
+          dry-run: ${{ inputs.dry_run }}
 
-  release-preparation:
-    needs: [check-tag]
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-          token: ${{ secrets.GH_ACCESS_TOKEN }}
-
-      - name: Set up authentication
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-          ACTOR: ${{ github.actor }}
-          REPOSITORY: ${{ github.repository }}
+      - name: Summary
         run: |
-          git config --global user.name "$ACTOR"
-          git config --global user.email "$ACTOR@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$REPOSITORY
-
-      - name: Create Release Branch
-        env:
-          VERSION: ${{ inputs.version }}
-        run: |
-          git checkout -b "release/v$VERSION"
-          git push origin "release/v$VERSION"
-
-      - name: Update references
-        env:
-          VERSION: ${{ inputs.version }}
-        run: |
-          # shellcheck disable=2038
-          find . -type f \( -name '*.yaml' -o -name '*.yml' -o -name '*.md' \) ! -name 'github-release.yml' \
-          | xargs sed -i "s|uses: netcracker/qubership-workflow-hub/\(.*\)@main|uses: netcracker/qubership-workflow-hub/\1@v${VERSION}|gi"
-
-      - name: Commit and push changes
-        env:
-          ACTOR: ${{ github.actor }}
-          VERSION: ${{ inputs.version }}
-        run: |
-          git config --global user.name "$ACTOR"
-          git config --global user.email "$ACTOR@users.noreply.github.com"
-          git add .
-          git commit -m "Update references to the new version"
-          git push origin "release/v$VERSION"
-          git tag "v$VERSION"
-          git push origin "v$VERSION"
-
-  create-github-release:
-    needs: [release-preparation]
-    permissions:
-      contents: write
-    uses: netcracker/qubership-workflow-hub/.github/workflows/release-drafter.yml@main
-    with:
-      version: ${{ inputs.version }}
-      publish: false
-      config-name: release-drafter-config.yml
+          echo "Created branch: ${{ steps.cb.outputs.created-branch }}"
+          echo "Source ref: ${{ inputs.source_ref }}"

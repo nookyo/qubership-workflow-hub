@@ -73,7 +73,7 @@ runs:
 
         # Fetch for strategies that need it
         if [ "$STRATEGY" = "short-sha" ] || [ "$STRATEGY" = "auto" ]; then
-          git fetch --all --tags >/dev/null 2>&1 || true
+          git fetch --all --tags --force >/dev/null 2>&1 || true
         fi
 
         case "$STRATEGY" in
@@ -174,7 +174,7 @@ runs:
         DRY_RUN: ${{ inputs.dry-run }}
       run: |
         echo "Fetching latest changes..."
-        git fetch --all --tags
+        git fetch --all --tags --force
 
         # Check if source-ref exists
         if ! git rev-parse --verify "$SOURCE_REF" &>/dev/null; then
@@ -208,20 +208,26 @@ runs:
         fi
 
         # Create the branch from source-ref
-        echo "Creating branch '$BRANCH_NAME' from '$SOURCE_REF'..."
-        git checkout -b "$BRANCH_NAME" "$SOURCE_REF"
-
-        # Push to remote if requested
-        if [ "$PUSH_BRANCH" = "true" ]; then
-          if [ "$DRY_RUN" = "true" ]; then
-            echo "Dry run mode active. Branch created locally but not pushed."
+        if [ "$DRY_RUN" = "true" ]; then
+          echo "Dry run mode: Would create branch '$BRANCH_NAME' from '$SOURCE_REF'"
+          if [ "$PUSH_BRANCH" = "true" ]; then
+            echo "Dry run mode: Would push branch '$BRANCH_NAME' to remote"
           else
+            echo "Dry run mode: Would create branch '$BRANCH_NAME' locally only"
+          fi
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        else
+          echo "Creating branch '$BRANCH_NAME' from '$SOURCE_REF'..."
+          git checkout -b "$BRANCH_NAME" "$SOURCE_REF"
+
+          # Push to remote if requested
+          if [ "$PUSH_BRANCH" = "true" ]; then
             echo "Pushing branch '$BRANCH_NAME' to remote..."
             git push -u origin "$BRANCH_NAME"
             echo "Branch '$BRANCH_NAME' created and pushed successfully."
+          else
+            echo "Branch '$BRANCH_NAME' created locally (not pushed to remote)."
           fi
-        else
-          echo "Branch '$BRANCH_NAME' created locally (not pushed to remote)."
-        fi
 
-        echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        fi
