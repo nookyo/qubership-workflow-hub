@@ -37,10 +37,6 @@ inputs:
     description: "Run the action in dry-run mode (no changes will be pushed)."
     required: false
     default: "false"
-  skip-checkout:
-    description: "Skip the checkout step (useful if the code is already checked out)."
-    required: false
-    default: "false"
 
 outputs:
   created-branch:
@@ -50,13 +46,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout code
-      if: ${{ inputs.skip-checkout != 'true' }}
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ inputs.source-ref }}
-        fetch-depth: 0
-
     - name: Configure Git
       shell: bash
       run: |

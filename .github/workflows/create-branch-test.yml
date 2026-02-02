@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -50,7 +50,6 @@ jobs:
           source-ref: 'test-tag-v1.0.0'
           auto-name-strategy: 'auto'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -68,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -79,7 +78,6 @@ jobs:
           source-ref: 'main'
           auto-name-strategy: 'auto'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -115,7 +113,6 @@ jobs:
           source-ref: 'v2.0.0'
           auto-name-strategy: 'release'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -144,7 +141,6 @@ jobs:
           source-ref: 'main'
           auto-name-strategy: 'timestamp'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -173,7 +169,6 @@ jobs:
           source-ref: 'main'
           auto-name-strategy: 'short-sha'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -202,7 +197,6 @@ jobs:
           source-ref: 'main'
           branch-prefix: 'hotfix'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -231,7 +225,6 @@ jobs:
           source-ref: 'main'
           branch-separator: '-'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -264,7 +257,6 @@ jobs:
           branch-name: 'my-custom-branch-name'
           source-ref: 'main'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
@@ -293,7 +285,6 @@ jobs:
           source-ref: 'main'
           auto-name-strategy: 'source-only'
           dry-run: 'true'
-          skip-checkout: 'true'
 
       - name: Verify result
         run: |
