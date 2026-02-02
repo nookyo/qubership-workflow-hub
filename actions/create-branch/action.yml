@@ -7,8 +7,9 @@ inputs:
     required: false
     default: ""
   source-ref:
-    description: "Source reference (tag or branch) to create the branch from. Examples: 'v1.0.0', 'main', 'develop'."
-    required: true
+    description: "Source reference (tag or branch) to create the branch from. Examples: 'v1.0.0', 'main', 'develop'. If not provided, uses current branch."
+    required: false
+    default: ""
   auto-name-strategy:
     description: "Strategy for auto-generating branch name if branch-name is not provided. Options: 'auto' (smart detection: release/ for tags, feature/ for branches), 'release' (release/X.X.X from tags), 'timestamp' (branch-from-<source>-<timestamp>), 'short-sha' (branch-from-<source>-<short-sha>), 'source-only' (<source>-branch)."
     required: false
@@ -52,12 +53,33 @@ runs:
         git config --global user.email "github-actions[bot]@qubership.com"
         git config --global user.name "GitHub Actions [Bot]"
 
+    - name: Determine source ref
+      id: determine-source
+      shell: bash
+      env:
+        SOURCE_REF_INPUT: ${{ inputs.source-ref }}
+      run: |
+        # Use current branch/tag from workflow context if source-ref not provided
+        if [ -z "$SOURCE_REF_INPUT" ]; then
+          if [ -z "$GITHUB_REF_NAME" ]; then
+            echo "Error: source-ref not provided and GITHUB_REF_NAME not available"
+            exit 1
+          fi
+          SOURCE_REF="${GITHUB_REF_NAME}"
+          echo "Using current branch/tag from workflow context: $SOURCE_REF"
+        else
+          SOURCE_REF="$SOURCE_REF_INPUT"
+          echo "Using provided source-ref: $SOURCE_REF"
+        fi
+
+        echo "source-ref=$SOURCE_REF" >> $GITHUB_OUTPUT
+
     - name: Generate branch name
       id: generate-name
       shell: bash
       env:
         BRANCH_NAME_INPUT: ${{ inputs.branch-name }}
-        SOURCE_REF: ${{ inputs.source-ref }}
+        SOURCE_REF: ${{ steps.determine-source.outputs.source-ref }}
         STRATEGY: ${{ inputs.auto-name-strategy }}
         CUSTOM_PREFIX: ${{ inputs.branch-prefix }}
         SEPARATOR: ${{ inputs.branch-separator }}
@@ -167,7 +189,7 @@ runs:
       shell: bash
       env:
         BRANCH_NAME: ${{ steps.generate-name.outputs.branch-name }}
-        SOURCE_REF: ${{ inputs.source-ref }}
+        SOURCE_REF: ${{ steps.determine-source.outputs.source-ref }}
         CHECK_BRANCH: ${{ inputs.check-branch }}
         FORCE_CREATE: ${{ inputs.force-create }}
         PUSH_BRANCH: ${{ inputs.push-branch }}
