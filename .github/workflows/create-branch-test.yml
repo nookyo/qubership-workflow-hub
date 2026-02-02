@@ -22,7 +22,6 @@ jobs:
         uses: nookyo/qubership-workflow-hub/actions/create-branch@main
         with:
           source-ref: ${{ github.event.inputs.version }}
-          auto-name-strategy: "version-suffix"
           check-branch: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
