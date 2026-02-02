@@ -170,37 +170,6 @@ jobs:
           branch-name: ${{ inputs.branch }}
 ```
 
-Force recreate a branch:
-
-```yaml
-name: Force recreate branch
-on:
-  workflow_dispatch:
-    inputs:
-      source:
-        description: Source ref
-        required: true
-      branch:
-        description: Branch name
-        required: true
-
-jobs:
-  create-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Force create branch
-        uses: netcracker/qubership-workflow-hub/actions/create-branch@main
-        with:
-          source-ref: ${{ inputs.source }}
-          branch-name: ${{ inputs.branch }}
-          force-create: true
-```
-
 ---
 
 ## Permissions
