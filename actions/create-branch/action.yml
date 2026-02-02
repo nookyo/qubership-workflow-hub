@@ -1,0 +1,68 @@
+name: "Create Branch Action"
+description: "Create a new branch from a specified source (branch or tag)."
+
+inputs:
+  branch-name:
+    description: "Name of the new branch to create."
+    required: true
+  source-ref:
+    description: "Source branch or tag to create the new branch from."
+    required: true
+  dry-run:
+    description: "Run the action in dry-run mode (no changes will be pushed)."
+    required: false
+    default: "false"
+
+outputs:
+  created-branch:
+    description: "The branch that was created."
+    value: ${{ steps.create-branch.outputs.branch }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config --global user.email "github-actions[bot]@qubership.com"
+        git config --global user.name "GitHub Actions [Bot]"
+
+    - name: Create branch
+      id: create-branch
+      shell: bash
+      run: |
+        echo "🌿 Creating branch '${{ inputs.branch-name }}' from '${{ inputs.source-ref }}'"
+
+        # Fetch all branches and tags
+        git fetch --all --tags
+
+        # Check if source ref exists
+        if ! git rev-parse --verify "${{ inputs.source-ref }}" &>/dev/null; then
+          echo "❌ Error: Source ref '${{ inputs.source-ref }}' does not exist."
+          exit 1
+        fi
+
+        # Check if branch already exists locally
+        if git show-ref --verify --quiet "refs/heads/${{ inputs.branch-name }}"; then
+          echo "❌ Error: Branch '${{ inputs.branch-name }}' already exists locally."
+          exit 1
+        fi
+
+        # Check if branch already exists remotely
+        if git ls-remote --heads origin "${{ inputs.branch-name }}" | grep -q "${{ inputs.branch-name }}"; then
+          echo "❌ Error: Branch '${{ inputs.branch-name }}' already exists on remote."
+          exit 1
+        fi
+
+        # Create the new branch from source ref
+        git checkout -b "${{ inputs.branch-name }}" "${{ inputs.source-ref }}"
+
+        if [ "${{ inputs.dry-run }}" == "true" ]; then
+          echo "🧪 Dry run mode active. Skipping push."
+        else
+          # Push the new branch to remote
+          git push origin "${{ inputs.branch-name }}"
+          echo "✅ Branch '${{ inputs.branch-name }}' created and pushed successfully."
+        fi
+
+        echo "branch=${{ inputs.branch-name }}" >> $GITHUB_OUTPUT
