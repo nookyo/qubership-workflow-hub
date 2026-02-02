@@ -40,6 +40,6 @@ jobs:
 
       - name: Show results
         run: |
-          echo "✅ Branch created: ${{ steps.create.outputs.created-branch }}"
-          echo "📝 Source: ${{ inputs.source-ref }}"
-          echo "🧪 Dry run: ${{ inputs.dry-run }}"
+          echo "Branch created: ${{ steps.create.outputs.created-branch }}"
+          echo "Source: ${{ inputs.source-ref }}"
+          echo "Dry run: ${{ inputs.dry-run }}"
