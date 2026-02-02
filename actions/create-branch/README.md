@@ -117,15 +117,15 @@ jobs:
           branch-name: ${{ inputs.branch }}
 ```
 
-Create a branch from a tag with auto-generated name:
+Create a branch with a custom prefix:
 
 ```yaml
-name: Create release branch from tag
+name: Create branch with prefix
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: Tag name
+      source:
+        description: Source ref
         required: true
 
 jobs:
@@ -140,35 +140,15 @@ jobs:
       - name: Create branch
         uses: netcracker/qubership-workflow-hub/actions/create-branch@main
         with:
-          source-ref: ${{ inputs.tag }}
-          auto-name-strategy: release
+          source-ref: ${{ inputs.source }}
+          auto-name-strategy: auto
+          branch-prefix: hotfix
+          branch-separator: "-"
 ```
 
-Create a branch from the current ref (no `source-ref`):
-
-```yaml
-name: Create branch from current ref
-on:
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: New branch name
-        required: true
-
-jobs:
-  create-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create branch
-        uses: netcracker/qubership-workflow-hub/actions/create-branch@main
-        with:
-          branch-name: ${{ inputs.branch }}
-```
+What will happen:
+- If `source-ref` is a tag like `v1.2.3`, the branch name will be `hotfix-v1.2.3`.
+- If `source-ref` is a branch like `main`, the branch name will be `hotfix-main`.
 
 ---
 
