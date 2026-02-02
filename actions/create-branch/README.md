@@ -1,4 +1,4 @@
-# Create Branch Action
+# 🚀 Create Branch Action
 
 This **Create Branch Action** creates a new branch from a tag or another branch. It supports auto-generated branch names, force recreation, and dry-run mode.
 
@@ -12,9 +12,14 @@ This **Create Branch Action** creates a new branch from a tag or another branch.
 - Force recreate a branch (delete and re-create).
 - Dry-run mode for safe testing.
 
+### Action Result
+
+The primary output of this action is the created branch name.
+For example, if `source-ref` is `v1.2.3` and strategy is `release`, the output can be `release/1.2.3`.
+
 ---
 
-## Inputs
+## 📌 Inputs
 
 | Name                 | Description                                                                                                                                | Required | Default |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------- |
@@ -30,7 +35,7 @@ This **Create Branch Action** creates a new branch from a tag or another branch.
 
 ---
 
-## Outputs
+## 📌 Outputs
 
 | Name             | Description                  |
 | ---------------- | ---------------------------- |
@@ -194,6 +199,16 @@ jobs:
           source-ref: ${{ inputs.source }}
           branch-name: ${{ inputs.branch }}
           force-create: true
+```
+
+---
+
+## Permissions
+
+Minimum recommended permissions for the job:
+```yaml
+permissions:
+  contents: write
 ```
 
 ---
