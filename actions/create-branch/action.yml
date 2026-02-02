@@ -1,15 +1,44 @@
 name: "Create Branch Action"
-description: "Create a new branch from a specified source (branch or tag)."
+description: "Creates a new branch from a tag or another branch with customizable options."
 
 inputs:
   branch-name:
-    description: "Name of the new branch to create."
-    required: true
+    description: "Name of the branch to create. If not provided, will be auto-generated based on auto-name-strategy."
+    required: false
+    default: ""
   source-ref:
-    description: "Source branch or tag to create the new branch from."
+    description: "Source reference (tag or branch) to create the branch from. Examples: 'v1.0.0', 'main', 'develop'."
     required: true
+  auto-name-strategy:
+    description: "Strategy for auto-generating branch name if branch-name is not provided. Options: 'auto' (smart detection: release/ for tags, feature/ for branches), 'release' (release/X.X.X from tags), 'timestamp' (branch-from-<source>-<timestamp>), 'short-sha' (branch-from-<source>-<short-sha>), 'source-only' (<source>-branch)."
+    required: false
+    default: "auto"
+  branch-prefix:
+    description: "Custom prefix for auto-generated branch names (overrides auto-name-strategy prefix). Example: 'hotfix/', 'feature/'."
+    required: false
+    default: ""
+  branch-separator:
+    description: "Separator between prefix and branch name ('/' or '-'). Used with 'auto' strategy and when branch-prefix is set. Default: '/'."
+    required: false
+    default: "/"
+  check-branch:
+    description: "Check if the branch already exists and fail if it does."
+    required: false
+    default: "true"
+  force-create:
+    description: "Force create the branch even if it exists (will delete and recreate)."
+    required: false
+    default: "false"
+  push-branch:
+    description: "Push the newly created branch to remote."
+    required: false
+    default: "true"
   dry-run:
     description: "Run the action in dry-run mode (no changes will be pushed)."
+    required: false
+    default: "false"
+  skip-checkout:
+    description: "Skip the checkout step (useful if the code is already checked out)."
     required: false
     default: "false"
 
@@ -21,48 +50,189 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout code
+      if: ${{ inputs.skip-checkout != 'true' }}
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.source-ref }}
+        fetch-depth: 0
+
     - name: Configure Git
       shell: bash
       run: |
         git config --global user.email "github-actions[bot]@qubership.com"
         git config --global user.name "GitHub Actions [Bot]"
 
+    - name: Generate branch name
+      id: generate-name
+      shell: bash
+      env:
+        BRANCH_NAME_INPUT: ${{ inputs.branch-name }}
+        SOURCE_REF: ${{ inputs.source-ref }}
+        STRATEGY: ${{ inputs.auto-name-strategy }}
+        CUSTOM_PREFIX: ${{ inputs.branch-prefix }}
+        SEPARATOR: ${{ inputs.branch-separator }}
+      run: |
+        # If branch name is provided, use it
+        if [ -n "$BRANCH_NAME_INPUT" ]; then
+          echo "Using provided branch name: $BRANCH_NAME_INPUT"
+          echo "branch-name=$BRANCH_NAME_INPUT" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "Auto-generating branch name using strategy: $STRATEGY"
+
+        # Fetch for strategies that need it
+        if [ "$STRATEGY" = "short-sha" ] || [ "$STRATEGY" = "auto" ]; then
+          git fetch --all --tags >/dev/null 2>&1 || true
+        fi
+
+        case "$STRATEGY" in
+          "auto")
+            # Smart detection: release/ for tags, feature/ for branches
+            SOURCE_SANITIZED=$(echo "$SOURCE_REF" | sed 's/\//-/g' | sed 's/^refs-heads-//' | sed 's/^refs-tags-//')
+
+            # Determine if source is a tag or branch
+            if git show-ref --tags "$SOURCE_REF" &>/dev/null || git rev-parse --verify "refs/tags/$SOURCE_REF" &>/dev/null; then
+              # Source is a tag
+              if [ -n "$CUSTOM_PREFIX" ]; then
+                PREFIX="$CUSTOM_PREFIX"
+              else
+                PREFIX="release"
+              fi
+            else
+              # Source is a branch
+              if [ -n "$CUSTOM_PREFIX" ]; then
+                PREFIX="$CUSTOM_PREFIX"
+              else
+                PREFIX="feature"
+              fi
+            fi
+
+            BRANCH_NAME="${PREFIX}${SEPARATOR}${SOURCE_SANITIZED}"
+            ;;
+
+          "release")
+            # Extract version from tag (e.g., v1.0.0 -> release/1.0.0)
+            if [[ "$SOURCE_REF" =~ ^v?([0-9]+\.[0-9]+\.[0-9]+.*) ]]; then
+              VERSION="${BASH_REMATCH[1]}"
+              if [ -n "$CUSTOM_PREFIX" ]; then
+                BRANCH_NAME="${CUSTOM_PREFIX}${SEPARATOR}${VERSION}"
+              else
+                BRANCH_NAME="release${SEPARATOR}${VERSION}"
+              fi
+            else
+              # Fallback for non-version tags
+              CLEAN_REF=$(echo "$SOURCE_REF" | sed 's/[^a-zA-Z0-9._-]/-/g')
+              if [ -n "$CUSTOM_PREFIX" ]; then
+                BRANCH_NAME="${CUSTOM_PREFIX}${SEPARATOR}${CLEAN_REF}"
+              else
+                BRANCH_NAME="branch-from-${CLEAN_REF}"
+              fi
+            fi
+            ;;
+
+          "timestamp")
+            # Create branch with timestamp (e.g., branch-from-main-20240126-143022)
+            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+            CLEAN_REF=$(echo "$SOURCE_REF" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            if [ -n "$CUSTOM_PREFIX" ]; then
+              BRANCH_NAME="${CUSTOM_PREFIX}${SEPARATOR}${CLEAN_REF}-${TIMESTAMP}"
+            else
+              BRANCH_NAME="branch-from-${CLEAN_REF}-${TIMESTAMP}"
+            fi
+            ;;
+
+          "short-sha")
+            # Create branch with short SHA (e.g., branch-from-main-a1b2c3d)
+            SHORT_SHA=$(git rev-parse --short "$SOURCE_REF" 2>/dev/null || echo "unknown")
+            CLEAN_REF=$(echo "$SOURCE_REF" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            if [ -n "$CUSTOM_PREFIX" ]; then
+              BRANCH_NAME="${CUSTOM_PREFIX}${SEPARATOR}${CLEAN_REF}-${SHORT_SHA}"
+            else
+              BRANCH_NAME="branch-from-${CLEAN_REF}-${SHORT_SHA}"
+            fi
+            ;;
+
+          "source-only")
+            # Simple branch name based on source (e.g., main-branch)
+            CLEAN_REF=$(echo "$SOURCE_REF" | sed 's/[^a-zA-Z0-9._-]/-/g')
+            if [ -n "$CUSTOM_PREFIX" ]; then
+              BRANCH_NAME="${CUSTOM_PREFIX}${SEPARATOR}${CLEAN_REF}"
+            else
+              BRANCH_NAME="${CLEAN_REF}-branch"
+            fi
+            ;;
+
+          *)
+            echo "Unknown auto-name-strategy: $STRATEGY"
+            exit 1
+            ;;
+        esac
+
+        echo "Generated branch name: $BRANCH_NAME"
+        echo "branch-name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
     - name: Create branch
       id: create-branch
       shell: bash
+      env:
+        BRANCH_NAME: ${{ steps.generate-name.outputs.branch-name }}
+        SOURCE_REF: ${{ inputs.source-ref }}
+        CHECK_BRANCH: ${{ inputs.check-branch }}
+        FORCE_CREATE: ${{ inputs.force-create }}
+        PUSH_BRANCH: ${{ inputs.push-branch }}
+        DRY_RUN: ${{ inputs.dry-run }}
       run: |
-        echo "Creating branch '${{ inputs.branch-name }}' from '${{ inputs.source-ref }}'"
-
-        # Fetch all branches and tags
+        echo "Fetching latest changes..."
         git fetch --all --tags
 
-        # Check if source ref exists
-        if ! git rev-parse --verify "${{ inputs.source-ref }}" &>/dev/null; then
-          echo "Error: Source ref '${{ inputs.source-ref }}' does not exist."
+        # Check if source-ref exists
+        if ! git rev-parse --verify "$SOURCE_REF" &>/dev/null; then
+          echo "Error: Source reference '$SOURCE_REF' does not exist."
           exit 1
         fi
 
-        # Check if branch already exists locally
-        if git show-ref --verify --quiet "refs/heads/${{ inputs.branch-name }}"; then
-          echo "Error: Branch '${{ inputs.branch-name }}' already exists locally."
-          exit 1
+        echo "Creating branch '$BRANCH_NAME' from '$SOURCE_REF'..."
+
+        # Check if branch already exists (if check-branch is enabled)
+        if [ "$CHECK_BRANCH" = "true" ] && [ "$FORCE_CREATE" != "true" ]; then
+          if git rev-parse --verify "origin/$BRANCH_NAME" &>/dev/null; then
+            echo "Error: Branch '$BRANCH_NAME' already exists on remote."
+            exit 1
+          fi
         fi
 
-        # Check if branch already exists remotely
-        if git ls-remote --heads origin "${{ inputs.branch-name }}" | grep -q "${{ inputs.branch-name }}"; then
-          echo "Error: Branch '${{ inputs.branch-name }}' already exists on remote."
-          exit 1
+        # Handle force-create: delete existing branch if it exists
+        if [ "$FORCE_CREATE" = "true" ]; then
+          if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+            echo "Force create enabled: Deleting existing local branch '$BRANCH_NAME'"
+            git branch -D "$BRANCH_NAME" || true
+          fi
+
+          if git rev-parse --verify "origin/$BRANCH_NAME" &>/dev/null; then
+            echo "Force create enabled: Deleting existing remote branch '$BRANCH_NAME'"
+            if [ "$DRY_RUN" != "true" ]; then
+              git push origin --delete "$BRANCH_NAME" || true
+            fi
+          fi
         fi
 
-        # Create the new branch from source ref
-        git checkout -b "${{ inputs.branch-name }}" "${{ inputs.source-ref }}"
+        # Create the branch from source-ref
+        echo "Creating branch '$BRANCH_NAME' from '$SOURCE_REF'..."
+        git checkout -b "$BRANCH_NAME" "$SOURCE_REF"
 
-        if [ "${{ inputs.dry-run }}" == "true" ]; then
-          echo "Dry run mode active. Skipping push."
+        # Push to remote if requested
+        if [ "$PUSH_BRANCH" = "true" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run mode active. Branch created locally but not pushed."
+          else
+            echo "Pushing branch '$BRANCH_NAME' to remote..."
+            git push -u origin "$BRANCH_NAME"
+            echo "Branch '$BRANCH_NAME' created and pushed successfully."
+          fi
         else
-          # Push the new branch to remote
-          git push origin "${{ inputs.branch-name }}"
-          echo "Branch '${{ inputs.branch-name }}' created and pushed successfully."
+          echo "Branch '$BRANCH_NAME' created locally (not pushed to remote)."
         fi
 
-        echo "branch=${{ inputs.branch-name }}" >> $GITHUB_OUTPUT
+        echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT

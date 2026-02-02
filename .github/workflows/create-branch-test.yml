@@ -1,45 +1,350 @@
-name: Create Branch Test
+name: Create Branch Action Test
 
 on:
   workflow_dispatch:
     inputs:
-      branch-name:
-        description: 'Name of the new branch to create'
-        required: true
-        type: string
-      source-ref:
-        description: 'Source branch or tag to create from'
-        required: true
-        type: string
-        default: 'main'
-      dry-run:
-        description: 'Dry run mode (test without pushing)'
+      test-scenario:
+        description: 'Test scenario to run'
         required: false
-        type: boolean
-        default: false
+        type: choice
+        options:
+          - 'all'
+          - 'auto-strategy'
+          - 'custom-strategies'
+          - 'custom-options'
+        default: 'all'
+  pull_request:
+    paths:
+      - 'actions/create-branch/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'actions/create-branch/**'
 
 permissions:
   contents: write
 
 jobs:
-  create-branch:
+  # Test 1: Auto strategy with tag (should create release/ branch)
+  test-auto-strategy-tag:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'auto-strategy' || github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.1
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create new branch
-        id: create
+      - name: Create test tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -f test-tag-v1.0.0
+          git push -f origin test-tag-v1.0.0 || true
+
+      - name: Test auto strategy with tag
+        id: test-auto-tag
         uses: ./actions/create-branch
         with:
-          branch-name: ${{ inputs.branch-name }}
-          source-ref: ${{ inputs.source-ref }}
-          dry-run: ${{ inputs.dry-run }}
+          source-ref: 'test-tag-v1.0.0'
+          auto-name-strategy: 'auto'
+          dry-run: 'true'
+          skip-checkout: 'true'
 
-      - name: Show results
+      - name: Verify result
         run: |
-          echo "Branch created: ${{ steps.create.outputs.created-branch }}"
-          echo "Source: ${{ inputs.source-ref }}"
-          echo "Dry run: ${{ inputs.dry-run }}"
+          BRANCH="${{ steps.test-auto-tag.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ ! "$BRANCH" =~ ^release/ ]]; then
+            echo "Error: Expected branch to start with 'release/', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Auto strategy correctly created release/ branch for tag"
+
+  # Test 2: Auto strategy with branch (should create feature/ branch)
+  test-auto-strategy-branch:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'auto-strategy' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test auto strategy with branch
+        id: test-auto-branch
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'main'
+          auto-name-strategy: 'auto'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-auto-branch.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ ! "$BRANCH" =~ ^feature/ ]]; then
+            echo "Error: Expected branch to start with 'feature/', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Auto strategy correctly created feature/ branch for branch"
+
+  # Test 3: Release strategy with version tag
+  test-release-strategy:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-strategies' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create version tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -f v2.0.0
+          git push -f origin v2.0.0 || true
+
+      - name: Test release strategy
+        id: test-release
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'v2.0.0'
+          auto-name-strategy: 'release'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-release.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ "$BRANCH" != "release/2.0.0" ]]; then
+            echo "Error: Expected 'release/2.0.0', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Release strategy correctly extracted version"
+
+  # Test 4: Timestamp strategy
+  test-timestamp-strategy:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-strategies' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test timestamp strategy
+        id: test-timestamp
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'main'
+          auto-name-strategy: 'timestamp'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-timestamp.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ ! "$BRANCH" =~ branch-from-main-[0-9]{8}-[0-9]{6} ]]; then
+            echo "Error: Expected timestamp format, got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Timestamp strategy works correctly"
+
+  # Test 5: Short SHA strategy
+  test-short-sha-strategy:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-strategies' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test short-sha strategy
+        id: test-sha
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'main'
+          auto-name-strategy: 'short-sha'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-sha.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ ! "$BRANCH" =~ branch-from-main-[a-f0-9]{7} ]]; then
+            echo "Error: Expected short SHA format, got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Short SHA strategy works correctly"
+
+  # Test 6: Custom prefix
+  test-custom-prefix:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-options' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test custom prefix
+        id: test-prefix
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'main'
+          branch-prefix: 'hotfix'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-prefix.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ ! "$BRANCH" =~ ^hotfix/ ]]; then
+            echo "Error: Expected branch to start with 'hotfix/', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Custom prefix works correctly"
+
+  # Test 7: Custom separator (dash)
+  test-custom-separator:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-options' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test custom separator
+        id: test-separator
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'main'
+          branch-separator: '-'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-separator.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ "$BRANCH" == *"/"* ]]; then
+            echo "Error: Expected dash separator, but found slash in: $BRANCH"
+            exit 1
+          fi
+          if [[ ! "$BRANCH" =~ ^feature-main$ ]]; then
+            echo "Error: Expected 'feature-main', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Custom separator works correctly"
+
+  # Test 8: Explicit branch name
+  test-explicit-name:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-options' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test explicit branch name
+        id: test-explicit
+        uses: ./actions/create-branch
+        with:
+          branch-name: 'my-custom-branch-name'
+          source-ref: 'main'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-explicit.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ "$BRANCH" != "my-custom-branch-name" ]]; then
+            echo "Error: Expected 'my-custom-branch-name', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Explicit branch name works correctly"
+
+  # Test 9: Source-only strategy
+  test-source-only-strategy:
+    if: github.event.inputs.test-scenario == 'all' || github.event.inputs.test-scenario == 'custom-strategies' || github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test source-only strategy
+        id: test-source-only
+        uses: ./actions/create-branch
+        with:
+          source-ref: 'main'
+          auto-name-strategy: 'source-only'
+          dry-run: 'true'
+          skip-checkout: 'true'
+
+      - name: Verify result
+        run: |
+          BRANCH="${{ steps.test-source-only.outputs.created-branch }}"
+          echo "Created branch: $BRANCH"
+          if [[ "$BRANCH" != "main-branch" ]]; then
+            echo "Error: Expected 'main-branch', got: $BRANCH"
+            exit 1
+          fi
+          echo "Test passed: Source-only strategy works correctly"
+
+  # Summary job
+  test-summary:
+    needs:
+      - test-auto-strategy-tag
+      - test-auto-strategy-branch
+      - test-release-strategy
+      - test-timestamp-strategy
+      - test-short-sha-strategy
+      - test-custom-prefix
+      - test-custom-separator
+      - test-explicit-name
+      - test-source-only-strategy
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check test results
+        run: |
+          echo "All tests completed!"
+          echo "Test results:"
+          echo "- Auto strategy (tag): ${{ needs.test-auto-strategy-tag.result }}"
+          echo "- Auto strategy (branch): ${{ needs.test-auto-strategy-branch.result }}"
+          echo "- Release strategy: ${{ needs.test-release-strategy.result }}"
+          echo "- Timestamp strategy: ${{ needs.test-timestamp-strategy.result }}"
+          echo "- Short SHA strategy: ${{ needs.test-short-sha-strategy.result }}"
+          echo "- Custom prefix: ${{ needs.test-custom-prefix.result }}"
+          echo "- Custom separator: ${{ needs.test-custom-separator.result }}"
+          echo "- Explicit name: ${{ needs.test-explicit-name.result }}"
+          echo "- Source-only strategy: ${{ needs.test-source-only-strategy.result }}"
+
+          if [[ "${{ needs.test-auto-strategy-tag.result }}" != "success" ]] || \
+             [[ "${{ needs.test-auto-strategy-branch.result }}" != "success" ]] || \
+             [[ "${{ needs.test-release-strategy.result }}" != "success" ]] || \
+             [[ "${{ needs.test-timestamp-strategy.result }}" != "success" ]] || \
+             [[ "${{ needs.test-short-sha-strategy.result }}" != "success" ]] || \
+             [[ "${{ needs.test-custom-prefix.result }}" != "success" ]] || \
+             [[ "${{ needs.test-custom-separator.result }}" != "success" ]] || \
+             [[ "${{ needs.test-explicit-name.result }}" != "success" ]] || \
+             [[ "${{ needs.test-source-only-strategy.result }}" != "success" ]]; then
+            echo "Some tests failed!"
+            exit 1
+          fi
+
+          echo "All tests passed successfully!"
