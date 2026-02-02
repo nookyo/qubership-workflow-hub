@@ -24,7 +24,7 @@ jobs:
           source-ref: ${{ github.event.inputs.version }}
           check-branch: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CREATE_BRANCH }}
 
       - name: Output created branch name
         run: |
