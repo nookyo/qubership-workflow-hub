@@ -249,7 +249,7 @@ runs:
 
         # Check if branch already exists (if check-branch is enabled)
         if [ "$CHECK_BRANCH" = "true" ] && [ "$FORCE_CREATE" != "true" ]; then
-          if git ls-remote --heads origin "$BRANCH_NAME" 2>/dev/null | grep -q "$BRANCH_NAME"; then
+          if git ls-remote --exit-code --heads origin "refs/heads/$BRANCH_NAME" &>/dev/null; then
             echo "Error: Branch '$BRANCH_NAME' already exists on remote."
             exit 1
           fi
@@ -264,7 +264,7 @@ runs:
           fi
 
           # Delete remote branch if it exists
-          if git ls-remote --heads origin "$BRANCH_NAME" 2>/dev/null | grep -q "$BRANCH_NAME"; then
+          if git ls-remote --exit-code --heads origin "refs/heads/$BRANCH_NAME" &>/dev/null; then
             echo "Force create enabled: Deleting existing remote branch '$BRANCH_NAME'"
             if [ "$DRY_RUN" != "true" ]; then
               git push origin --delete "$BRANCH_NAME"
