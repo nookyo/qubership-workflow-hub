@@ -72,7 +72,7 @@ jobs:
 
       - name: Create branch
         id: cb
-        uses: ./.github/actions/create-branch
+        uses: nookyo/qubership-workflow-hub/actions/create-branch@main
         with:
           source-ref: ${{ inputs.source_ref }}
           branch-name: ${{ inputs.branch_name }}
