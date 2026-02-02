@@ -13,14 +13,6 @@ on:
           - 'custom-strategies'
           - 'custom-options'
         default: 'all'
-  pull_request:
-    paths:
-      - 'actions/create-branch/**'
-  push:
-    branches:
-      - main
-    paths:
-      - 'actions/create-branch/**'
 
 permissions:
   contents: write
