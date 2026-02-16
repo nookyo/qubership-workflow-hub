@@ -10,7 +10,7 @@ Organization-level secrets and variables referenced across actions and reusable 
 | `secrets.DOCKERHUB_RW_TOKEN` | Access token / password for the Docker Hub user with read/write (and possibly delete) permissions; used for `docker login` prior to build & push steps. Rotate if leaked. |
 | `secrets.DOCKERHUB_USER` | Docker Hub account username used for authenticating when pushing images or increasing anonymous pull rate limits. |
 | `secrets.GH_ACCESS_TOKEN` | PAT for a technical (service) user with extended repository / package permissions beyond `GITHUB_TOKEN`. |
-| `secrets.GH_BUMP_VERSION_APP_KEY` | GitHub App Key used for automated version bumping processes. |  
+| `secrets.GH_BUMP_VERSION_APP_KEY` | GitHub App Key used for automated version bumping processes. Can bypass branch protection rules. |  
 | `secrets.GH_RWD_PACKAGE_TOKEN` | PAT with read / write / delete permissions for GitHub Packages (publishing & cleanup). |
 | `secrets.GITHUB_TOKEN` | Ephemeral GitHub-provided token (scoped to repository). Used for checkout, pushing commits/tags, creating releases. |
 | `secrets.MAVEN_GPG_PASSPHRASE` | Passphrase unlocking the GPG private key. |
@@ -21,13 +21,13 @@ Organization-level secrets and variables referenced across actions and reusable 
 | `secrets.PYPI_API_TOKEN` | API token for publishing Python packages to PyPI. |
 | `secrets.PYPI_API_USER` | API user name for publishing Python packages to PyPI. |
 | `secrets.SONAR_TOKEN` | Token to authenticate with SonarQube / SonarCloud for code quality analysis. |
-| `secrets.WORKFLOWS_TOKEN` | Classic PAT including `workflow` scope (needed to trigger/modify workflows or dispatch across repository). |
+| `secrets.WORKFLOWS_TOKEN` | Classic PAT including `workflow` scope (needed to trigger/modify workflows or dispatch across repository). Deprecated. Replaced by `secrets.GH_ACCESS_TOKEN`. |
 
 ## Organization Variables
 
 | Name | Purpose |
 |------|---------|
-| `GH_BUMP_VERSION_APP_ID` | GitHub App ID used for automated version bumping processes. |
+| `GH_BUMP_VERSION_APP_ID` | GitHub App ID used for automated version bumping processes. Paired with `secrets.GH_BUMP_VERSION_APP_KEY`. |
 | `SONAR_HOST_URL` | URL of the SonarQube/SonarCloud server for code quality analysis. |
 | `SONAR_ORGANIZATION` | Organization identifier in SonarQube/SonarCloud for project association. |
 | `SONAR_PLUGIN_VERSION` | Version of the SonarQube plugin to use in analysis workflows. |
