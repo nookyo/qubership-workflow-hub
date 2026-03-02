@@ -11,6 +11,7 @@ This **GitHub Metadata** GitHub Action extracts metadata from the current GitHub
 - Dynamically adapts to branches, tags, and pull requests.
 - Supports additional tags and merging options.
 - Includes dry-run mode for testing without making changes.
+- Enforces configurable maximum tag length (default 128 characters, Docker-compatible).
 
 ### Action Result
 
@@ -22,19 +23,20 @@ Or triggered on the `release/1.2.3` branch, resulting in `release-1.2.3-20250313
 
 ## 📌 Inputs
 
-| Name                 | Description                                    | Required | Default                                    |
-| -------------------- | ---------------------------------------------- | -------- | ------------------------------------------ |
-| `ref`                | Branch or tag ref.                             | No       | `github.context.ref`                       |
-| `configuration-path` | Path to the configuration file.                | No       | `./.github/metadata-action-config.yml`     |
-| `short-sha`          | Depth of the short SHA.                        | No       | `7`                                        |
-| `default-template`   | Default template for version generation.       | No       | `{{ref-name}}-{{timestamp}}-{{runNumber}}` |
-| `default-tag`        | Default distribution tag.                      | No       | `latest`                                   |
-| `extra-tags`         | Additional tags to append to the result.       | No       | `""`                                       |
-| `merge-tags`         | Whether to merge `extra-tags` with the result. | No       | `false`                                    |
-| `debug`              | Enable debug mode for detailed logging.        | No       | `false`                                    |
-| `show-report`        | Whether to display a summary report.           | No       | `false`                                    |
-| `dry-run`            | Enable dry-run mode to simulate the action.    | No       | `false`                                    |
-| `replace-symbol`     | Symbol to replace '/' in branch or tag names.  | No       | `-`                                        |
+| Name                 | Description                                                                                                                | Required | Default                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------ |
+| `ref`                | Branch or tag ref.                                                                                                         | No       | `github.context.ref`                       |
+| `configuration-path` | Path to the configuration file.                                                                                            | No       | `./.github/metadata-action-config.yml`     |
+| `short-sha`          | Depth of the short SHA.                                                                                                    | No       | `7`                                        |
+| `default-template`   | Default template for version generation.                                                                                   | No       | `{{ref-name}}-{{timestamp}}-{{runNumber}}` |
+| `default-tag`        | Default distribution tag.                                                                                                  | No       | `latest`                                   |
+| `extra-tags`         | Additional tags to append to the result.                                                                                   | No       | `""`                                       |
+| `merge-tags`         | Whether to merge `extra-tags` with the result.                                                                             | No       | `true`                                     |
+| `debug`              | Enable debug mode for detailed logging.                                                                                    | No       | `false`                                    |
+| `show-report`        | Whether to display a summary report.                                                                                       | No       | `true`                                     |
+| `dry-run`            | Enable dry-run mode to simulate the action.                                                                                | No       | `false`                                    |
+| `replace-symbol`     | Symbol to replace '/' in branch or tag names.                                                                              | No       | `-`                                        |
+| `tag-max-length`     | Maximum length for generated tags. Tags are truncated to this length and trailing non-alphanumeric characters are removed. | No       | `128`                                      |
 
 ---
 
@@ -43,7 +45,7 @@ Or triggered on the `release/1.2.3` branch, resulting in `release-1.2.3-20250313
 | Name        | Description                                                                                                                         | Example         |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | `result`    | Rendered template with metadata based on template rules (e.g. using `v{{major}}.{{minor}}.{{patch}}-{{date}}` for the main branch). | v1.2.3-20250313 |
-| `ref`       | The current branch or tag reference (e.g. `refs/heads/main`).                                                                       | refs/heads/main |
+| `ref`       | Normalized branch or tag name. Deprecated — use `ref-name` instead.                                                                 | main            |
 | `ref-name`  | The name of the current branch or tag.                                                                                              | main            |
 | `date`      | Current date in `YYYYMMDD` format.                                                                                                  | 20250313        |
 | `time`      | Current time in `HHMMSS` format.                                                                                                    | 235959          |
@@ -145,13 +147,53 @@ Aliases for template compatibility:
 - `dist_tag`, `distTag`
 - `run_number`
 
-Length modifiers are supported for any placeholder, e.g. `{{short-sha:4}}`.
-Example:
+#### Length Modifiers
 
-- Template: `{{ref-name}}-{{short-sha:4}}`
-- Result: `main-8c3c`
+Any placeholder supports an optional length modifier using the syntax `{{key:N}}`, where `N` is the maximum number of characters to keep from the start of the value.
+
+Syntax: `{{key:N}}`
+
+Examples:
+
+| Template                                      | ref-name value                  | Result                                          |
+| --------------------------------------------- | ------------------------------- | ----------------------------------------------- |
+| `{{ref-name:10}}-{{timestamp}}`               | `feature-very-long-branch-name` | `feature-br-20250313235959`                     |
+| `{{short-sha:4}}`                             | `abc12345`                      | `abc1`                                          |
+| `{{ref-name:80}}-{{timestamp}}-{{runNumber}}` | `dependabot-very-long-branch`   | `dependabot-very-long-branch-20250313235959-42` |
+
+This is especially useful to prevent long branch names from consuming the full tag length budget. See [Tag Length Limiting](#tag-length-limiting) for more context.
 
 Unknown placeholders are kept as-is and a warning is logged.
+
+### Tag Length Limiting
+
+Docker image tags have a maximum length of **128 characters** and must end with an alphanumeric character (`[a-zA-Z0-9]`).
+
+This action automatically:
+
+- Truncates the generated tag to `tag-max-length` characters (default: `128`)
+- Strips trailing non-alphanumeric characters after truncation
+
+When truncation occurs, a warning is logged:
+
+```text
+⚠ Tag was truncated from 145 to 128 characters: "very-long-branch-..." -> "very-long-branch"
+```
+
+**Important:** truncation always cuts from the end of the rendered string. For a template like `{{ref-name}}-{{timestamp}}-{{runNumber}}`, if `ref-name` is very long, the `timestamp` and `runNumber` parts may be cut off entirely.
+
+To avoid this, use the length modifier `{{key:N}}` to limit specific placeholders:
+
+```yaml
+# Limits ref-name to 80 chars, ensuring timestamp and runNumber are always present
+branches-template:
+  - "dependabot/*": "{{ref-name:80}}-{{timestamp}}-{{runNumber}}"
+```
+
+| Scenario      | Template                        | Result (ref-name = 120 chars)                    |
+| ------------- | ------------------------------- | ------------------------------------------------ |
+| No limit      | `{{ref-name}}-{{timestamp}}`    | `<first 113 chars of ref-name>` (timestamp lost) |
+| With modifier | `{{ref-name:80}}-{{timestamp}}` | `<80 chars of ref-name>-20250313235959`          |
 
 ### Semantic Version Parsing Contract
 
@@ -218,3 +260,4 @@ The configuration file for this action must adhere to [the schema defined](https
 - **Missing outputs:** Check if the action ran successfully; use `debug: true` for logs.
 - **Configuration errors:** Validate your YAML against the schema at [config.schema.json](https://github.com/netcracker/qubership-workflow-hub/blob/main/actions/metadata-action/config.schema.json).
 - **Branch/tag name issues:** Use `replace-symbol` to customize how '/' is replaced in names (default is `-`).
+- **Tag too long:** Use `tag-max-length` to limit the generated tag length. If important parts like `timestamp` get cut off, use length modifiers in the template (e.g. `{{ref-name:80}}-{{timestamp}}`). See [Tag Length Limiting](#tag-length-limiting) for details.

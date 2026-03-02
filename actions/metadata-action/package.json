@@ -4,14 +4,14 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose",
-    "build": "ncc build src/index.js -o dist"
+    "build": "ncc build src/index.js --license licenses.txt"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^2.0.2",
     "@actions/github": "^9.0.0",
     "@netcracker/action-logger": "file:../../packages/action-logger",
     "ajv": "^8.17.1",
@@ -22,6 +22,7 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
+    "@vercel/ncc": "^0.38.4",
     "jest": "^30.2.0"
   }
 }
