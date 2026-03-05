@@ -1,6 +1,6 @@
-const { execSync } = require("child_process");
-const path = require("path");
-const core = require("@actions/core");
+import { execSync } from "node:child_process";
+import path from "node:path";
+import * as core from "@actions/core";
 
 class AssetUploader {
     constructor(token, releaseTag, owner, repo) {
@@ -38,4 +38,4 @@ class AssetUploader {
     }
 }
 
-module.exports = AssetUploader;
+export default AssetUploader;

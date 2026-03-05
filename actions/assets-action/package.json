@@ -2,26 +2,29 @@
   "name": "assets",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "esbuild src/index.js --bundle --platform=node --format=esm --outfile=dist/index.js --preserve-symlinks",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^3.0.0",
     "@actions/github": "^9.0.0",
     "@actions/glob": "^0.6.1",
     "@netcracker/action-logger": "file:../../packages/action-logger",
     "ajv": "^8.17.1",
     "archiver": "^7.0.1",
-    "child_process": "^1.0.2",
-    "fs": "^0.0.1-security",
-    "js-yaml": "^4.1.1",
-    "path": "^0.12.7"
+    "js-yaml": "^4.1.1"
   },
-  "overrides": {
-    "glob": "^11.0.0"
+  "devDependencies": {
+    "esbuild": "^0.27.3",
+    "jest": "^30.2.0"
   }
 }
