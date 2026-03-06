@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
 const WildcardMatcher = require("../utils/wildcardMatcher");
-const log = require("@netcracker/action-logger");
+const log = require("@qubership/action-logger");
 
 const MODULE = 'container.js';
 

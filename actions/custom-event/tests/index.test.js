@@ -17,7 +17,7 @@ jest.unstable_mockModule("@actions/github", () => ({
   }),
   context: { repo: { owner: "test-owner", repo: "test-repo" } },
 }));
-jest.unstable_mockModule("@netcracker/action-logger", () => ({
+jest.unstable_mockModule("@qubership/action-logger", () => ({
   default: mockLog,
 }));
 

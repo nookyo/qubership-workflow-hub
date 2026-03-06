@@ -9,7 +9,7 @@ const ContainerReport = require("./reports/containerReport");
 const MavenReport = require("./reports/mavenReport");
 const { getStrategy } = require("./strategy/strategyRegistry");
 const { deletePackageVersion } = require('./utils/deleteAction');
-const log = require("@netcracker/action-logger");
+const log = require("@qubership/action-logger");
 
 async function run() {
 

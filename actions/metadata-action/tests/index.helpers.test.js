@@ -22,7 +22,7 @@ jest.unstable_mockModule("@actions/github", () => ({
     repo: { owner: "o", repo: "r" },
   },
 }));
-jest.unstable_mockModule("@netcracker/action-logger", () => ({
+jest.unstable_mockModule("@qubership/action-logger", () => ({
   default: {
     dim: jest.fn(),
     warn: jest.fn(),

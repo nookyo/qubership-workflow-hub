@@ -1,5 +1,5 @@
 import * as core from "@actions/core";
-import log from "@netcracker/action-logger";
+import log from "@qubership/action-logger";
 
 const REF_PATTERN = /^refs\/(heads|tags)\/(.+)$/;
 

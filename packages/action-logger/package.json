@@ -1,5 +1,5 @@
 {
-  "name": "@netcracker/action-logger",
+  "name": "@qubership/action-logger",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",

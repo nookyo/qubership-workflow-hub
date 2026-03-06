@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import log from "@netcracker/action-logger";
+import log from "@qubership/action-logger";
 
 import ConfigLoader from "./loader.js";
 import RefNormalizer from "./extractor.js";

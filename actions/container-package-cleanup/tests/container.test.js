@@ -1,9 +1,9 @@
 // tests/container.test.js
 jest.mock('@actions/core');
-jest.mock('@netcracker/action-logger');
+jest.mock('@qubership/action-logger');
 
 const ContainerStrategy = require('../src/strategy/container');
-const log = require('@netcracker/action-logger');
+const log = require('@qubership/action-logger');
 
 describe('ContainerStrategy', () => {
   let strategy;

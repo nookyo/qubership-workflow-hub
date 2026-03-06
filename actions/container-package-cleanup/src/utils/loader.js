@@ -3,7 +3,7 @@ const yaml = require("js-yaml");
 const core = require("@actions/core");
 const Ajv = require("ajv");
 const path = require("node:path");
-const log = require("@netcracker/action-logger");
+const log = require("@qubership/action-logger");
 
 
 class ConfigLoader {

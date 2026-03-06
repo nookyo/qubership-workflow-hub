@@ -5,7 +5,7 @@ jest.unstable_mockModule("@actions/core", () => ({
   info: jest.fn(),
   warning: jest.fn(),
 }));
-jest.unstable_mockModule("@netcracker/action-logger", () => ({
+jest.unstable_mockModule("@qubership/action-logger", () => ({
   default: { warn: jest.fn(), dim: jest.fn() },
 }));
 

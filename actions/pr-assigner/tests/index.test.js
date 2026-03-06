@@ -15,7 +15,7 @@ jest.unstable_mockModule("@actions/github", () => ({
     },
   },
 }));
-jest.unstable_mockModule("@netcracker/action-logger", () => ({
+jest.unstable_mockModule("@qubership/action-logger", () => ({
   default: {
     info: jest.fn(),
     warn: jest.fn(),
@@ -43,7 +43,7 @@ jest.unstable_mockModule("../src/command.js", () => ({
   })),
 }));
 
-const log = (await import("@netcracker/action-logger")).default;
+const log = (await import("@qubership/action-logger")).default;
 const _github = await import("@actions/github");
 
 // Import once — run() is called on module load

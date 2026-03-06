@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const WildcardMatcher = require("../utils/wildcardMatcher");
 const AbstractPackageStrategy = require("./abstractPackageStrategy");
-const log = require("@netcracker/action-logger");
+const log = require("@qubership/action-logger");
 
 const MODULE = 'maven.js';
 

@@ -22,7 +22,7 @@ jest.unstable_mockModule("@actions/github", () => ({
         repo: { owner: "test-owner", repo: "test-repo" }
     }
 }));
-jest.unstable_mockModule("@netcracker/action-logger", () => ({
+jest.unstable_mockModule("@qubership/action-logger", () => ({
     default: {
         group: jest.fn(),
         endGroup: jest.fn(),
@@ -48,7 +48,7 @@ jest.unstable_mockModule("../src/report.js", () => ({
 
 const core = await import("@actions/core");
 const github = await import("@actions/github");
-const { default: log } = await import("@netcracker/action-logger");
+const { default: log } = await import("@qubership/action-logger");
 const { default: ConfigLoader } = await import("../src/loader.js");
 const { default: RefNormalizer } = await import("../src/extractor.js");
 const { default: Report } = await import("../src/report.js");

@@ -1,4 +1,4 @@
-import log from "@netcracker/action-logger";
+import log from "@qubership/action-logger";
 
    async function retryAsync(fn, options = {}) {
     let { retries = 3, delay = 1000, factor = 1 } = options;

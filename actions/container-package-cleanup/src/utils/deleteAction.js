@@ -1,4 +1,4 @@
-const log = require("@netcracker/action-logger");
+const log = require("@qubership/action-logger");
 
 const _MODULE = 'deleteAction.js';
 /**

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import yaml from "js-yaml";
 import { createRequire } from "node:module";
 import path from "node:path";
-import log from '@netcracker/action-logger';
+import log from '@qubership/action-logger';
 
 const require = createRequire(import.meta.url);
 const Ajv = require("ajv");

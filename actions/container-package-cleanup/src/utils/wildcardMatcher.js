@@ -1,5 +1,5 @@
 const escapeStringRegexp = require('escape-string-regexp');
-const log = require("@netcracker/action-logger");
+const log = require("@qubership/action-logger");
 
 const MODULE = 'wildcardMatcher.js';
 
