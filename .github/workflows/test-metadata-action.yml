@@ -227,6 +227,46 @@ jobs:
 
           echo "✅ GitHub context test passed!"
 
+  test-inline-length-modifier:
+    name: Test Inline Length Modifier
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run Metadata Action with inline length modifier
+        id: metadata
+        uses: ./actions/metadata-action
+        with:
+          ref: "refs/heads/feature/test-branch"
+          default-template: "{{ref-name:7}}-{{short-sha:4}}"
+          show-report: "true"
+
+      - name: Verify inline length modifier outputs
+        shell: bash
+        run: |
+          RESULT="${{ steps.metadata.outputs.result }}"
+          echo "result: $RESULT"
+
+          # ref-name for "refs/heads/feature/test-branch" with default replace-symbol "-" = "feature-test-branch"
+          # sliced to 7 -> "feature"
+          # short-sha default 7 chars, sliced to 4 -> first 4 chars
+          EXPECTED_PREFIX="feature-"
+          if [[ "$RESULT" != feature-* ]]; then
+            echo "❌ ERROR: result should start with 'feature-', got: $RESULT"
+            exit 1
+          fi
+
+          # Total length should be 7 + 1 + 4 = 12 (ref-name:7 + dash + short-sha:4)
+          if [ ${#RESULT} -ne 12 ]; then
+            echo "❌ ERROR: result length should be 12, got: ${#RESULT} ('$RESULT')"
+            exit 1
+          fi
+
+          echo "✅ Inline length modifier test passed!"
+
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest

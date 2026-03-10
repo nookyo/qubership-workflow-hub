@@ -58,6 +58,7 @@ const {
     findTemplate,
     fillTemplate,
     normalizeExtraTags,
+    truncateTag,
     _patternCache,
     _PATTERN_CACHE_MAX,
   },
@@ -144,5 +145,35 @@ describe("index.js helper functions", () => {
     expect(normalizeExtraTags(" beta , , rc , ")).toEqual(["beta", "rc"]);
     expect(normalizeExtraTags("")).toEqual([]);
     expect(normalizeExtraTags(null)).toEqual([]);
+  });
+
+  test("truncateTag cuts tag to maxLen", () => {
+    const long = "a".repeat(200);
+    expect(truncateTag(long, 128).length).toBe(128);
+  });
+
+  test("truncateTag removes trailing non-alphanumeric characters after cut", () => {
+    // After slicing, trailing dashes/dots must be removed
+    const tag = "feature-branch-" + "a".repeat(120);
+    const result = truncateTag(tag, 16);
+    expect(result).toBe("feature-branch-a");
+    expect(result).toMatch(/[a-zA-Z0-9]$/);
+  });
+
+  test("truncateTag does not modify short tags", () => {
+    expect(truncateTag("my-tag", 128)).toBe("my-tag");
+  });
+
+  test("truncateTag uses default 128 when maxLen not provided", () => {
+    const long = "x".repeat(200);
+    expect(truncateTag(long).length).toBe(128);
+  });
+
+  test("truncateTag strips trailing dashes when exactly at boundary", () => {
+    // tag of length 10 ending with dashes after slice at 8
+    const result = truncateTag("abc-----z", 5);
+    // slice(0,5) = "abc--", then strip trailing non-alphanumeric -> "abc"
+    expect(result).toBe("abc");
+    expect(result).toMatch(/[a-zA-Z0-9]$/);
   });
 });

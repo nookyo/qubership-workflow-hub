@@ -201,4 +201,47 @@ describe("index.js (main action)", () => {
             expect.stringContaining("Unknown template placeholders")
         );
     });
+
+    test("should truncate result when tag-max-length is set", async () => {
+        core.getInput.mockImplementation((name) => {
+            const map = {
+                ref: "refs/heads/main",
+                "short-sha": "7",
+                "dry-run": "false",
+                "show-report": "false",
+                "debug": "false",
+                "tag-max-length": "10",
+                "default-template": "{{ref-name}}-{{short-sha}}-extra-long-suffix",
+            };
+            return map[name] ?? "";
+        });
+
+        const result = await run();
+
+        expect(result.result.length).toBeLessThanOrEqual(10);
+        expect(log.warn).toHaveBeenCalledWith(
+            expect.stringContaining("truncated")
+        );
+    });
+
+    test("should apply inline length modifier {{key:N}} in template", async () => {
+        mockConfigLoader.load.mockReturnValue(null);
+
+        core.getInput.mockImplementation((name) => {
+            const map = {
+                ref: "refs/heads/main",
+                "short-sha": "7",
+                "dry-run": "false",
+                "show-report": "false",
+                "debug": "false",
+                "default-template": "{{ref-name}}-{{short-sha:4}}",
+            };
+            return map[name] ?? "";
+        });
+
+        const result = await run();
+
+        // short-sha is 7 chars "8c3c6b6", sliced to 4 -> "8c3c"
+        expect(result.result).toBe("main-8c3c");
+    });
 });
