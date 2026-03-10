@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.js --bundle --platform=node --format=cjs --outfile=dist/index.js --preserve-symlinks",
+    "build": "ncc build src/index.js -o dist",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose"
   },
   "jest": {
@@ -24,6 +24,7 @@
     "js-yaml": "^4.1.1"
   },
   "devDependencies": {
+    "@vercel/ncc": "^0.38.4",
     "esbuild": "^0.27.3",
     "jest": "^30.2.0"
   }

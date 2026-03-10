@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
-    "build": "esbuild index.js --bundle --platform=node --format=cjs --outfile=dist/index.js --preserve-symlinks"
+    "build": "ncc build index.js -o dist"
   },
   "jest": {
     "testEnvironment": "node"
@@ -20,6 +20,7 @@
     "@qubership/action-logger": "file:../../packages/action-logger"
   },
   "devDependencies": {
+    "@vercel/ncc": "^0.38.4",
     "esbuild": "^0.27.3",
     "jest": "^30.2.0"
   }
