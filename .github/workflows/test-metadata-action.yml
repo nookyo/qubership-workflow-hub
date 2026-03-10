@@ -189,7 +189,7 @@ jobs:
         id: metadata
         uses: ./actions/metadata-action
         with:
-          default-template: "build-{{github.context.workflow}}-{{github.context.sha}}-run{{github.context.runNumber}}"
+          default-template: "build-{{github.workflow}}-{{github.sha}}-run{{github.run_number}}"
           default-tag: "context-tag"
           show-report: "true"
 
