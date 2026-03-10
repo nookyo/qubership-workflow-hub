@@ -30016,7 +30016,7 @@ ${formatted}${COLORS.reset}`;
 var action_logger_default = new Logger();
 
 // src/loader.js
-var import_node_fs = __toESM(require("node:fs"), 1);
+var import_node_fs = __toESM(require("node:fs"));
 
 // node_modules/js-yaml/dist/js-yaml.mjs
 function isNothing(subject) {
@@ -32643,8 +32643,8 @@ var jsYaml = {
 };
 
 // src/loader.js
-var import_node_path = __toESM(require("node:path"), 1);
-var import_ajv = __toESM(require_ajv(), 1);
+var import_node_path = __toESM(require("node:path"));
+var import_ajv = __toESM(require_ajv());
 var cachedValidator = null;
 function getValidator() {
   if (cachedValidator) {
