@@ -18,6 +18,18 @@ inputs:
     description: Optional APM target override; accepts a single target or comma-separated list
     required: false
     default: ""
+  auto-merge:
+    description: Automatically enable auto-merge for the created pull request
+    required: false
+    default: "false"
+  merge-method:
+    description: Merge method to use for auto-merge; valid values are 'merge', 'squash', or 'rebase'
+    required: false
+    default: "squash"  
+  delete-branch:
+    description: Automatically delete the branch after the pull request is merged
+    required: false
+    default: "true"
   token:
     description: GitHub token with permission to create branches and pull requests
     required: true
@@ -148,7 +160,7 @@ runs:
         token: ${{ inputs.token }}
         base: ${{ inputs.branch }}
         branch: chore/update-apm-packages
-        delete-branch: true
+        delete-branch: ${{ inputs.delete-branch }}
         title: "chore(apm): update packages for ${{ steps.resolve-target.outputs.target }}"
         commit-message: "chore(apm): update packages for ${{ steps.resolve-target.outputs.target }}"
         body: |
@@ -176,6 +188,16 @@ runs:
           - `apm.yml`
           - `apm.lock.yaml`
           - deployed APM files
+
+    - name: Enable auto-merge
+      if: ${{ inputs.dry-run != 'true' && inputs.auto-merge == 'true' && steps.create-pr.outputs.pull-request-number != '' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
+        MERGE_METHOD: ${{ inputs.merge-method }}
+      run: |
+        gh pr merge "$PR_NUMBER" --auto --"$MERGE_METHOD"
 
     - name: Log result
       shell: bash
