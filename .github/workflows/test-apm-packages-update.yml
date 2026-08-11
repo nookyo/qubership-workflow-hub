@@ -23,6 +23,16 @@ on:
         required: false
         default: true
         type: boolean
+      auto-merge:
+        description: Automatically enable auto-merge for the created pull request
+        required: false
+        default: false
+        type: boolean
+      sign-off:
+        description: Sign off commits in the pull request
+        required: false
+        default: true
+        type: boolean  
 
 permissions:
   contents: read
@@ -46,7 +56,10 @@ jobs:
           debug: ${{ inputs.debug && 'true' || 'false' }}
           dry-run: ${{ inputs['dry-run'] && 'true' || 'false' }}
           target: ${{ inputs.target }}
+          sign-off: ${{ inputs['sign-off'] && 'true' || 'false' }}
+          auto-merge: ${{ inputs['auto-merge'] && 'true' || 'false' }}
           token: ${{ secrets.APM_UPDATE_TOKEN }}
+
 
       - name: Verify job summary
         run: |
