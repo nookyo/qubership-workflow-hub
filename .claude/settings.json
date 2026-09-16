@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "statusMessage": "Recording skill telemetry",
+            "command": "ai-agent-telemetry ingest --agent=claude",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
