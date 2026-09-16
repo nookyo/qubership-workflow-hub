@@ -11,7 +11,6 @@ includes: auto
 scripts: {}
 devDependencies:
   apm:
-    - nookyo/qubership-ai-packages/agent-packages/apm-authoring
     - ./agent-packages/qubership-workflow-hub-usage
     - Netcracker/qubership-ai-agent-telemetry/agent-packages/ai-agent-telemetry#v1.1.1
 
