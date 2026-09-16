@@ -1,12 +1,32 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "enabledManagers": ["apm"],
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": [
+    "apm"
+  ],
   "packageRules": [
     {
-      "description": "APM dependencies",
-      "matchManagers": ["apm"],
-      "labels": ["dependencies", "apm"]
+      "description": "Group non-major APM updates",
+      "matchManagers": [
+        "apm"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "groupName": "APM dependencies"
+    },
+    {
+      "description": "Require approval for APM major updates",
+      "matchManagers": [
+        "apm"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
     }
   ]
 }
