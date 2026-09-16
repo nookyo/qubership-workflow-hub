@@ -1,9 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "enabledManagers": [
-    "apm"
-  ] 
+  "extends": ["config:recommended"],
+  "enabledManagers": ["apm"],
+  "packageRules": [
+    {
+      "description": "APM dependencies",
+      "matchManagers": ["apm"],
+      "labels": ["dependencies", "apm"]
+    }
+  ]
 }
