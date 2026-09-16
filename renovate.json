@@ -16,6 +16,7 @@
         "patch",
         "minor"
       ],
+      "labels": ["dependencies", "apm"],
       "groupName": "APM dependencies"
     },
     {
@@ -26,6 +27,7 @@
       "matchUpdateTypes": [
         "major"
       ],
+      "labels": ["dependencies", "apm"],
       "dependencyDashboardApproval": true
     }
   ]
