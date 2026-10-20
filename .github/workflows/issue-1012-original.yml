@@ -1,0 +1,96 @@
+name: Issue 1012 exact original workflow cleanup experiment
+on:
+  push:
+    branches: [test/issue-1012-sarif-categories]
+    paths:
+      - .github/workflows/issue-1012-original.yml
+      - .github/workflows/issue-1012-before.yml
+      - .github/workflows/issue-1012-after.yml
+permissions:
+  contents: read
+  packages: read
+  security-events: write
+jobs:
+  original-scan:
+    uses: ./.github/workflows/issue-1012-before.yml
+    with:
+      image: docker.io/library/alpine:3.18.0
+      runner: ubuntu-24.04
+      grype-version: v0.118.0
+      trivy-version: v0.76.0
+      only-fixed: false
+      continue-on-error: false
+  discover-original:
+    needs: original-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Identify categories written by the original workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+            -f ref="$GITHUB_REF" -f per_page=100 > original-analyses.json
+          for tool in Grype Trivy; do
+            jq -e --arg tool "$tool" --arg sha "$GITHUB_SHA" '
+              [.[][] | select(.tool.name == $tool and .commit_sha == $sha and .category == "alpine")][0]
+              | . != null and .results_count > 0' original-analyses.json
+          done
+          jq --arg sha "$GITHUB_SHA" '[.[][] | select(.commit_sha == $sha) | {tool: .tool.name, category, results_count, analysis_key}]' original-analyses.json | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: original-category-evidence
+          path: original-analyses.json
+  fixed-scans:
+    needs: discover-original
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ["3.18.0", "3.22"]
+    uses: ./.github/workflows/issue-1012-after.yml
+    with:
+      image: docker.io/library/alpine:${{ matrix.tag }}
+      grype-version: v0.118.0
+      trivy-version: v0.76.0
+      only-fixed: false
+      continue-on-error: false
+  retire-original:
+    needs: fixed-scans
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [Grype, Trivy]
+    uses: ./.github/workflows/issue-1012-cleanup.yml
+    with:
+      tool: ${{ matrix.tool }}
+      category: alpine
+  verify:
+    needs: retire-original
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: '*alpine*'
+          path: reports
+          merge-multiple: true
+      - name: Assert old analyses are empty and new categories still contain their findings
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+            -f ref="$GITHUB_REF" -f per_page=100 > analyses.json
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/alerts" \
+            -f ref="$GITHUB_REF" -f per_page=100 > alerts.json
+          for tool in Grype Trivy; do
+            jq -e --arg tool "$tool" --arg sha "$GITHUB_SHA" '
+              [.[][] | select(.tool.name == $tool and .category == "alpine" and .commit_sha == $sha)][0].results_count == 0' analyses.json
+            for tag in 3.18.0 3.22; do
+              count=$(jq '[.runs[].results[]] | length' "reports/${tool,,}-alpine_${tag}.sarif")
+              jq -e --arg tool "$tool" --arg category "alpine:$tag" --arg sha "$GITHUB_SHA" --argjson count "$count" '
+                [.[][] | select(.tool.name == $tool and .category == $category and .commit_sha == $sha)][0].results_count == $count' analyses.json
+            done
+            jq -e --arg tool "$tool" '[.[][] | select(.tool.name == $tool and .state == "open" and .most_recent_instance.category == "alpine:3.18.0")] | length > 0' alerts.json
+          done
+          jq --arg sha "$GITHUB_SHA" '[.[][] | select(.commit_sha == $sha) | {tool: .tool.name, category, results_count}]' analyses.json | tee -a "$GITHUB_STEP_SUMMARY"
+          echo 'PASS: the actual original workflow created image-only categories; empty reports retired those categories without replacing tag-specific results.' >> "$GITHUB_STEP_SUMMARY"
