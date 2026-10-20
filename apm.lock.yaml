@@ -1,5 +1,6 @@
 lockfile_version: '1'
-apm_version: 0.31.0
+generated_at: '2026-10-16T08:04:09.590736+00:00'
+apm_version: 0.33.0
 dependencies:
 - repo_url: _local/qubership-workflow-hub-usage
   name: qubership-workflow-hub-usage
@@ -53,13 +54,13 @@ dependencies:
   materialization_repo_url: Netcracker/qubership-ai-agent-telemetry
   name: ai-agent-telemetry
   host: github.com
-  resolved_commit: 80a44ba6099415ab1ceb0093ca86cf2edc7303ab
-  resolved_ref: v1.1.1
+  resolved_commit: c7de411139332dab92b9d472e8f484aba92f57f6
+  resolved_ref: v1.3.1
   version: 1.1.0
   virtual_path: agent-packages/ai-agent-telemetry
   is_virtual: true
   package_type: apm_package
-  content_hash: sha256:904b22854131af2c8f635fafbfee31b42dd42377660968399d9bc0a24e670dd4
+  content_hash: sha256:bd3a176f3c46d9c320879b3eb5742afb553842ad97c15002609255607fdfb89b
   is_dev: true
 deployments:
 - kind: project-relative

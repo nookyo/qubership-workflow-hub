@@ -6,9 +6,29 @@
   "enabledManagers": [
     "apm"
   ],
-  "lockFileMaintenance": {
-    "enabled": true,
-     "schedule": ["at any time"]
-  }
-  
+  "packageRules": [
+    {
+      "description": "Group non-major APM updates",
+      "matchManagers": [
+        "apm"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "minor"
+      ],
+      "labels": ["dependencies", "apm"],
+      "groupName": "APM dependencies"
+    },
+    {
+      "description": "Require approval for APM major updates",
+      "matchManagers": [
+        "apm"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "labels": ["dependencies", "apm"],
+      "dependencyDashboardApproval": true
+    }
+  ]
 }
