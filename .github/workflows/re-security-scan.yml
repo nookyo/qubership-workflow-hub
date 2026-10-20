@@ -77,6 +77,7 @@ jobs:
       TRIVY_FILENAME: ${{ steps.prepare-outputs.outputs.TRIVY_FILENAME }}
       IMAGE: ${{ steps.normalize-image.outputs.IMAGE }}
       IMAGE_SHORT_NAME: ${{ steps.prepare-outputs.outputs.IMAGE_SHORT_NAME }}
+      SCAN_CATEGORY: ${{ steps.prepare-outputs.outputs.SCAN_CATEGORY }}
     steps:
       - name: Scan plan
         run: |
@@ -131,6 +132,12 @@ jobs:
           if [ "${TARGET}" = "docker" ]; then
             SHORT_NAME=${INCOMMING_IMAGE##*/}
             echo "IMAGE_SHORT_NAME=${SHORT_NAME%:*}" >> "$GITHUB_OUTPUT"
+            case "$SHORT_NAME" in
+              *@*) SCAN_CATEGORY=${SHORT_NAME%:*} ;;
+              *:*) SCAN_CATEGORY=$SHORT_NAME ;;
+              *) SCAN_CATEGORY=${SHORT_NAME}:latest ;;
+            esac
+            echo "SCAN_CATEGORY=${SCAN_CATEGORY}" >> "$GITHUB_OUTPUT"
 
             SAFE_NAME=${SHORT_NAME//:/_}
             SAFE_NAME=${SAFE_NAME//\//_}
@@ -182,7 +189,7 @@ jobs:
         if: ${{ inputs.target == 'docker' }}
         continue-on-error: ${{ inputs.continue-on-error }}
         id: grype-docker
-        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 #v7.4.0
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 #v7.4.2
         with:
           image: ${{ needs.init.outputs.IMAGE }}
           output-file: ${{ needs.init.outputs.GRYPE_FILENAME }}
@@ -196,7 +203,7 @@ jobs:
         if: ${{ inputs.target == 'source' }}
         continue-on-error: ${{ inputs.continue-on-error }}
         id: grype-source
-        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 #v7.4.0
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 #v7.4.2
         with:
           path: .
           output-file: ${{ needs.init.outputs.GRYPE_FILENAME }}
@@ -281,11 +288,11 @@ jobs:
 
       - name: Upload Grype SARIF
         if: inputs.upload-sarif-to-security
-        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81  # v4.37.3
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d  # v4.38.3
         with:
           sarif_file: |
             ${{ needs.init.outputs.GRYPE_FILENAME }}
-          category: ${{ needs.init.outputs.IMAGE_SHORT_NAME || 'source' }}
+          category: ${{ needs.init.outputs.SCAN_CATEGORY || 'source' }}
 
       - name: Upload all scan artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
@@ -394,10 +401,10 @@ jobs:
 
       - name: Upload Trivy SARIF
         if: inputs.upload-sarif-to-security
-        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81  # v4.37.3
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d  # v4.38.3
         with:
           sarif_file: ${{ needs.init.outputs.TRIVY_FILENAME }}
-          category: ${{ needs.init.outputs.IMAGE_SHORT_NAME || 'source' }}
+          category: ${{ needs.init.outputs.SCAN_CATEGORY || 'source' }}
 
       - name: Upload all scan artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1

@@ -1,0 +1,61 @@
+name: Issue 1012 real scanner experiment
+on:
+  push:
+    branches: [test/issue-1012-sarif-categories]
+    paths:
+      - .github/workflows/issue-1012-real.yml
+      - .github/workflows/re-security-scan.yml
+permissions:
+  contents: read
+  packages: read
+  security-events: write
+jobs:
+  scan:
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ["3.18.0", "3.22"]
+    uses: ./.github/workflows/re-security-scan.yml
+    with:
+      target: docker
+      image: docker.io/library/alpine:${{ matrix.tag }}
+      grype-version: "0.118.0"
+      trivy-version: "v0.76.0"
+      only-high-critical: true
+      only-fixed: false
+      continue-on-error: false
+  verify:
+    needs: scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: "*alpine*"
+          path: reports
+          merge-multiple: true
+      - name: Verify all four analyses against the original SARIF files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method GET "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+            -f ref="$GITHUB_REF" -f per_page=100 > analyses.json
+          echo '| Scanner | Category | SARIF results | GitHub results |' >> "$GITHUB_STEP_SUMMARY"
+          echo '|---|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
+          for tool in Grype Trivy; do
+            for tag in 3.18.0 3.22; do
+              file="reports/${tool,,}-alpine_${tag}.sarif"
+              count=$(jq '[.runs[].results[]] | length' "$file")
+              jq '{runs: [.runs[] | {tool: .tool.driver.name, version: .tool.driver.version, automationDetails, results: (.results | length)}]}' "$file"
+              actual=$(jq --arg tool "$tool" --arg category "alpine:$tag" --arg sha "$GITHUB_SHA" \
+                '[.[] | select(.tool.name == $tool and (.category | rtrimstr("/")) == $category and .commit_sha == $sha)][0].results_count // -1' analyses.json)
+              test "$count" -eq "$actual"
+              if [ "$tag" = 3.18.0 ]; then
+                test "$count" -gt 0
+              fi
+              echo "| $tool | alpine:$tag | $count | $actual |" >> "$GITHUB_STEP_SUMMARY"
+            done
+          done
+          gh api --method GET "repos/$GITHUB_REPOSITORY/code-scanning/alerts" \
+            -f ref="$GITHUB_REF" -f state=open -f per_page=100 \
+            --jq '[.[] | {number, tool: .tool.name, rule: .rule.id, category: .most_recent_instance.category, html_url}]'
