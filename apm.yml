@@ -12,5 +12,5 @@ scripts: {}
 devDependencies:
   apm:
     - ./agent-packages/qubership-workflow-hub-usage
-    - Netcracker/qubership-ai-agent-telemetry/agent-packages/ai-agent-telemetry#v0.1.0
+    - Netcracker/qubership-ai-agent-telemetry/agent-packages/ai-agent-telemetry#v1.3.1
 
