@@ -45,7 +45,7 @@ jobs:
               }] end)
             }]}
             | if $mode == "empty" or $mode == "cleanup-empty" then .runs[0].automationDetails = {id: "/"}
-              elif $mode == "cleanup-automatic" then .runs[0].automationDetails = {id: ($category | rtrimstr("/")) + "/"}
+              elif $mode == "cleanup-automatic" then .runs[0].automationDetails = {id: (($category | rtrimstr("/")) + "/")}
               else . end
           ' > test.sarif
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
