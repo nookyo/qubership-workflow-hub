@@ -6,11 +6,32 @@ on:
       - .github/workflows/issue-1012-real.yml
       - .github/workflows/re-security-scan.yml
 permissions:
+  actions: read
   contents: read
   packages: read
   security-events: write
 jobs:
+  seed-legacy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: '*alpine_3.18.0*'
+          run-id: 39415065074
+          github-token: ${{ github.token }}
+          merge-multiple: true
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: grype-alpine_3.18.0.sarif
+          category: alpine
+          wait-for-processing: true
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: trivy-alpine_3.18.0.sarif
+          category: alpine
+          wait-for-processing: true
   scan:
+    needs: seed-legacy
     strategy:
       fail-fast: false
       matrix:
@@ -24,6 +45,7 @@ jobs:
       only-high-critical: true
       only-fixed: false
       continue-on-error: false
+      migrate-legacy-categories: true
   verify:
     needs: scan
     runs-on: ubuntu-latest
@@ -43,6 +65,7 @@ jobs:
           echo '| Scanner | Category | SARIF results | GitHub results |' >> "$GITHUB_STEP_SUMMARY"
           echo '|---|---|---|---|' >> "$GITHUB_STEP_SUMMARY"
           for tool in Grype Trivy; do
+            jq -e --arg tool "$tool" '[.[] | select(.tool.name == $tool and (.category | rtrimstr("/")) == "alpine")][0].results_count == 0' analyses.json
             for tag in 3.18.0 3.22; do
               file="reports/${tool,,}-alpine_${tag}.sarif"
               count=$(jq '[.runs[].results[]] | length' "$file")
