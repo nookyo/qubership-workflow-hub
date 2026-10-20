@@ -19,7 +19,7 @@ jobs:
     with:
       target: docker
       image: docker.io/library/alpine:${{ matrix.tag }}
-      grype-version: "0.118.0"
+      grype-version: "v0.118.0"
       trivy-version: "v0.76.0"
       only-high-critical: true
       only-fixed: false
