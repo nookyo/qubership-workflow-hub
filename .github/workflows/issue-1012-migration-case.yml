@@ -75,16 +75,20 @@ jobs:
   cleanup:
     needs: [seed, scan]
     if: ${{ !cancelled() && inputs.migrate-legacy-categories && needs.scan.result == 'success' }}
-    uses: ./.github/workflows/issue-1012-cleanup.yml
+    uses: ./.github/workflows/re-security-scan-migration.yml
     with:
-      category: ${{ needs.seed.outputs.category }}
-      tool: ${{ inputs.tool }}
+      images: ${{ format('["{0}:latest","{0}:main"]', needs.seed.outputs.category) }}
+      migrate-legacy-categories: ${{ inputs.migrate-legacy-categories }}
+      grype-scan: ${{ inputs.tool == 'Grype' }}
+      trivy-scan: ${{ inputs.tool == 'Trivy' }}
   repeat:
     needs: [seed, cleanup]
-    uses: ./.github/workflows/issue-1012-cleanup.yml
+    uses: ./.github/workflows/re-security-scan-migration.yml
     with:
-      category: ${{ needs.seed.outputs.category }}
-      tool: ${{ inputs.tool }}
+      images: ${{ format('["{0}:latest","{0}:main"]', needs.seed.outputs.category) }}
+      migrate-legacy-categories: true
+      grype-scan: ${{ inputs.tool == 'Grype' }}
+      trivy-scan: ${{ inputs.tool == 'Trivy' }}
   verify:
     needs: [seed, scan, cleanup, repeat]
     if: ${{ !cancelled() }}
@@ -99,8 +103,6 @@ jobs:
           MIGRATE: ${{ inputs.migrate-legacy-categories }}
           SCAN_RESULT: ${{ needs.scan.result }}
           CLEANUP_RESULT: ${{ needs.cleanup.result }}
-          FIRST_UPLOAD: ${{ needs.cleanup.outputs.uploaded }}
-          REPEAT_UPLOAD: ${{ needs.repeat.outputs.uploaded }}
         run: |
           set -euo pipefail
           gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
@@ -112,8 +114,7 @@ jobs:
             test "$(jq 'length' <<< "$legacy")" -eq 1
             test "$(jq '.[0].results_count' <<< "$legacy")" -eq 2
           else
-            test "$FIRST_UPLOAD" = true
-            test "$REPEAT_UPLOAD" = false
+            test "$CLEANUP_RESULT" = success
             test "$(jq 'length' <<< "$legacy")" -eq 2
             test "$(jq '.[0].results_count' <<< "$legacy")" -eq 0
             jq -e --arg category "$CATEGORY:latest" '[.[][] | select((.category | rtrimstr("/")) == $category)][0].results_count == 1' analyses.json

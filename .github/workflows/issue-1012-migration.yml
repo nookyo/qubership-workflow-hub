@@ -12,6 +12,7 @@ on:
       - .github/workflows/issue-1012-migration.yml
       - .github/workflows/issue-1012-migration-case.yml
       - .github/workflows/issue-1012-cleanup.yml
+      - .github/workflows/re-security-scan-migration.yml
 permissions:
   contents: read
   security-events: write

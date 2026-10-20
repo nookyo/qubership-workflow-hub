@@ -1,0 +1,81 @@
+name: "[REUSABLE] Migrate legacy security scan categories"
+on:
+  workflow_call:
+    inputs:
+      migrate-legacy-categories:
+        description: "Retire legacy categories after all required image scans and SARIF uploads succeed"
+        type: boolean
+        default: false
+      images:
+        description: "JSON array of the image references successfully scanned by the caller"
+        type: string
+        required: true
+      grype-scan:
+        type: boolean
+        default: true
+      trivy-scan:
+        type: boolean
+        default: true
+      runner:
+        type: string
+        required: false
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  prepare:
+    if: inputs.migrate-legacy-categories
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+    steps:
+      - name: Prepare unique legacy categories and enabled tools
+        id: targets
+        env:
+          IMAGES: ${{ inputs.images }}
+          GRYPE_SCAN: ${{ inputs.grype-scan }}
+          TRIVY_SCAN: ${{ inputs.trivy-scan }}
+        run: |
+          set -euo pipefail
+          jq -e 'type == "array" and all(.[]; type == "string" and length > 0)' <<< "$IMAGES" >/dev/null
+          targets=$(jq -c --argjson grype "$GRYPE_SCAN" --argjson trivy "$TRIVY_SCAN" '
+            [ .[] | split("/")[-1] | select(contains("@") | not) | sub(":[^:]*$"; "") ]
+            | unique
+            | [ .[] as $category
+                | ([if $grype then "Grype" else empty end, if $trivy then "Trivy" else empty end])[]
+                | {category: $category, tool: .} ]
+          ' <<< "$IMAGES")
+          echo "targets=$targets" >> "$GITHUB_OUTPUT"
+  cleanup:
+    needs: prepare
+    if: needs.prepare.outputs.targets != '[]'
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        target: ${{ fromJSON(needs.prepare.outputs.targets) }}
+    steps:
+      - name: Find latest legacy analysis on the current ref
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATEGORY: ${{ matrix.target.category }}
+          TOOL: ${{ matrix.target.tool }}
+        run: |
+          set -euo pipefail
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+            -f ref="$GITHUB_REF" -f tool_name="$TOOL" -f per_page=100 > analyses.json
+          count=$(jq --arg category "$CATEGORY" \
+            '[.[][] | select((.category | rtrimstr("/")) == $category)][0].results_count // 0' analyses.json)
+          if [ "$count" -gt 0 ]; then
+            jq -n --arg tool "$TOOL" '{version: "2.1.0", runs: [{tool: {driver: {name: $tool}}, results: []}]}' > legacy.sarif
+            echo 'upload=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Retire legacy alert instances
+        if: steps.find.outputs.upload == 'true'
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: legacy.sarif
+          category: ${{ matrix.target.category }}
+          wait-for-processing: true
