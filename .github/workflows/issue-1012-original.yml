@@ -54,18 +54,8 @@ jobs:
       trivy-version: v0.76.0
       only-fixed: false
       continue-on-error: false
-  retire-original:
-    needs: fixed-scans
-    strategy:
-      fail-fast: false
-      matrix:
-        tool: [Grype, Trivy]
-    uses: ./.github/workflows/issue-1012-cleanup.yml
-    with:
-      tool: ${{ matrix.tool }}
-      category: alpine
   verify:
-    needs: retire-original
+    needs: fixed-scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
