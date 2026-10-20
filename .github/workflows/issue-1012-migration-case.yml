@@ -1,0 +1,122 @@
+name: Issue 1012 migration case
+on:
+  workflow_call:
+    inputs:
+      tool:
+        type: string
+        required: true
+      fail-scan:
+        type: boolean
+        required: true
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    outputs:
+      category: ${{ steps.seed.outputs.category }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Seed two legacy findings
+        id: seed
+        env:
+          TOOL: ${{ inputs.tool }}
+          FAIL_SCAN: ${{ inputs.fail-scan }}
+        run: |
+          category="issue-1012-migration-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${TOOL}-${FAIL_SCAN}"
+          echo "category=$category" >> "$GITHUB_OUTPUT"
+          jq -n --arg tool "$TOOL" --arg prefix "$category" '{version: "2.1.0", runs: [{
+            tool: {driver: {name: $tool, version: "1.0.0", rules: [
+              {id: ($prefix + "-shared")}, {id: ($prefix + "-old-only")}
+            ]}},
+            results: (["shared", "old-only"] | map({
+              ruleId: ($prefix + "-" + .), level: "warning",
+              message: {text: "Synthetic migration test finding"},
+              locations: [{physicalLocation: {artifactLocation: {uri: "README.md"}, region: {startLine: 1}}}]
+            }))
+          }]}' > legacy.sarif
+          jq '.runs[].results |= map(select(.ruleId | endswith("-shared")))' legacy.sarif > new.sarif
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ steps.seed.outputs.category }}
+          path: '*.sarif'
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: legacy.sarif
+          category: ${{ steps.seed.outputs.category }}
+          wait-for-processing: true
+  scan:
+    needs: seed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simulate failed scanner
+        if: inputs.fail-scan
+        run: |
+          echo 'Intentional scanner failure: legacy cleanup must be skipped.'
+          exit 1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: ${{ needs.seed.outputs.category }}
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: new.sarif
+          category: ${{ needs.seed.outputs.category }}:latest
+          wait-for-processing: true
+  cleanup:
+    needs: [seed, scan]
+    if: ${{ !cancelled() && needs.scan.result == 'success' }}
+    uses: ./.github/workflows/issue-1012-cleanup.yml
+    with:
+      category: ${{ needs.seed.outputs.category }}
+      tool: ${{ inputs.tool }}
+  repeat:
+    needs: [seed, cleanup]
+    uses: ./.github/workflows/issue-1012-cleanup.yml
+    with:
+      category: ${{ needs.seed.outputs.category }}
+      tool: ${{ inputs.tool }}
+  verify:
+    needs: [seed, scan, cleanup, repeat]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify migration and failure handling through API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATEGORY: ${{ needs.seed.outputs.category }}
+          TOOL: ${{ inputs.tool }}
+          FAIL_SCAN: ${{ inputs.fail-scan }}
+          SCAN_RESULT: ${{ needs.scan.result }}
+          CLEANUP_RESULT: ${{ needs.cleanup.result }}
+          FIRST_UPLOAD: ${{ needs.cleanup.outputs.uploaded }}
+          REPEAT_UPLOAD: ${{ needs.repeat.outputs.uploaded }}
+        run: |
+          set -euo pipefail
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+            -f ref="$GITHUB_REF" -f tool_name="$TOOL" -f per_page=100 > analyses.json
+          legacy=$(jq --arg category "$CATEGORY" '[.[][] | select((.category | rtrimstr("/")) == $category)]' analyses.json)
+          if [ "$FAIL_SCAN" = true ]; then
+            test "$SCAN_RESULT" = failure
+            test "$CLEANUP_RESULT" = skipped
+            test "$(jq 'length' <<< "$legacy")" -eq 1
+            test "$(jq '.[0].results_count' <<< "$legacy")" -eq 2
+          else
+            test "$FIRST_UPLOAD" = true
+            test "$REPEAT_UPLOAD" = false
+            test "$(jq 'length' <<< "$legacy")" -eq 2
+            test "$(jq '.[0].results_count' <<< "$legacy")" -eq 0
+            jq -e --arg category "$CATEGORY:latest" '[.[][] | select((.category | rtrimstr("/")) == $category)][0].results_count == 1' analyses.json
+          fi
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/alerts" \
+            -f ref="$GITHUB_REF" -f tool_name="$TOOL" -f per_page=100 > alerts.json
+          for suffix in shared old-only; do
+            expected=open
+            if [ "$FAIL_SCAN" = false ] && [ "$suffix" = old-only ]; then expected=fixed; fi
+            jq -e --arg rule "$CATEGORY-$suffix" --arg expected "$expected" \
+              '[.[][] | select(.rule.id == $rule)] | length > 0 and all(.[]; .state == $expected)' alerts.json
+          done
+          for number in $(jq -r --arg prefix "$CATEGORY-" '.[][] | select(.rule.id | startswith($prefix)) | .number' alerts.json); do
+            gh api "repos/$GITHUB_REPOSITORY/code-scanning/alerts/$number/instances" --jq '[.[] | {category, state, ref}]'
+          done
+          echo "PASS: $TOOL; simulated failure=$FAIL_SCAN; legacy cleanup and alert states verified" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,30 @@
+name: Issue 1012 migration experiment
+on:
+  push:
+    branches: [test/issue-1012-sarif-categories]
+    paths:
+      - .github/workflows/issue-1012-migration.yml
+      - .github/workflows/issue-1012-migration-case.yml
+      - .github/workflows/issue-1012-cleanup.yml
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  successful-migration:
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [Grype, Trivy]
+    uses: ./.github/workflows/issue-1012-migration-case.yml
+    with:
+      tool: ${{ matrix.tool }}
+      fail-scan: false
+  failed-scan:
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [Grype, Trivy]
+    uses: ./.github/workflows/issue-1012-migration-case.yml
+    with:
+      tool: ${{ matrix.tool }}
+      fail-scan: true

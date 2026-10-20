@@ -1,0 +1,47 @@
+name: Issue 1012 experimental legacy cleanup
+on:
+  workflow_call:
+    inputs:
+      category:
+        type: string
+        required: true
+      tool:
+        type: string
+        required: true
+    outputs:
+      uploaded:
+        value: ${{ jobs.cleanup.outputs.uploaded }}
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    outputs:
+      uploaded: ${{ steps.find.outputs.uploaded }}
+    steps:
+      - name: Find latest legacy analysis
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATEGORY: ${{ inputs.category }}
+          TOOL: ${{ inputs.tool }}
+        run: |
+          set -euo pipefail
+          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+            -f ref="$GITHUB_REF" -f tool_name="$TOOL" -f per_page=100 > analyses.json
+          count=$(jq --arg category "$CATEGORY" \
+            '[.[][] | select((.category | rtrimstr("/")) == $category)][0].results_count // 0' analyses.json)
+          if [ "$count" -eq 0 ]; then
+            echo 'uploaded=false' >> "$GITHUB_OUTPUT"
+          else
+            jq -n --arg tool "$TOOL" '{version: "2.1.0", runs: [{tool: {driver: {name: $tool}}, results: []}]}' > legacy.sarif
+            echo 'uploaded=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Retire legacy instances
+        if: steps.find.outputs.uploaded == 'true'
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: legacy.sarif
+          category: ${{ inputs.category }}
+          wait-for-processing: true
