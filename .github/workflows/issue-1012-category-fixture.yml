@@ -1,0 +1,67 @@
+name: Issue 1012 category discovery fixture
+on:
+  workflow_call:
+    inputs:
+      tool:
+        type: string
+        required: true
+      mode:
+        type: string
+        required: true
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Generate report and select the exact category to retire
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TOOL: ${{ inputs.tool }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          set -euo pipefail
+          category=''
+          if [ "$MODE" = cleanup-automatic ]; then
+            gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+              -f ref="$GITHUB_REF" -f tool_name="$TOOL" -f per_page=100 > analyses.json
+            category=$(jq -er --arg sha "$GITHUB_SHA" '
+              [.[][] | select(.commit_sha == $sha and .results_count > 0
+                and (.analysis_key | startswith(".github/workflows/issue-1012-uncategorized.yml:"))
+                and .category != "" and (.category | startswith("issue-1012-named-") | not))]
+              | map(.category) | unique | if length == 1 then .[0] else error("Expected one automatic category") end
+            ' analyses.json)
+            echo "Discovered automatic category: $category" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          jq -n --arg tool "$TOOL" --arg mode "$MODE" --arg run "$GITHUB_RUN_ID" --arg category "$category" '
+            {version: "2.1.0", runs: [{
+              tool: {driver: {name: $tool, version: "1.0.0", rules: [{id: ("issue-1012-category-" + $run + "-" + $mode)}]}},
+              results: (if ($mode | startswith("cleanup-")) then [] else [{
+                ruleId: ("issue-1012-category-" + $run + "-" + $mode),
+                level: "warning", message: {text: "Synthetic category discovery experiment"},
+                locations: [{physicalLocation: {artifactLocation: {uri: "README.md"}, region: {startLine: 1}}}]
+              }] end)
+            }]}
+            | if $mode == "empty" or $mode == "cleanup-empty" then .runs[0].automationDetails = {id: "/"}
+              elif $mode == "cleanup-automatic" then .runs[0].automationDetails = {id: ($category | rtrimstr("/")) + "/"}
+              else . end
+          ' > test.sarif
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: category-${{ inputs.tool }}-${{ inputs.mode }}
+          path: test.sarif
+      - name: Upload without category parameter
+        if: inputs.mode != 'named'
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: test.sarif
+          wait-for-processing: true
+      - name: Upload with explicit named category
+        if: inputs.mode == 'named'
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: test.sarif
+          category: issue-1012-named-${{ github.run_id }}:latest
+          wait-for-processing: true
