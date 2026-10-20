@@ -1,5 +1,11 @@
 name: Issue 1012 migration experiment
 on:
+  workflow_dispatch:
+    inputs:
+      migrate-legacy-categories:
+        description: Migrate legacy code scanning categories after all scans succeed
+        type: boolean
+        default: false
   push:
     branches: [test/issue-1012-sarif-categories]
     paths:
@@ -11,6 +17,18 @@ permissions:
   security-events: write
 jobs:
   successful-migration:
+    if: github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [Grype, Trivy]
+    uses: ./.github/workflows/issue-1012-migration-case.yml
+    with:
+      tool: ${{ matrix.tool }}
+      fail-scan: false
+      migrate-legacy-categories: true
+  migration-disabled:
+    if: github.event_name == 'push'
     strategy:
       fail-fast: false
       matrix:
@@ -20,6 +38,7 @@ jobs:
       tool: ${{ matrix.tool }}
       fail-scan: false
   failed-scan:
+    if: github.event_name == 'push'
     strategy:
       fail-fast: false
       matrix:
@@ -28,3 +47,15 @@ jobs:
     with:
       tool: ${{ matrix.tool }}
       fail-scan: true
+      migrate-legacy-categories: true
+  manual:
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        tool: [Grype, Trivy]
+    uses: ./.github/workflows/issue-1012-migration-case.yml
+    with:
+      tool: ${{ matrix.tool }}
+      fail-scan: false
+      migrate-legacy-categories: ${{ inputs.migrate-legacy-categories }}
