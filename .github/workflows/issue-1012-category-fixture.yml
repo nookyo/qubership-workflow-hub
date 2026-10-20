@@ -53,10 +53,17 @@ jobs:
           name: category-${{ inputs.tool }}-${{ inputs.mode }}
           path: test.sarif
       - name: Upload without category parameter
-        if: inputs.mode != 'named'
+        if: inputs.mode != 'named' && inputs.mode != 'empty-input'
         uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
         with:
           sarif_file: test.sarif
+          wait-for-processing: true
+      - name: Upload with explicitly empty category input
+        if: inputs.mode == 'empty-input'
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: test.sarif
+          category: ""
           wait-for-processing: true
       - name: Upload with explicit named category
         if: inputs.mode == 'named'
