@@ -37,9 +37,9 @@ jobs:
           fi
           jq -n --arg tool "$TOOL" --arg mode "$MODE" --arg run "$GITHUB_RUN_ID" --arg category "$category" '
             {version: "2.1.0", runs: [{
-              tool: {driver: {name: $tool, version: "1.0.0", rules: [{id: ("issue-1012-category-" + $run + "-" + $mode)}]}},
+              tool: {driver: {name: $tool, version: "1.0.0", rules: [{id: ("issue-1012-category-" + $run + "-" + $tool + "-" + $mode)}]}},
               results: (if ($mode | startswith("cleanup-")) then [] else [{
-                ruleId: ("issue-1012-category-" + $run + "-" + $mode),
+                ruleId: ("issue-1012-category-" + $run + "-" + $tool + "-" + $mode),
                 level: "warning", message: {text: "Synthetic category discovery experiment"},
                 locations: [{physicalLocation: {artifactLocation: {uri: "README.md"}, region: {startLine: 1}}}]
               }] end)

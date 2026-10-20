@@ -61,7 +61,7 @@ jobs:
             for mode in automatic empty named; do
               expected=open
               if [ "$mode" = empty ]; then expected=fixed; fi
-              jq -e --arg tool "$tool" --arg rule "issue-1012-category-$GITHUB_RUN_ID-$mode" --arg state "$expected" '
+              jq -e --arg tool "$tool" --arg rule "issue-1012-category-$GITHUB_RUN_ID-$tool-$mode" --arg state "$expected" '
                 [.[][] | select(.tool.name == $tool and .rule.id == $rule)]
                 | length == 1 and .[0].state == $state' alerts.json
             done
@@ -92,7 +92,7 @@ jobs:
             for mode in automatic empty named; do
               expected=fixed
               if [ "$mode" = named ]; then expected=open; fi
-              jq -e --arg tool "$tool" --arg rule "issue-1012-category-$GITHUB_RUN_ID-$mode" --arg state "$expected" '
+              jq -e --arg tool "$tool" --arg rule "issue-1012-category-$GITHUB_RUN_ID-$tool-$mode" --arg state "$expected" '
                 [.[][] | select(.tool.name == $tool and .rule.id == $rule)]
                 | length == 1 and .[0].state == $state' alerts.json
             done
