@@ -1,4 +1,4 @@
-name: Issue 1012 old integration category discovery
+name: Issue 1012 explicit empty category experiment
 on:
   push:
     branches: [test/issue-1012-sarif-categories]
@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         tool: [Grype, Trivy]
-        mode: [automatic, empty, named]
+        mode: [empty-input, empty, named]
     uses: ./.github/workflows/issue-1012-category-fixture.yml
     with:
       tool: ${{ matrix.tool }}
@@ -23,7 +23,7 @@ jobs:
     needs: seed
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect categories actually created by GitHub
+      - name: Inspect categories created by explicitly empty category input
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -36,36 +36,8 @@ jobs:
               | length == 3 and any(.[]; .category == "" or .category == "/")
               and any(.[]; .category | startswith(".github/workflows/"))' analyses.json
           done
-  empty-input:
-    needs: discover
-    strategy:
-      fail-fast: false
-      matrix:
-        tool: [Grype, Trivy]
-    uses: ./.github/workflows/issue-1012-category-fixture.yml
-    with:
-      tool: ${{ matrix.tool }}
-      mode: empty-input
-  verify-empty-input:
-    needs: empty-input
-    runs-on: ubuntu-latest
-    steps:
-      - name: Verify empty input and omitted input produce the same automatic category
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
-            -f ref="$GITHUB_REF" -f per_page=100 > analyses.json
-          for tool in Grype Trivy; do
-            jq -e --arg tool "$tool" --arg sha "$GITHUB_SHA" '
-              [.[][] | select(.tool.name == $tool and .commit_sha == $sha
-                and (.category | startswith(".github/workflows/issue-1012-uncategorized.yml:")))]
-              | length == 2 and (map(.category) | unique | length == 1)' analyses.json
-          done
-          echo 'PASS: category="" and omitted category both use the same automatic workflow/job category.' >> "$GITHUB_STEP_SUMMARY"
   clear-empty:
-    needs: verify-empty-input
+    needs: discover
     strategy:
       fail-fast: false
       matrix:
@@ -86,15 +58,15 @@ jobs:
           gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/alerts" \
             -f ref="$GITHUB_REF" -f per_page=100 > alerts.json
           for tool in Grype Trivy; do
-            for mode in automatic empty-input empty named; do
+            for mode in empty-input empty named; do
               expected=open
-              if [ "$mode" = empty ] || [ "$mode" = automatic ]; then expected=fixed; fi
+              if [ "$mode" = empty ]; then expected=fixed; fi
               jq -e --arg tool "$tool" --arg rule "issue-1012-category-$GITHUB_RUN_ID-$tool-$mode" --arg state "$expected" '
                 [.[][] | select(.tool.name == $tool and .rule.id == $rule)]
                 | length == 1 and .[0].state == $state' alerts.json
             done
           done
-          echo 'PASS: blank category retired; empty-input automatic category and named findings remain open.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'PASS: blank category retired; automatic and named findings remain open.' >> "$GITHUB_STEP_SUMMARY"
   clear-automatic:
     needs: verify-empty
     strategy:
@@ -117,7 +89,7 @@ jobs:
           gh api --method GET --paginate --slurp "repos/$GITHUB_REPOSITORY/code-scanning/alerts" \
             -f ref="$GITHUB_REF" -f per_page=100 > alerts.json
           for tool in Grype Trivy; do
-            for mode in automatic empty-input empty named; do
+            for mode in empty-input empty named; do
               expected=fixed
               if [ "$mode" = named ]; then expected=open; fi
               jq -e --arg tool "$tool" --arg rule "issue-1012-category-$GITHUB_RUN_ID-$tool-$mode" --arg state "$expected" '
