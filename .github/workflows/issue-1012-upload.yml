@@ -48,6 +48,18 @@ jobs:
               }] else [] end)
             }]
           }' > test.sarif
+      - name: Prepare downloadable artifact name
+        id: artifact
+        env:
+          CATEGORY: ${{ inputs.category }}
+          FINDING: ${{ inputs.finding }}
+        run: |
+          echo "name=${CATEGORY//:/_}-finding-${FINDING}" >> "$GITHUB_OUTPUT"
+      - name: Save original SARIF for inspection
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: test.sarif
       - name: Upload using the production action version
         uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
         with:

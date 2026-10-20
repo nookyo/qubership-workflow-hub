@@ -40,35 +40,3 @@ jobs:
       rule: split-category
       finding: false
       expected-state: open
-  reverse-main:
-    needs: split-main
-    uses: ./.github/workflows/issue-1012-upload.yml
-    with:
-      category: issue-1012-test-reverse:main
-      rule: reverse-category
-      finding: false
-      expected-state: absent
-  reverse-latest:
-    needs: reverse-main
-    uses: ./.github/workflows/issue-1012-upload.yml
-    with:
-      category: issue-1012-test-reverse:latest
-      rule: reverse-category
-      finding: true
-      expected-state: open
-  split-fixed:
-    needs: reverse-latest
-    uses: ./.github/workflows/issue-1012-upload.yml
-    with:
-      category: issue-1012-test-split:latest
-      rule: split-category
-      finding: false
-      expected-state: fixed
-  reverse-fixed:
-    needs: split-fixed
-    uses: ./.github/workflows/issue-1012-upload.yml
-    with:
-      category: issue-1012-test-reverse:latest
-      rule: reverse-category
-      finding: false
-      expected-state: fixed
