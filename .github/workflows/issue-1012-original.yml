@@ -1,4 +1,5 @@
 name: Issue 1012 exact original workflow cleanup experiment
+run-name: Verify PR 1013 at 9eb9737 with real scanners and automatic cleanup
 on:
   push:
     branches: [test/issue-1012-sarif-categories]
@@ -34,7 +35,7 @@ jobs:
           for tool in Grype Trivy; do
             jq -e --arg tool "$tool" --arg sha "$GITHUB_SHA" '
               [.[][] | select(.tool.name == $tool and .commit_sha == $sha and .category == "alpine")][0]
-              | . != null and .results_count > 0' original-analyses.json
+              | . != null and .error == "" and .results_count > 0' original-analyses.json
           done
           jq --arg sha "$GITHUB_SHA" '[.[][] | select(.commit_sha == $sha) | {tool: .tool.name, category, results_count, analysis_key}]' original-analyses.json | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -74,11 +75,13 @@ jobs:
             -f ref="$GITHUB_REF" -f per_page=100 > alerts.json
           for tool in Grype Trivy; do
             jq -e --arg tool "$tool" --arg sha "$GITHUB_SHA" '
-              [.[][] | select(.tool.name == $tool and .category == "alpine" and .commit_sha == $sha)][0].results_count == 0' analyses.json
+              [.[][] | select(.tool.name == $tool and .category == "alpine" and .commit_sha == $sha)][0]
+              | . != null and .error == "" and .results_count == 0' analyses.json
             for tag in 3.18.0 3.22; do
               count=$(jq '[.runs[].results[]] | length' "reports/${tool,,}-alpine_${tag}.sarif")
               jq -e --arg tool "$tool" --arg category "alpine:$tag" --arg sha "$GITHUB_SHA" --argjson count "$count" '
-                [.[][] | select(.tool.name == $tool and .category == $category and .commit_sha == $sha)][0].results_count == $count' analyses.json
+                [.[][] | select(.tool.name == $tool and .category == $category and .commit_sha == $sha)][0]
+                | . != null and .error == "" and .results_count == $count' analyses.json
             done
             jq -e --arg tool "$tool" '[.[][] | select(.tool.name == $tool and .state == "open" and .most_recent_instance.category == "alpine:3.18.0")] | length > 0' alerts.json
           done

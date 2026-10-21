@@ -468,7 +468,7 @@ jobs:
               sleep 10
             done
             COUNT=$(jq --arg category "$LEGACY_CATEGORY" \
-              '[.[][] | select((.category | rtrimstr("/")) == $category)][0].results_count // 0' analyses.json)
+              '[.[][] | select((.category | rtrimstr("/")) == $category and .error == "")][0].results_count // 0' analyses.json)
             if [ "$COUNT" -gt 0 ]; then
               jq -n --arg tool "$TOOL" '{version: "2.1.0", runs: [{tool: {driver: {name: $tool}}, results: []}]}' > "legacy-${TOOL,,}.sarif"
               echo "${TOOL,,}=true" >> "$GITHUB_OUTPUT"
