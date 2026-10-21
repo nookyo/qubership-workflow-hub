@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>Netcracker/renovate-config:org-inherited-config"],
+  "enabledManagers": ["github-actions", "npm"],
+  "packageRules": [
+    {
+      "description": "Allow GitHub Actions updates on every available run",
+      "matchManagers": ["github-actions"],
+      "schedule": ["at any time"],
+      "minimumReleaseAge": "0 days"
+    }
+  ]
+}
