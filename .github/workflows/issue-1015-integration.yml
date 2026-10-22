@@ -1,0 +1,107 @@
+name: Issue 1015 bounded legacy lookup
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/issue-1015-lookup]
+    paths:
+      - .github/workflows/issue-1015-integration.yml
+      - .github/workflows/re-security-scan.yml
+permissions:
+  contents: read
+  packages: read
+jobs:
+  fixture:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    steps:
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Publish fixture image
+        run: |
+          set -euo pipefail
+          mkdir fixture
+          printf 'FROM alpine:3.18.0\n' > fixture/Dockerfile
+          docker build -t ghcr.io/nookyo/issue1015-fixture:main fixture
+          docker push ghcr.io/nookyo/issue1015-fixture:main
+      - name: Seed the legacy category for both tools
+        run: |
+          set -euo pipefail
+          for tool in Grype Trivy; do
+            jq -n --arg tool "$tool" '{version:"2.1.0",runs:[{
+              tool:{driver:{name:$tool,version:"fixture",rules:[{id:"issue1015-legacy",shortDescription:{text:"Synthetic legacy fixture"}}]}},
+              results:[{ruleId:"issue1015-legacy",message:{text:"Synthetic legacy fixture"},
+                locations:[{physicalLocation:{artifactLocation:{uri:"README.md"},region:{startLine:1}}}]}]
+            }]}' > "legacy-$tool.sarif"
+          done
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: legacy-Grype.sarif
+          category: issue1015-fixture
+          wait-for-processing: true
+      - uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d
+        with:
+          sarif_file: legacy-Trivy.sarif
+          category: issue1015-fixture
+          wait-for-processing: true
+  scan-1:
+    needs: fixture
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    uses: ./.github/workflows/re-security-scan.yml # zizmor: ignore[self-repository]
+    with:
+      image: ghcr.io/nookyo/issue1015-fixture:main
+      only-fixed: false
+      continue-on-error: false
+  check-1:
+    needs: scan-1
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: read
+    steps:
+      - name: Legacy category must be retired after the first scan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for tool in Grype Trivy; do
+            gh api --method GET "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+              -f ref="$GITHUB_REF" -f tool_name="$tool" -f per_page=100 > a.json
+            jq -r --arg t "$tool" '.[]|select(.category=="issue1015-fixture")|[$t,.created_at,.results_count]|@tsv' a.json
+            test "$(jq '[.[]|select(.category=="issue1015-fixture")]|length' a.json)" -eq 2
+            test "$(jq '[.[]|select(.category=="issue1015-fixture")][0].results_count' a.json)" -eq 0
+          done
+  scan-2:
+    needs: check-1
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    uses: ./.github/workflows/re-security-scan.yml # zizmor: ignore[self-repository]
+    with:
+      image: ghcr.io/nookyo/issue1015-fixture:main
+      only-fixed: false
+      continue-on-error: false
+  check-2:
+    needs: scan-2
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: read
+    steps:
+      - name: Second scan must not upload another empty report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for tool in Grype Trivy; do
+            gh api --method GET "repos/$GITHUB_REPOSITORY/code-scanning/analyses" \
+              -f ref="$GITHUB_REF" -f tool_name="$tool" -f per_page=100 > a.json
+            test "$(jq '[.[]|select(.category=="issue1015-fixture")]|length' a.json)" -eq 2
+          done
