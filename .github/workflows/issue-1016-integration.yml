@@ -76,7 +76,8 @@ jobs:
       fail-fast: false
       matrix:
         tag: [main, latest]
-    uses: ./.github/workflows/re-security-scan.yml
+    # Keep the supported local-call syntax until actionlint accepts $/ workflow calls.
+    uses: ./.github/workflows/re-security-scan.yml # zizmor: ignore[self-repository]
     with:
       image: ghcr.io/nookyo/issue1016-fixture:${{ matrix.tag }}
       runner: ubuntu-24.04-arm
@@ -94,7 +95,8 @@ jobs:
       fail-fast: false
       matrix:
         tag: [main, latest]
-    uses: ./.github/workflows/re-security-scan.yml
+    # Keep the supported local-call syntax until actionlint accepts $/ workflow calls.
+    uses: ./.github/workflows/re-security-scan.yml # zizmor: ignore[self-repository]
     with:
       image: ghcr.io/nookyo/issue1016-fixture:${{ matrix.tag }}
       grype-version: v0.118.0
