@@ -3,8 +3,10 @@
 Run with Python, PyYAML and Bash installed: python tests/re-security-scan/test_workflow.py
 """
 import os
+import json
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -96,6 +98,49 @@ class PreparationTests(unittest.TestCase):
         self.assertNotIn('SCAN_CATEGORY', prepared)
         self.assertEqual(prepared['GRYPE_FILENAME'], 'grype.sarif')
         self.assertEqual(prepared['TRIVY_FILENAME'], 'trivy.sarif')
+
+
+class LegacyRetirementTests(unittest.TestCase):
+    def retire(self, *, new_error='', legacy_count=2, api_failure=False, enabled=True):
+        analyses = [[
+            {'sarif_id': 'new-id', 'commit_sha': 'commit',
+             'category': 'collector:main@linux/arm64/', 'error': new_error, 'results_count': 3},
+            {'sarif_id': 'old-id', 'commit_sha': 'old-commit',
+             'category': 'collector/', 'error': '', 'results_count': legacy_count},
+        ]]
+        response = shlex.quote(json.dumps(analyses))
+        mock = ('gh() { return 1; }\n' if api_failure else
+                f'gh() {{ printf "%s" {response}; }}\n')
+        return execute(mock + 'sleep() { :; }\n' + step('retire-legacy-category', 'legacy')['run'],
+                       LEGACY_CATEGORY='collector', SCAN_CATEGORY='collector:main@linux/arm64',
+                       GRYPE_SCAN=str(enabled).lower(), TRIVY_SCAN='false',
+                       GRYPE_SARIF_ID='new-id', TRIVY_SARIF_ID='',
+                       GITHUB_REPOSITORY='owner/repo', GITHUB_REF='refs/heads/main', GITHUB_SHA='commit')
+
+    def test_released_category_retires_after_platform_analysis_processed(self):
+        result, outputs = self.retire()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(outputs, {'grype': 'true'})
+
+    def test_empty_legacy_category_needs_no_upload(self):
+        result, outputs = self.retire(legacy_count=0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(outputs, {})
+
+    def test_processing_failure_preserves_legacy_results(self):
+        result, outputs = self.retire(new_error='scan processing failed')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(outputs, {})
+
+    def test_api_failure_preserves_legacy_results(self):
+        result, outputs = self.retire(api_failure=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(outputs, {})
+
+    def test_disabled_scanner_needs_no_upload(self):
+        result, outputs = self.retire(enabled=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(outputs, {})
 
 
 if __name__ == '__main__':
