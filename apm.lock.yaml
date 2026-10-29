@@ -1,6 +1,6 @@
 lockfile_version: '1'
-generated_at: '2026-10-16T08:04:09.590736+00:00'
-apm_version: 0.33.0
+generated_at: '2026-10-29T23:05:02.063234+00:00'
+apm_version: 0.35.0
 dependencies:
 - repo_url: _local/qubership-workflow-hub-usage
   name: qubership-workflow-hub-usage
@@ -49,13 +49,14 @@ dependencies:
     .claude/skills/qubership-workflow-conventions/zizmor-rules.md: sha256:f0b1e9aa4def06f87e0bb8fff6ef23cdcfbd0565891cd64b274460e8029034dc
   source: local
   local_path: ./agent-packages/qubership-workflow-hub-usage
+  content_hash: sha256:aa0911cef901d8899ea3b8607f7097800c89be413ccbf405b34b7439d98bc11f
   is_dev: true
 - repo_url: netcracker/qubership-ai-agent-telemetry
   materialization_repo_url: Netcracker/qubership-ai-agent-telemetry
   name: ai-agent-telemetry
   host: github.com
-  resolved_commit: c7de411139332dab92b9d472e8f484aba92f57f6
-  resolved_ref: v1.3.1
+  resolved_commit: 466c5b9a1e0971161230fb52e73bb2460995c523
+  resolved_ref: v1.4.0
   version: 1.1.0
   virtual_path: agent-packages/ai-agent-telemetry
   is_virtual: true
